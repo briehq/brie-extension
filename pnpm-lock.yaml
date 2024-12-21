@@ -19,8 +19,8 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/chrome':
-        specifier: ^0.0.270
-        version: 0.0.270
+        specifier: ^0.0.287
+        version: 0.0.287
       '@types/node':
         specifier: ^20.16.5
         version: 20.16.10
@@ -1169,8 +1169,8 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
-  '@types/chrome@0.0.270':
-    resolution: {integrity: sha512-ADvkowV7YnJfycZZxL2brluZ6STGW+9oKG37B422UePf2PCXuFA/XdERI0T18wtuWPx0tmFeZqq6MOXVk1IC+Q==}
+  '@types/chrome@0.0.287':
+    resolution: {integrity: sha512-wWhBNPNXZHwycHKNYnexUcpSbrihVZu++0rdp6GEk5ZgAglenLx+RwdEouh6FrHS0XQiOxSd62yaujM1OoQlZQ==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -4793,7 +4793,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@types/chrome@0.0.270':
+  '@types/chrome@0.0.287':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.15
