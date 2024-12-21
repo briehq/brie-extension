@@ -238,8 +238,8 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
       '@vitejs/plugin-react-swc':
-        specifier: ^3.7.1
-        version: 3.7.1(vite@5.4.9(@types/node@22.7.4)(sass@1.79.4)(terser@5.34.1))
+        specifier: ^3.7.2
+        version: 3.7.2(vite@5.4.9(@types/node@22.7.4)(sass@1.79.4)(terser@5.34.1))
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -1308,10 +1308,10 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  '@vitejs/plugin-react-swc@3.7.1':
-    resolution: {integrity: sha512-vgWOY0i1EROUK0Ctg1hwhtC3SdcDjZcdit4Ups4aPkDcB1jYhmo+RMYWY87cmXMhvtD5uf8lV89j2w16vkdSVg==}
+  '@vitejs/plugin-react-swc@3.7.2':
+    resolution: {integrity: sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==}
     peerDependencies:
-      vite: ^4 || ^5
+      vite: ^4 || ^5 || ^6
 
   '@vitest/pretty-format@2.0.5':
     resolution: {integrity: sha512-h8k+1oWHfwTkyTkb9egzwNMfJAEx4veaPSnMeKbVSjp4euqGSbQlm5+6VHwTr7u4FJslVVsUG5nopCaAYdOmSQ==}
@@ -4955,7 +4955,7 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react-swc@3.7.1(vite@5.4.9(@types/node@22.7.4)(sass@1.79.4)(terser@5.34.1))':
+  '@vitejs/plugin-react-swc@3.7.2(vite@5.4.9(@types/node@22.7.4)(sass@1.79.4)(terser@5.34.1))':
     dependencies:
       '@swc/core': 1.9.3
       vite: 5.4.9(@types/node@22.7.4)(sass@1.79.4)(terser@5.34.1)
