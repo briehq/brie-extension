@@ -70,8 +70,8 @@ importers:
         specifier: 7.35.0
         version: 7.35.0(eslint@8.57.0)
       eslint-plugin-react-hooks:
-        specifier: 4.6.2
-        version: 4.6.2(eslint@8.57.0)
+        specifier: 5.1.0
+        version: 5.1.0(eslint@8.57.0)
       husky:
         specifier: ^9.1.4
         version: 9.1.7
@@ -104,7 +104,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 5.4.9
-        version: 5.4.9(@types/node@20.17.14)(sass@1.79.4)(terser@5.37.0)
+        version: 5.4.9(@types/node@20.17.14)(sass@1.79.4)(terser@5.39.0)
 
   chrome-extension:
     dependencies:
@@ -135,7 +135,7 @@ importers:
         version: link:../packages/vite-config
       '@laynezh/vite-plugin-lib-assets':
         specifier: ^0.5.23
-        version: 0.5.26(vite@5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0))
+        version: 0.5.26(vite@5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0))
       '@types/webextension-polyfill':
         specifier: ^0.12.1
         version: 0.12.1
@@ -186,7 +186,7 @@ importers:
         version: 4.31.0
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.10.9)(@types/node@22.10.7)(typescript@5.5.4)
+        version: 10.9.2(@swc/core@1.10.9)(@types/node@22.13.5)(typescript@5.5.4)
       ws:
         specifier: 8.18.0
         version: 8.18.0
@@ -346,7 +346,7 @@ importers:
         version: link:../tsconfig
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.1
-        version: 3.7.2(vite@5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0))
+        version: 3.7.2(vite@5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0))
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -1980,6 +1980,9 @@ packages:
   '@types/node@22.10.7':
     resolution: {integrity: sha512-V09KvXxFiutGp6B7XkpaDXlNadZxrzajcY50EuoLIpQ6WWYCSvf19lVIazzfIzQvhUN2HjX12spLojTnhuKlGg==}
 
+  '@types/node@22.13.5':
+    resolution: {integrity: sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==}
+
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -2929,6 +2932,10 @@ packages:
     resolution: {integrity: sha512-0/r0MySGYG8YqlayBZ6MuCfECmHFdJ5qyPh8s8wa5Hnm6SaFLSK1VYCbj+NKp090Nm1caZhD+QTnmxO7esYGyQ==}
     engines: {node: '>=10.13.0'}
 
+  enhanced-resolve@5.18.1:
+    resolution: {integrity: sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg==}
+    engines: {node: '>=10.13.0'}
+
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
@@ -3078,11 +3085,11 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-react-hooks@4.6.2:
-    resolution: {integrity: sha512-QzliNJq4GinDBcD8gPB5v0wh6g8q3SUi6EFF0x8N/BL9PoVs0atuGc47ozMRyOWAKdwaZ5OnbOEa3WR+dSGKuQ==}
+  eslint-plugin-react-hooks@5.1.0:
+    resolution: {integrity: sha512-mpJRtPgHN2tNAvZ35AMfqeB3Xqeo273QxrHJsbBEPWODRM4r0yB6jfoROqKEYrOn27UtRPpcpHc2UqyBSuUNTw==}
     engines: {node: '>=10'}
     peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
 
   eslint-plugin-react@7.35.0:
     resolution: {integrity: sha512-v501SSMOWv8gerHkk+IIQBkcGRGrO2nfybfj5pLxuJNFTPxxA3PSryhXTK+9pNbtkggheDdsC0E9Q8CuPk6JKA==}
@@ -3892,6 +3899,7 @@ packages:
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -4993,8 +5001,8 @@ packages:
       uglify-js:
         optional: true
 
-  terser@5.37.0:
-    resolution: {integrity: sha512-B8wRRkmre4ERucLM/uXx4MOV5cbnOlVAqUst+1+iLKPI0dOgFO28f84ptoQt9HEI537PMzfYa/d+GEPKTRXmYA==}
+  terser@5.39.0:
+    resolution: {integrity: sha512-LBAhFyLho16harJoWMg/nZsQYgTrg5jXOn2nCYjRUcZZEdE3qa2zb8QEDRUGVZBW4rlazf2fxkg8tztybTaqWw==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -5883,13 +5891,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@laynezh/vite-plugin-lib-assets@0.5.26(vite@5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0))':
+  '@laynezh/vite-plugin-lib-assets@0.5.26(vite@5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0))':
     dependencies:
       escape-string-regexp: 4.0.0
       loader-utils: 3.3.1
       mrmime: 1.0.1
       semver: 7.6.3
-      vite: 5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0)
+      vite: 5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0)
 
   '@mapbox/node-pre-gyp@1.0.11':
     dependencies:
@@ -6691,6 +6699,10 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
+  '@types/node@22.13.5':
+    dependencies:
+      undici-types: 6.20.0
+
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/prop-types@15.7.14': {}
@@ -6814,10 +6826,10 @@ snapshots:
 
   '@ungap/structured-clone@1.2.1': {}
 
-  '@vitejs/plugin-react-swc@3.7.2(vite@5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0))':
+  '@vitejs/plugin-react-swc@3.7.2(vite@5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0))':
     dependencies:
       '@swc/core': 1.10.9
-      vite: 5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0)
+      vite: 5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -7856,6 +7868,11 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.2.1
 
+  enhanced-resolve@5.18.1:
+    dependencies:
+      graceful-fs: 4.2.11
+      tapable: 2.2.1
+
   entities@4.5.0: {}
 
   environment@1.1.0: {}
@@ -8140,7 +8157,7 @@ snapshots:
       '@types/eslint': 9.6.1
       eslint-config-prettier: 9.1.0(eslint@8.57.0)
 
-  eslint-plugin-react-hooks@4.6.2(eslint@8.57.0):
+  eslint-plugin-react-hooks@5.1.0(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
 
@@ -10309,13 +10326,13 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.0
       serialize-javascript: 6.0.2
-      terser: 5.37.0
+      terser: 5.39.0
       webpack: 5.97.1(@swc/core@1.10.9)(esbuild@0.23.1)
     optionalDependencies:
       '@swc/core': 1.10.9
       esbuild: 0.23.1
 
-  terser@5.37.0:
+  terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
       acorn: 8.14.0
@@ -10407,14 +10424,14 @@ snapshots:
       '@swc/core': 1.10.9
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.10.9)(@types/node@22.10.7)(typescript@5.5.4):
+  ts-node@10.9.2(@swc/core@1.10.9)(@types/node@22.13.5)(typescript@5.5.4):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.10.7
+      '@types/node': 22.13.5
       acorn: 8.14.0
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -10607,7 +10624,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite@5.4.9(@types/node@20.17.14)(sass@1.79.4)(terser@5.37.0):
+  vite@5.4.9(@types/node@20.17.14)(sass@1.79.4)(terser@5.39.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.1
@@ -10616,18 +10633,18 @@ snapshots:
       '@types/node': 20.17.14
       fsevents: 2.3.3
       sass: 1.79.4
-      terser: 5.37.0
+      terser: 5.39.0
 
-  vite@5.4.9(@types/node@22.10.7)(sass@1.79.4)(terser@5.37.0):
+  vite@5.4.9(@types/node@22.13.5)(sass@1.79.4)(terser@5.39.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.1
       rollup: 4.31.0
     optionalDependencies:
-      '@types/node': 22.10.7
+      '@types/node': 22.13.5
       fsevents: 2.3.3
       sass: 1.79.4
-      terser: 5.37.0
+      terser: 5.39.0
 
   w3c-hr-time@1.0.2:
     dependencies:
@@ -10732,7 +10749,7 @@ snapshots:
       acorn: 8.14.0
       browserslist: 4.24.4
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.18.1
       es-module-lexer: 1.6.0
       eslint-scope: 5.1.1
       events: 3.3.0
