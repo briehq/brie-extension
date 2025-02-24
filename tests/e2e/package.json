@@ -14,7 +14,7 @@
     "@extension/tsconfig": "workspace:*",
     "@wdio/cli": "^9.1.2",
     "@wdio/globals": "^9.4.1",
-    "@wdio/local-runner": "^9.1.2",
+    "@wdio/local-runner": "^9.10.0",
     "@wdio/mocha-framework": "^9.1.2",
     "@wdio/spec-reporter": "^9.2.14",
     "@wdio/types": "^9.1.2",
