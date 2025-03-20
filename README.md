@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://go.briehq.com/lp">
+  <a href="https://go.briehq.com/lp" target="_blank">
     <img src="https://github.com/briehq/.github/raw/main/profile/content/brie-icon-400x400.png" width="100px" alt="Brie - Capture bugs" />
   </a>
 </p>
@@ -11,15 +11,14 @@
 <br />
 
 <p align="center">
-   <a href="https://go.briehq.com/github" target="_blank">Repo</a> •
   <a href="https://go.briehq.com/lp" target="_blank">Website</a> •
-  <a href="https://go.briehq.com/discord" target="_blank">Discord</a> •
-  <a href="https://go.briehq.com/docs" target="_blank">Docs</a>
+  <a href="https://go.briehq.com/docs" target="_blank">Docs</a> •
+  <a href="https://go.briehq.com/discord" target="_blank">Discord</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/briehq/brie-extension/actions/workflows/release.yml">
-    <img src="https://github.com/briehq/brie-extension/actions/workflows/release.yml/badge.svg" alt="Release" />
+  <a href="https://github.com/briehq/brie-extension/actions/workflows/build-zip.yml">
+    <img src="https://github.com/briehq/brie-extension/actions/workflows/build-zip.yml/badge.svg" alt="Release" />
   </a>
   <a href="https://github.com/briehq/brie-extension/blob/main/LICENSE.md">
     <img src="https://img.shields.io/github/license/briehq/brie-extension" alt="License" />
@@ -31,21 +30,21 @@
 
 <br />
 
-<strong>🚀 Capture & Share Instantly:</strong>
-Record exactly what went wrong—no more back-and-forth emails or messy screenshots.
+**🚀 Capture & Share Instantly:**
+_Record exactly what went wrong—no more back-and-forth emails or messy screenshots._
 
-<strong>🛠️ Developer - Ready Reports:</strong>
-Brie auto-captures console logs, network errors, and user actions so devs get full context instantly.
+**🛠️ Developer - Ready Reports:**
+_Brie auto-captures console logs, network errors, and user actions so devs get full context instantly._
 
-<strong>🕒 Save Time, Build Faster:</strong>
-No wasted hours on unclear bug reports—just fast fixes and better software.
+**🕒 Save Time, Build Faster:**
+_No wasted hours on unclear bug reports—just fast fixes and better software._
 
-<strong>🔥 Join Thousands of Fast-Moving Teams:</strong>
-Install [Brie](https://go.briehq.com/lp) and start shipping bug-free software today!
+**🔥 Join Thousands of Fast-Moving Teams:**
+_Install [Brie](https://go.briehq.com/lp?target=_blank) and start shipping bug-free software today!_
 
 ## 💫 Quickstart
 
-1. Add Brie from [the website](https://go.briehq.com/lp), then pin it for quick access.
+1. Add Brie from <a href="https://go.briehq.com/lp?target=_blank" target="_blank">the website</a>, then pin it for quick access.
 
 2. Click the Brie icon to capture and annotate a screenshot.
 
@@ -63,10 +62,10 @@ Check out the [Good First Issues](https://github.com/briehq/brie-extension/label
 
 ## 👨‍💻 Team
 
-- **[Ion](https://github.com/ionleu)**
-- **[Luminita](https://github.com/luminita)**
+- <a href="https://x.com/intent/follow?screen_name=ionleu" target="_blank"><strong>Ion</strong></a>
+- <a href="https://github.com/luminita" target="_blank"><strong>Luminita</strong></a>
 
-Questions or inquiries? Email ask@briehq.com
+Questions or inquiries? Email <a href="mailto:ask@briehq.com" target="_blank">ask[at]briehq[dot]com</a>
 
 ## 🌐 Readme in other languages
 
@@ -88,7 +87,7 @@ Don't see your language? Just add a new language to the [`i18n/locales`](./packa
 
 P.S. Shout out to:
 
-- [React](https://github.com/facebook/react)
-- [Vite](https://github.com/vitejs/vite)
-- [Turborepo](https://github.com/vercel/turborepo)
-- [Ext Boilerplate](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite)
+- <a href="https://github.com/facebook/react" target="_blank">React</a>
+- <a href="https://github.com/vitejs/vite" target="_blank">Vite</a>
+- <a href="https://github.com/vercel/turborepo" target="_blank">Turborepo</a>
+- <a href="https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite" target="_blank">Extension Boilerplate</a>

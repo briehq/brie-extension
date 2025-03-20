@@ -1,4 +1,4 @@
-name: Formating validation
+name: Formatting Validation
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
         uses: rutajdash/prettier-cli-action@v1.0.0
         with:
           config_path: ./.prettierrc
-          file_pattern: "*.{js,jsx,ts,tsx,json}"
+          file_pattern: '*.{js,jsx,ts,tsx,json}'
 
       # This step only runs if prettier finds errors causing the previous step to fail
       # This steps lists the files where errors were found

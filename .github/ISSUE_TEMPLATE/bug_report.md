@@ -1,32 +1,41 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Found a bug? Let’s squash it.
 title: ''
 labels: bug
 assignees: ionleu
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### What's the bug?
 
-**To Reproduce**
-Steps to reproduce the behavior:
+<!-- Describe the issue in simple terms. What’s broken? -->
+
+### How to reproduce
+
+Steps to make it happen:
+
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+2. Click on '...'
+3. Scroll down to '...'
+4. See the error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+### What should happen?
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+<!-- What were you expecting instead? -->
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Mac, Window, Linux]
- - Browser [e.g. chrome, firefox]
- - Node Version [e.g. 18.19.1]
+### Screenshots
 
-**Additional context**
-Add any other context about the problem here.
+<!-- If it helps, drop a screenshot here. -->
+
+### Your setup
+
+- OS:
+<!-- [e.g. Mac, Windows, Linux] -->
+- Browser:
+<!-- [e.g. Chrome, Firefox] -->
+- Node Version:
+<!-- [e.g. 18.19.1] -->
+
+### Anything else?
+
+<!-- Any extra details or context? Let us know. -->

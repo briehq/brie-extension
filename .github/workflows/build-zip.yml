@@ -1,13 +1,12 @@
-name: Build And Upload Extension Zip Via Artifact
+name: Build & Upload Extension
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
