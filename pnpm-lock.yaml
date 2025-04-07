@@ -67,8 +67,8 @@ importers:
         specifier: 6.10.2
         version: 6.10.2(eslint@8.57.0)
       eslint-plugin-prettier:
-        specifier: 5.2.3
-        version: 5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.5.3)
+        specifier: 5.2.6
+        version: 5.2.6(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.5.3)
       eslint-plugin-react:
         specifier: 7.35.0
         version: 7.35.0(eslint@8.57.0)
@@ -138,7 +138,7 @@ importers:
         version: link:../packages/vite-config
       '@laynezh/vite-plugin-lib-assets':
         specifier: ^0.5.23
-        version: 0.5.26(vite@5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0))
+        version: 0.5.26(vite@5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0))
       '@types/webextension-polyfill':
         specifier: ^0.12.1
         version: 0.12.3
@@ -167,15 +167,6 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
 
-  packages/env:
-    devDependencies:
-      '@extension/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-      '@extension/vite-config':
-        specifier: workspace:*
-        version: link:../vite-config
-
   packages/hmr:
     devDependencies:
       '@extension/tsconfig':
@@ -198,7 +189,7 @@ importers:
         version: 4.37.0
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.11.13)(@types/node@22.13.13)(typescript@5.5.4)
+        version: 10.9.2(@swc/core@1.11.13)(@types/node@22.14.0)(typescript@5.5.4)
       ws:
         specifier: 8.18.0
         version: 8.18.0
@@ -361,7 +352,7 @@ importers:
         version: link:../tsconfig
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.1
-        version: 3.8.1(vite@5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0))
+        version: 3.8.1(vite@5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0))
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -1307,8 +1298,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@pkgr/core@0.1.2':
-    resolution: {integrity: sha512-fdDH1LSGfZdTH2sxdpVMw31BanV28K/Gry0cVFxaNP77neJSkd82mM8ErPNYs9e+0O7SdHBLTDzDgwUuy18RnQ==}
+  '@pkgr/core@0.2.1':
+    resolution: {integrity: sha512-VzgHzGblFmUeBmmrk55zPyrQIArQN4vujc9shWytaPdB3P7qhi0cpaiKIr7tlCmFv2lYUwnLospIqjL9ZSAhhg==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
   '@promptbook/utils@0.69.5':
@@ -2177,6 +2168,9 @@ packages:
 
   '@types/node@22.13.13':
     resolution: {integrity: sha512-ClsL5nMwKaBRwPcCvH8E7+nU4GxHVx1axNvMZTFHMEfNI7oahimt26P5zjVCRrjiIWj6YFXfE1v3dEp94wLcGQ==}
+
+  '@types/node@22.14.0':
+    resolution: {integrity: sha512-Kmpl+z84ILoG+3T/zQFyAJsU6EPTmOCj8/2+83fSN6djd6I4o7uOuGIH6vq3PrjY5BGitSbFuMN18j3iknubbA==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3269,13 +3263,13 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
 
-  eslint-plugin-prettier@5.2.3:
-    resolution: {integrity: sha512-qJ+y0FfCp/mQYQ/vWQ3s7eUlFEL4PyKfAJxsnYTJ4YT73nsJBWqmEpFryxV9OeUiqmsTsYJ5Y+KDNaeP31wrRw==}
+  eslint-plugin-prettier@5.2.6:
+    resolution: {integrity: sha512-mUcf7QG2Tjk7H055Jk0lGBjbgDnfrvqjhXh9t2xLMSCjZVcw9Rb1V6sVNXO0th3jgeO7zllWPTNRil3JW94TnQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': '>=8.0.0'
       eslint: '>=8.0.0'
-      eslint-config-prettier: '*'
+      eslint-config-prettier: '>= 7.0.0 <10.0.0 || >=10.1.0'
       prettier: '>=3.0.0'
     peerDependenciesMeta:
       '@types/eslint':
@@ -5134,8 +5128,8 @@ packages:
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
-  synckit@0.9.2:
-    resolution: {integrity: sha512-vrozgXDQwYO72vHjUb/HnFbQx1exDjoKzqx23aXEg2a9VIg2TSFZ8FmeZpTjUCFMYw7mpX4BE2SFu8wI7asYsw==}
+  synckit@0.11.2:
+    resolution: {integrity: sha512-1IUffI8zZ8qUMB3NUJIjk0RpLroG/8NkQDAWH1NbB2iJ0/5pn3M8rxfNzMz4GH9OnYaGYn31LEDSXJp/qIlxgA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
   tailwind-merge@2.6.0:
@@ -5366,6 +5360,9 @@ packages:
 
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici@6.21.2:
     resolution: {integrity: sha512-uROZWze0R0itiAKVPsYhFov9LxrPMHLMEQFszeI2gCN6bnIIZ8twzBCJcN2LJrBBLfrP0t1FW0g+JmKVl8Vk1g==}
@@ -6136,13 +6133,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@laynezh/vite-plugin-lib-assets@0.5.26(vite@5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0))':
+  '@laynezh/vite-plugin-lib-assets@0.5.26(vite@5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0))':
     dependencies:
       escape-string-regexp: 4.0.0
       loader-utils: 3.3.1
       mrmime: 1.0.1
       semver: 7.7.1
-      vite: 5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0)
+      vite: 5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0)
 
   '@mapbox/node-pre-gyp@1.0.11':
     dependencies:
@@ -6175,7 +6172,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@pkgr/core@0.1.2': {}
+  '@pkgr/core@0.2.1': {}
 
   '@promptbook/utils@0.69.5':
     dependencies:
@@ -6968,6 +6965,10 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
+  '@types/node@22.14.0':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/prop-types@15.7.14': {}
@@ -7091,10 +7092,10 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-react-swc@3.8.1(vite@5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0))':
+  '@vitejs/plugin-react-swc@3.8.1(vite@5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0))':
     dependencies:
       '@swc/core': 1.11.13
-      vite: 5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0)
+      vite: 5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -8399,12 +8400,12 @@ snapshots:
       safe-regex-test: 1.1.0
       string.prototype.includes: 2.0.1
 
-  eslint-plugin-prettier@5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.5.3):
+  eslint-plugin-prettier@5.2.6(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.5.3):
     dependencies:
       eslint: 8.57.0
       prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
-      synckit: 0.9.2
+      synckit: 0.11.2
     optionalDependencies:
       '@types/eslint': 9.6.1
       eslint-config-prettier: 9.1.0(eslint@8.57.0)
@@ -10486,9 +10487,9 @@ snapshots:
   symbol-tree@3.2.4:
     optional: true
 
-  synckit@0.9.2:
+  synckit@0.11.2:
     dependencies:
-      '@pkgr/core': 0.1.2
+      '@pkgr/core': 0.2.1
       tslib: 2.8.1
 
   tailwind-merge@2.6.0: {}
@@ -10654,14 +10655,14 @@ snapshots:
       '@swc/core': 1.11.13
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.11.13)(@types/node@22.13.13)(typescript@5.5.4):
+  ts-node@10.9.2(@swc/core@1.11.13)(@types/node@22.14.0)(typescript@5.5.4):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.13.13
+      '@types/node': 22.14.0
       acorn: 8.14.1
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -10788,6 +10789,8 @@ snapshots:
 
   undici-types@6.20.0: {}
 
+  undici-types@6.21.0: {}
+
   undici@6.21.2: {}
 
   unicorn-magic@0.3.0: {}
@@ -10860,13 +10863,13 @@ snapshots:
       sass: 1.79.4
       terser: 5.39.0
 
-  vite@5.4.9(@types/node@22.13.13)(sass@1.79.4)(terser@5.39.0):
+  vite@5.4.9(@types/node@22.14.0)(sass@1.79.4)(terser@5.39.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
       rollup: 4.37.0
     optionalDependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.0
       fsevents: 2.3.3
       sass: 1.79.4
       terser: 5.39.0
