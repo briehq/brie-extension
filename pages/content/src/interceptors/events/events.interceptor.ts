@@ -8,6 +8,10 @@ import {
 } from '@src/utils';
 import { historyApiInterceptor } from './history.interceptor';
 
+/**
+ * @todo
+ * move logic outside, leave just the Event Listeners
+ */
 export const trackEvent = ({ target, ...others }: any) => {
   const description = target ? getElementDescription(target) : null;
   const baseTimestamp = Date.now();
@@ -242,14 +246,24 @@ export const interceptEvents = () => {
   window.addEventListener('metadata', async () => {
     const systemInfo = await getSystemInfo();
 
-    await trackEvent({
-      ...systemInfo,
+    console.log('as', {
       event: 'metadata',
       rowTimestamp: new Date().toISOString(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       url: document.location.href,
       window: { width: window.innerWidth, height: window.innerHeight },
       screen: { width: window.screen.width, height: window.screen.height },
+      ...systemInfo,
+    });
+
+    trackEvent({
+      event: 'metadata',
+      rawTimestamp: new Date().toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      url: document.location.href,
+      window: { width: window.innerWidth, height: window.innerHeight },
+      screen: { width: window.screen.width, height: window.screen.height },
+      ...systemInfo,
     });
   });
 
