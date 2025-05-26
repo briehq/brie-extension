@@ -1,6 +1,8 @@
 import { t } from '@extension/i18n';
 import html2canvas from 'html2canvas';
 
+let lastPointerX = 0;
+let lastPointerY = 0;
 let startX: number, startY: number;
 let isSelecting = false;
 // let cancelled = false;
@@ -160,6 +162,12 @@ const hideLoadingMessage = () => {
   loadingMessage = null;
 };
 
+const onScroll = () => {
+  if (message) {
+    positionInstructionsMessage(lastPointerX, lastPointerY);
+  }
+};
+
 // Clean up all temporary elements
 export const cleanup = (): void => {
   isSelecting = false;
@@ -181,22 +189,24 @@ export const cleanup = (): void => {
   // document.removeEventListener('mouseup', onMouseUp);
   document.removeEventListener('touchmove', updateSelectionBox);
   document.removeEventListener('touchend', onTouchEnd);
+  window.removeEventListener('scroll', onScroll);
 };
 
 // Position the instructions message dynamically
 const positionInstructionsMessage = (clientX: number, clientY: number) => {
-  if (!message) return; // Ensure message is created before using
+  if (!message) return;
 
   const offset = 15;
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
 
-  // Position message dynamically based on viewport
   if (clientX + message.offsetWidth + offset > window.innerWidth) {
-    message.style.left = `${clientX - message.offsetWidth - offset}px`;
+    message.style.left = `${clientX - message.offsetWidth - offset + scrollX}px`;
   } else {
-    message.style.left = `${clientX + offset}px`;
+    message.style.left = `${clientX + offset + scrollX}px`;
   }
 
-  message.style.top = `${clientY + offset}px`;
+  message.style.top = `${clientY + offset + scrollY}px`;
 };
 
 // Event Handlers
@@ -204,42 +214,48 @@ const positionInstructionsMessage = (clientX: number, clientY: number) => {
 const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
   if (!isSelecting) return;
 
-  const clientX = 'touches' in e ? e.touches[0].pageX : (e as MouseEvent).pageX;
-  const clientY = 'touches' in e ? e.touches[0].pageY : (e as MouseEvent).pageY;
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
 
   const width = Math.abs(clientX - startX);
   const height = Math.abs(clientY - startY);
 
+  const left = Math.min(startX, clientX);
+  const top = Math.min(startY, clientY);
+
   Object.assign(selectionBox.style, {
     width: `${width}px`,
     height: `${height}px`,
-    left: `${Math.min(startX, clientX)}px`,
-    top: `${Math.min(startY, clientY)}px`,
+    left: `${left + window.scrollX}px`,
+    top: `${top + window.scrollY}px`,
   });
 
   Object.assign(dimensionLabel.style, {
-    left: `${Math.min(startX, clientX)}px`,
-    top: `${Math.min(startY, clientY) - 35}px`,
+    left: `${left + window.scrollX}px`,
+    top: `${top + window.scrollY - 35}px`,
   });
+
   dimensionLabel.textContent = `W: ${width.toFixed(0)}px, H: ${height.toFixed(0)}px`;
 };
 
 // Start the selection process
 const onMouseDown = (e: MouseEvent | TouchEvent) => {
-  if ('button' in e && e.button !== 0) return; // Only respond to left-click (for mouse events)
+  if ('button' in e && e.button !== 0) return; // Only respond to left-click
 
   isSelecting = true;
-  const clientX = 'touches' in e ? e.touches[0].pageX : (e as MouseEvent).pageX;
-  const clientY = 'touches' in e ? e.touches[0].pageY : (e as MouseEvent).pageY;
+
+  // Use viewport-relative coordinates
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
 
   startX = clientX;
   startY = clientY;
 
   document.body.style.overflow = 'hidden';
+
   createSelectionBox();
   createDimensionLabel();
 
-  // Add keydown event listener
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('mousemove', updateSelectionBox, { passive: false });
   document.addEventListener('mouseup', onMouseUp);
@@ -277,8 +293,8 @@ const onMouseUp = async (e: MouseEvent | TouchEvent) => {
 
   isSelecting = false;
 
-  const clientX = 'touches' in e ? e.touches[0].pageX : (e as MouseEvent).pageX;
-  const clientY = 'touches' in e ? e.touches[0].pageY : (e as MouseEvent).pageY;
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
 
   const minX = Math.min(startX, clientX);
   const minY = Math.min(startY, clientY);
@@ -304,7 +320,10 @@ const onMouseUp = async (e: MouseEvent | TouchEvent) => {
 // Move the instructions message with the cursor
 const onMouseMove = (e: MouseEvent) => {
   const { clientX, clientY } = e;
-  positionInstructionsMessage(clientX, clientY);
+
+  lastPointerX = clientX;
+  lastPointerY = clientY;
+  positionInstructionsMessage(lastPointerX, lastPointerY);
 };
 
 // Finish the selection for touch and capture the screenshot
@@ -330,7 +349,10 @@ const onTouchEnd = async (e: TouchEvent) => {
 
 const onTouchMove = (e: TouchEvent) => {
   const { clientX, clientY } = e.touches[0];
-  positionInstructionsMessage(clientX, clientY);
+
+  lastPointerX = clientX;
+  lastPointerY = clientY;
+  positionInstructionsMessage(lastPointerX, lastPointerY);
 };
 
 // Show instructions message
@@ -355,6 +377,7 @@ const showInstructions = () => {
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('touchmove', onTouchMove);
+  window.addEventListener('scroll', onScroll);
 };
 
 const captureTab = (): Promise<string> =>
