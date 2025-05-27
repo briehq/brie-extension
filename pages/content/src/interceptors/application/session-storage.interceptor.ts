@@ -1,3 +1,5 @@
+import { safePostMessage } from '@extension/shared';
+
 // Get all sessionStorage data
 export const interceptSessionStorage = () => {
   const timestamp = Date.now();
@@ -14,11 +16,10 @@ export const interceptSessionStorage = () => {
     });
   }
 
-  window.postMessage(
-    {
-      type: 'ADD_RECORD',
-      payload: { timestamp, recordType: 'session-storage', source: 'client', items: sessionStorageData },
-    },
-    '*',
-  );
+  safePostMessage('ADD_RECORD', {
+    timestamp,
+    recordType: 'session-storage',
+    source: 'client',
+    items: sessionStorageData,
+  });
 };

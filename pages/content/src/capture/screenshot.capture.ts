@@ -493,6 +493,10 @@ const processScreenshot = async (dataUrl, x, y, width, height, scaleFactor) => {
 const saveAndNotify = ({ secondary, primary }: { secondary: string; primary: string | null }) => {
   const timestamp = Date.now();
 
+  /**
+   * @todo use safePostMessage
+   * currently brakes the build (because of extend)
+   */
   window.postMessage(
     {
       type: 'ADD_RECORD',

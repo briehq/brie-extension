@@ -1,3 +1,4 @@
+import { safePostMessage } from '@extension/shared';
 import { extractQueryParams } from '@src/utils';
 
 interface FetchOptions extends RequestInit {
@@ -79,29 +80,23 @@ export const interceptFetch = (): void => {
           serializedHeaders[key] = value;
         });
 
-        if (typeof window !== 'undefined' && window?.postMessage) {
-          window.postMessage(
-            {
-              type: 'ADD_RECORD',
-              payload: {
-                recordType: 'network',
-                source: 'client',
-                method,
-                url: url.toString(),
-                queryParams,
-                requestHeaders,
-                requestBody,
-                responseHeaders: serializedHeaders,
-                responseBody,
-                requestStart: startTime,
-                requestEnd: endTime,
-                status: responseClone.status,
-              },
-            },
-            '*',
-          );
+        if (typeof window !== 'undefined') {
+          safePostMessage('ADD_RECORD', {
+            recordType: 'network',
+            source: 'client',
+            method,
+            url: url.toString(),
+            queryParams,
+            requestHeaders,
+            requestBody,
+            responseHeaders: serializedHeaders,
+            responseBody,
+            requestStart: startTime,
+            requestEnd: endTime,
+            status: responseClone.status,
+          });
         } else {
-          console.warn('[Fetch] window.postMessage is not supported.');
+          console.warn('[Fetch] safePostMessage is not supported.');
         }
       } catch (error) {
         console.error('[Fetch] Error posting message:', error);

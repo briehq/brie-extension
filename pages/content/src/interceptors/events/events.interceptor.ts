@@ -1,3 +1,5 @@
+import { safePostMessage } from '@extension/shared';
+
 import {
   findClickableParent,
   getElementDescription,
@@ -17,54 +19,48 @@ export const trackEvent = ({ target, ...others }: any) => {
   const baseTimestamp = Date.now();
   const timestamp = others?.event === 'Navigate' ? baseTimestamp + 1000 : baseTimestamp;
 
-  window.postMessage(
-    {
-      type: 'ADD_RECORD',
-      payload: {
-        type: 'event',
-        recordType: 'events',
-        source: 'client',
-        timestamp,
-        ...others,
-        ...(description ? { description } : {}),
-        ...(target?.tagName ? { tagName: target?.tagName } : {}),
-        ...(target?.event ? { event: target?.event } : {}),
-        ...(target?.url ? { url: target?.url } : {}),
-        ...(target?.id ? { id: target?.id } : {}),
-        ...(target?.className ? { className: target?.className } : {}),
-        ...(target?.href ? { href: target?.href } : {}),
-        ...(target?.role ? { role: target?.role } : {}),
-        ...(target?.value ? { value: target?.value } : {}),
-        ...(target?.size ? { size: target?.size } : {}),
-        ...(target?.action ? { action: target?.action } : {}),
-        ...(target?.method ? { method: target?.method } : {}),
-        ...(target?.disabled ? { disabled: target?.disabled } : {}),
-        ...(target && target['data-testid'] ? { dataTestid: target['data-testid'] } : {}),
-        ...(target && target['dataTestid'] ? { dataTestid: target['dataTestid'] } : {}),
-        ...(target && target['aria-label'] ? { ariaLabel: target['aria-label'] } : {}),
-        ...(target && target['ariaLabel'] ? { ariaLabel: target['ariaLabel'] } : {}),
-        ...(target instanceof HTMLElement && target.getAttribute('aria-label')
-          ? { ariaLabel: target.getAttribute('aria-label') }
-          : {}),
-        ...(target instanceof HTMLElement && target.getAttribute('aria-label')
-          ? { dataLabel: target.getAttribute('data-label') }
-          : {}),
-        ...(target instanceof HTMLElement && target.getAttribute('aria-label')
-          ? { name: target.getAttribute('name') }
-          : {}),
-        ...(target && target['aria-describedby'] ? { ariaDescribedby: target['aria-describedby'] } : {}),
-        ...(target && target['ariaDescribedby'] ? { ariaDescribedby: target['ariaDescribedby'] } : {}),
-        ...(target && target['contenteditable'] ? { contentEditable: target['contenteditable'] } : {}),
-        ...(target?.label ? { label: target?.label } : {}),
-        ...(target?.role ? { role: target?.role } : {}),
-        ...(target?.title ? { title: target?.title } : {}),
-        ...(target?.target ? { target: target?.target } : {}),
-        ...(target?.type ? { inputType: target?.type } : {}),
-        ...(target?.textContent ? { textContent: target?.textContent?.trim() } : {}),
-      },
-    },
-    '*',
-  );
+  safePostMessage('ADD_RECORD', {
+    type: 'event',
+    recordType: 'events',
+    source: 'client',
+    timestamp,
+    ...others,
+    ...(description ? { description } : {}),
+    ...(target?.tagName ? { tagName: target?.tagName } : {}),
+    ...(target?.event ? { event: target?.event } : {}),
+    ...(target?.url ? { url: target?.url } : {}),
+    ...(target?.id ? { id: target?.id } : {}),
+    ...(target?.className ? { className: target?.className } : {}),
+    ...(target?.href ? { href: target?.href } : {}),
+    ...(target?.role ? { role: target?.role } : {}),
+    ...(target?.value ? { value: target?.value } : {}),
+    ...(target?.size ? { size: target?.size } : {}),
+    ...(target?.action ? { action: target?.action } : {}),
+    ...(target?.method ? { method: target?.method } : {}),
+    ...(target?.disabled ? { disabled: target?.disabled } : {}),
+    ...(target && target['data-testid'] ? { dataTestid: target['data-testid'] } : {}),
+    ...(target && target['dataTestid'] ? { dataTestid: target['dataTestid'] } : {}),
+    ...(target && target['aria-label'] ? { ariaLabel: target['aria-label'] } : {}),
+    ...(target && target['ariaLabel'] ? { ariaLabel: target['ariaLabel'] } : {}),
+    ...(target instanceof HTMLElement && target.getAttribute('aria-label')
+      ? { ariaLabel: target.getAttribute('aria-label') }
+      : {}),
+    ...(target instanceof HTMLElement && target.getAttribute('aria-label')
+      ? { dataLabel: target.getAttribute('data-label') }
+      : {}),
+    ...(target instanceof HTMLElement && target.getAttribute('aria-label')
+      ? { name: target.getAttribute('name') }
+      : {}),
+    ...(target && target['aria-describedby'] ? { ariaDescribedby: target['aria-describedby'] } : {}),
+    ...(target && target['ariaDescribedby'] ? { ariaDescribedby: target['ariaDescribedby'] } : {}),
+    ...(target && target['contenteditable'] ? { contentEditable: target['contenteditable'] } : {}),
+    ...(target?.label ? { label: target?.label } : {}),
+    ...(target?.role ? { role: target?.role } : {}),
+    ...(target?.title ? { title: target?.title } : {}),
+    ...(target?.target ? { target: target?.target } : {}),
+    ...(target?.type ? { inputType: target?.type } : {}),
+    ...(target?.textContent ? { textContent: target?.textContent?.trim() } : {}),
+  });
 };
 
 const handleSelectChange = (target: HTMLElement, source: 'native' | 'custom') => {

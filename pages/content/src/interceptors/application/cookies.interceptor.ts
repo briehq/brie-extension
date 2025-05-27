@@ -1,3 +1,5 @@
+import { safePostMessage } from '@extension/shared';
+
 interface Cookie {
   key: string;
   value: string;
@@ -20,11 +22,5 @@ export const interceptCookies = () => {
     return ac;
   }, []);
 
-  window.postMessage(
-    {
-      type: 'ADD_RECORD',
-      payload: { timestamp, recordType: 'cookies', source: 'client', items: cookies },
-    },
-    '*',
-  );
+  safePostMessage('ADD_RECORD', { timestamp, recordType: 'cookies', source: 'client', items: cookies });
 };

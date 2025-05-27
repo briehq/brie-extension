@@ -1,3 +1,5 @@
+import { safePostMessage } from '@extension/shared';
+
 // Define interfaces for request details and payload
 interface RequestDetails {
   method: string;
@@ -80,25 +82,19 @@ export const interceptXHR = (): void => {
 
         // Ensure message posting is supported
         try {
-          if (typeof window !== 'undefined' && window?.postMessage) {
-            window.postMessage(
-              {
-                type: 'ADD_RECORD',
-                payload: {
-                  recordType: 'network',
-                  source: 'client',
-                  ...this._requestDetails,
-                  requestBody,
-                  requestEnd: endTime,
-                  status: this.status,
-                  responseHeaders,
-                  responseBody,
-                },
-              },
-              '*',
-            );
+          if (typeof window !== 'undefined') {
+            safePostMessage('ADD_RECORD', {
+              recordType: 'network',
+              source: 'client',
+              ...this._requestDetails,
+              requestBody,
+              requestEnd: endTime,
+              status: this.status,
+              responseHeaders,
+              responseBody,
+            });
           } else {
-            console.warn('[XHR] window.postMessage is not supported.');
+            console.warn('[XHR] safePostMessage is not supported.');
           }
         } catch (error) {
           console.error('[XHR] Error posting message:', error);

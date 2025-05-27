@@ -1,3 +1,5 @@
+import { safePostMessage } from '@extension/shared';
+
 export const interceptConsole = () => {
   const originalConsole = {
     log: console.log,
@@ -49,13 +51,7 @@ export const interceptConsole = () => {
       };
     }
 
-    window.postMessage(
-      {
-        type: 'ADD_RECORD',
-        payload: logData,
-      },
-      '*',
-    );
+    safePostMessage('ADD_RECORD', logData);
   };
 
   // Overriding console methods without altering their behavior
