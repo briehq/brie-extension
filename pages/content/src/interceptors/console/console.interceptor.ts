@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, safeStructuredClone } from '@extension/shared';
 
 export const interceptConsole = () => {
   const originalConsole = {
@@ -12,55 +12,58 @@ export const interceptConsole = () => {
 
   const getStackTrace = () => {
     const error = new Error();
-    const stack = error.stack.split('\n');
-    const caller = stack[3] || 'Unknown location'; // Get the caller (file, line, column)
+    const stack = error.stack?.split('\n') || [];
+    const caller = stack.filter(line => !line.includes('extend.iife')).join('\n') || 'Unknown location';
 
-    return { parsed: caller.trim(), raw: error.stack };
+    return { parsed: caller, raw: error.stack };
   };
 
-  // Function to capture and send logs to the background
-  const captureLog = (method, args) => {
-    const timestamp = Date.now();
-    const stackTrace = getStackTrace();
-    const pageUrl = window.location.href;
-    const logData = {
-      type: 'log',
-      recordType: 'console',
-      source: 'client',
-      method, // 'log', 'warn', 'error', etc.
-      timestamp, // ISO timestamp of the log
-      args, // Arguments passed to the console method
-      stackTrace, // Where the log was called from (file, line, column)
-      pageUrl, // Page URL where the log was generated
-      // Add user info and performance metrics as needed
-    };
-
-    if (method === 'error' && args[0] instanceof Error) {
-      const error = args[0];
-      logData.error = {
-        message: error.message,
-        stack: error.stack,
-      };
-    }
-
-    if (args[0] instanceof HTMLElement) {
-      logData.element = {
+  const sanitizeArg = (arg: any): any => {
+    if (arg instanceof HTMLElement) {
+      return {
         type: 'HTMLElement',
-        tag: args[0].tagName,
-        content: args[0].innerText, // or outerHTML, depending on the data you need
+        tag: arg.tagName,
+        content: arg.innerText || arg.outerHTML,
       };
     }
-
-    safePostMessage('ADD_RECORD', logData);
+    return safeStructuredClone(arg);
   };
 
-  // Overriding console methods without altering their behavior
-  ['log', 'warn', 'error', 'info', 'debug', 'table'].forEach(method => {
-    console[method] = (...args) => {
-      // Capture the log
-      captureLog(method, args);
+  const captureLog = (method: string, args: any[]): void => {
+    try {
+      const timestamp = Date.now();
+      const stackTrace = getStackTrace();
+      const pageUrl = window.location.href;
 
-      // Call the original method to ensure normal behavior (using the cloned method)
+      const sanitizedArgs = args.map(sanitizeArg);
+
+      const logData: Record<string, any> = {
+        type: 'log',
+        recordType: 'console',
+        source: 'client',
+        method,
+        timestamp,
+        args: sanitizedArgs,
+        stackTrace,
+        pageUrl,
+      };
+
+      if (method === 'error' && args[0] instanceof Error) {
+        logData.error = {
+          message: args[0].message,
+          stack: args[0].stack,
+        };
+      }
+
+      safePostMessage('ADD_RECORD', logData);
+    } catch {
+      // Don't throw or break host page
+    }
+  };
+
+  ['log', 'warn', 'error', 'info', 'd,ebug', 'table'].forEach(method => {
+    console[method] = (...args: any[]) => {
+      captureLog(method, args);
       originalConsole[method](...args);
     };
   });

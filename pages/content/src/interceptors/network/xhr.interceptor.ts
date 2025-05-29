@@ -83,16 +83,41 @@ export const interceptXHR = (): void => {
         // Ensure message posting is supported
         try {
           if (typeof window !== 'undefined') {
-            safePostMessage('ADD_RECORD', {
-              recordType: 'network',
-              source: 'client',
+            const timestamp = Date.now();
+            const payload = {
               ...this._requestDetails,
               requestBody,
               requestEnd: endTime,
               status: this.status,
               responseHeaders,
               responseBody,
+            };
+
+            safePostMessage('ADD_RECORD', {
+              timestamp,
+              recordType: 'network',
+              source: 'client',
+              ...payload,
             });
+
+            if (this.status >= 400) {
+              safePostMessage('ADD_RECORD', {
+                type: 'log',
+                recordType: 'console',
+                source: 'client',
+                method: 'error',
+                timestamp: Date.now(),
+                args: [
+                  `[XHR] ${this._requestDetails.method} ${this._requestDetails.url} responded with status ${this.status}`,
+                  payload,
+                ],
+                stackTrace: {
+                  parsed: 'interceptXHR',
+                  raw: '',
+                },
+                pageUrl: window.location.href,
+              });
+            }
           } else {
             console.warn('[XHR] safePostMessage is not supported.');
           }

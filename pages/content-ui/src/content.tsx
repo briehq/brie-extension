@@ -54,7 +54,6 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
       const records: any = await getRecords();
 
       if (records?.length) {
-        console.log('records.flat()', records);
         const jsonFile = createJsonFile(records.flat(), 'records.json');
 
         if (!jsonFile) {
