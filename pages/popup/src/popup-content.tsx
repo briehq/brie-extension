@@ -5,6 +5,7 @@ import { authTokensStorage, captureStateStorage, userUUIDStorage } from '@extens
 import { useLoginGuestMutation } from '@extension/store';
 
 import { CaptureScreenshotGroup } from './components/capture';
+import { AuthGuard } from './components/guards';
 import { SlicesHistoryButton, SlicesHistoryContent } from './components/slices-history';
 import { Header, BetaNotifier, Skeleton } from './components/ui';
 
@@ -14,32 +15,36 @@ export const PopupContent = () => {
   const uuid = useStorage(userUUIDStorage);
 
   const [showSlicesHistory, setShowSlicesHistory] = useState(false);
-  const [loginGuest, { isLoading }] = useLoginGuestMutation();
+  // const [loginGuest, { isLoading }] = useLoginGuestMutation();
 
-  useEffect(() => {
-    const initialGuestLogin = async () => {
-      if (!tokens?.accessToken && uuid) {
-        loginGuest({ uuid });
-      }
-    };
+  // useEffect(() => {
+  //   const initialGuestLogin = async () => {
+  //     if (!tokens?.accessToken && uuid) {
+  //       loginGuest({ uuid });
+  //     }
+  //   };
 
-    initialGuestLogin();
-  }, [loginGuest, tokens?.accessToken, uuid]);
+  //   initialGuestLogin();
+  // }, [loginGuest, tokens?.accessToken, uuid]);
 
   const handleOnBack = () => setShowSlicesHistory(false);
 
-  if (isLoading) {
-    return <Skeleton />;
-  }
+  // if (isLoading) {
+  //   return <Skeleton />;
+  // }
 
-  return showSlicesHistory ? (
-    <SlicesHistoryContent onBack={handleOnBack} />
-  ) : (
-    <>
-      <Header />
-      <CaptureScreenshotGroup />
-      {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
-      <BetaNotifier />
-    </>
+  return (
+    <AuthGuard>
+      {showSlicesHistory ? (
+        <SlicesHistoryContent onBack={handleOnBack} />
+      ) : (
+        <>
+          <Header />
+          <CaptureScreenshotGroup />
+          {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
+          <BetaNotifier />
+        </>
+      )}
+    </AuthGuard>
   );
 };

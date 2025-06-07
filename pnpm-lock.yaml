@@ -17,6 +17,12 @@ importers:
       react-dom:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
+      uuid:
+        specifier: ^11.0.3
+        version: 11.1.0
+      webextension-polyfill:
+        specifier: ^0.12.0
+        version: 0.12.0
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.5
@@ -168,12 +174,6 @@ importers:
       '@extension/storage':
         specifier: workspace:*
         version: link:../packages/storage
-      uuid:
-        specifier: ^11.0.3
-        version: 11.1.0
-      webextension-polyfill:
-        specifier: ^0.12.0
-        version: 0.12.0
     devDependencies:
       '@extension/dev-utils':
         specifier: workspace:*

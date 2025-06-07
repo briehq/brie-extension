@@ -6,3 +6,4 @@ export * from './annotations-redo.storage.js';
 export * from './user-uuid.storage.js';
 export * from './auth-tokens.storage.js';
 export * from './pending-reload-tabs.storage.js';
+export * from './auth-identity-provider.storage.js';

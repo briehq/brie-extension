@@ -118,8 +118,7 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
      * Set unique identifier for the user
      * to store reported bugs when no account
      */
-    const userUuid = await userUUIDStorage.get();
-    if (!userUuid) await userUUIDStorage.update(uuidv4());
+    await userUUIDStorage.getUUID();
 
     // Open a welcome page
     // await chrome.tabs.create({ url: 'welcome.html' });
