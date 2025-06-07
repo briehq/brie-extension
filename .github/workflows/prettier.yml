@@ -1,25 +1,36 @@
 name: Formatting Validation
 
-on: [pull_request_target]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   prettier:
     name: Prettier Check
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Prettier
-        id: prettier-run
-        uses: rutajdash/prettier-cli-action@v1.0.0
-        with:
-          config_path: ./.prettierrc
-          file_pattern: '*.{js,jsx,ts,tsx,json}'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
 
-      - name: Prettier Output
-        if: ${{ failure() }}
-        shell: bash
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Run Prettier
         run: |
-          echo "The following files aren't formatted properly:"
-          echo "${{steps.prettier-run.outputs.prettier_output}}"
+          npx prettier --check \
+            --no-error-on-unmatched-pattern \
+            "**/*.{js,jsx,ts,tsx,json}"
