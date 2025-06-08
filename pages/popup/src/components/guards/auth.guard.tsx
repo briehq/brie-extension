@@ -8,7 +8,7 @@ import { AuthView } from '../ui';
 export const AuthGuard: React.FC<PropsWithChildren> = ({ children }) => {
   const tokens = useStorage(authTokensStorage);
 
-  if (!tokens?.accessTokens) return <AuthView />;
+  if (!tokens?.accessToken) return <AuthView />;
 
   return <>{children}</>;
 };

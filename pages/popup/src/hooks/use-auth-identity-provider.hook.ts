@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
 import { APP_BASE_URL } from '@extension/env';
@@ -24,6 +24,10 @@ export const useAuthIdentityProvider = () => {
   const authFlow = useStorage(authIdentityProviderStorage);
   const setAuthFlow = (state: AuthFlowState) => authIdentityProviderStorage.set(state);
 
+  useEffect(() => {
+    setAuthFlow(null);
+  }, []);
+
   const register = useCallback(async () => {
     if (authFlow?.active && authFlow.tabId) {
       try {
@@ -45,6 +49,7 @@ export const useAuthIdentityProvider = () => {
 
       if (browser.identity?.launchWebAuthFlow) {
         finalUrl = await browser.identity.launchWebAuthFlow({ url, interactive: true });
+        console.log('finalUrl', finalUrl);
       } else {
         const tab = await browser.tabs.create({ url, active: true });
         setAuthFlow({ active: true, tabId: tab.id });

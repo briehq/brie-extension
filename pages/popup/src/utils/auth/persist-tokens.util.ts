@@ -19,6 +19,8 @@ export const persistTokens = async (url: string): Promise<ITokens> => {
   if (!accessToken) throw new Error('No access token found in callback URL');
 
   const tokens: ITokens = { accessToken, refreshToken };
+  console.log('tokens', tokens);
+
   await authTokensStorage.setTokens(tokens);
 
   return tokens;
