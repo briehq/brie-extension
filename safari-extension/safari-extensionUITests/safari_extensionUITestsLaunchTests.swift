@@ -1,8 +1,13 @@
-//___FILEHEADER___
+//
+//  safari_extensionUITestsLaunchTests.swift
+//  safari-extensionUITests
+//
+//  Created by Kunal Kumar on 09/06/25.
+//
 
 import XCTest
 
-final class ___FILEBASENAMEASIDENTIFIER___: XCTestCase {
+final class safari_extensionUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

@@ -1,15 +1,15 @@
 //
 //  ViewController.swift
-//  Brie - Bug Capture
+//  safari-extension
 //
-//  Created by Kunal Kumar on 06/06/25.
+//  Created by Kunal Kumar on 09/06/25.
 //
 
 import Cocoa
 import SafariServices
 import WebKit
 
-let extensionBundleIdentifier = "com.yourCompany.Brie---Bug-Capture.Extension"
+let extensionBundleIdentifier = "com.yourCompany.safari-extension.Extension"
 
 class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
 

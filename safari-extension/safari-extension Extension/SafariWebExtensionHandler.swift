@@ -1,8 +1,8 @@
 //
 //  SafariWebExtensionHandler.swift
-//  Brie - Bug Capture Extension
+//  safari-extension Extension
 //
-//  Created by Kunal Kumar on 06/06/25.
+//  Created by Kunal Kumar on 09/06/25.
 //
 
 import SafariServices

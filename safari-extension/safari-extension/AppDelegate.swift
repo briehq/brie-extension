@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  Brie - Bug Capture
+//  safari-extension
 //
-//  Created by Kunal Kumar on 06/06/25.
+//  Created by Kunal Kumar on 09/06/25.
 //
 
 import Cocoa
