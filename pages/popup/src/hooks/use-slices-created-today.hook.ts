@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useGetSlicesQuery } from '@extension/store';
 
 export const useSlicesCreatedToday = (): number => {
-  const { isLoading, isError, data: slices } = useGetSlicesQuery({ limit: 1, take: 10 });
+  const { isLoading, isError, data: slices } = useGetSlicesQuery({ limit: 1, take: 20 });
 
   console.log('totalToday', slices?.totalToday);
 

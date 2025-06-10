@@ -1,23 +1,12 @@
 import { createRoot } from 'react-dom/client';
 
+import { themeStorage } from '@extension/storage';
+
 import Popup from '@src/Popup';
 import '@src/index.css';
 
-// Function to apply system theme
-const applySystemTheme = () => {
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if (prefersDark) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-};
-
-// Apply theme on load
-applySystemTheme();
-
-// Listen for changes in the system's color scheme
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
+themeStorage.applySystemTheme();
+themeStorage.listenToSystemThemeChanges();
 
 const init = () => {
   const appContainer = document.querySelector('#app-container');
