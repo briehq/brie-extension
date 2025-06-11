@@ -132,20 +132,22 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           )}
         </>
       }>
-      <div className="flex h-full flex-col md:flex-row">
+      <div className="flex h-full flex-col md:flex-row dark:bg-black">
         {/* Left Column */}
 
         <div
           className={`flex ${
             showRightSidebar ? 'sm:w-[70%]' : 'w-full'
-          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6`}>
+          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
           {/* Content Section */}
 
           <AnnotationContainer attachments={screenshots} />
 
           {/* Footer Section */}
           <div className="mt-4 flex justify-center">
-            <p className="max-w-lg select-none text-center text-xs text-gray-400">{t('additionalInformation')}</p>
+            <p className="max-w-lg select-none text-center text-xs text-gray-400 dark:text-white">
+              {t('additionalInformation')}
+            </p>
           </div>
 
           {!showRightSidebar && (
@@ -165,7 +167,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             <div className="space-y-4 sm:mt-8">
               <Textarea placeholder="Add a description" rows={width < 500 ? 3 : 10} className="w-full" />
 
-              <small className="select-none text-xs text-gray-400">{t('sliceDescription')}</small>
+              <small className="select-none text-xs text-gray-400 dark:text-white">{t('sliceDescription')}</small>
             </div>
 
             {/* Action Buttons */}
@@ -196,14 +198,17 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
                 </div>
 
                 <Button
-                  className="w-full"
+                  className="w-full dark:text-[#df8801]"
+                  variant="secondary"
                   onClick={handleOnCreate}
                   disabled={isCreateLoading}
                   loading={isCreateLoading}>
                   {t('captureAndShare')}
                 </Button>
               </div>
-              <small className="select-none text-center text-xs text-gray-400">{t('captureAndShareMemo')}</small>
+              <small className="select-none text-center text-xs text-gray-400 dark:text-white">
+                {t('captureAndShareMemo')}
+              </small>
             </div>
           </div>
         )}

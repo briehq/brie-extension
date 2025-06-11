@@ -40,7 +40,7 @@ body,
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 0 0% 6%;
     --foreground: 0 0% 100%;
     --muted: 223 47% 11%;
     --muted-foreground: 215.4 16.3% 56.9%;
