@@ -43,7 +43,7 @@ export const CaptureScreenshotGroup = () => {
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
 
   const isCaptureScreenshotDisabled = useMemo(
-    () => totalSlicesCreatedToday > 20 && user?.fields?.authMethod === 'GUEST',
+    () => totalSlicesCreatedToday > 10 && user?.fields?.authMethod === 'GUEST',
     [totalSlicesCreatedToday, user?.fields?.authMethod],
   );
 
