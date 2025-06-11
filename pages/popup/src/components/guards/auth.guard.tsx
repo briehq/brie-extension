@@ -10,5 +10,5 @@ export const AuthGuard: React.FC<PropsWithChildren> = ({ children }) => {
 
   if (!tokens?.accessToken) return <AuthView />;
 
-  return <>{children}</>;
+  return children;
 };

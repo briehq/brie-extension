@@ -114,12 +114,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === 'install') {
-    /**
-     * Set unique identifier for the user
-     * to store reported bugs when no account
-     */
-    await userUUIDStorage.getUUID();
-
     // Open a welcome page
     // await chrome.tabs.create({ url: 'welcome.html' });
   }
