@@ -3,47 +3,47 @@ import type { BrowserInfo, OSInfo } from '@src/interfaces/events';
 import { isDevToolsOpen, isLikelyEmulated } from './detect-emulation.util';
 import { getBrowserZoomLevel } from './zoom-level.util';
 
-/** Parses navigator.userAgent and userAgentData to extract browser and OS info. */
+/** Parses navigator.userAgent to extract browser and OS info. */
 export const parseUserAgent = (): { browser: BrowserInfo; os: OSInfo } => {
-  const uaData = navigator?.userAgentData || {};
-  const userAgent = navigator.userAgent;
+  const userAgent = navigator.userAgent.toLowerCase();
 
   let browserName = 'Unknown';
   let browserVersion = 'Unknown';
   let osName = 'Unknown';
   let osVersion = 'Unknown';
 
-  if (uaData?.brands) {
-    const browserInfo = uaData.brands.find(b =>
-      ['chrome', 'edge', 'safari'].some(name => b.brand.toLowerCase().includes(name)),
-    );
-    if (browserInfo) {
-      browserName = browserInfo.brand;
-      browserVersion = browserInfo.version;
-    }
-  } else {
-    const match = userAgent.match(/(Chrome|Firefox|Safari|Edg|Opera|Brave)\/([\d.]+)/);
-    if (match) {
-      browserName = match[1];
-      browserVersion = match[2];
-    }
+  // Browser detection
+  if (userAgent.includes('firefox') || userAgent.includes('Firefox')) {
+    browserName = 'Firefox';
+    browserVersion = userAgent.match(/firefox\/([\d.]+)/)?.[1] || 'Unknown';
+  } else if ((userAgent.includes('safari') || userAgent.includes('Safari')) && !userAgent.includes('chrome')) {
+    browserName = 'Safari';
+    browserVersion = userAgent.match(/version\/([\d.]+)/)?.[1] || 'Unknown';
+  } else if (userAgent.includes('Edg')) {
+    browserName = 'Edge';
+    browserVersion = userAgent.match(/edg\/([\d.]+)/)?.[1] || 'Unknown';
+  } else if (userAgent.includes('chrome') || userAgent.includes('Chrome')) {
+    browserName = 'Chrome';
+    browserVersion = userAgent.match(/Chrome\/(\d+)/i)?.[1] || 'Unknown';
+  } else if (userAgent.includes('Opera')) {
+    browserName = 'Opera';
+    browserVersion = userAgent.match(/opera\/([\d.]+)/)?.[1] || 'Unknown';
   }
 
-  const platform = uaData.platform?.toLowerCase() || navigator.platform?.toLowerCase() || '';
+  const platform = userAgent || '';
   if (platform.includes('mac')) {
     osName = 'Mac OS';
-    osVersion = userAgent.match(/Mac OS X ([\d_.]+)/)?.[1]?.replace(/_/g, '.') || 'Unknown';
   } else if (platform.includes('win')) {
     osName = 'Windows';
     osVersion = userAgent.match(/Windows NT ([\d.]+)/)?.[1] || 'Unknown';
-  } else if (platform.includes('linux')) {
-    osName = 'Linux';
+  } else if (/iphone|ipad|ipod/.test(userAgent)) {
+    osName = 'iOS';
+    osVersion = userAgent.match(/OS ([\d_]+)/i)?.[1]?.replace(/_/g, '.') || 'Unknown';
   } else if (platform.includes('android')) {
     osName = 'Android';
-    osVersion = userAgent.match(/Android ([\d.]+)/)?.[1] || 'Unknown';
-  } else if (/iphone|ipad|ipod/.test(userAgent.toLowerCase())) {
-    osName = 'iOS';
-    osVersion = userAgent.match(/OS ([\d_]+)/)?.[1]?.replace(/_/g, '.') || 'Unknown';
+    osVersion = userAgent.match(/Android ([\d.]+)/i)?.[1] || 'Unknown';
+  } else if (platform.includes('linux')) {
+    osName = 'Linux';
   }
 
   return {
