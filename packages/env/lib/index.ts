@@ -1,7 +1,5 @@
 import { config } from '@dotenvx/dotenvx';
 
-import { CLI_ENV } from './const.js';
-
 /**
  * @todo
  * check why CLI_ENV doesn't work

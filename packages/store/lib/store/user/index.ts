@@ -1,1 +1,1 @@
-export { userAPI } from './user.api.js';
+export { userAPI } from './user.api';

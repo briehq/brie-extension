@@ -4,8 +4,8 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, Tokens, User, UserAndTokensResponse } from '@extension/shared';
 import { authTokensStorage } from '@extension/storage';
 
-import { authPublicAPI } from './auth-public.api.js';
-import { userAPI } from '../user/index.js';
+import { authPublicAPI } from './auth-public.api';
+import { userAPI } from '../user';
 
 const initialState: AuthState = {
   user: {} as User,

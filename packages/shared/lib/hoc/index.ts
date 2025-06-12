@@ -1,4 +1,4 @@
-import { withErrorBoundary } from './withErrorBoundary.js';
-import { withSuspense } from './withSuspense.js';
+import { withErrorBoundary } from './withErrorBoundary';
+import { withSuspense } from './withSuspense';
 
 export { withSuspense, withErrorBoundary };
