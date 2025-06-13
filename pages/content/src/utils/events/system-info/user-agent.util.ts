@@ -20,6 +20,7 @@ export const parseUserAgent = (): { browser: BrowserInfo; os: OSInfo } => {
   const brands = uaData.brands;
   browserName = brands[0].brand;
   browserVersion = brands[0].version;
+  osName = uaData.platform;
 
   //  for non chromium based browser (Firefox / Safari) running on macos or on lInux
   if (browserName === 'Unknown' && browserVersion === 'Unknown') {
