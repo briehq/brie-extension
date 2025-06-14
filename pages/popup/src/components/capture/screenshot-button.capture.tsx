@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
@@ -43,7 +44,7 @@ export const CaptureScreenshotGroup = () => {
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
   const isCaptureScreenshotDisabled = useMemo(() => {
     // Skip limit check in dev/sandbox environments
-    if (process.env.NAME === '[Sandbox] Brie') {
+    if (IS_DEV) {
       return false;
     }
 
