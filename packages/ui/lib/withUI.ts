@@ -1,7 +1,8 @@
 import deepmerge from 'deepmerge';
 import type { Config } from 'tailwindcss';
-import { fontFamily } from 'tailwindcss/defaultTheme';
 import tailwindAnimate from 'tailwindcss-animate';
+
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export function withUI(tailwindConfig: Config): Config {
   return deepmerge(
@@ -64,7 +65,7 @@ const shadcnConfig = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
+        sans: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
       },
       keyframes: {
         'accordion-down': {
