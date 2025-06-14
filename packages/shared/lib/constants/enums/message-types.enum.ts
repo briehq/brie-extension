@@ -1,0 +1,13 @@
+export enum MessageType {
+  EXIT_CAPTURE = 'EXIT_CAPTURE',
+  ADD_RECORD = 'ADD_RECORD',
+  GET_RECORDS = 'GET_RECORDS',
+}
+
+export enum MessageAction {
+  CHECK_NATIVE_CAPTURE = 'checkNativeCapture',
+  CAPTURE_VISIBLE_TAB = 'captureVisibleTab',
+  START_SCREENSHOT = 'START_SCREENSHOT',
+  EXIT_CAPTURE = 'EXIT_CAPTURE',
+  CLOSE_MODAL = 'CLOSE_MODAL',
+}
