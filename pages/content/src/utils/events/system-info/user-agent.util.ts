@@ -35,12 +35,37 @@ export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSIn
     if (userAgent.includes('firefox') || userAgent.includes('Firefox')) {
       browserName = 'Firefox';
       browserVersion = userAgent.match(/firefox\/([\d.]+)/)?.[1] || '';
-      const matchMac = userAgent.match(/Mac OS /i);
-      const matchLinux = userAgent.match(/Linux/i);
+      const matchMac = userAgent.match(/mac os /i);
+      const matchLinux = userAgent.match(/linux/i);
+      const matchWin = userAgent.match(/windows/i);
       if (matchMac) {
         osName = 'Mac OS';
+        osVersion = userAgent.match(/OS ([\d_]+)/i)?.[1]?.replace(/_/g, '.') || 'Unknown';
       } else if (matchLinux) {
         osName = 'Linux';
+        const distroMatch = userAgent.match(/\(([^)]+)\)/);
+        if (distroMatch) {
+          const parts = distroMatch[1].split(';').map(p => p.trim());
+          const distro = parts.find(p => /Ubuntu|Fedora|Debian|Arch|Mint|Linux/i.test(p)) || 'Unknown Linux distro';
+          const architecture = parts.find(p => /x86_64|i686|arm|aarch64|amd64/i.test(p)) || 'Unknown architecture';
+          osVersion = `${distro} ${architecture}`;
+        }
+
+        osVersion = '';
+      } else if (matchWin) {
+        // when firefox is running on windows machine
+        // navigator.userAgentData api is not available for NON-Chromium browser so need to output as 10/11
+        osName = 'Windows';
+        const match = userAgent.match(/windows nt ([\d.]+)/);
+        if (match) {
+          const versionMap: Record<string, string> = {
+            '10.0': '10/11',
+            '6.3': '8.1',
+            '6.2': '8',
+            '6.1': '7',
+          };
+          osVersion = versionMap[match[1]] || '';
+        }
       }
     }
 
@@ -66,14 +91,14 @@ export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSIn
   }
 
   // WHEN OS is windows need to configure the OSVERSION
-  // this is applied both for Chromium and non-Chromium(Firefox only! )
-
-  const brands = uaData.brands;
-  browserName = brands[0].brand;
-  browserVersion = brands[0].version;
-  osName = uaData.platform;
-  osVersion = await getWindowsVersion();
-
+  // this is applied  for Chromium
+  if (browserName === 'Unknown' && browserVersion === 'Unknown') {
+    const brands = uaData.brands;
+    browserName = brands[0].brand;
+    browserVersion = brands[0].version;
+    osName = uaData.platform;
+    osVersion = await getWindowsVersion();
+  }
   return {
     browser: {
       name: browserName,
