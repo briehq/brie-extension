@@ -33,7 +33,7 @@ const manifest = {
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   host_permissions: ['<all_urls>'],
-  permissions: ['webRequest', 'storage', 'tabs', 'activeTab', 'contextMenus'],
+  permissions: ['webRequest', 'storage', 'tabs', 'activeTab', 'contextMenus', 'identity'],
   background: {
     service_worker: 'background.js',
     type: 'module',
@@ -57,12 +57,12 @@ const manifest = {
     },
     {
       matches: ['http://*/*', 'https://*/*', '<all_urls>'],
-      css: ['content.css'], // public folder
+      css: ['content.css'],
     },
   ],
   web_accessible_resources: [
     {
-      resources: ['*.js', '*.css', '*.svg', '*.png', 'content/extend.iife.js'],
+      resources: ['*.js', '*.css', '*.svg', '*.png', 'content/extend.iife.js', 'auth-identity.html'],
       matches: ['*://*/*'],
     },
   ],

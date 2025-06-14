@@ -2,11 +2,11 @@ name: ESLint Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 permissions:
-  contents: read 
+  contents: read
 
 jobs:
   eslint:
@@ -14,18 +14,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run ESLint
-      - run: pnpm lint
+        run: pnpm lint

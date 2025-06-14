@@ -1,9 +1,9 @@
 name: Formatting Validation
 
 on:
-  pull_request:
   push:
     branches: [main]
+  pull_request:
 
 permissions:
   contents: read
@@ -14,22 +14,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
-      - uses: pnpm/action-setup@v4
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run Prettier
-        run: npx prettier --check \
-          --config ./.prettierrc \
-          --ignore-path ./.prettierignore \
-          --no-error-on-unmatched-pattern \
-          '**/*.{js,jsx,ts,tsx,json}'
+        run: |
+          npx prettier --check \
+            --no-error-on-unmatched-pattern \
+            "**/*.{js,jsx,ts,tsx,json}"
