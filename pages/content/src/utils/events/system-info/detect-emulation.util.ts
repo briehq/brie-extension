@@ -4,12 +4,16 @@
 export const isLikelyEmulated = (): boolean => {
   const dpr = window.devicePixelRatio;
   const ua = navigator.userAgent;
-  const isTouchSpoofed = navigator.maxTouchPoints > 0 && !('ontouchstart' in window);
+  const hasTouch = 'ontouchstart' in window;
+  const maxTouchPoints = navigator.maxTouchPoints || 0;
   const isMobileUA = /Mobi|Android|iPhone|iPad/i.test(ua);
   const isSmall = window.innerWidth < 800;
-  const isDPRMismatch = dpr >= 2 && screen.width < 800;
+  const spoofedTouch = maxTouchPoints > 0 && !hasTouch;
+  const suspiciousDesktopUA = !isMobileUA && isSmall;
+  const suspiciousZoomOrDPR = dpr >= 2 && screen.width < 800;
+  const emulatedButLooksReal = isMobileUA && isSmall && maxTouchPoints > 0;
 
-  return isTouchSpoofed || (!isMobileUA && isSmall) || isDPRMismatch;
+  return spoofedTouch || suspiciousDesktopUA || suspiciousZoomOrDPR || emulatedButLooksReal;
 };
 
 /**
