@@ -3,23 +3,31 @@ import type { BrowserInfo, OSInfo } from '@src/interfaces/events';
 import { isDevToolsOpen, isLikelyEmulated } from './detect-emulation.util';
 import { getBrowserZoomLevel } from './zoom-level.util';
 
-/** Parses navigator.userAgent to extract browser and OS info. */
-export const parseUserAgent = (): { browser: BrowserInfo; os: OSInfo } => {
-  const userAgent = navigator.userAgent.toLowerCase();
-  const uaData = (navigator as any).userAgentData || {};
-  const platform = userAgent || '';
-  let browserName = 'Unknown';
-  let browserVersion = 'Unknown';
-  let osName = 'Unknown';
-  let osVersion = 'Unknown';
+const userAgent = navigator.userAgent.toLowerCase();
+const uaData = (navigator as any).userAgentData || {};
+const platform = userAgent || '';
+let browserName = 'Unknown';
+let browserVersion = 'Unknown';
+let osName = 'Unknown';
+let osVersion = 'Unknown';
 
+const getWindowsVersion = async (): Promise<string> => {
+  if (uaData.getHighEntropyValues) {
+    const data = await uaData.getHighEntropyValues(['platform', 'platformVersion']);
+    if (data.platform === 'Windows') {
+      const version = parseInt(data.platformVersion.split('.')[0], 10);
+      return version >= 13 ? '11' : '10';
+    }
+  }
+
+  return '';
+};
+
+/** Parses navigator.userAgent to extract browser and OS info. */
+export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSInfo }> => {
   //   FIrst approach would be :
   //   detect browser using browser name and browser version using uaData !
   // uaData - for browser : Chrome, Edge, Opera, Dia, Brave, Samsung Internet as they are chromium based
-
-  const brands = uaData.brands;
-  browserName = brands[0].brand;
-  browserVersion = brands[0].version;
 
   //  for non chromium based browser (Firefox / Safari) running on macos or on lInux
   if (browserName === 'Unknown' && browserVersion === 'Unknown') {
@@ -56,6 +64,15 @@ export const parseUserAgent = (): { browser: BrowserInfo; os: OSInfo } => {
   } else if (platform.includes('linux')) {
     osName = 'Linux';
   }
+
+  // WHEN OS is windows need to configure the OSVERSION
+  // this is applied both for Chromium and non-Chromium(Firefox only! )
+
+  const brands = uaData.brands;
+  browserName = brands[0].brand;
+  browserVersion = brands[0].version;
+  osName = uaData.platform;
+  osVersion = await getWindowsVersion();
 
   return {
     browser: {
