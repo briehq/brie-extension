@@ -8,20 +8,24 @@
   "files": [
     "dist/**"
   ],
-  "types": "index.mts",
+  "types": "dist/index.d.mts",
   "main": "dist/index.mjs",
   "scripts": {
     "clean:bundle": "rimraf dist",
     "clean:node_modules": "pnpx rimraf node_modules",
     "clean:turbo": "rimraf .turbo",
     "clean": "pnpm clean:bundle && pnpm clean:node_modules && pnpm clean:turbo",
-    "ready": "tsc -b",
+    "ready": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck",
+    "build": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck",
+    "dev": "vite build --mode development",
     "lint": "eslint .",
     "lint:fix": "pnpm lint --fix",
     "format": "prettier . --write --ignore-path ../../.prettierignore",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@extension/tsconfig": "workspace:*"
+    "@extension/tsconfig": "workspace:*",
+    "@extension/vite-config": "workspace:*",
+    "vite": "6.1.0"
   }
 }

@@ -9,14 +9,15 @@
     "dist/**"
   ],
   "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/index.mjs",
   "scripts": {
     "clean:bundle": "rimraf dist",
     "clean:node_modules": "pnpx rimraf node_modules",
     "clean:turbo": "rimraf .turbo",
     "clean": "pnpm clean:bundle && pnpm clean:node_modules && pnpm clean:turbo",
-    "ready": "tsc -b && tsc-alias -p tsconfig.json",
+    "ready": "vite build && npx tsc --project tsconfig.json --emitDeclarationOnly --skipLibCheck",
+    "build": "vite build && npx tsc --project tsconfig.json --emitDeclarationOnly --skipLibCheck",
+    "dev": "vite build --mode development",
     "lint": "eslint .",
     "lint:fix": "pnpm lint --fix",
     "format": "prettier . --write --ignore-path ../../.prettierignore",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@extension/tailwindcss-config": "workspace:*",
     "@extension/tsconfig": "workspace:*",
-    "tsc-alias": "^1.8.10"
+    "@extension/vite-config": "workspace:*",
+    "vite": "6.1.0"
   }
 }

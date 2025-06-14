@@ -1,13 +1,10 @@
 {
-  "extends": "@extension/tsconfig/base",
+  "extends": "../tsconfig/library.json",
   "compilerOptions": {
-    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    },
-    "noEmit": false,
-    "declaration": true
+    }
   },
   "include": ["index.ts", "lib", "tailwind.config.ts"]
 }

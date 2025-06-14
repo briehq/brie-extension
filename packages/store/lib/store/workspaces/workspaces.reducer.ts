@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction, Slice } from '@reduxjs/toolkit';
 
 import type { Pagination } from '@extension/shared';
 
@@ -7,7 +7,7 @@ const initialState: { filters: Partial<Pagination> } = {
   filters: {} as Partial<Pagination>,
 };
 
-export const workspacesSlice = createSlice({
+export const workspacesSlice: Slice = createSlice({
   name: 'workspaces',
   initialState,
   reducers: {

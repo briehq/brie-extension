@@ -8,7 +8,7 @@
   "files": [
     "dist/**"
   ],
-  "types": "index.mts",
+  "types": "dist/index.d.mts",
   "main": "dist/index.mjs",
   "scripts": {
     "clean:bundle": "rimraf dist",
@@ -16,8 +16,10 @@
     "clean:turbo": "rimraf .turbo",
     "clean": "pnpm clean:bundle && pnpm clean:node_modules && pnpm clean:turbo",
     "zip": "node --env-file=../../.env dist/index.mjs",
+    "ready": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck",
+    "build": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck",
+    "dev": "vite build --mode development",
     "lint": "eslint .",
-    "ready": "tsc -b",
     "lint:fix": "pnpm lint --fix",
     "format": "prettier . --write --ignore-path ../../.prettierignore",
     "type-check": "tsc --noEmit"
@@ -25,6 +27,8 @@
   "devDependencies": {
     "@extension/tsconfig": "workspace:*",
     "@extension/dev-utils": "workspace:*",
-    "@extension/env": "workspace:*"
+    "@extension/env": "workspace:*",
+    "@extension/vite-config": "workspace:*",
+    "vite": "6.1.0"
   }
 }

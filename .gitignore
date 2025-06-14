@@ -23,3 +23,13 @@ tsconfig.tsbuildinfo
 
 # compiled
 **/tailwind-output.css
+
+
+FINDINGS.md
+
+
+# HMR compiled files (build artifacts)
+packages/hmr/**/*.js
+packages/hmr/injections/
+packages/hmr/initializers/
+packages/hmr/interpreter/

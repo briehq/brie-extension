@@ -1,9 +1,8 @@
 {
-  "extends": "@extension/tsconfig/module",
+  "extends": "../tsconfig/library.json",
   "compilerOptions": {
-    "outDir": "dist",
     "baseUrl": ".",
     "types": ["chrome", "node"]
   },
-  "include": ["index.mts", "rollup.config.ts", "lib"]
+  "include": ["index.mts", "lib"]
 }
