@@ -17,13 +17,13 @@ export const BetaNotifier = () => {
   }, []);
 
   return (
-    <div className="mt-4 text-center text-[10px] font-normal text-slate-600">
+    <div className="mt-4 text-center text-[10px] font-normal text-slate-600 dark:text-white">
       {t('inBeta')}{' '}
       <a
         href="https://go.brie.io/discord?utm_source=extension"
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-slate-900">
+        className="hover:text-slate-900 dark:hover:text-[#df8801]">
         {t('reportBugsOrRequestFeatures')}
       </a>
       <br />
