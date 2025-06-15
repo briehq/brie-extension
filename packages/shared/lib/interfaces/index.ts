@@ -1,9 +1,9 @@
-export * from './user.interface.js';
-export * from './slice.interface.js';
-export * from './pagination.interface.js';
-export * from './workspace.interface.js';
-export * from './subscription.interface.js';
-export * from './space.interface.js';
-export * from './organization.interface.js';
+export type * from './user.interface.js';
+export type * from './slice.interface.js';
+export type * from './pagination.interface.js';
+export type * from './workspace.interface.js';
+export type * from './subscription.interface.js';
+export type * from './space.interface.js';
+export type * from './organization.interface.js';
 export * from './query-filter.interface.js';
-export * from './auth.interfaces.js';
+export type * from './auth.interfaces.js';

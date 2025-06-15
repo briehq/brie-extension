@@ -1,7 +1,7 @@
 import 'webextension-polyfill';
 import { v4 as uuidv4 } from 'uuid';
-import { t } from '@extension/i18n';
 
+import { t } from '@extension/i18n';
 import {
   annotationsRedoStorage,
   annotationsStorage,
@@ -10,6 +10,7 @@ import {
   pendingReloadTabsStorage,
   userUUIDStorage,
 } from '@extension/storage';
+
 import { addOrMergeRecords, getRecords } from '@src/utils';
 import { deleteRecords } from '@src/utils/manage-records.util';
 
@@ -20,6 +21,10 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     await pendingReloadTabsStorage.remove(tabId);
   }
 
+  // Always clean up records for any closed tab
+  deleteRecords(tabId);
+
+  // Additional cleanup for capture tabs only
   const captureTabId = await captureTabStorage.getCaptureTabId();
   if (tabId === captureTabId) {
     await captureStateStorage.setCaptureState('idle');
@@ -27,8 +32,6 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
     annotationsStorage.setAnnotations([]);
     annotationsRedoStorage.setAnnotations([]);
-
-    deleteRecords(tabId);
   }
 });
 

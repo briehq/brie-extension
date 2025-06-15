@@ -3,8 +3,8 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 import { Mutex } from 'async-mutex';
 import { toast } from 'react-hot-toast';
 
-import type { Tokens, UserAndTokensResponse } from '@extension/shared';
 import { API_BASE_URL } from '@extension/env';
+import type { Tokens, UserAndTokensResponse } from '@extension/shared';
 import { authTokensStorage } from '@extension/storage';
 
 const mutex = new Mutex();

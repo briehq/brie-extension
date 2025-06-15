@@ -28,9 +28,9 @@ jobs:
           has_contributions=$(gh api "/repos/$REPO/pulls?state=all&per_page=1&creator=$ACTOR" | jq 'length')
 
           if [ "$has_contributions" -eq 0 ]; then
-            echo "first_time=true" >> $GITHUB_OUTPUT
+            echo "first_time=true" >> "$GITHUB_OUTPUT"
           else
-            echo "first_time=false" >> $GITHUB_OUTPUT
+            echo "first_time=false" >> "$GITHUB_OUTPUT"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
               MESSAGE="Hey @$ACTOR,\nThanks for reporting another issue! 🙌"
             fi
 
-            gh api --method POST "/repos/$REPO/issues/$ISSUE_NUMBER/comments" -f body="$MESSAGE"
+            echo -e "$MESSAGE" | gh api --method POST "/repos/$REPO/issues/$ISSUE_NUMBER/comments" -F body=@-
 
           elif [ "${{ github.event_name }}" = "pull_request_target" ]; then
             PR_NUMBER="${{ github.event.pull_request.number }}"
@@ -61,7 +61,7 @@ jobs:
               MESSAGE="Hey @$ACTOR,\nThanks for another PR! 🚀"
             fi
 
-            gh api --method POST "/repos/$REPO/issues/$PR_NUMBER/comments" -f body="$MESSAGE"
+            echo -e "$MESSAGE" | gh api --method POST "/repos/$REPO/issues/$PR_NUMBER/comments" -F body=@-
           else
             echo "Unknown event — skipping comment."
           fi

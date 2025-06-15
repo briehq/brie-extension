@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import type { Slice } from '@extension/shared';
 import { API_BASE_URL } from '@extension/env';
+import type { Slice } from '@extension/shared';
 
 import { attachmentUrlPath } from './slices-private.api.js';
 

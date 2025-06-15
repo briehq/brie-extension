@@ -1,5 +1,6 @@
-import { AsyncZipDeflate } from 'fflate';
 import { createReadStream } from 'node:fs';
+
+import { AsyncZipDeflate } from 'fflate';
 import type { Zip } from 'fflate';
 
 export const streamFileToZip = (

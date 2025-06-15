@@ -46,13 +46,16 @@ In order to maintain the Brie structure and guarantee code quality please use th
    **This will set the EOL (End of line) character to be the same as on Linux/macOS. Without this, our bash script won't work, and you will have conflicts with developers on Linux/macOS.**
 
 1. Clone or fork the repo on your local machine;
-   - make sure to uncheck “Copy the master branch only” option, so you get access to the `develop` branch.
+   - **[important]** make sure to uncheck “Copy the master branch only” option, so you get access to the `develop` branch.
+   - next, clone forked repo, see [guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#cloning-your-forked-repository);
 2. Ensure your node version is >= than in `.nvmrc` file, recommend to use [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#intro);
-3. Install pnpm globally: `npm install -g pnpm` (ensure your node version >= 22.12.0);
+3. Install **pnpm** globally: `npm install -g pnpm` (ensure your node version >= 22.12.0);
 4. Inside **brie-extension** folder run `pnpm i` command to install all dependencies;
-5. Change the `version` to the desired version of your extension, see [UPDATE-PACKAGE-VERSIONS](/docs/UPDATE-PACKAGE-VERSIONS.md);
-6. Don't forget to create your env files, see [ENV](/packages/env/README.md);
-7. To check if everything is working, run `pnpm run:chrome:local` command in terminal.
+5. Don't forget to create your env files, see [ENV](/packages/env/README.md);
+6. To check if everything is working, run `pnpm run:chrome:local` command in terminal.
+
+***[optional]** Also,
+when you completed your task, feature or issue, bump up the extension version, see [UPDATE-PACKAGE-VERSIONS](/docs/UPDATE-PACKAGE-VERSIONS.md).*
 
 Then, depending on the target browser:
 
@@ -77,10 +80,10 @@ Then, depending on the target browser:
 4. Select the `./dist/manifest.json` file from the boilerplate project
 
 > [!NOTE]
-> In Firefox, you load add-ons in temporary mode. That means they'll disappear after each browser close. You have to:
+> 1. In Firefox, you load add-ons in temporary mode. That means they'll disappear after each browser close. You have to:
 > load the add-on on every browser launch.
-
-> **NOTE:** Remember that these commands must be executed in the root folder of the project.
+>
+> 2. Remember that these commands must be executed in the root folder of the project.
 
 ### Multi Env Support
 

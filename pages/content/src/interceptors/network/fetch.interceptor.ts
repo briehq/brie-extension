@@ -1,4 +1,5 @@
 import { safePostMessage } from '@extension/shared';
+
 import { extractQueryParams } from '@src/utils';
 
 interface FetchOptions extends RequestInit {

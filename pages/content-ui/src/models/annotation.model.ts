@@ -1,7 +1,5 @@
-import type { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'react';
-import { FabricObject, Canvas, Path } from 'fabric';
-// eslint-disable-next-line import/no-unresolved
-import type { Color, Gradient, Pattern } from 'fabric';
+import type { FabricObject, Canvas, Path, Gradient, Pattern } from 'fabric';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 export enum CursorMode {
   Hidden,

@@ -31,7 +31,7 @@ export const sensitivePatterns: {
 
   // 5. API keys or secrets — loose match
   {
-    pattern: /(?:api[_-]?key|access[_-]?token|client[_-]?secret)["']?\s*[:=]\s*["']?([a-zA-Z0-9_\-\.]{16,64})["']?/gi,
+    pattern: /(?:api[_-]?key|access[_-]?token|client[_-]?secret)["']?\s*[:=]\s*["']?([a-zA-Z0-9_\-.]{16,64})["']?/gi,
     groupIndex: 1,
   },
 

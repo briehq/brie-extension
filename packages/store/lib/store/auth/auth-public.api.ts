@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import type { UserAndTokensResponse } from '@extension/shared';
 import { API_BASE_URL } from '@extension/env';
+import type { UserAndTokensResponse } from '@extension/shared';
 
 export const authPublicAPI = createApi({
   reducerPath: 'authPublic',

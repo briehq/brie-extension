@@ -1,17 +1,7 @@
 import deepmerge from 'deepmerge';
 import type { Config } from 'tailwindcss';
-import tailwindAnimate from 'tailwindcss-animate';
-
 import defaultTheme from 'tailwindcss/defaultTheme';
-
-export function withUI(tailwindConfig: Config): Config {
-  return deepmerge(
-    shadcnConfig,
-    deepmerge(tailwindConfig, {
-      content: ['./node_modules/@extension/ui/lib/**/*.{tsx,ts,js,jsx}'],
-    }),
-  );
-}
+import tailwindAnimate from 'tailwindcss-animate';
 
 const shadcnConfig = {
   darkMode: ['class'],
@@ -84,4 +74,13 @@ const shadcnConfig = {
     },
   },
   plugins: [tailwindAnimate],
+};
+
+export const withUI = (tailwindConfig: Config): Config => {
+  return deepmerge(
+    shadcnConfig,
+    deepmerge(tailwindConfig, {
+      content: ['./node_modules/@extension/ui/lib/**/*.{tsx,ts,js,jsx}'],
+    }),
+  );
 };

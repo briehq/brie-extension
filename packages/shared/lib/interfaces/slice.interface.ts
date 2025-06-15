@@ -1,8 +1,8 @@
-import type { SlicePriority, SliceStatus, SliceType } from '../constants/index.js';
-import type { Workspace } from './workspace.interface.js';
+import type { Organization } from './organization.interface.js';
 import type { Space } from './space.interface.js';
 import type { User } from './user.interface.js';
-import type { Organization } from './organization.interface.js';
+import type { Workspace } from './workspace.interface.js';
+import type { SlicePriority, SliceStatus, SliceType } from '../constants/index.js';
 
 export interface Slice {
   assignee: User | null;

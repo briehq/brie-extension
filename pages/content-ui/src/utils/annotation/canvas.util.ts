@@ -1,6 +1,5 @@
-import type { MutableRefObject, RefObject } from 'react';
-
 import { Canvas, FabricObject, PencilBrush, util, Point } from 'fabric';
+import type { RefObject } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
 import { defaultNavElement } from '@src/constants';
@@ -15,8 +14,8 @@ import type {
   RenderCanvas,
 } from '@src/models';
 
-import { createSpecificShape, setCanvasBackground } from './shapes.util';
 import { createDefaultControls } from './controls';
+import { createSpecificShape, setCanvasBackground } from './shapes.util';
 
 const rotateSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
 
@@ -55,7 +54,7 @@ export const initializeFabric = ({
   const canvasElement = getCanvasElement();
 
   // Get the parent container dimensions
-  const maxWidth = canvasElement?.clientWidth;
+  const maxWidth = canvasElement?.clientWidth || 500;
   const maxHeight = 500; // Maximum height constraint
 
   // Check if canvas ref is available
@@ -79,7 +78,7 @@ export const initializeFabric = ({
   }
   //fabricjs.com/docs/configuring-defaults/
 
-  https: FabricObject.ownDefaults = {
+  FabricObject.ownDefaults = {
     ...FabricObject.ownDefaults,
     selectable: true,
     objectCaching: false,

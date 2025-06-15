@@ -1,9 +1,16 @@
+import type { Canvas, FabricObject } from 'fabric';
+import { PencilBrush } from 'fabric';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-
 import { v4 as uuidv4 } from 'uuid';
+
+import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import { Button, Icon } from '@extension/ui';
+
 import { defaultNavElement } from '@src/constants';
 import type { ActiveElement, Attributes } from '@src/models';
-// import { useCreateIssueMutation } from '@/store/issues';
+
+import { AnnotationSection } from './annotation-section.feature';
+import AnnotationSidebarFeature from './annotation-sidebar.feature';
 import {
   handleCanvasMouseMove,
   handleCanvasMouseDown,
@@ -24,11 +31,8 @@ import {
   setCanvasBackground,
   getShadowHostElement,
 } from '../../utils/annotation';
-import { Button, Icon, useToast } from '@extension/ui';
-import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
-import AnnotationSidebarFeature from './annotation-sidebar.feature';
-import { AnnotationSection } from './annotation-section.feature';
-import { Canvas, FabricObject, PencilBrush } from 'fabric';
+
+// import { useCreateIssueMutation } from '@/store/issues';
 
 const AnnotationContainer = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
   /**
@@ -36,7 +40,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * use client project id
    */
   const { id: projectId } = { id: uuidv4() };
-  const { toast } = useToast();
 
   const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
@@ -318,12 +321,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
     if (!attachments?.length) {
       // Close annotation modal
-
-      toast({
-        variant: 'destructive',
-        description: 'No screenshots available. Please try capturing again!',
-      });
-
+      toast.error('No screenshots available. Please try capturing again!');
       return;
     }
 

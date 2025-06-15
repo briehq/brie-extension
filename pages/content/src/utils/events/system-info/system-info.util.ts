@@ -1,12 +1,12 @@
-import { getExtensionContext } from './extension-context.util';
-import { parseUserAgent } from './user-agent.util';
+import type { SystemInfo } from '@src/interfaces/events';
+
 import { getBatteryInfo } from './battery-info.util';
-import { getNetworkInfo } from './network-info.util';
+import { getExtensionContext } from './extension-context.util';
+import { getIncognitoStatus } from './incognito-status.util';
 import { getLanguageInfo } from './language-info.util';
 import { getMemoryInfo } from './memory-info.util';
-import { getIncognitoStatus } from './incognito-status.util';
-
-import type { SystemInfo } from '@src/interfaces/events';
+import { getNetworkInfo } from './network-info.util';
+import { parseUserAgent } from './user-agent.util';
 
 /**
  * Collects environment information useful for debugging or diagnostics.
@@ -23,10 +23,10 @@ export const getSystemInfo = async (): Promise<SystemInfo> => {
   return {
     battery: batteryInfo,
     browser: {
-      ...systemInfo.browser,
+      ...(await systemInfo).browser,
       isIncognito,
     },
-    os: systemInfo.os,
+    os: (await systemInfo).os,
     network: getNetworkInfo(),
     locale: getLanguageInfo(),
     memory: getMemoryInfo(),

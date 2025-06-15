@@ -1,19 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { sensitiveKeywordsPatterns } from '../constants/sensitive-keywords.constants.js';
-import { REDACTED_KEYWORD } from '../constants/redacted-keyword.constants.js';
-import { sensitivePatterns } from '../constants/sensitive-patterns.constants.js';
 import { isNonProduction } from './is-non-production.util.js';
+import { REDACTED_KEYWORD } from '../constants/redacted-keyword.constants.js';
+import { sensitiveKeywordsPatterns } from '../constants/sensitive-keywords.constants.js';
+import { sensitivePatterns } from '../constants/sensitive-patterns.constants.js';
 
 const redactSkipCache = new Map<string, boolean>();
-
-/**
- * Registers a custom redaction regex pattern for matching sensitive values.
- * @param pattern - The RegExp pattern used for redaction.
- * @param groupIndex - Optional group index in the RegExp to target a submatch.
- */
-export const registerCustomRedactionPattern = (pattern: RegExp, groupIndex?: number) => {
-  sensitivePatterns.push({ pattern, groupIndex });
-};
 
 /**
  * Determines if an object contains a context where `name` matches a sensitive key.
@@ -134,4 +125,13 @@ export const deepRedactSensitiveInfo = (input: any, url?: string): any => {
   }
 
   return deepRedactInternal(input, shouldSkipRedaction);
+};
+
+/**
+ * Registers a custom redaction regex pattern for matching sensitive values.
+ * @param pattern - The RegExp pattern used for redaction.
+ * @param groupIndex - Optional group index in the RegExp to target a submatch.
+ */
+export const registerCustomRedactionPattern = (pattern: RegExp, groupIndex?: number) => {
+  sensitivePatterns.push({ pattern, groupIndex });
 };
