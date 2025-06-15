@@ -1,4 +1,4 @@
-import { safeStructuredClone } from './structured-clone.util.js';
+import { safeStructuredClone } from './structured-clone.util';
 
 /**
  * Safely sends a message using `window.postMessage`, ensuring no un-cloneable
@@ -7,7 +7,7 @@ import { safeStructuredClone } from './structured-clone.util.js';
  * @param type - A string identifier for the message (e.g. 'ADD_RECORD')
  * @param payload - The data to send. Should be plain and serializable.
  */
-export const safePostMessage = (type: string, payload: Record<string, any>) => {
+export const safePostMessage = (type: string, payload: Record<string, unknown>) => {
   try {
     const message = {
       type,
@@ -15,7 +15,7 @@ export const safePostMessage = (type: string, payload: Record<string, any>) => {
     };
 
     window.postMessage(message, '*');
-  } catch (e) {
+  } catch {
     /**
      * @todo
      * implement logs

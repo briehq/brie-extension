@@ -202,9 +202,15 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
       type-fest:
         specifier: ^4.38.0
         version: 4.40.0
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/env:
     dependencies:
@@ -215,6 +221,12 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/hmr:
     devDependencies:
@@ -224,6 +236,9 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
       '@rollup/plugin-sucrase':
         specifier: ^5.0.2
         version: 5.0.2(rollup@4.40.0)
@@ -239,6 +254,9 @@ importers:
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.11.21)(@types/node@22.14.1)(typescript@5.8.3)
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
       ws:
         specifier: ^8.18.1
         version: 8.18.1
@@ -252,6 +270,12 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/shared:
     devDependencies:
@@ -261,12 +285,24 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/storage:
     devDependencies:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/store:
     dependencies:
@@ -301,6 +337,12 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/tailwindcss-config:
     devDependencies:
@@ -391,9 +433,12 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
-      tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.15
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/vite-config:
     dependencies:
@@ -410,6 +455,9 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.1
         version: 3.9.0(vite@6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/zipper:
     devDependencies:
@@ -422,6 +470,12 @@ importers:
       '@extension/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@extension/vite-config':
+        specifier: workspace:*
+        version: link:../vite-config
+      vite:
+        specifier: 6.1.0
+        version: 6.1.0(@types/node@22.14.1)(jiti@2.4.2)(sass@1.79.4)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   pages/content:
     dependencies:
@@ -2315,10 +2369,6 @@ packages:
     resolution: {integrity: sha512-itaWrbYbqpGXkGhZPGUulwnhVf5Hpy1xiCFsGqyIGglbBxmG5vSjxQen3/WGOjPpNEv1RtBLKxbmVXm8HpJStQ==}
     engines: {node: '>= 0.4'}
 
-  array-union@2.1.0:
-    resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
-    engines: {node: '>=8'}
-
   array.prototype.findlast@1.2.5:
     resolution: {integrity: sha512-CVvd6FHg1Z3POpBLxO6E6zr+rSKEQ9L6rZHAaY7lLfhKsWYUBBOuMs0e9o24oopj6H+geRCX0YJ+TJLBK2eHyQ==}
     engines: {node: '>= 0.4'}
@@ -2888,10 +2938,6 @@ packages:
 
   diffie-hellman@5.0.3:
     resolution: {integrity: sha512-kqag/Nl+f3GwyK25fhUMYj81BUOrZ9IuJsjIcDE5icNM9FJHAVm3VcUDxdLPoQtTuUylWm6ZIknYJwwaPxsUzg==}
-
-  dir-glob@3.0.1:
-    resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
-    engines: {node: '>=8'}
 
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
@@ -3509,10 +3555,6 @@ packages:
   globalthis@1.0.4:
     resolution: {integrity: sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==}
     engines: {node: '>= 0.4'}
-
-  globby@11.1.0:
-    resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
-    engines: {node: '>=10'}
 
   goober@2.1.16:
     resolution: {integrity: sha512-erjk19y1U33+XAMe1VTvIONHYoSqE4iS7BYUZfHaqeohLmnC0FdxEh7rQU+6MZ4OajItzjZFSRtVANrQwNq6/g==}
@@ -4195,10 +4237,6 @@ packages:
     resolution: {integrity: sha512-avsJQhyd+680gKXyG/sQc0nXaC6rBkPOfyHYcFb9+hdkqQkR9bdnkJ0AMZhke0oesPqIO+mFFJ+IdBc7mst4IA==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  mylas@2.1.13:
-    resolution: {integrity: sha512-+MrqnJRtxdF+xngFfUUkIMQrUUL0KsxbADUkn23Z/4ibGg192Q+z+CQyiYwvWTsYjJygmMR8+w3ZDa98Zh6ESg==}
-    engines: {node: '>=12.0.0'}
-
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -4456,10 +4494,6 @@ packages:
     resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
     engines: {node: 20 || >=22}
 
-  path-type@4.0.0:
-    resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
-    engines: {node: '>=8'}
-
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
 
@@ -4497,10 +4531,6 @@ packages:
   pkg-dir@5.0.0:
     resolution: {integrity: sha512-NPE8TDbzl/3YQYY7CSS228s3g2ollTFnc+Qi3tqmqJp9Vg2ovUpixcJEo2HJScN2Ez+kEaal6y70c0ehqJBJeA==}
     engines: {node: '>=10'}
-
-  plimit-lit@1.6.1:
-    resolution: {integrity: sha512-B7+VDyb8Tl6oMJT9oSO2CW8XC/T4UcJGrwOVoNGwOQsQYhlpfajmrMj5xeejqaASq3V/EqThyOeATEOMuSEXiA==}
-    engines: {node: '>=12'}
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -4691,10 +4721,6 @@ packages:
 
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
-
-  queue-lit@1.5.2:
-    resolution: {integrity: sha512-tLc36IOPeMAubu8BkW8YDBV+WyIgKlYU7zUNs0J5Vk9skSZ4JfGlPOqplP0aHdfv7HL0B2Pg6nwiq60Qc6M2Hw==}
-    engines: {node: '>=12'}
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -5335,11 +5361,6 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
-
-  tsc-alias@1.8.15:
-    resolution: {integrity: sha512-yKLVx8ddUurRwhVcS6JFF2ZjksOX2ZWDRIdgt+PQhJBDegIdAdilptiHsuAbx9UFxa16GFrxeKQ2kTcGvR6fkQ==}
-    engines: {node: '>=16.20.2'}
-    hasBin: true
 
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
@@ -7538,8 +7559,6 @@ snapshots:
       get-intrinsic: 1.3.0
       is-string: 1.1.1
 
-  array-union@2.1.0: {}
-
   array.prototype.findlast@1.2.5:
     dependencies:
       call-bind: 1.0.8
@@ -8181,10 +8200,6 @@ snapshots:
       bn.js: 4.12.1
       miller-rabin: 4.0.1
       randombytes: 2.1.0
-
-  dir-glob@3.0.1:
-    dependencies:
-      path-type: 4.0.0
 
   dlv@1.1.3: {}
 
@@ -9086,15 +9101,6 @@ snapshots:
       define-properties: 1.2.1
       gopd: 1.2.0
 
-  globby@11.1.0:
-    dependencies:
-      array-union: 2.1.0
-      dir-glob: 3.0.1
-      fast-glob: 3.3.3
-      ignore: 5.3.2
-      merge2: 1.4.1
-      slash: 3.0.0
-
   goober@2.1.16(csstype@3.1.3):
     dependencies:
       csstype: 3.1.3
@@ -9817,8 +9823,6 @@ snapshots:
 
   mute-stream@1.0.0: {}
 
-  mylas@2.1.13: {}
-
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
@@ -10117,8 +10121,6 @@ snapshots:
       lru-cache: 11.1.0
       minipass: 7.1.2
 
-  path-type@4.0.0: {}
-
   pathe@1.1.2: {}
 
   pbkdf2@3.1.2:
@@ -10146,10 +10148,6 @@ snapshots:
   pkg-dir@5.0.0:
     dependencies:
       find-up: 5.0.0
-
-  plimit-lit@1.6.1:
-    dependencies:
-      queue-lit: 1.5.2
 
   possible-typed-array-names@1.1.0: {}
 
@@ -10282,8 +10280,6 @@ snapshots:
 
   querystringify@2.2.0:
     optional: true
-
-  queue-lit@1.5.2: {}
 
   queue-microtask@1.2.3: {}
 
@@ -11049,16 +11045,6 @@ snapshots:
       yn: 3.1.1
     optionalDependencies:
       '@swc/core': 1.11.21
-
-  tsc-alias@1.8.15:
-    dependencies:
-      chokidar: 3.6.0
-      commander: 9.5.0
-      get-tsconfig: 4.10.0
-      globby: 11.1.0
-      mylas: 2.1.13
-      normalize-path: 3.0.0
-      plimit-lit: 1.6.1
 
   tsconfig-paths@3.15.0:
     dependencies:

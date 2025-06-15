@@ -8,15 +8,18 @@
   "files": [
     "dist/**"
   ],
-  "types": "index.mts",
+  "types": "dist/index.d.mts",
   "main": "dist/index.mjs",
   "scripts": {
     "clean:bundle": "rimraf dist && pnpx rimraf build",
     "clean:node_modules": "pnpx rimraf node_modules",
     "clean:turbo": "rimraf .turbo",
     "clean": "pnpm clean:bundle && pnpm clean:node_modules && pnpm clean:turbo",
-    "ready": "tsc -b && rollup --config dist/rollup.config.js",
-    "dev": "node dist/lib/initializers/initReloadServer.js",
+    "ready": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck && npx tsc lib/injections/*.ts --outDir . --target es2020 --module commonjs",
+    "build": "vite build && npx tsc --emitDeclarationOnly --skipLibCheck && npx tsc lib/injections/*.ts --outDir . --target es2020 --module commonjs",
+    "build:rollup": "tsc -b && rollup --config dist/rollup.config.js",
+    "dev": "vite build --mode development",
+    "dev:server": "node dist/lib/initializers/initReloadServer.js",
     "lint": "eslint .",
     "lint:fix": "pnpm lint --fix",
     "format": "prettier . --write --ignore-path ../../.prettierignore",
@@ -25,11 +28,13 @@
   "devDependencies": {
     "@extension/tsconfig": "workspace:*",
     "@extension/env": "workspace:*",
+    "@extension/vite-config": "workspace:*",
     "@rollup/plugin-sucrase": "^5.0.2",
     "@types/ws": "^8.18.0",
     "esm": "^3.2.25",
     "rollup": "^4.38.0",
     "ts-node": "^10.9.2",
+    "vite": "6.1.0",
     "ws": "^8.18.1"
   }
 }

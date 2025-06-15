@@ -1,5 +1,5 @@
-import { authSlice } from './auth.reducer.js';
+import { authSlice } from './auth.reducer';
 
-export { authPublicAPI } from './auth-public.api.js';
+export { authPublicAPI } from './auth-public.api';
 
 export const authReducer = authSlice.reducer;

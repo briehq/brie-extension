@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { zipBundle } from './lib/index.js';
+import { zipBundle } from './lib/index';
 import { IS_FIREFOX } from '@extension/env';
 
 const YYYY_MM_DD = new Date().toISOString().slice(0, 10).replace(/-/g, '');
