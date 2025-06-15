@@ -21,6 +21,10 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     await pendingReloadTabsStorage.remove(tabId);
   }
 
+  // Always clean up records for any closed tab
+  deleteRecords(tabId);
+
+  // Additional cleanup for capture tabs only
   const captureTabId = await captureTabStorage.getCaptureTabId();
   if (tabId === captureTabId) {
     await captureStateStorage.setCaptureState('idle');
@@ -28,8 +32,6 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
     annotationsStorage.setAnnotations([]);
     annotationsRedoStorage.setAnnotations([]);
-
-    deleteRecords(tabId);
   }
 });
 

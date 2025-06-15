@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
@@ -41,11 +42,19 @@ export const CaptureScreenshotGroup = () => {
 
   const [activeTab, setActiveTab] = useState({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
+  const isCaptureScreenshotDisabled = useMemo(() => {
+    // Skip limit check in dev/sandbox environments
+    if (IS_DEV) {
+      return false;
+    }
 
-  const isCaptureScreenshotDisabled = useMemo(
-    () => totalSlicesCreatedToday > 10 && user?.fields?.authMethod === 'GUEST',
-    [totalSlicesCreatedToday, user?.fields?.authMethod],
-  );
+    // Only disable if:
+    // 1. User is a guest
+    // 2. Has hit the daily limit
+    return (
+      user?.fields?.authMethod === 'GUEST' && totalSlicesCreatedToday > 10 && Boolean(activeTab.id) // Check if there's an active capture tab
+    );
+  }, [totalSlicesCreatedToday, user?.fields?.authMethod, activeTab.id]);
 
   const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(captureState), [captureState]);
 

@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
+import { themeStorage } from '@extension/storage';
+
 import App from '@src/App';
 
 // @ts-expect-error Because file doesn't exist before build
@@ -31,6 +33,14 @@ if (navigator.userAgent.includes('Firefox')) {
   globalStyleSheet.replaceSync(tailwindcssOutput);
   shadowRoot.adoptedStyleSheets = [globalStyleSheet];
 }
+
+// Determine system theme and add it to the shadow host so that Tailwind’s dark mode works
+const currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+rootIntoShadow.classList.add(currentTheme);
+
+// Apply the system theme via the storage API (if you need to persist or listen to changes)
+themeStorage.applySystemTheme();
+themeStorage.listenToSystemThemeChanges();
 
 shadowRoot.appendChild(rootIntoShadow);
 createRoot(rootIntoShadow).render(<App />);

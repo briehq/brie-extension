@@ -23,10 +23,10 @@ export const getSystemInfo = async (): Promise<SystemInfo> => {
   return {
     battery: batteryInfo,
     browser: {
-      ...systemInfo.browser,
+      ...(await systemInfo).browser,
       isIncognito,
     },
-    os: systemInfo.os,
+    os: (await systemInfo).os,
     network: getNetworkInfo(),
     locale: getLanguageInfo(),
     memory: getMemoryInfo(),
