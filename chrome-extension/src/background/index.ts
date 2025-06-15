@@ -1,5 +1,4 @@
 import 'webextension-polyfill';
-import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
 import {
@@ -8,7 +7,6 @@ import {
   captureStateStorage,
   captureTabStorage,
   pendingReloadTabsStorage,
-  userUUIDStorage,
 } from '@extension/storage';
 
 import { addOrMergeRecords, getRecords } from '@src/utils';
