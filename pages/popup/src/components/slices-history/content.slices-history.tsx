@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { Fragment, useState } from 'react';
 
+import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import { AuthMethod, ITEMS_PER_PAGE } from '@extension/shared';
 import type { Pagination } from '@extension/shared';
@@ -96,7 +97,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
                     /**
                      * @todo move to env
                      */
-                    onClick={() => navigateTo(`https://app.briehq.com/s/${item.externalId}`)}>
+                    onClick={() => navigateTo(`${APP_BASE_URL}/s/${item.externalId}`)}>
                     {item.externalId}
                   </button>
                   <p className="text-muted-foreground text-xs">{format(item.createdAt, 'LLL dd, y hh:mm a')}</p>

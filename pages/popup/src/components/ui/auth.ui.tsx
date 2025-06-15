@@ -1,5 +1,4 @@
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
 import { userUUIDStorage } from '@extension/storage';
 import { useLoginGuestMutation } from '@extension/store';
 import { Alert, AlertDescription, Button } from '@extension/ui';
@@ -7,8 +6,6 @@ import { Alert, AlertDescription, Button } from '@extension/ui';
 import { useAuthIdentityProvider } from '@src/hooks';
 
 export const AuthView = () => {
-  const uuid = useStorage(userUUIDStorage);
-
   const { register, isLoading: authIsLoading, error } = useAuthIdentityProvider();
   const [loginGuest, { isLoading: loginGuestIsLoading }] = useLoginGuestMutation();
 
@@ -18,6 +15,12 @@ export const AuthView = () => {
    * - check if  expired both, access token and refresh token
    * - and login back using the existing uuid (the uuid should be stored)
    */
+
+  const handleOnLoginGuest = async () => {
+    const uuid = await userUUIDStorage.getUUID();
+
+    await loginGuest({ uuid });
+  };
 
   return (
     <div className="lg:p-8">
@@ -47,7 +50,7 @@ export const AuthView = () => {
             loading={loginGuestIsLoading}
             disabled={loginGuestIsLoading || authIsLoading}
             className="text-muted-foreground text-[13px]"
-            onClick={() => uuid && loginGuest({ uuid })}>
+            onClick={handleOnLoginGuest}>
             Continue as a guest
           </Button>
         </div>
