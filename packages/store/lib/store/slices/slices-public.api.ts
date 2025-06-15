@@ -1,13 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { API_BASE_URL } from '@extension/env';
 import type { Slice } from '@extension/shared';
-import { CEB_API_BASE_URL } from '@extension/env';
 
 import { attachmentUrlPath } from './slices-private.api.js';
 
 export const slicesPublicAPI = createApi({
   reducerPath: 'slices-public',
-  baseQuery: fetchBaseQuery({ baseUrl: CEB_API_BASE_URL }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
   endpoints: build => ({
     getPublicSliceById: build.query<Slice, { id: string }>({
       query: ({ id }) => ({

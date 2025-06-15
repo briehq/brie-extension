@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
 import { differenceInCalendarDays, isWithinInterval, addDays, parseISO } from 'date-fns';
+import { useEffect, useMemo } from 'react';
 
 import type { Subscription } from '@extension/shared';
 

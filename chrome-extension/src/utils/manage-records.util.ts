@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
 
-const restricted = ['https://api.briehq.com']; // 'extend.iife',  'kbmbnelnoppneadncmmkfikbcgmilbao'  Note: it blocks the logs
+const restricted = ['https://api.briehq.com', 'https://sandbox-api.briehq.com']; // 'extend.iife',  'kbmbnelnoppneadncmmkfikbcgmilbao'  Note: it blocks the logs
 const invalidRecord = (entity: string) => restricted.some(word => entity.includes(word));
 
 const tabRecordsMap = new Map<number, Map<string, any>>();

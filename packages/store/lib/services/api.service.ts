@@ -3,14 +3,14 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 import { Mutex } from 'async-mutex';
 import { toast } from 'react-hot-toast';
 
+import { API_BASE_URL } from '@extension/env';
 import type { Tokens, UserAndTokensResponse } from '@extension/shared';
-import { CEB_API_BASE_URL } from '@extension/env';
 import { authTokensStorage } from '@extension/storage';
 
 const mutex = new Mutex();
 const baseQuery = (type: 'access' | 'refresh') =>
   fetchBaseQuery({
-    baseUrl: CEB_API_BASE_URL,
+    baseUrl: API_BASE_URL,
     prepareHeaders: async headers => {
       const tokens = await authTokensStorage.getTokens();
       const token = type === 'access' ? tokens.accessToken : tokens.refreshToken;

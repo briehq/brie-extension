@@ -1,6 +1,7 @@
 import 'webextension-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 
+import { t } from '@extension/i18n';
 import {
   annotationsRedoStorage,
   annotationsStorage,
@@ -9,10 +10,21 @@ import {
   pendingReloadTabsStorage,
   userUUIDStorage,
 } from '@extension/storage';
+
 import { addOrMergeRecords, getRecords } from '@src/utils';
 import { deleteRecords } from '@src/utils/manage-records.util';
 
 chrome.tabs.onRemoved.addListener(async tabId => {
+  // Remove closed tab from pending reload tabs
+  const pendingTabIds = await pendingReloadTabsStorage.getAll();
+  if (pendingTabIds.includes(tabId)) {
+    await pendingReloadTabsStorage.remove(tabId);
+  }
+
+  // Always clean up records for any closed tab
+  deleteRecords(tabId);
+
+  // Additional cleanup for capture tabs only
   const captureTabId = await captureTabStorage.getCaptureTabId();
   if (tabId === captureTabId) {
     await captureStateStorage.setCaptureState('idle');
@@ -20,12 +32,18 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
     annotationsStorage.setAnnotations([]);
     annotationsRedoStorage.setAnnotations([]);
-
-    deleteRecords(tabId);
   }
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  // If tab finished loading (refreshed), remove it from pending reload tabs
+  if (changeInfo.status === 'complete') {
+    const pendingTabIds = await pendingReloadTabsStorage.getAll();
+    if (pendingTabIds.includes(tabId)) {
+      await pendingReloadTabsStorage.remove(tabId);
+    }
+  }
+
   if (changeInfo.status !== 'loading') return;
 
   const [state, capturedTabId] = await Promise.all([
@@ -122,6 +140,57 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
         }
       });
     });
+  }
+
+  // Creates parent context menu item
+  chrome.contextMenus.create({
+    id: 'capture_parent',
+    title: t('extensionName'),
+    contexts: ['all'],
+  });
+
+  // Define the child options
+  const captureOptions = [
+    { id: 'area', title: t('area') },
+    { id: 'full-page', title: t('fullPage') },
+    { id: 'viewport', title: t('viewport') },
+  ];
+
+  captureOptions.forEach(({ id, title }) => {
+    chrome.contextMenus.create({
+      id,
+      parentId: 'capture_parent',
+      title,
+      contexts: ['all'],
+    });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (!tab?.id) return; //skip if tab is invalid
+
+  const type = info.menuItemId as 'area' | 'viewport' | 'full-page';
+
+  // Updates capture state and active tab
+  await captureStateStorage.setCaptureState('capturing');
+  await captureTabStorage.setCaptureTabId(tab.id);
+
+  // Sends message to contentScript to start capture
+  if (type) {
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        action: 'START_SCREENSHOT',
+        payload: { type },
+      },
+      response => {
+        if (chrome.runtime.lastError) {
+          console.error('Error starting capture:', type, chrome.runtime.lastError.message);
+        } else {
+          console.log('Capture started:', type, response);
+        }
+      },
+    );
   }
 });
 

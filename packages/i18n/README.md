@@ -139,7 +139,7 @@ console.log(t('hello', ['World'])); // Hello World
 
 ### Locale setting on development
 
-If you want to enforce displaying specific language, you need to set `CEB_DEV_LOCALE` in `.env` file (work only for development).
+If you want to enforce displaying specific language, you need to set `DEV_LOCALE` in `.env` file (work only for development).
 
 ### Type Safety
 

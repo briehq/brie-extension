@@ -1,7 +1,9 @@
-import { IS_FIREFOX } from '@extension/env';
 import { unlinkSync, writeFileSync } from 'node:fs';
 import { basename, resolve, sep } from 'node:path';
+
 import type { PluginOption } from 'vite';
+
+import { IS_FIREFOX } from '@extension/env';
 
 /**
  * Extract content directory from output directory for Firefox

@@ -5,26 +5,31 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   prettier:
     name: Prettier Check
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+      - uses: pnpm/action-setup@v4
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run Prettier
-        id: prettier-run
-        uses: rutajdash/prettier-cli-action@v1.0.0
-        with:
-          config_path: ./.prettierrc
-          file_pattern: '*.{js,jsx,ts,tsx,json}'
-
-      # This step only runs if prettier finds errors causing the previous step to fail
-      # This steps lists the files where errors were found
-      - name: Prettier Output
-        if: ${{ failure() }}
-        shell: bash
-        run: |
-          echo "The following files aren't formatted properly:"
-          echo "${{steps.prettier-run.outputs.prettier_output}}"
+        run: npx prettier --check \
+          --config ./.prettierrc \
+          --ignore-path ./.prettierignore \
+          --no-error-on-unmatched-pattern \
+          '**/*.{js,jsx,ts,tsx,json}'

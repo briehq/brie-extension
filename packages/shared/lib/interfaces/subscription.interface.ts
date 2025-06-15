@@ -1,5 +1,5 @@
-import type { SubscriptionStatus } from '../constants/index.js';
 import type { Organization } from './organization.interface.js';
+import type { SubscriptionStatus } from '../constants/index.js';
 
 export interface Subscription {
   id: string;

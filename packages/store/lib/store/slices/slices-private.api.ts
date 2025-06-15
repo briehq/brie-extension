@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+import { API_BASE_URL } from '@extension/env';
 import type { Slice, Pagination } from '@extension/shared';
-import { CEB_API_BASE_URL } from '@extension/env';
 
 import { baseQueryWithReauth } from '../../services/index.js';
 
@@ -12,7 +12,7 @@ export const attachmentUrlPath = (a: Slice) => {
   };
 
   const uploadPath = (uploadPaths as any)[a.type] || uploadPaths.default;
-  return `${CEB_API_BASE_URL}/uploads/${uploadPath}/${a.externalId}`;
+  return `${API_BASE_URL}/uploads/${uploadPath}/${a.externalId}`;
 };
 
 export const slicesPrivateAPI = createApi({

@@ -1,5 +1,5 @@
+import { clsx } from 'clsx';
 import type { ReactNode } from 'react';
-import clsx from 'clsx';
 
 import { Button } from './button';
 import { Icon } from './icon';

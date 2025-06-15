@@ -1,14 +1,15 @@
-import { Fragment, useState } from 'react';
 import { format } from 'date-fns';
+import { Fragment, useState } from 'react';
 
-import { Alert, AlertDescription, AlertTitle, Button, Icon, Separator } from '@extension/ui';
-import { useAppSelector, useDeleteSliceByIdMutation, useGetSlicesQuery, useUser } from '@extension/store';
-import type { Pagination } from '@extension/shared';
-import { AuthMethod, ITEMS_PER_PAGE } from '@extension/shared';
 import { t } from '@extension/i18n';
+import { AuthMethod, ITEMS_PER_PAGE } from '@extension/shared';
+import type { Pagination } from '@extension/shared';
+import { useAppSelector, useDeleteSliceByIdMutation, useGetSlicesQuery, useUser } from '@extension/store';
+import { Alert, AlertDescription, AlertTitle, Button, Icon, Separator } from '@extension/ui';
 
 import { useSlicesCreatedToday } from '@src/hooks';
 import { navigateTo } from '@src/utils';
+
 import { CardSkeleton } from './card-skeleton.slice-history';
 
 export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
@@ -21,9 +22,9 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
   });
 
   const [deleteSliceByExternalId, { isLoading: isDeleteSliceLoading }] = useDeleteSliceByIdMutation();
-  const { isLoading, isError, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
+  const { isLoading, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
 
-  const previewScreenshotUrl = attachments => attachments.find(a => a?.name === 'primary')?.preview;
+  const previewScreenshotUrl = (attachments: any) => attachments.find((a: any) => a?.name === 'primary')?.preview;
 
   const onDeleteAll = () => {
     // Handle delete all logic
@@ -54,12 +55,12 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
         <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
 
         {user.fields?.authMethod === AuthMethod.GUEST && (
-          <p className="text-sm font-medium text-muted-foreground text-red-500">
+          <p className="text-muted-foreground text-sm font-medium text-red-500">
             {totalSlicesCreatedToday}/10 {t('slicesLimitLabel')}
           </p>
         )}
       </div>
-      <p className="mb-4 text-xs text-muted-foreground">
+      <p className="text-muted-foreground mb-4 text-xs">
         {t('slicesSaved')} <span className="font-medium">{t('deleted')}</span> {t('slicesSavedLimit')}
       </p>
 
@@ -68,7 +69,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
       {isLoading && <CardSkeleton />}
 
       {!isLoading && !slices?.items?.length && (
-        <Alert className="text-center mt-5">
+        <Alert className="mt-5 text-center">
           <AlertTitle className="text-[14px]">{t('noSlicesYet')}</AlertTitle>
           <AlertDescription className="text-[12px]">{t('noSlicesYetDescription')}</AlertDescription>
         </Alert>
@@ -91,14 +92,14 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
 
                 <div className="flex-1">
                   <button
-                    className="max-w-[240px] truncate text-sm font-medium text-slate-700 hover:underline"
+                    className="max-w-[240px] truncate text-sm font-medium text-slate-700 hover:underline dark:text-[#df8801]"
                     /**
                      * @todo move to env
                      */
                     onClick={() => navigateTo(`https://app.briehq.com/s/${item.externalId}`)}>
                     {item.externalId}
                   </button>
-                  <p className="text-xs text-muted-foreground">{format(item.createdAt, 'LLL dd, y hh:mm a')}</p>
+                  <p className="text-muted-foreground text-xs">{format(item.createdAt, 'LLL dd, y hh:mm a')}</p>
                 </div>
                 <Button
                   variant="ghost"

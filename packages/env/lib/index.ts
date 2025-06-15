@@ -1,10 +1,10 @@
 import { config } from '@dotenvx/dotenvx';
 
-import { CLI_CEB_ENV } from './const.js';
+import { CLI_ENV } from './const.js';
 
 /**
  * @todo
- * check why CLI_CEB_ENV doesn't work
+ * check why CLI_ENV doesn't work
  */
 export const baseEnv =
   config({
@@ -12,5 +12,5 @@ export const baseEnv =
   }).parsed ?? {};
 
 export const dynamicEnvValues = {
-  CEB_NODE_ENV: baseEnv.CEB_DEV === 'true' ? 'development' : 'production',
+  NODE_ENV: baseEnv.DEV === 'true' ? 'development' : 'production',
 } as const;

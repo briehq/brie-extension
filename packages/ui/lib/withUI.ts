@@ -3,15 +3,6 @@ import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
 import tailwindAnimate from 'tailwindcss-animate';
 
-export function withUI(tailwindConfig: Config): Config {
-  return deepmerge(
-    shadcnConfig,
-    deepmerge(tailwindConfig, {
-      content: ['./node_modules/@extension/ui/lib/**/*.{tsx,ts,js,jsx}'],
-    }),
-  );
-}
-
 const shadcnConfig = {
   darkMode: ['class'],
   theme: {
@@ -83,4 +74,13 @@ const shadcnConfig = {
     },
   },
   plugins: [tailwindAnimate],
+};
+
+export const withUI = (tailwindConfig: Config): Config => {
+  return deepmerge(
+    shadcnConfig,
+    deepmerge(tailwindConfig, {
+      content: ['./node_modules/@extension/ui/lib/**/*.{tsx,ts,js,jsx}'],
+    }),
+  );
 };

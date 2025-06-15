@@ -1,5 +1,6 @@
+import { IS_DEV, NAME } from '@extension/env';
 import { Button, Icon } from '@extension/ui';
-import { CEB_NAME } from '@extension/env';
+
 import { navigateTo } from '@src/utils';
 
 export const Header = () => {
@@ -12,7 +13,7 @@ export const Header = () => {
         className="flex items-center gap-x-2">
         <img src={logo} className="size-10" alt="Brie" />
 
-        <h1 className="text-xl font-semibold text-[#df8801] -ml-1.5">{CEB_NAME}</h1>
+        {IS_DEV && <h1 className="-ml-1.5 text-xl font-semibold text-[#df8801]">{NAME}</h1>}
       </button>
       <div className="flex items-center">
         <Button

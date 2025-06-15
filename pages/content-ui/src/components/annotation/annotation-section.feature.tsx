@@ -9,6 +9,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@extension/ui';
+
 import { shortcuts } from '@src/constants';
 import { exportToPng } from '@src/utils/annotation';
 

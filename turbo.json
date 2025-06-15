@@ -1,9 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalEnv": ["CEB_*", "CLI_CEB_*"],
+  "globalEnv": ["*", "CLI_*"],
   "globalDependencies": [".env"],
-  "daemon": false,
+  "daemon": true,
   "tasks": {
     "ready": {
       "dependsOn": ["^ready"],
@@ -19,16 +19,16 @@
     "build": {
       "dependsOn": ["ready", "^build"],
       "outputs": ["../../dist/**", "dist/**"],
-      "cache": false
+      "cache": true
     },
     "e2e": {
       "cache": false
     },
     "type-check": {
-      "cache": false
+      "cache": true
     },
     "lint": {
-      "cache": false
+      "cache": true
     },
     "lint:fix": {
       "cache": false

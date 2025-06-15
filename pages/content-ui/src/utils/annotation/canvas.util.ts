@@ -1,6 +1,5 @@
-import type { MutableRefObject } from 'react';
-
 import { fabric } from 'fabric';
+import type { RefObject } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
 import { defaultNavElement } from '@src/constants';
@@ -46,15 +45,15 @@ export const initializeFabric = ({
   canvasRef,
   backgroundImage,
 }: {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
-  canvasRef: MutableRefObject<HTMLCanvasElement | null>;
+  fabricRef: RefObject<fabric.Canvas | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
   backgroundImage: string;
 }) => {
   // get canvas element
   const canvasElement = getCanvasElement();
 
   // Get the parent container dimensions
-  const maxWidth = canvasElement?.clientWidth;
+  const maxWidth = canvasElement?.clientWidth || 500;
   const maxHeight = 500; // Maximum height constraint
 
   // Create the Fabric.js canvas
@@ -79,12 +78,13 @@ export const initializeFabric = ({
 
   // Customize corner controls
   for (const control in fabric.Object.prototype.controls) {
+    // eslint-disable-next-line no-prototype-builtins
     if (fabric.Object.prototype.controls.hasOwnProperty(control)) {
       const ctrl = fabric.Object.prototype.controls[control];
       // ctrl.cornerStyle = 'circle';
-      ctrl.cornerColor = 'blue';
+      (ctrl as any).cornerColor = 'blue';
       // ctrl.cornerStrokeColor = 'white';
-      ctrl.cornerSize = 9;
+      (ctrl as any).cornerSize = 9;
       // ctrl.visible = true; // Ensure controls are visible
 
       if (control === 'mtr') {
@@ -117,7 +117,7 @@ export const initializeFabric = ({
         // Custom rendering for the controls
         ctrl.render = function (ctx, left, top, styleOverride, fabricObject) {
           ctx.save();
-          const size = this.cornerSize; // Control size
+          const size = (this as any).cornerSize; // Control size
           const radius = 2.5; // Radius for rounded corners
 
           // Draw background (white square with rounded corners)

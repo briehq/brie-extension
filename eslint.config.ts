@@ -1,4 +1,5 @@
 import { fixupConfigRules } from '@eslint/compat';
+import type { FixupConfigArray } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 import { flatConfigs as importXFlatConfig } from 'eslint-plugin-import-x';
@@ -7,7 +8,6 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import reactPlugin from 'eslint-plugin-react';
 import { browser, es2020, node } from 'globals';
 import { config, configs as tsConfigs, parser as tsParser } from 'typescript-eslint';
-import type { FixupConfigArray } from '@eslint/compat';
 
 export default config(
   // Shared configs
@@ -67,14 +67,19 @@ export default config(
       'import-x/order': [
         'error',
         {
-          'newlines-between': 'never',
+          'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true },
-          groups: ['index', 'sibling', 'parent', 'internal', 'external', 'builtin', 'object', 'type'],
+          groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
           pathGroups: [
             {
-              pattern: '@*/**',
+              pattern: '@extension/**',
               group: 'internal',
               position: 'before',
+            },
+            {
+              pattern: '@src/**',
+              group: 'internal',
+              position: 'after',
             },
           ],
           pathGroupsExcludedImportTypes: ['type'],
@@ -89,6 +94,13 @@ export default config(
       'import-x/consistent-type-specifier-style': 'error',
       'import-x/exports-last': 'error',
       'import-x/first': 'error',
+      /**
+       * @todo
+       * switch/remove bellow rules
+       * once the team feels more comfortable with our codebase
+       */
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
     },
     linterOptions: {
       reportUnusedDisableDirectives: 'error',

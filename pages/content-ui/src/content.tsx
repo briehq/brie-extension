@@ -1,10 +1,10 @@
 import { memo, useMemo, useState } from 'react';
 
+import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import { AuthMethod } from '@extension/shared';
-import { CEB_APP_BASE_URL } from '@extension/env';
 import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, useToast } from '@extension/ui';
+import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, toast } from '@extension/ui';
 
 import AnnotationContainer from './components/annotation/annotation-container';
 import { useViewportSize } from './hooks';
@@ -12,7 +12,6 @@ import { base64ToFile, createJsonFile } from './utils';
 import { getCanvasElement } from './utils/annotation';
 
 const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: { name: string; image: string }[] }) => {
-  const { toast } = useToast();
   const { width } = useViewportSize();
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -57,7 +56,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         const jsonFile = createJsonFile(records.flat(), 'records.json');
 
         if (!jsonFile) {
-          toast({ variant: 'destructive', description: t('failedToCreateRecords') });
+          toast.error(t('failedToCreateRecords'));
           return;
         }
 
@@ -67,7 +66,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         const canvas = getCanvasElement();
 
         if (!canvas) {
-          toast({ variant: 'destructive', description: t('failedToCreateRecords') });
+          toast.error(t('failedToCreateRecords'));
           return;
         }
 
@@ -83,26 +82,26 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         const { data } = await createSlice(formData);
         if (data?.externalId) {
-          toast({ description: t('openReport') });
+          toast(t('openReport'));
 
           /**
            * @todo move to env
            */
           setTimeout(() => {
-            window?.open(`${CEB_APP_BASE_URL}/s/${data?.externalId}`, '_blank')?.focus();
+            window?.open(`${APP_BASE_URL}/s/${data?.externalId}`, '_blank')?.focus();
           }, 1000);
 
           onClose();
         } else {
           // GUEST_DAILY_LIMIT and other errors
-          toast({ variant: 'destructive', description: t(data?.message) || t('failedToCreateSlice') });
+          toast.error(t(data?.message) || t('failedToCreateSlice'));
         }
       } else {
-        toast({ variant: 'destructive', description: t('noRecordsCaptured') });
+        toast.error(t('noRecordsCaptured'));
       }
     } catch (error) {
       console.error('[OnCreate Error]:', error);
-      toast({ variant: 'destructive', description: t('unexpectedError') });
+      toast.error(t('unexpectedError'));
     } finally {
       setIsCreateLoading(false);
     }
@@ -133,20 +132,22 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           )}
         </>
       }>
-      <div className="flex h-full flex-col md:flex-row">
+      <div className="flex h-full flex-col md:flex-row dark:bg-black">
         {/* Left Column */}
 
         <div
           className={`flex ${
             showRightSidebar ? 'sm:w-[70%]' : 'w-full'
-          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6`}>
+          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
           {/* Content Section */}
 
           <AnnotationContainer attachments={screenshots} />
 
           {/* Footer Section */}
           <div className="mt-4 flex justify-center">
-            <p className="max-w-lg select-none text-center text-xs text-gray-400">{t('additionalInformation')}</p>
+            <p className="max-w-lg select-none text-center text-xs text-gray-400 dark:text-white">
+              {t('additionalInformation')}
+            </p>
           </div>
 
           {!showRightSidebar && (
@@ -166,7 +167,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             <div className="space-y-4 sm:mt-8">
               <Textarea placeholder="Add a description" rows={width < 500 ? 3 : 10} className="w-full" />
 
-              <small className="select-none text-xs text-gray-400">{t('sliceDescription')}</small>
+              <small className="select-none text-xs text-gray-400 dark:text-white">{t('sliceDescription')}</small>
             </div>
 
             {/* Action Buttons */}
@@ -197,14 +198,17 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
                 </div>
 
                 <Button
-                  className="w-full"
+                  className="w-full dark:text-[#df8801]"
+                  variant="secondary"
                   onClick={handleOnCreate}
                   disabled={isCreateLoading}
                   loading={isCreateLoading}>
                   {t('captureAndShare')}
                 </Button>
               </div>
-              <small className="select-none text-center text-xs text-gray-400">{t('captureAndShareMemo')}</small>
+              <small className="select-none text-center text-xs text-gray-400 dark:text-white">
+                {t('captureAndShareMemo')}
+              </small>
             </div>
           </div>
         )}

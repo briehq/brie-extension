@@ -26,35 +26,38 @@ pnpm run:firefox:production # Dev Firefox with Production env
 Under the hood, this uses the `set-global-env` script to write values into `.env`. You can still manually or programmatically modify values using:
 
 ```bash
-pnpm set-env CLI_CEB_DEV=true CLI_CEB_FIREFOX=false CEB_ENV=development
+pnpm set-env CLI_DEV=true CLI_FIREFOX=false ENV=development
 ```
 
 > **IMPORTANT**
 >
-> - All `CLI_CEB_` values are **overwritten on each call**.
-> - Default values: `CLI_CEB_DEV=false`, `CLI_CEB_FIREFOX=false`.
+> - All `CLI_` values are **overwritten on each call**.
+> - Default values: `CLI_DEV=false`, `CLI_FIREFOX=false`.
 
 ## Add a New Environment Variable
 
 ### Option 1: CLI (for temporary CLI use only)
 
 ```bash
-pnpm set-env CLI_CEB_MY_FLAG=true
+pnpm set-env CLI_MY_FLAG=true
 ```
 
 ### Option 2: Base Environment File
 
-Edit or add to your `.env.development` or `.env.production` files using the `CEB_` prefix:
+Edit or add to your `.env.development` or `.env.production` files.
+Note: Use Sandbox Env as temporary workaround until we open-source the API and App.
 
 ```env
-CEB_API_URL=https://api.local
+NAME=[Sandbox] Brie
+API_BASE_URL=https://sandbox-api.briehq.com
+APP_BASE_URL=https://sandbox.briehq.com
 ```
 
 ## 🔁 Accessing the Variables in Code
 
 ```ts
-console.log(process.env['CEB_MY_FLAG']);
-console.log(process.env.CEB_MY_FLAG); // Also works, but no auto-complete
+console.log(process.env['MY_FLAG']);
+console.log(process.env.MY_FLAG); // Also works, but no auto-complete
 ```
 
 > Use bracket notation for better IDE auto-completion.

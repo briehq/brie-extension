@@ -1,8 +1,9 @@
 import { createRoot } from 'react-dom/client';
+
 import App from '@src/App';
 import injectedStyle from '@src/index.css?inline';
 
-export function mount() {
+export const mount = () => {
   const root = document.createElement('div');
   root.id = 'brie-runtime-root';
 
@@ -32,4 +33,4 @@ export function mount() {
 
   shadowRoot.appendChild(rootIntoShadow);
   createRoot(rootIntoShadow).render(<App />);
-}
+};

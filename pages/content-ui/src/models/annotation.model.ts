@@ -1,7 +1,5 @@
-import type { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'react';
-
-// eslint-disable-next-line import/no-unresolved
 import type { Gradient, Pattern } from 'fabric/fabric-impl';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 export enum CursorMode {
   Hidden,
@@ -74,7 +72,7 @@ export type ModifyShape = {
   canvas: fabric.Canvas;
   property: string;
   value: any;
-  activeObjectRef: MutableRefObject<fabric.Object | null>;
+  activeObjectRef: RefObject<fabric.Object | null>;
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
 
@@ -94,7 +92,7 @@ export type RightSidebarProps = {
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
   fabricRef: RefObject<fabric.Canvas | null>;
   activeObjectRef: RefObject<fabric.Object | null>;
-  isEditingRef: MutableRefObject<boolean>;
+  isEditingRef: RefObject<boolean>;
   syncShapeInStorage: (obj: any) => void;
 };
 
@@ -122,14 +120,14 @@ export type CanvasMouseDown = {
   options: fabric.IEvent;
   canvas: fabric.Canvas;
   selectedShapeRef: any;
-  isDrawing: MutableRefObject<boolean>;
-  shapeRef: MutableRefObject<fabric.Object | null>;
+  isDrawing: RefObject<boolean>;
+  shapeRef: RefObject<fabric.Object | null>;
 };
 
 export type CanvasMouseMove = {
   options: fabric.IEvent;
   canvas: fabric.Canvas;
-  isDrawing: MutableRefObject<boolean>;
+  isDrawing: RefObject<boolean>;
   selectedShapeRef: any;
   shapeRef: any;
   syncShapeInStorage: (shape: fabric.Object) => void;
@@ -137,9 +135,9 @@ export type CanvasMouseMove = {
 
 export type CanvasMouseUp = {
   canvas: fabric.Canvas;
-  isDrawing: MutableRefObject<boolean>;
+  isDrawing: RefObject<boolean>;
   shapeRef: any;
-  activeObjectRef: MutableRefObject<fabric.Object | null>;
+  activeObjectRef: RefObject<fabric.Object | null>;
   selectedShapeRef: any;
   syncShapeInStorage: (shape: fabric.Object) => void;
   setActiveElement: any;
@@ -157,7 +155,7 @@ export type CanvasPathCreated = {
 
 export type CanvasSelectionCreated = {
   options: fabric.IEvent;
-  isEditingRef: MutableRefObject<boolean>;
+  isEditingRef: RefObject<boolean>;
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
 };
 
@@ -167,7 +165,7 @@ export type CanvasObjectScaling = {
 };
 
 export type RenderCanvas = {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
+  fabricRef: RefObject<fabric.Canvas | null>;
   canvasObjects: any;
   activeObjectRef: any;
 };

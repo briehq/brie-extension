@@ -1,8 +1,10 @@
-import { streamFileToZip } from '@extension/dev-utils';
-import fg from 'fast-glob';
-import { Zip } from 'fflate';
 import { createWriteStream, existsSync, mkdirSync } from 'node:fs';
 import { posix, resolve } from 'node:path';
+
+import fg from 'fast-glob';
+import { Zip } from 'fflate';
+
+import { streamFileToZip } from '@extension/dev-utils';
 
 // Converts bytes to megabytes
 const toMB = (bytes: number): number => {

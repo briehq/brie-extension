@@ -8,6 +8,7 @@ type IconProps = {
 } & lucide.LucideProps;
 
 export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
+  // eslint-disable-next-line import-x/namespace
   const Icon = lucide[name] || radix[name];
 
   if (!Icon) {

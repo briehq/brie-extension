@@ -1,16 +1,69 @@
 name: Greetings
 
-on: [pull_request_target, issues]
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
 
 jobs:
-  greeting:
+  greet-user:
+    if: github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       issues: write
       pull-requests: write
+
     steps:
-      - uses: actions/first-interaction@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: 'Thank you for sharing! We appreciate your effort and will review your issue/feature request as soon as possible. Stay tuned for updates! 🚀'
-          pr-message: 'Thank you for your contribution! We appreciate your effort and will review your PR as soon as possible. Stay tuned for updates! 🚀'
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh jq
+
+      - name: Check for prior PRs
+        id: check_contributor
+        run: |
+          ACTOR="$GITHUB_ACTOR"
+          REPO="$GITHUB_REPOSITORY"
+
+          echo "Checking previous PRs by $ACTOR in $REPO..."
+          has_contributions=$(gh api "/repos/$REPO/pulls?state=all&per_page=1&creator=$ACTOR" | jq 'length')
+
+          if [ "$has_contributions" -eq 0 ]; then
+            echo "first_time=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "first_time=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Greet contributor
+        run: |
+          ACTOR="$GITHUB_ACTOR"
+          REPO="$GITHUB_REPOSITORY"
+          IS_FIRST="${{ steps.check_contributor.outputs.first_time }}"
+
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            ISSUE_NUMBER="${{ github.event.issue.number }}"
+
+            if [ "$IS_FIRST" = "true" ]; then
+              MESSAGE="Hey @$ACTOR,\nThanks for opening your first issue! 🐛\n\nWe’ll take a look soon."
+            else
+              MESSAGE="Hey @$ACTOR,\nThanks for reporting another issue! 🙌"
+            fi
+
+            echo -e "$MESSAGE" | gh api --method POST "/repos/$REPO/issues/$ISSUE_NUMBER/comments" -F body=@-
+
+          elif [ "${{ github.event_name }}" = "pull_request_target" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+
+            if [ "$IS_FIRST" = "true" ]; then
+              MESSAGE="Hey @$ACTOR,\nThanks for your first pull request! 🎉\n\nWe’ll review it shortly."
+            else
+              MESSAGE="Hey @$ACTOR,\nThanks for another PR! 🚀"
+            fi
+
+            echo -e "$MESSAGE" | gh api --method POST "/repos/$REPO/issues/$PR_NUMBER/comments" -F body=@-
+          else
+            echo "Unknown event — skipping comment."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
