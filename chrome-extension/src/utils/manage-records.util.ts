@@ -1,13 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { deepRedactSensitiveInfo } from '@extension/shared';
+import { deepRedactSensitiveInfo, RecordType } from '@extension/shared';
 
 const restricted = ['https://api.briehq.com', 'https://sandbox-api.briehq.com']; // 'extend.iife',  'kbmbnelnoppneadncmmkfikbcgmilbao'  Note: it blocks the logs
 const invalidRecord = (entity: string) => restricted.some(word => entity.includes(word));
 
 const tabRecordsMap = new Map<number, Map<string, any>>();
-
-export type RecordType = 'events' | 'network' | 'console' | 'cookies';
 
 export interface Record {
   recordType: RecordType;
@@ -50,7 +48,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
   const uuid = uuidv4();
 
   try {
-    if (record.recordType !== 'network') {
+    if (record.recordType !== RecordType.NETWORK) {
       recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl) });
       return;
     }

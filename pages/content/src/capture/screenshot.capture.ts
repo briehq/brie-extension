@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
 
 import { t } from '@extension/i18n';
+import { MessageType, MessageAction } from '@extension/shared';
 
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -250,7 +251,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     cleanup(); // Cleanup on ESC
 
     // Notify Background on ESC
-    chrome.runtime.sendMessage({ type: 'EXIT_CAPTURE' });
+    chrome.runtime.sendMessage({ type: MessageType.EXIT_CAPTURE });
   }
 };
 
@@ -359,7 +360,7 @@ const showInstructions = () => {
 
 const captureTab = (): Promise<string> =>
   new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, response => {
+    chrome.runtime.sendMessage({ action: MessageAction.CAPTURE_VISIBLE_TAB }, response => {
       if (chrome.runtime.lastError) {
         // Error from Chrome's runtime
         console.log('chrome.runtime.lastError.message', chrome.runtime.lastError.message);
@@ -378,7 +379,7 @@ const captureTab = (): Promise<string> =>
 
 const checkIfNativeCaptureAvailable = () =>
   new Promise(resolve => {
-    chrome.runtime.sendMessage({ action: 'checkNativeCapture' }, response => {
+    chrome.runtime.sendMessage({ action: MessageAction.CHECK_NATIVE_CAPTURE }, response => {
       resolve(response?.isAvailable || false);
     });
   });
@@ -483,7 +484,7 @@ const saveAndNotify = ({ secondary, primary }: { secondary: string; primary: str
    */
   window.postMessage(
     {
-      type: 'ADD_RECORD',
+      type: MessageType.ADD_RECORD,
       payload: {
         type: 'event',
         event: 'capture',

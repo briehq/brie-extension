@@ -1,5 +1,7 @@
 import html2canvas from 'html2canvas';
 
+import { MessageType } from '@extension/shared';
+
 const isFirefox = process.env.__FIREFOX__ === 'true';
 
 let startX: number, startY: number;
@@ -251,7 +253,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     cleanup(); // Cleanup on ESC
 
     // Notify Background on ESC
-    chrome.runtime.sendMessage({ type: 'EXIT_CAPTURE' });
+    chrome.runtime.sendMessage({ type: MessageType.EXIT_CAPTURE });
   }
 };
 
@@ -261,7 +263,7 @@ const onTouchStart = (e: TouchEvent) => {
   startX = e.touches[0].pageX;
   startY = e.touches[0].pageY;
 
-  createSelectionBox(startX, startY);
+  createSelectionBox();
   e.preventDefault();
 };
 

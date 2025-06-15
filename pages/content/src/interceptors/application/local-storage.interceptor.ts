@@ -1,20 +1,27 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, MessageType, RecordType, RecordSource } from '@extension/shared';
 
 // Get all localStorage data
 export const interceptLocalStorage = () => {
-  const timestamp = Date.now();
-  const localStorageData = [];
+  try {
+    const timestamp = Date.now();
+    const localStorageData: Record<string, string> = {};
 
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!key) continue; // Skip null keys
+    // Get all keys from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        localStorageData[key] = localStorage.getItem(key) || '';
+      }
+    }
 
-    const value = localStorage.getItem(key);
-    localStorageData.push({
-      key,
-      value,
+    // post message to background/content
+    safePostMessage(MessageType.ADD_RECORD, {
+      timestamp,
+      recordType: RecordType.LOCAL_STORAGE,
+      source: RecordSource.CLIENT,
+      items: localStorageData,
     });
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
   }
-
-  safePostMessage('ADD_RECORD', { timestamp, recordType: 'local-storage', source: 'client', items: localStorageData });
 };

@@ -1,3 +1,5 @@
+import { MessageType } from '@extension/shared';
+
 export const addWindowEventListeners = () => {
   /**
    * If you're injecting JavaScript into the webpage (e.g., to override fetch), remember:
@@ -7,9 +9,9 @@ export const addWindowEventListeners = () => {
   window.addEventListener('message', event => {
     if (event.source !== window || !event.data.type) return;
 
-    if (event.data.type === 'ADD_RECORD') {
+    if (event.data.type === MessageType.ADD_RECORD) {
       try {
-        chrome.runtime.sendMessage({ type: 'ADD_RECORD', data: event.data.payload });
+        chrome.runtime.sendMessage({ type: MessageType.ADD_RECORD, data: event.data.payload });
       } catch (err) {
         console.error('[sendMessage error]', chrome.runtime.id, err);
       }
