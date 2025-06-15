@@ -7,3 +7,4 @@ export * from './user-uuid.storage.js';
 export * from './auth-tokens.storage.js';
 export * from './pending-reload-tabs.storage.js';
 export * from './auth-identity-provider.storage.js';
+export * from './annotations-history.storage.js';

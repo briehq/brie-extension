@@ -30,6 +30,7 @@ import {
   renderCanvas,
   setCanvasBackground,
   getShadowHostElement,
+  saveHistory,
 } from '../../utils/annotation';
 
 // import { useCreateIssueMutation } from '@/store/issues';
@@ -40,7 +41,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * use client workspace id
    */
   const { id: workspaceId } = { id: uuidv4() };
-
+  const isProgrammaticChange = useRef(true);
   const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ left: 0, top: 0 });
@@ -151,16 +152,32 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  const undo = () => {
-    undoAnnotation();
+  const undo = async () => {
+    const result = await undoAnnotation();
 
-    setActiveUpdateAction(uuidv4());
+    if (result?.prevState && fabricRef.current) {
+      isProgrammaticChange.current = result.fromhistory;
+
+      fabricRef.current.loadFromJSON(result.prevState, async () => {
+        fabricRef.current?.renderAll();
+        const json = fabricRef.current?.toJSON(['objectId']);
+        await annotationsStorage.setAnnotations(json?.objects || []);
+      });
+    }
   };
 
-  const redo = () => {
-    redoAnnotation();
+  const redo = async () => {
+    const result = await redoAnnotation();
 
-    setActiveUpdateAction(uuidv4());
+    if (result?.restoredState && fabricRef.current) {
+      isProgrammaticChange.current = result.fromhistory;
+
+      fabricRef.current.loadFromJSON(result.restoredState, async () => {
+        fabricRef.current?.renderAll();
+        const json = fabricRef.current?.toJSON(['objectId']);
+        await annotationsStorage.setAnnotations(json?.objects || []);
+      });
+    }
   };
 
   /**
@@ -177,9 +194,16 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
      * canvasObjects is a Map that contains all the shapes in the key-value.
      * Like a store. We can create multiple stores in local store.
      */
-    const annotations = await annotationsStorage.getAnnotations()?.filter((a: any) => a.objectId !== shapeId);
+    const annotations = await annotationsStorage.getAnnotations();
+    if (!annotations) return;
 
-    await annotationsStorage.setAnnotations(annotations);
+    const updatedAnnotations = annotations.filter((a: any) => a.objectId !== shapeId);
+    await annotationsStorage.setAnnotations(updatedAnnotations);
+
+    if (fabricRef.current) {
+      const json = fabricRef.current.toJSON(['objectId']);
+      await saveHistory(json, isProgrammaticChange.current);
+    }
   }, []);
 
   /**
@@ -191,17 +215,13 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
   const deleteAllShapes = useCallback(async () => {
     // get the canvasObjects store
     const annotations = await annotationsStorage.getAnnotations();
-
-    // if the store doesn't exist or is empty, return
-    if (!annotations || annotations.length === 0) {
-      return true;
-    }
-
-    // delete all the shapes from the store
+    if (!annotations || annotations.length === 0) return true;
     await annotationsStorage.setAnnotations([]);
-
-    // return true if the store is empty
-    return annotations.length === 0;
+    if (fabricRef.current) {
+      const json = fabricRef.current.toJSON(['objectId']);
+      await saveHistory(json, isProgrammaticChange.current);
+    }
+    return true;
   }, []);
 
   /**
@@ -214,29 +234,26 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    */
   const syncShapeInStorage = useCallback(async (object: any) => {
     // if the passed object is null, return
-    if (!object) {
-      return;
-    }
-    const { objectId } = object;
+    if (!object) return;
 
-    /**
-     * Turn Fabric object (kclass) into JSON format so that we can store it in the
-     * key-value store.
-     */
+    const { objectId } = object;
     const shapeData = object.toJSON();
     const shape = { ...shapeData, objectId };
+
     let annotations = (await annotationsStorage.getAnnotations()) || [];
-
-    const foundIndex = annotations?.findIndex((x: any) => x.objectId === shape.objectId);
-
+    const foundIndex = annotations.findIndex((x: any) => x.objectId === shape.objectId);
     if (foundIndex !== -1) {
       annotations[foundIndex] = shape;
     } else {
       annotations = [...annotations, shape];
     }
 
-    await annotationsStorage.setAnnotations([...(annotations || [])]);
+    await annotationsStorage.setAnnotations(annotations);
 
+    if (fabricRef.current) {
+      const json = fabricRef.current.toJSON(['objectId']);
+      await saveHistory(json, isProgrammaticChange.current);
+    }
     // setActiveUpdateAction(uuidv4());
   }, []);
 
@@ -665,7 +682,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
          - add blur tool
       */}
       <AnnotationSection canvasRef={canvasRef} undo={undo} redo={redo} />
-
       {actionMenuVisible && (
         <div
           id="actions-menu"
