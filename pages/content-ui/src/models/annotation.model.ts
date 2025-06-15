@@ -73,7 +73,7 @@ export type ModifyShape = {
   canvas: Canvas;
   property: string;
   value: any;
-  activeObjectRef: MutableRefObject<FabricObject | null>;
+  activeObjectRef: RefObject<FabricObject | null>;
   syncShapeInStorage: (shape: FabricObject) => void;
 };
 

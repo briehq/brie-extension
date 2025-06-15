@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
-import { Button, Icon } from '@extension/ui';
+import { Button, Icon, toast } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
 import type { ActiveElement, Attributes } from '@src/models';
@@ -326,7 +326,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     }
 
     const backgroundImage = attachments?.length ? attachments[0].image : null;
-    console.log('backgroundImage', backgroundImage);
     const canvas = initializeFabric({
       canvasRef,
       fabricRef,
@@ -615,7 +614,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     }
 
     // Get the selected element
-    const selectedElement: any = options?.selected[0] as FabricObjectSVGExportMixin;
+    const selectedElement: any = options?.selected[0] as FabricObject;
 
     const updateMenuPosition = () => {
       const { left, top, width, height } = selectedElement.getBoundingRect();

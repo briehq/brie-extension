@@ -1,4 +1,5 @@
-import { Rect, Line, Triangle, Circle, Canvas, Group, IText, FabricImage, FabricText } from 'fabric'; // check for Image
+import type { Canvas } from 'fabric';
+import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText } from 'fabric'; // check for Image
 import { v4 as uuidv4 } from 'uuid';
 
 import type { CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
@@ -216,20 +217,20 @@ export const createSpecificShape = (shapeType: string, pointer: PointerEvent) =>
 export const handleImageUpload = ({ file, canvas, shapeRef, syncShapeInStorage }: any) => {
   const reader = new FileReader();
 
-  reader.onload = () => {
-    FabricImage.fromURL(reader.result as string, (img: any) => {
-      img.scaleToWidth(200);
-      img.scaleToHeight(200);
+  reader.onload = async () => {
+    const img = await FabricImage.fromURL(reader.result as string);
 
-      canvas.current.add(img);
+    img.scaleToWidth(200);
+    img.scaleToHeight(200);
 
-      img.objectId = uuidv4();
+    canvas.current.add(img);
 
-      shapeRef.current = img;
+    // img.objectId = uuidv4();
 
-      syncShapeInStorage(img);
-      canvas.current.requestRenderAll();
-    });
+    shapeRef.current = img;
+
+    syncShapeInStorage(img);
+    canvas.current.requestRenderAll();
   };
 
   reader.readAsDataURL(file);
