@@ -1,44 +1,48 @@
-import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 
-export const saveHistory = async (currentState: any) => {
-  const stateHistory = (await annotationsStorage.getAnnotations()) || [];
-
-  stateHistory.push(currentState);
-  await annotationsStorage.setAnnotations(stateHistory);
-
-  // Clear the redo stack on new state save
-  await annotationsRedoStorage.setAnnotations([]);
+export const saveHistory = async (canvasJson: any, shouldClearRedo: boolean) => {
+  const history = (await annotationHistoryStorage.getHistory()) || [];
+  history.push(canvasJson);
+  await annotationHistoryStorage.setHistory(history);
+  if (shouldClearRedo) {
+    await annotationsRedoStorage.setAnnotations([]);
+  }
 };
 
 export const undoAnnotation = async () => {
-  const stateHistory = (await annotationsStorage.getAnnotations()) || [];
+  const history = (await annotationHistoryStorage.getHistory()) || [];
 
-  if (stateHistory.length > 1) {
-    const redoStack = (await annotationsStorage.getAnnotations()) || [];
+  if (history.length > 1) {
+    const redoStack = (await annotationsRedoStorage.getAnnotations()) || [];
 
-    redoStack.push(stateHistory.pop()); // Move the current state to the redo stack
-    await annotationsStorage.setAnnotations(stateHistory);
+    const currentState = history.pop();
+    redoStack.push(currentState);
+
+    const prevState = history[history.length - 1];
+
+    await annotationHistoryStorage.setHistory(history);
     await annotationsRedoStorage.setAnnotations(redoStack);
 
-    return stateHistory[stateHistory.length - 1]; // Return the previous state
+    return { prevState, fromhistory: true }; // This is full canvas state
   }
 
-  return null; // No more states to undo
+  return null;
 };
 
 export const redoAnnotation = async () => {
   const redoStack = (await annotationsRedoStorage.getAnnotations()) || [];
-  const stateHistory = (await annotationsStorage.getAnnotations()) || [];
+  const history = (await annotationHistoryStorage.getHistory()) || [];
 
   if (redoStack.length > 0) {
-    const restoredState = redoStack.pop(); // Get the last state from the redo stack
-    stateHistory.push(restoredState); // Move it back to the history
+    const restoredState = redoStack.pop();
 
-    await annotationsStorage.setAnnotations(stateHistory);
+    history.push(restoredState);
+
+    await annotationHistoryStorage.setHistory(history);
     await annotationsRedoStorage.setAnnotations(redoStack);
 
-    return restoredState; // Return the restored state
+    return { restoredState, fromhistory: true }; // This is full canvas state
   }
 
-  return null; // No more states to redo
+  return null;
 };
