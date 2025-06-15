@@ -1,4 +1,4 @@
-import type { Gradient, Pattern } from 'fabric/fabric-impl';
+import type { FabricObject, Canvas, Path, Gradient, Pattern } from 'fabric';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 export enum CursorMode {
@@ -42,8 +42,9 @@ export type ShapeData = {
   type: string;
   width: number;
   height: number;
-  fill: string | Pattern | Gradient;
   left: number;
+  fill: string | Pattern | Gradient<'linear'> | Gradient<'radial'>;
+
   top: number;
   objectId: string | undefined;
 };
@@ -64,34 +65,34 @@ export type ActiveElement = {
   icon: string;
 } | null;
 
-export interface CustomFabricObject<T extends fabric.Object> extends fabric.Object {
+export interface CustomFabricObject<T extends FabricObject> extends FabricObject {
   objectId?: string;
 }
 
 export type ModifyShape = {
-  canvas: fabric.Canvas;
+  canvas: Canvas;
   property: string;
   value: any;
-  activeObjectRef: RefObject<fabric.Object | null>;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  activeObjectRef: RefObject<FabricObject | null>;
+  syncShapeInStorage: (shape: FabricObject) => void;
 };
 
 export type ElementDirection = {
-  canvas: fabric.Canvas;
+  canvas: Canvas;
   direction: string;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
 };
 
 export type ImageUpload = {
   file: string;
-  canvas: fabric.Canvas;
+  canvas: Canvas;
 };
 
 export type RightSidebarProps = {
   elementAttributes: Attributes;
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
-  fabricRef: RefObject<fabric.Canvas | null>;
-  activeObjectRef: RefObject<fabric.Object | null>;
+  fabricRef: RefObject<Canvas | null>;
+  activeObjectRef: RefObject<FabricObject | null>;
   isEditingRef: RefObject<boolean>;
   syncShapeInStorage: (obj: any) => void;
 };
@@ -117,55 +118,55 @@ export type ShapesMenuProps = {
 export type Presence = any;
 
 export type CanvasMouseDown = {
-  options: fabric.IEvent;
-  canvas: fabric.Canvas;
+  options: any;
+  canvas: Canvas;
   selectedShapeRef: any;
   isDrawing: RefObject<boolean>;
-  shapeRef: RefObject<fabric.Object | null>;
+  shapeRef: RefObject<FabricObject | null>;
 };
 
 export type CanvasMouseMove = {
-  options: fabric.IEvent;
-  canvas: fabric.Canvas;
+  options: any;
+  canvas: Canvas;
   isDrawing: RefObject<boolean>;
   selectedShapeRef: any;
   shapeRef: any;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
 };
 
 export type CanvasMouseUp = {
-  canvas: fabric.Canvas;
+  canvas: Canvas;
   isDrawing: RefObject<boolean>;
   shapeRef: any;
-  activeObjectRef: RefObject<fabric.Object | null>;
+  activeObjectRef: RefObject<FabricObject | null>;
   selectedShapeRef: any;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
   setActiveElement: any;
 };
 
 export type CanvasObjectModified = {
-  options: fabric.IEvent;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  options: any;
+  syncShapeInStorage: (shape: FabricObject) => void;
 };
 
 export type CanvasPathCreated = {
-  options: (fabric.IEvent & { path: CustomFabricObject<fabric.Path> }) | any;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  options: (any & { path: CustomFabricObject<Path> }) | any;
+  syncShapeInStorage: (shape: FabricObject) => void;
 };
 
 export type CanvasSelectionCreated = {
-  options: fabric.IEvent;
+  options: any;
   isEditingRef: RefObject<boolean>;
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
 };
 
 export type CanvasObjectScaling = {
-  options: fabric.IEvent;
+  options: any;
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
 };
 
 export type RenderCanvas = {
-  fabricRef: RefObject<fabric.Canvas | null>;
+  fabricRef: RefObject<Canvas | null>;
   canvasObjects: any;
   activeObjectRef: any;
 };
