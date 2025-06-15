@@ -1,25 +1,27 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, MessageType, RecordType, RecordSource } from '@extension/shared';
 
 // Get all sessionStorage data
 export const interceptSessionStorage = () => {
-  const timestamp = Date.now();
-  const sessionStorageData = [];
+  try {
+    const timestamp = Date.now();
+    const sessionStorageData: Record<string, string> = {};
 
-  for (let i = 0; i < sessionStorage.length; i++) {
-    const key = sessionStorage.key(i);
-    if (!key) continue; // Skip null keys
+    // Get all keys from sessionStorage
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key) {
+        sessionStorageData[key] = sessionStorage.getItem(key) || '';
+      }
+    }
 
-    const value = sessionStorage.getItem(key);
-    sessionStorageData.push({
-      key,
-      value,
+    // post message to background/content
+    safePostMessage(MessageType.ADD_RECORD, {
+      timestamp,
+      recordType: RecordType.SESSION_STORAGE,
+      source: RecordSource.CLIENT,
+      items: sessionStorageData,
     });
+  } catch (error) {
+    console.error('Error accessing sessionStorage:', error);
   }
-
-  safePostMessage('ADD_RECORD', {
-    timestamp,
-    recordType: 'session-storage',
-    source: 'client',
-    items: sessionStorageData,
-  });
 };

@@ -1,8 +1,3 @@
-export enum TabStatus {
-  COMPLETE = 'complete',
-  LOADING = 'loading',
-}
-
 export enum InstallReason {
   INSTALL = 'install',
   UPDATE = 'update',

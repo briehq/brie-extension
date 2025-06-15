@@ -3,6 +3,21 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
 import {
+  MessageType,
+  MessageAction,
+  CaptureState,
+  CaptureType,
+  RecordType,
+  RecordSource,
+  LogMethod,
+  InstallReason,
+  ContextType,
+  ContextMenuId,
+  ResponseStatus,
+  ImageFormat,
+  RequestProperty,
+} from '@extension/shared';
+import {
   annotationsRedoStorage,
   annotationsStorage,
   captureStateStorage,
@@ -23,7 +38,7 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
   const captureTabId = await captureTabStorage.getCaptureTabId();
   if (tabId === captureTabId) {
-    await captureStateStorage.setCaptureState('idle');
+    await captureStateStorage.setCaptureState(CaptureState.IDLE);
     await captureTabStorage.setCaptureTabId(null);
 
     annotationsStorage.setAnnotations([]);
@@ -33,7 +48,7 @@ chrome.tabs.onRemoved.addListener(async tabId => {
   }
 });
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   // If tab finished loading (refreshed), remove it from pending reload tabs
   if (changeInfo.status === 'complete') {
     const pendingTabIds = await pendingReloadTabsStorage.getAll();
@@ -49,12 +64,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     captureTabStorage.getCaptureTabId(),
   ]);
 
-  if (!capturedTabId && state === 'unsaved') {
-    await captureStateStorage.setCaptureState('idle');
+  if (!capturedTabId && state === CaptureState.UNSAVED) {
+    await captureStateStorage.setCaptureState(CaptureState.IDLE);
   }
 
   if (tabId === capturedTabId) {
-    await captureStateStorage.setCaptureState('idle');
+    await captureStateStorage.setCaptureState(CaptureState.IDLE);
     await captureTabStorage.setCaptureTabId(null);
 
     annotationsStorage.setAnnotations([]);
@@ -66,71 +81,59 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
  * NOTE: Do Not Use async/await in onMessage listeners
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'EXIT_CAPTURE') {
-    captureStateStorage.setCaptureState('idle');
+  if (message.type === MessageType.EXIT_CAPTURE) {
+    captureStateStorage.setCaptureState(CaptureState.IDLE);
     captureTabStorage.setCaptureTabId(null);
 
     annotationsStorage.setAnnotations([]);
     annotationsRedoStorage.setAnnotations([]);
-    sendResponse({ status: 'success' });
+    sendResponse({ status: ResponseStatus.SUCCESS });
   }
 
   if (sender?.tab?.id) {
-    if (message.type === 'ADD_RECORD') {
+    if (message.type === MessageType.ADD_RECORD) {
       // Merge fetch request data from content script
       addOrMergeRecords(sender.tab.id, message.data);
-      sendResponse({ status: 'success' });
+      sendResponse({ status: ResponseStatus.SUCCESS });
     }
 
-    if (message.type === 'GET_RECORDS') {
+    if (message.type === MessageType.GET_RECORDS) {
       getRecords(sender.tab.id).then(records => sendResponse({ records }));
     }
   } else {
     console.log('[Background] - Add Records: No sender id');
   }
 
-  if (message.action === 'checkNativeCapture') {
+  if (message.action === MessageAction.CHECK_NATIVE_CAPTURE) {
     sendResponse({ isAvailable: !!chrome.tabs?.captureVisibleTab });
   }
 
-  if (message.action === 'captureVisibleTab') {
+  if (message.action === MessageAction.CAPTURE_VISIBLE_TAB) {
     // Handle the async operation
-    chrome.tabs.captureVisibleTab(
-      null, // Current window
-      { format: 'jpeg', quality: 100 },
-      dataUrl => {
-        if (chrome.runtime.lastError) {
-          console.error('Error capturing screenshot:', chrome.runtime.lastError);
-          sendResponse({ success: false, message: chrome.runtime.lastError.message });
-        } else {
-          sendResponse({ success: true, dataUrl });
-        }
-      },
-    );
+    chrome.tabs.captureVisibleTab({ format: ImageFormat.JPEG, quality: 100 }, dataUrl => {
+      if (chrome.runtime.lastError) {
+        console.error('Error capturing screenshot:', chrome.runtime.lastError);
+        sendResponse({ success: false, message: chrome.runtime.lastError.message });
+      } else {
+        sendResponse({ success: true, dataUrl });
+      }
+    });
   }
 
   return true; // Keep the connection open for async handling
 });
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
-  if (reason === 'install') {
-    /**
-     * Set unique identifier for the user
-     * to store reported bugs when no account
-     */
+  if (reason === InstallReason.INSTALL) {
     const userUuid = await userUUIDStorage.get();
     if (!userUuid) await userUUIDStorage.update(uuidv4());
-
-    // Open a welcome page
-    // await chrome.tabs.create({ url: 'welcome.html' });
   }
 
   /**
    * @todo
-   * find a better way to reload the tabs that are open when install/update happens.
-   * context: see issue: #24
+  
    */
-  if (['install', 'update'].includes(reason)) {
+  if ([InstallReason.INSTALL, InstallReason.UPDATE].includes(reason as InstallReason)) {
     chrome.tabs.query({}, tabs => {
       tabs.forEach(tab => {
         if (tab.id) {
@@ -142,24 +145,24 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 
   // Creates parent context menu item
   chrome.contextMenus.create({
-    id: 'capture_parent',
+    id: ContextMenuId.CAPTURE_PARENT,
     title: t('extensionName'),
-    contexts: ['all'],
+    contexts: [ContextType.ALL],
   });
 
   // Define the child options
   const captureOptions = [
-    { id: 'area', title: t('area') },
-    { id: 'full-page', title: t('fullPage') },
-    { id: 'viewport', title: t('viewport') },
+    { id: CaptureType.AREA, title: t('area') },
+    { id: CaptureType.FULL_PAGE, title: t('fullPage') },
+    { id: CaptureType.VIEWPORT, title: t('viewport') },
   ];
 
   captureOptions.forEach(({ id, title }) => {
     chrome.contextMenus.create({
       id,
-      parentId: 'capture_parent',
+      parentId: ContextMenuId.CAPTURE_PARENT,
       title,
-      contexts: ['all'],
+      contexts: [ContextType.ALL],
     });
   });
 });
@@ -167,10 +170,10 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (!tab?.id) return; //skip if tab is invalid
 
-  const type = info.menuItemId as 'area' | 'viewport' | 'full-page';
+  const type = info.menuItemId as CaptureType;
 
   // Updates capture state and active tab
-  await captureStateStorage.setCaptureState('capturing');
+  await captureStateStorage.setCaptureState(CaptureState.CAPTURING);
   await captureTabStorage.setCaptureTabId(tab.id);
 
   // Sends message to contentScript to start capture
@@ -178,7 +181,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     chrome.tabs.sendMessage(
       tab.id,
       {
-        action: 'START_SCREENSHOT',
+        action: MessageAction.START_SCREENSHOT,
         payload: { type },
       },
       response => {
@@ -205,18 +208,18 @@ chrome.webRequest.onCompleted.addListener(
   (request: chrome.webRequest.WebResponseCacheDetails) => {
     const clonedRequest = structuredClone(request);
     addOrMergeRecords(clonedRequest.tabId, {
-      recordType: 'network',
-      source: 'background',
+      recordType: RecordType.NETWORK,
+      source: RecordSource.BACKGROUND,
       ...clonedRequest,
     });
 
     if (clonedRequest.statusCode >= 400) {
       addOrMergeRecords(clonedRequest.tabId, {
         timestamp: Date.now(),
-        type: 'log',
-        recordType: 'console',
-        source: 'background',
-        method: 'error',
+        type: RecordType.CONSOLE,
+        recordType: RecordType.CONSOLE,
+        source: RecordSource.BACKGROUND,
+        method: LogMethod.ERROR,
         args: [
           `[${clonedRequest.type}] ${clonedRequest.method} ${clonedRequest.url} responded with status ${clonedRequest.statusCode}`,
           clonedRequest,
@@ -236,24 +239,24 @@ chrome.webRequest.onCompleted.addListener(
 chrome.webRequest.onBeforeRequest.addListener(
   (request: chrome.webRequest.WebRequestBodyDetails) => {
     addOrMergeRecords(request.tabId, {
-      recordType: 'network',
-      source: 'background',
+      recordType: RecordType.NETWORK,
+      source: RecordSource.BACKGROUND,
       ...structuredClone(request),
     });
   },
   { urls: ['<all_urls>'] },
-  ['requestBody'],
+  [RequestProperty.REQUEST_BODY],
 );
 
 // Listener for onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(
   (request: chrome.webRequest.WebRequestHeadersDetails) => {
     addOrMergeRecords(request.tabId, {
-      recordType: 'network',
-      source: 'background',
+      recordType: RecordType.NETWORK,
+      source: RecordSource.BACKGROUND,
       ...structuredClone(request),
     });
   },
   { urls: ['<all_urls>'] },
-  ['requestHeaders'],
+  [RequestProperty.REQUEST_HEADERS],
 );

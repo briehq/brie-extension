@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, MessageType, RecordType, RecordSource, LogMethod } from '@extension/shared';
 
 import { extractQueryParams } from '@src/utils';
 
@@ -96,20 +96,20 @@ export const interceptFetch = (): void => {
             status: responseClone.status,
           };
 
-          safePostMessage('ADD_RECORD', {
-            recordType: 'network',
-            source: 'client',
+          safePostMessage(MessageType.ADD_RECORD, {
+            recordType: RecordType.NETWORK,
+            source: RecordSource.CLIENT,
             timestamp,
             ...payload,
           });
 
           if (responseClone.status >= 400) {
-            safePostMessage('ADD_RECORD', {
+            safePostMessage(MessageType.ADD_RECORD, {
               timestamp,
-              type: 'log',
-              recordType: 'console',
-              source: 'client',
-              method: 'error',
+              type: RecordType.CONSOLE,
+              recordType: RecordType.CONSOLE,
+              source: RecordSource.CLIENT,
+              method: LogMethod.ERROR,
               args: [`[Fetch] ${method} ${url} responded with status ${responseClone.status}`, payload],
               stackTrace: {
                 parsed: 'interceptFetch',
