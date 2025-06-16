@@ -601,7 +601,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       setCanvasBackground({
         file: attachments[0]?.image,
-        canvas: fabricRef.current!,
+        canvas: fabricRef?.current,
         minHeight: 500,
         maxWidth: backgroundWidth, // Use original width, not current container width
       });
