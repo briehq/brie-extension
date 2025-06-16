@@ -1,4 +1,4 @@
-import { fabric } from 'fabric';
+import { Canvas, FabricObject, PencilBrush, util as fabricUtil, Point } from 'fabric';
 import type { RefObject } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
@@ -14,6 +14,7 @@ import type {
   RenderCanvas,
 } from '@src/models';
 
+import { createDefaultControls } from './controls';
 import { createSpecificShape, setCanvasBackground } from './shapes.util';
 
 const rotateSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
@@ -45,7 +46,7 @@ export const initializeFabric = ({
   canvasRef,
   backgroundImage,
 }: {
-  fabricRef: RefObject<fabric.Canvas | null>;
+  fabricRef: RefObject<Canvas | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   backgroundImage: string;
 }) => {
@@ -56,8 +57,13 @@ export const initializeFabric = ({
   const maxWidth = canvasElement?.clientWidth || 500;
   const maxHeight = 500; // Maximum height constraint
 
+  // Check if canvas ref is available
+  if (!canvasRef.current) {
+    throw new Error('Canvas ref is not available');
+  }
+
   // Create the Fabric.js canvas
-  const canvas = new fabric.Canvas(canvasRef.current, {
+  const canvas = new Canvas(canvasRef.current, {
     width: maxWidth,
     height: maxHeight, // Temporary height until background image is loaded
   });
@@ -70,90 +76,23 @@ export const initializeFabric = ({
       console.error('Failed to set the background image:', error);
     }
   }
+  //fabricjs.com/docs/configuring-defaults/
 
-  fabric.Object.prototype.selectable = true;
-  fabric.Object.prototype.objectCaching = false;
+  FabricObject.ownDefaults = {
+    ...FabricObject.ownDefaults,
+    selectable: true,
+    objectCaching: false,
+    cornerSize: 9,
+    cornerColor: 'blue',
+    cornerStyle: 'circle',
+  };
 
   // @todo: https://medium.com/@luizzappa/custom-icon-and-cursor-in-fabric-js-controls-4714ba0ac28f
 
-  // Customize corner controls
-  for (const control in fabric.Object.prototype.controls) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (fabric.Object.prototype.controls.hasOwnProperty(control)) {
-      const ctrl = fabric.Object.prototype.controls[control];
-      // ctrl.cornerStyle = 'circle';
-      (ctrl as any).cornerColor = 'blue';
-      // ctrl.cornerStrokeColor = 'white';
-      (ctrl as any).cornerSize = 9;
-      // ctrl.visible = true; // Ensure controls are visible
+  FabricObject.createControls = () => ({
+    controls: createDefaultControls(),
+  });
 
-      if (control === 'mtr') {
-        // Custom rendering for the rotation control (circular shape)
-        ctrl.render = function (ctx, left, top, styleOverride, fabricObject) {
-          ctx.save();
-          const size = 16; // Control size (default to 24 if undefined)
-          const radius = size / 2; // Circular radius
-
-          // Draw circular control with a white background and blue border
-          ctx.fillStyle = 'white'; // Background color
-          ctx.strokeStyle = '#1e40af'; // Border color
-          ctx.lineWidth = 1; // Border width
-          ctx.beginPath();
-          ctx.arc(left, top, radius, 0, 2 * Math.PI, false); // Circular shape
-          ctx.fill();
-          ctx.stroke();
-
-          // Draw the SVG image in the center of the circle
-          const img = new Image();
-          const imgSize = size - 6; // Adjust size to fit nicely within the control
-          img.onload = function () {
-            ctx.drawImage(img, left - imgSize / 2, top - imgSize / 2, imgSize, imgSize);
-          };
-          img.src = 'data:image/svg+xml;base64,' + window.btoa(rotateSvg);
-
-          ctx.restore();
-        };
-      } else {
-        // Custom rendering for the controls
-        ctrl.render = function (ctx, left, top, styleOverride, fabricObject) {
-          ctx.save();
-          const size = (this as any).cornerSize; // Control size
-          const radius = 2.5; // Radius for rounded corners
-
-          // Draw background (white square with rounded corners)
-          ctx.fillStyle = 'white'; // Background color
-          ctx.beginPath();
-          ctx.moveTo(left - size / 2 + radius, top - size / 2);
-          ctx.lineTo(left + size / 2 - radius, top - size / 2);
-          ctx.quadraticCurveTo(left + size / 2, top - size / 2, left + size / 2, top - size / 2 + radius);
-          ctx.lineTo(left + size / 2, top + size / 2 - radius);
-          ctx.quadraticCurveTo(left + size / 2, top + size / 2, left + size / 2 - radius, top + size / 2);
-          ctx.lineTo(left - size / 2 + radius, top + size / 2);
-          ctx.quadraticCurveTo(left - size / 2, top + size / 2, left - size / 2, top + size / 2 - radius);
-          ctx.lineTo(left - size / 2, top - size / 2 + radius);
-          ctx.quadraticCurveTo(left - size / 2, top - size / 2, left - size / 2 + radius, top - size / 2);
-          ctx.closePath();
-          ctx.fill();
-
-          // Draw border (1px blue border)
-          ctx.strokeStyle = '#1e40af'; // Border color
-          ctx.lineWidth = 1; // Border width
-          ctx.stroke(); // Draw border
-
-          ctx.restore();
-        };
-      }
-    }
-  }
-
-  fabric.Object.prototype.controls.mtr.x = 0;
-  fabric.Object.prototype.controls.mtr.y = -0.5;
-  fabric.Object.prototype.controls.mtr.offsetX = 0;
-  fabric.Object.prototype.controls.mtr.offsetY = -25;
-  fabric.Object.prototype.controls.mtr.withConnection = false;
-  fabric.Object.prototype.controls.mtr.cursorStyle = 'grab';
-
-  fabric.Object.prototype.borderColor = '#1e40af';
   // set canvas reference to fabricRef so we can use it later anywhere outside canvas listener
   fabricRef.current = canvas;
 
@@ -163,7 +102,7 @@ export const initializeFabric = ({
 // instantiate creation of custom fabric object/shape and add it to canvas
 export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDrawing, shapeRef }: CanvasMouseDown) => {
   // get pointer coordinates
-  const pointer = canvas.getPointer(options.e);
+  const pointer = canvas.getScenePoint(options.e);
 
   /**
    * get target object i.e., the object that is clicked
@@ -171,13 +110,15 @@ export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDra
    *
    * findTarget: http://fabricjs.com/docs/fabric.Canvas.html#findTarget
    */
-  const target = canvas.findTarget(options.e, false);
+  const target = canvas.findTarget(options.e);
 
   // set canvas drawing mode to false
   canvas.isDrawingMode = false;
 
   // if selected shape is freeform, set drawing mode to true and return
   if (selectedShapeRef.current === 'freeform') {
+    const brush = new PencilBrush(canvas);
+    canvas.freeDrawingBrush = brush;
     isDrawing.current = true;
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = 3;
@@ -355,12 +296,12 @@ export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCre
 };
 
 // check how object is moving on canvas and restrict it to canvas boundaries
-export const handleCanvasObjectMoving = ({ options }: { options: fabric.IEvent }) => {
+export const handleCanvasObjectMoving = ({ options }: { options: any }) => {
   // get target object which is moving
-  const target = options.target as fabric.Object;
+  const target = options.target as FabricObject;
 
   // target.canvas is the canvas on which the object is moving
-  const canvas = target.canvas as fabric.Canvas;
+  const canvas = target.canvas as Canvas;
 
   // set coordinates of target object
   target.setCoords();
@@ -399,7 +340,7 @@ export const handleCanvasSelectionCreated = ({
   }
 
   // get the selected element
-  const selectedElement: any = options?.selected[0] as fabric.Object;
+  const selectedElement: any = options?.selected[0] as FabricObject;
 
   // if only one element is selected, set element attributes
   if (selectedElement && options.selected.length === 1) {
@@ -460,9 +401,8 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
      *
      * enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
      */
-    fabric.util.enlivenObjects(
-      [objectData],
-      (enlivenedObjects: fabric.Object[]) => {
+    fabricUtil.enlivenObjects<FabricObject>([objectData]).then(
+      (enlivenedObjects: FabricObject[]) => {
         enlivenedObjects.forEach(enlivenedObj => {
           // if element is active, keep it in active state so that it can be edited further
           if (activeObjectRef.current?.objectId === objectData.objectId) {
@@ -480,7 +420,6 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
        *
        * Fabric Namespace: http://fabricjs.com/docs/fabric.html
        */
-      'fabric',
     );
   });
 
@@ -488,7 +427,7 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
 };
 
 // resize canvas dimensions on window resize
-export const handleResize = ({ canvas }: { canvas: fabric.Canvas | null }) => {
+export const handleResize = ({ canvas }: { canvas: Canvas | null }) => {
   const canvasElement = getCanvasElement();
   if (!canvasElement) {
     return;
@@ -505,13 +444,7 @@ export const handleResize = ({ canvas }: { canvas: fabric.Canvas | null }) => {
 };
 
 // zoom canvas on mouse scroll
-export const handleCanvasZoom = ({
-  options,
-  canvas,
-}: {
-  options: fabric.IEvent & { e: WheelEvent };
-  canvas: fabric.Canvas;
-}) => {
+export const handleCanvasZoom = ({ options, canvas }: { options: any; canvas: Canvas }) => {
   const delta = options.e?.deltaY;
   let zoom = canvas.getZoom();
 
@@ -525,7 +458,7 @@ export const handleCanvasZoom = ({
 
   // set zoom to canvas
   // zoomToPoint: http://fabricjs.com/docs/fabric.Canvas.html#zoomToPoint
-  canvas.zoomToPoint({ x: options.e.offsetX, y: options.e.offsetY }, zoom);
+  canvas.zoomToPoint(new Point(options.e.offsetX, options.e.offsetY), zoom);
 
   options.e.preventDefault();
   options.e.stopPropagation();

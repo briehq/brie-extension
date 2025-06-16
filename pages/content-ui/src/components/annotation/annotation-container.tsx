@@ -1,5 +1,5 @@
-import type { fabric } from 'fabric';
-import moment from 'moment';
+import type { Canvas, FabricObject } from 'fabric';
+import { PencilBrush } from 'fabric';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -69,7 +69,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * it outside the canvas event listeners.
    */
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricRef = useRef<fabric.Canvas | null>(null);
+  const fabricRef = useRef<Canvas | null>(null);
 
   /**
    * isDrawing is a boolean that tells us if the user is drawing on the canvas.
@@ -83,7 +83,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * We use this to update the shape's properties when the user is
    * drawing/creating shape
    */
-  const shapeRef = useRef<fabric.Object | null>(null);
+  const shapeRef = useRef<FabricObject | null>(null);
 
   /**
    * selectedShapeRef is a reference to the shape that the user has selected.
@@ -109,7 +109,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * of the selected shape so that we can keep it selected when the
    * canvas re-renders.
    */
-  const activeObjectRef = useRef<fabric.Object | null>(null);
+  const activeObjectRef = useRef<FabricObject | null>(null);
   const isEditingRef = useRef(false);
 
   /**
@@ -160,7 +160,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       fabricRef.current.loadFromJSON(result.prevState, async () => {
         fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON(['objectId']);
+        const json = fabricRef.current?.toJSON();
         await annotationsStorage.setAnnotations(json?.objects || []);
       });
     }
@@ -174,7 +174,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       fabricRef.current.loadFromJSON(result.restoredState, async () => {
         fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON(['objectId']);
+        const json = fabricRef.current?.toJSON();
         await annotationsStorage.setAnnotations(json?.objects || []);
       });
     }
@@ -194,6 +194,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
      * canvasObjects is a Map that contains all the shapes in the key-value.
      * Like a store. We can create multiple stores in local store.
      */
+
     const annotations = await annotationsStorage.getAnnotations();
     if (!annotations) return;
 
@@ -201,7 +202,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(updatedAnnotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
   }, []);
@@ -218,7 +219,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     if (!annotations || annotations.length === 0) return true;
     await annotationsStorage.setAnnotations([]);
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
     return true;
@@ -251,7 +252,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(annotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
     // setActiveUpdateAction(uuidv4());
@@ -315,8 +316,10 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
           if (elem?.value === 'freeform') {
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
-            fabricRef.current.freeDrawingBrush.width = 3;
-            fabricRef.current.freeDrawingBrush.color = '#dc2626';
+            const brush = new PencilBrush(fabricRef.current);
+            brush.color = '#dc2626';
+            brush.width = 3;
+            fabricRef.current.freeDrawingBrush = brush;
           } else {
             isDrawing.current = false;
             fabricRef.current.isDrawingMode = false;
@@ -340,7 +343,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     }
 
     const backgroundImage = attachments?.length ? attachments[0].image : null;
-
     const canvas = initializeFabric({
       canvasRef,
       fabricRef,
@@ -629,7 +631,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     }
 
     // Get the selected element
-    const selectedElement: any = options?.selected[0] as fabric.Object;
+    const selectedElement: any = options?.selected[0] as FabricObject;
 
     const updateMenuPosition = () => {
       const { left, top, width, height } = selectedElement.getBoundingRect();
