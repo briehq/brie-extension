@@ -25,6 +25,8 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
   const [deleteSliceByExternalId, { isLoading: isDeleteSliceLoading }] = useDeleteSliceByIdMutation();
   const { isLoading, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
 
+  const isGuest = user.fields?.authMethod === AuthMethod.GUEST;
+
   const previewScreenshotUrl = (attachments: any) => attachments.find((a: any) => a?.name === 'primary')?.preview;
 
   const onDeleteAll = () => {
@@ -44,26 +46,35 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
           <Icon name="ArrowLeftIcon" className="size-5" />
         </Button>
 
-        {user.fields?.authMethod !== AuthMethod.GUEST && (
-          <Button variant="link" size="sm" className="text-red-500" onClick={onDeleteAll}>
-            {t('deleteAll')}
-          </Button>
+        {!isGuest && (
+          <>
+            {/*
+            <Button variant="link" size="sm" className="text-red-500" onClick={onDeleteAll}>
+              {t('deleteAll')}
+            </Button>
+            */}
+
+            <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
+          </>
         )}
       </div>
 
       {/* Title and Description */}
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
+      {isGuest && (
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
 
-        {user.fields?.authMethod === AuthMethod.GUEST && (
           <p className="text-muted-foreground text-sm font-medium text-red-500">
             {totalSlicesCreatedToday}/10 {t('slicesLimitLabel')}
           </p>
-        )}
-      </div>
-      <p className="text-muted-foreground mb-4 text-xs">
-        {t('slicesSaved')} <span className="font-medium">{t('deleted')}</span> {t('slicesSavedLimit')}
-      </p>
+        </div>
+      )}
+
+      {isGuest && (
+        <p className="text-muted-foreground mb-4 text-xs">
+          {t('slicesSaved')} <span className="font-medium">{t('deleted')}</span> {t('slicesSavedLimit')}
+        </p>
+      )}
 
       <Separator className="inset-x-0 h-px bg-gray-900/5 dark:bg-gray-800" />
 

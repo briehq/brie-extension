@@ -4,7 +4,6 @@ import { useStorage } from '@extension/shared';
 import { captureStateStorage } from '@extension/storage';
 
 import { CaptureScreenshotGroup } from './components/capture';
-import { AuthGuard } from './components/guards';
 import { SlicesHistoryButton, SlicesHistoryContent } from './components/slices-history';
 import { Header, BetaNotifier } from './components/ui';
 
@@ -15,18 +14,16 @@ export const PopupContent = () => {
 
   const handleOnBack = () => setShowSlicesHistory(false);
 
+  if (showSlicesHistory) {
+    return <SlicesHistoryContent onBack={handleOnBack} />;
+  }
+
   return (
-    <AuthGuard>
-      {showSlicesHistory ? (
-        <SlicesHistoryContent onBack={handleOnBack} />
-      ) : (
-        <>
-          <Header />
-          <CaptureScreenshotGroup />
-          {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
-          <BetaNotifier />
-        </>
-      )}
-    </AuthGuard>
+    <>
+      <Header />
+      <CaptureScreenshotGroup />
+      {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
+      <BetaNotifier />
+    </>
   );
 };
