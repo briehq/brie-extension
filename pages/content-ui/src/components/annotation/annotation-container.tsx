@@ -41,7 +41,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * use client project id
    */
   const { id: projectId } = { id: uuidv4() };
-  const { toast } = useToast();
   const isProgrammaticChange = useRef(true);
   const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
@@ -161,7 +160,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       fabricRef.current.loadFromJSON(result.prevState, async () => {
         fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON(['objectId']);
+        const json = fabricRef.current?.toJSON();
         await annotationsStorage.setAnnotations(json?.objects || []);
       });
     }
@@ -175,7 +174,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       fabricRef.current.loadFromJSON(result.restoredState, async () => {
         fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON(['objectId']);
+        const json = fabricRef.current?.toJSON();
         await annotationsStorage.setAnnotations(json?.objects || []);
       });
     }
@@ -203,7 +202,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(updatedAnnotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
   }, []);
@@ -220,7 +219,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     if (!annotations || annotations.length === 0) return true;
     await annotationsStorage.setAnnotations([]);
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
     return true;
@@ -253,7 +252,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(annotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON(['objectId']);
+      const json = fabricRef.current.toJSON();
       await saveHistory(json, isProgrammaticChange.current);
     }
     // setActiveUpdateAction(uuidv4());

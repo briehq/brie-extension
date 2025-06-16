@@ -1,4 +1,4 @@
-import { Canvas, FabricObject, PencilBrush, util, Point } from 'fabric';
+import { Canvas, FabricObject, PencilBrush, util as fabricUtil, Point } from 'fabric';
 import type { RefObject } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
@@ -401,7 +401,7 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
      *
      * enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
      */
-    util.enlivenObjects<FabricObject>([objectData]).then(
+    fabricUtil.enlivenObjects<FabricObject>([objectData]).then(
       (enlivenedObjects: FabricObject[]) => {
         enlivenedObjects.forEach(enlivenedObj => {
           // if element is active, keep it in active state so that it can be edited further
