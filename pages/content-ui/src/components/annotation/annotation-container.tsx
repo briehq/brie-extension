@@ -50,6 +50,11 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     name: string;
     image: string;
   }>();
+
+  const [originalImageDimensions, setOriginalImageDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
   // const [createIssue, { isLoading: isCreating }] = useCreateIssueMutation();
 
   /**
@@ -590,18 +595,20 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         activeObjectRef,
       });
 
+      // Use original dimensions or a fixed width instead of current container width
       const maxWidth = canvasRef.current?.clientWidth;
+      const backgroundWidth = originalImageDimensions?.width ?? maxWidth ?? 800; // Fallback to 800 if no dimensions are available
 
       setCanvasBackground({
         file: attachments[0]?.image,
-        canvas: fabricRef?.current,
+        canvas: fabricRef.current!,
         minHeight: 500,
-        maxWidth,
+        maxWidth: backgroundWidth, // Use original width, not current container width
       });
     };
 
     render();
-  }, [activeUpdateAction]);
+  }, [activeUpdateAction, originalImageDimensions]);
 
   useEffect(() => {
     const handleOnBeforeUnload = event => {
