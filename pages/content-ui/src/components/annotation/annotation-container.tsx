@@ -338,6 +338,16 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     }
   };
 
+  // After initializeFabric call
+  const img = new Image();
+  img.onload = () => {
+    setOriginalImageDimensions({
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    });
+  };
+  img.src = attachments[0].image;
+
   useEffect(() => {
     // initialize the fabric canvas
 
