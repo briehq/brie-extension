@@ -24,8 +24,6 @@ export const interceptXHR = (): void => {
     method: string,
     url: string | URL,
     async: boolean = true,
-    username?: string | null,
-    password?: string | null,
   ): void {
     this._requestDetails = {
       method,
@@ -33,7 +31,7 @@ export const interceptXHR = (): void => {
       requestStart: new Date().toISOString(),
       requestBody: null,
     };
-    originalOpen.call(this, method, url, async, username, password);
+    originalOpen.apply(this, [method, url, async]);
   };
 
   // Intercept XMLHttpRequest send method
