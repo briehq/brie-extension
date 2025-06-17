@@ -36,5 +36,4 @@ jobs:
           --no-error-on-unmatched-pattern \
           '**/*.{js,jsx,ts,tsx,json}'
 
-      - name: Fix formatting issues
-        run: npx prettier --write .turbo/preferences/tui.json chrome-extension/manifest.js
+     
