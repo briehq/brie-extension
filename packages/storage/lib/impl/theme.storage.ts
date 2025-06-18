@@ -13,10 +13,20 @@ const storage = createStorage<Theme>('theme-storage-key', 'light', {
 });
 
 const applyTheme = (theme: Theme) => {
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.add('light');
+  const shadowHost = document.querySelector('#brie-root');
+  // as the main is rendered by index.html so now targeting that
+  const isPopup = window.location.pathname.includes('index.html');
+
+  // targetingf to only #shadow-root
+  if (shadowHost) {
+    shadowHost.classList.remove('dark', 'light');
+    shadowHost.classList.add(theme);
+  }
+
+  // Apply to popup <html>
+  if (isPopup) {
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(theme);
   }
 };
 

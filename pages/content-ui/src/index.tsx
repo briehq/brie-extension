@@ -37,7 +37,7 @@ if (navigator.userAgent.includes('Firefox')) {
 const currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 rootIntoShadow.classList.add(currentTheme);
 
-// Apply the system theme via the storage API (if you need to persist or listen to changes)
+// Apply the system theme via the storage API
 themeStorage.applySystemTheme();
 themeStorage.listenToSystemThemeChanges();
 
