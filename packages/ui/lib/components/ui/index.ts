@@ -18,3 +18,4 @@ export * from './popover';
 export * from './card';
 export * from './radio-group';
 export * from 'sonner';
+export * from './api-error-handler';
