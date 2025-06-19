@@ -62,32 +62,32 @@ export const interceptConsole = () => {
   };
 
   // Override each console method individually to avoid type issues
-  console.log = (...args: any[]) => {
+  console.log = (...args: unknown[]) => {
     captureLog('log', args);
     originalConsole.log(...args);
   };
 
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     captureLog('warn', args);
     originalConsole.warn(...args);
   };
 
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     captureLog('error', args);
     originalConsole.error(...args);
   };
 
-  console.info = (...args: any[]) => {
+  console.info = (...args: unknown[]) => {
     captureLog('info', args);
     originalConsole.info(...args);
   };
 
-  console.debug = (...args: any[]) => {
+  console.debug = (...args: unknown[]) => {
     captureLog('debug', args);
     originalConsole.debug(...args);
   };
 
-  console.table = (...args: any[]) => {
+  console.table = (...args: unknown[]) => {
     captureLog('table', args);
     originalConsole.table(...args);
   };

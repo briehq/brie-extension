@@ -8,7 +8,7 @@
 **/dist
 **/build
 **/dist-zip
-chrome-extension/manifest.js
+chrome-extension
 chrome-extension/pre-build.tsconfig.tsbuildinfo
 tsconfig.tsbuildinfo
 
@@ -19,7 +19,7 @@ tsconfig.tsbuildinfo
 # etc
 .DS_Store
 .idea
-**/.turbo
+
 
 # compiled
 **/tailwind-output.css
