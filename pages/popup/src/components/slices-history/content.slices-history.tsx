@@ -92,7 +92,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
 
                 <div className="flex-1">
                   <button
-                    className="max-w-[240px] truncate text-sm font-medium text-slate-700 hover:underline"
+                    className="max-w-[240px] truncate text-sm font-medium text-slate-700 hover:underline dark:text-[#df8801]"
                     /**
                      * @todo move to env
                      */
