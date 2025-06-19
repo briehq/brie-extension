@@ -50,7 +50,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     name: string;
     image: string;
   }>();
-
   // const [createIssue, { isLoading: isCreating }] = useCreateIssueMutation();
 
   /**
@@ -591,15 +590,13 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         activeObjectRef,
       });
 
-      // Use original dimensions or a fixed width instead of current container width
       const maxWidth = canvasRef.current?.clientWidth;
-      const imageWidth: number | undefined = undefined;
+      let imageWidth: number | undefined = undefined;
 
       if (attachments[0]?.image) {
         const img = new window.Image();
         img.onload = () => {
-          const imageWidth = img.naturalWidth;
-          // You can use imageWidth here
+          imageWidth = img.naturalWidth;
         };
         img.src = attachments[0].image;
       }
@@ -608,7 +605,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         file: attachments[0]?.image,
         canvas: fabricRef?.current,
         minHeight: 500,
-        maxWidth: imageWidth ?? maxWidth,
+        maxWidth: imageWidth ?? maxWidth ?? 500,
       });
     };
 
