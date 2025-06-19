@@ -38,7 +38,7 @@ export const handlePaste = (canvas: fabric.Canvas, syncShapeInStorage: (shape: f
                 left: enlivenedObj.left || 0 + 20,
                 top: enlivenedObj.top || 0 + 20,
                 objectId: uuidv4(),
-                fill: '#aabbcc',
+                fill: '',
               } as CustomFabricObject<any>);
 
               canvas.add(enlivenedObj);
