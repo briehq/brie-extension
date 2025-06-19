@@ -31,7 +31,9 @@
     "fabric": "6.6.7",
     "file-saver": "^2.0.5",
     "moment": "^2.30.1",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@extension/hmr": "workspace:*",

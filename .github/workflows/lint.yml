@@ -17,9 +17,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
@@ -28,4 +30,4 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run ESLint
-      - run: pnpm lint
+        run: pnpm lint

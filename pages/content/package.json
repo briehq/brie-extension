@@ -21,9 +21,7 @@
   },
   "dependencies": {
     "@extension/shared": "workspace:*",
-    "@extension/storage": "workspace:*",
-    "@extension/env": "workspace:*",
-    "@extension/i18n": "workspace:*"
+    "@extension/storage": "workspace:*"
   },
   "devDependencies": {
     "@extension/hmr": "workspace:*",

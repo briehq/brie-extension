@@ -17,8 +17,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
-      - uses: pnpm/action-setup@v4
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
@@ -33,3 +35,5 @@ jobs:
           --ignore-path ./.prettierignore \
           --no-error-on-unmatched-pattern \
           '**/*.{js,jsx,ts,tsx,json}'
+
+     

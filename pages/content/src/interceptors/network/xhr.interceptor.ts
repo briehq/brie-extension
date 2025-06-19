@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, MessageType, RecordType, RecordSource, LogMethod } from '@extension/shared';
 
 // Define interfaces for request details and payload
 interface RequestDetails {
@@ -23,7 +23,9 @@ export const interceptXHR = (): void => {
     this: ExtendedXMLHttpRequest,
     method: string,
     url: string | URL,
-    ...rest: any[]
+    async: boolean = true,
+    username?: string | null,
+    password?: string | null,
   ): void {
     this._requestDetails = {
       method,
@@ -31,7 +33,7 @@ export const interceptXHR = (): void => {
       requestStart: new Date().toISOString(),
       requestBody: null,
     };
-    originalOpen.apply(this, [method, url, ...rest]);
+    originalOpen.apply(this, [method, url, async, username, password]);
   };
 
   // Intercept XMLHttpRequest send method
@@ -45,7 +47,7 @@ export const interceptXHR = (): void => {
 
     const originalOnReadyStateChange = this.onreadystatechange;
 
-    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, ...args: any[]): void {
+    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, ev: Event): void {
       if (this.readyState === 4 && this._requestDetails) {
         // Request completed
         const endTime = new Date().toISOString();
@@ -93,20 +95,20 @@ export const interceptXHR = (): void => {
               responseBody,
             };
 
-            safePostMessage('ADD_RECORD', {
+            safePostMessage(MessageType.ADD_RECORD, {
+              recordType: RecordType.NETWORK,
+              source: RecordSource.CLIENT,
               timestamp,
-              recordType: 'network',
-              source: 'client',
               ...payload,
             });
 
             if (this.status >= 400) {
-              safePostMessage('ADD_RECORD', {
-                type: 'log',
-                recordType: 'console',
-                source: 'client',
-                method: 'error',
-                timestamp: Date.now(),
+              safePostMessage(MessageType.ADD_RECORD, {
+                timestamp,
+                type: RecordType.CONSOLE,
+                recordType: RecordType.CONSOLE,
+                source: RecordSource.CLIENT,
+                method: LogMethod.ERROR,
                 args: [
                   `[XHR] ${this._requestDetails.method} ${this._requestDetails.url} responded with status ${this.status}`,
                   payload,
@@ -128,7 +130,7 @@ export const interceptXHR = (): void => {
 
       // Call the original onreadystatechange handler if defined
       if (originalOnReadyStateChange) {
-        originalOnReadyStateChange.apply(this, args);
+        originalOnReadyStateChange.call(this, ev);
       }
     };
 
