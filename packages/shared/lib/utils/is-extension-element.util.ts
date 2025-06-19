@@ -2,12 +2,12 @@ export const isExtensionElement = (element: HTMLElement): boolean => {
   if (!element) return false;
 
   // Check for your specific extension container IDs
-  if (element.closest('#pop-content') || element.closest('#brie-root')) {
+  if (element.closest('#brie-root')) {
     return true;
   }
 
   // Check for other extension-specific markers
-  const extensionMarkers = ['data-brie-extension', 'data-extension-ui', 'brie-extension', 'pop-content', 'brie-root'];
+  const extensionMarkers = ['data-brie-extension', 'data-extension-ui', 'brie-extension', 'brie-root'];
 
   // Check the element itself
   for (const marker of extensionMarkers) {

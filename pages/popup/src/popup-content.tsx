@@ -32,18 +32,14 @@ export const PopupContent = () => {
     return <Skeleton />;
   }
 
-  return (
-    <main id="popup-content">
-      {showSlicesHistory ? (
-        <SlicesHistoryContent onBack={handleOnBack} />
-      ) : (
-        <>
-          <Header />
-          <CaptureScreenshotGroup />
-          {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
-          <BetaNotifier />
-        </>
-      )}
-    </main>
+  return showSlicesHistory ? (
+    <SlicesHistoryContent onBack={handleOnBack} />
+  ) : (
+    <>
+      <Header />
+      <CaptureScreenshotGroup />
+      {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
+      <BetaNotifier />
+    </>
   );
 };
