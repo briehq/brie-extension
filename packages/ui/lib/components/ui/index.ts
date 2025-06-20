@@ -17,4 +17,5 @@ export * from './command';
 export * from './popover';
 export * from './card';
 export * from './radio-group';
-export * from 'sonner';
+export * from './sonner';
+export { toast } from 'sonner';

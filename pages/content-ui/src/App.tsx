@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { annotationsRedoStorage, annotationsStorage, captureStateStorage } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
-import { Toaster, TooltipProvider } from '@extension/ui';
+import { ToasterProviderWrap, TooltipProvider } from '@extension/ui';
 
 import Content from './content';
 
@@ -49,7 +49,7 @@ export default function App() {
             </main>
           )}
 
-          <Toaster richColors />
+          <ToasterProviderWrap richColors />
         </div>
       </TooltipProvider>
     </ReduxProvider>
