@@ -51,22 +51,20 @@ export const ApiErrorHandler = ({ children, checkInterval = 60000 }: ApiErrorHan
     return () => clearInterval(intervalId);
   }, [checkAvailability, checkInterval]);
 
-  return (
-    <>
-      {!isApiAvailable && (
-        <Alert variant="destructive" className="mb-4 border-red-200">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-            <AlertTitle className="font-semibold text-red-800">Service Unavailable</AlertTitle>
-          </div>
-          <AlertDescription className="mt-2 text-red-700">
-            We're sorry — our system is currently offline. We'll be back as soon as possible.
-            {retryCount > 1 && <span className="mt-1 block text-sm text-red-600">Retry attempt: {retryCount}</span>}
-          </AlertDescription>
-        </Alert>
-      )}
+  if (!isApiAvailable) {
+    return (
+      <Alert variant="destructive" className="mb-4 border-red-200">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+          <AlertTitle className="font-semibold text-red-800">Service Unavailable</AlertTitle>
+        </div>
+        <AlertDescription className="mt-2 text-red-700">
+          We're sorry — our system is currently offline. We'll be back as soon as possible.
+          {retryCount > 1 && <span className="mt-1 block text-sm text-red-600">Retry attempt: {retryCount}</span>}
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
-      {children}
-    </>
-  );
+  return <>{children}</>;
 };
