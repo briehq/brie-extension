@@ -1,3 +1,4 @@
+import type { Organization } from './organization.interface.js';
 import type { AuthMethod } from '../constants/index.js';
 
 export interface AuthState {
@@ -27,4 +28,6 @@ export interface User {
   phone?: string;
   avatarId?: string;
   username: string;
+  organizationId: string;
+  organization: Organization;
 }

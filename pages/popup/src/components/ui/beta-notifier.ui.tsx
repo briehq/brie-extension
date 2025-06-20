@@ -1,20 +1,9 @@
-import { useEffect, useState } from 'react';
-
 import { t } from '@extension/i18n';
-import { userUUIDStorage } from '@extension/storage';
+import { useUser } from '@extension/store';
 
 export const BetaNotifier = () => {
-  const [uuid, setUUID] = useState<string | null>();
-
-  useEffect(() => {
-    const getUUID = async () => {
-      const uuid = await userUUIDStorage.get();
-
-      setUUID(uuid);
-    };
-
-    getUUID();
-  }, []);
+  const user = useUser();
+  const uuid = user.fields?.id;
 
   return (
     <div className="mt-4 text-center text-[10px] font-normal text-slate-600 dark:text-white">
@@ -26,8 +15,13 @@ export const BetaNotifier = () => {
         className="hover:text-slate-900 dark:hover:text-[#df8801]">
         {t('reportBugsOrRequestFeatures')}
       </a>
-      <br />
-      <span>UUID: {uuid}</span>
+      {uuid && (
+        <>
+          <br />
+
+          <span>UUID: {uuid}</span>
+        </>
+      )}
     </div>
   );
 };

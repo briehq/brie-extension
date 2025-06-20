@@ -1,5 +1,5 @@
-import { FabricObject, Canvas } from 'fabric';
-import { util } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas, util } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { CustomFabricObject } from '@src/models';

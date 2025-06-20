@@ -38,9 +38,9 @@ import {
 const AnnotationContainer = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
   /**
    * @todo
-   * use client project id
+   * use client workspace id
    */
-  const { id: projectId } = { id: uuidv4() };
+  const { id: workspaceId } = { id: uuidv4() };
   const isProgrammaticChange = useRef(true);
   const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);

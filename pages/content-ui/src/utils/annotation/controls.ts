@@ -1,10 +1,9 @@
-import { FabricObject, Control } from 'fabric';
-import { controlsUtils } from 'fabric';
+import { Control, controlsUtils } from 'fabric';
 
 const rotateSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
 
 // Factory to create all controls with custom renderers
-export function createDefaultControls() {
+export const createDefaultControls = () => {
   const {
     scaleSkewCursorStyleHandler,
     scalingXOrSkewingY,
@@ -16,7 +15,7 @@ export function createDefaultControls() {
     rotationStyleHandler,
   } = controlsUtils;
 
-  const defaultRender = function (ctx, left, top, styleOverride, fabricObject) {
+  const defaultRender = (ctx, left, top, styleOverride, fabricObject) => {
     ctx.save();
     const size = 8;
     const radius = 2.5;
@@ -142,4 +141,4 @@ export function createDefaultControls() {
   };
 
   return newControls;
-}
+};

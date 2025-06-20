@@ -15,6 +15,18 @@ export const attachmentUrlPath = (a: Slice) => {
   return `${API_BASE_URL}/uploads/${uploadPath}/${a.externalId}`;
 };
 
+/**
+ * @note
+ * RTK Query invalidation works only inside the same Redux store instance
+ *
+ * In a browser extension:
+ * - Popup has its own isolated context and Redux store
+ * - Content scripts also run in a separate context with a separate store
+ *
+ * So even if you await createSlice() in the content script,
+ * the mutation result won't invalidate or notify the popup's cache,
+ * because they're using different instances of the RTK Query cache.
+ */
 export const slicesPrivateAPI = createApi({
   reducerPath: 'slices-private',
   baseQuery: baseQueryWithReauth,
