@@ -26,7 +26,7 @@ if (!CLI_ENV) {
 }
 
 const dynamicEnvValues = {
-  NODE_ENV: CLI_ENV === 'dev' || baseEnv.DEV === 'true' ? 'development' : 'production',
+  NODE_ENV: CLI_ENV === 'development' || baseEnv.CLI_DEV === 'true' ? 'development' : 'production',
 } as const;
 
 export { baseEnv, dynamicEnvValues };

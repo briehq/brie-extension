@@ -20,7 +20,7 @@ const applyTheme = (theme: Theme) => {
   }
 };
 
-// Detecting the sytem theme
+// Detecting the system theme
 const detectSystemTheme = (): Theme => {
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   return prefersDark ? 'dark' : 'light';
@@ -29,7 +29,7 @@ const detectSystemTheme = (): Theme => {
 // applying the theme
 const applySystemTheme = () => {
   const systemTheme = detectSystemTheme();
-  applyTheme(systemTheme);
+  // applyTheme(systemTheme);
   // storing the theme setting
   storage.set(() => systemTheme);
 };
