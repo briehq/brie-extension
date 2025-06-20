@@ -11,11 +11,11 @@ import { PopupContent } from './popup-content';
 const Popup = () => (
   <ReduxProvider store={store}>
     <div className="light dark:bg-background.dark relative px-5 pb-5 pt-4">
-      <ApiErrorHandler>
-        <AuthGuard>
+      <AuthGuard>
+        <ApiErrorHandler>
           <PopupContent />
-        </AuthGuard>
-      </ApiErrorHandler>
+        </ApiErrorHandler>
+      </AuthGuard>
     </div>
   </ReduxProvider>
 );
