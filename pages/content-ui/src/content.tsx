@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
+import type { Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
 import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, toast } from '@extension/ui';
@@ -21,11 +22,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
 
-  const showRightSidebar = useMemo(() => {
-    if (user?.authMethod === AuthMethod.GUEST) return false;
+  const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
 
-    return showRightSection;
-  }, [showRightSection, user?.authMethod]);
+  const workspace = useMemo(
+    () => user?.organization?.workspaces.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
+    [user?.organization?.workspaces],
+  );
 
   const handleToggleMaximize = () => setIsMaximized(!isMaximized);
 
@@ -62,6 +64,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         const formData = new FormData();
         formData.append('records', jsonFile);
+        formData.append('workspaceId', workspace.id);
 
         const canvas = getCanvasElement();
 
@@ -84,11 +87,11 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         if (data?.externalId) {
           toast(t('openReport'));
 
-          /**
-           * @todo move to env
-           */
+          const path = isGuest ? `s/${data?.externalId}` : `slices/${data?.id}`;
+
           setTimeout(() => {
-            window?.open(`${APP_BASE_URL}/s/${data?.externalId}`, '_blank')?.focus();
+            const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
+            newWindow?.focus();
           }, 1000);
 
           onClose();
@@ -123,7 +126,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
           {user?.authMethod !== AuthMethod.GUEST && (
             <Button size="icon" variant="secondary" onClick={handleToggleRightSection} type="button" className="size-6">
-              {showRightSidebar ? (
+              {isGuest ? (
                 <Icon name="PanelRightCloseIcon" className="size-3.5" strokeWidth="1.5" />
               ) : (
                 <Icon name="PanelLeftCloseIcon" className="size-3.5" strokeWidth="1.5" />
@@ -137,7 +140,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         <div
           className={`flex ${
-            showRightSidebar ? 'sm:w-[70%]' : 'w-full'
+            isGuest ? 'sm:w-[70%]' : 'w-full'
           } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
           {/* Content Section */}
 
@@ -150,7 +153,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             </p>
           </div>
 
-          {!showRightSidebar && (
+          {!isGuest && (
             <Button
               className="relative mt-2 w-full sm:absolute sm:bottom-6 sm:right-4 sm:mt-0 sm:w-[150px]"
               onClick={handleOnCreate}
@@ -161,7 +164,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           )}
         </div>
 
-        {showRightSidebar && (
+        {isGuest && (
           <div className="flex flex-col justify-between px-4 pb-4 pt-5 sm:w-[30%] sm:p-6">
             {/* Dropdown and Comment */}
             <div className="space-y-4 sm:mt-8">
