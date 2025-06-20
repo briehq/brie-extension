@@ -1,5 +1,5 @@
-import { FabricObject, Canvas } from 'fabric';
-import { util } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas, util } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { CustomFabricObject } from '@src/models';
@@ -37,7 +37,6 @@ export const handlePaste = (canvas: Canvas, syncShapeInStorage: (shape: FabricOb
               left: enlivenedObj.left || 0 + 20,
               top: enlivenedObj.top || 0 + 20,
               objectId: uuidv4(),
-              fill: '#aabbcc',
             } as CustomFabricObject<any>);
 
             canvas.add(enlivenedObj);

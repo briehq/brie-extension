@@ -1,6 +1,6 @@
 {
   "name": "chrome-extension",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "chrome extension - core settings",
   "type": "module",
   "private": true,
@@ -22,9 +22,7 @@
     "@extension/env": "workspace:*",
     "@extension/shared": "workspace:*",
     "@extension/i18n": "workspace:*",
-    "@extension/storage": "workspace:*",
-    "webextension-polyfill": "^0.12.0",
-    "uuid": "^11.0.3"
+    "@extension/storage": "workspace:*"
   },
   "devDependencies": {
     "@extension/dev-utils": "workspace:*",

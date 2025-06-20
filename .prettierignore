@@ -8,3 +8,6 @@ node_modules
 LICENSE
 *.md
 pnpm-lock.yaml
+chrome-extension/manifest.js
+packages/i18n/lib/i18n.ts
+.turbo

@@ -38,9 +38,9 @@ import {
 const AnnotationContainer = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
   /**
    * @todo
-   * use client project id
+   * use client workspace id
    */
-  const { id: projectId } = { id: uuidv4() };
+  const { id: workspaceId } = { id: uuidv4() };
   const isProgrammaticChange = useRef(true);
   const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
@@ -591,12 +591,21 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
       });
 
       const maxWidth = canvasRef.current?.clientWidth;
+      let imageWidth: number | undefined = undefined;
+
+      if (attachments[0]?.image) {
+        const img = new window.Image();
+        img.onload = () => {
+          imageWidth = img.naturalWidth;
+        };
+        img.src = attachments[0].image;
+      }
 
       setCanvasBackground({
         file: attachments[0]?.image,
         canvas: fabricRef?.current,
         minHeight: 500,
-        maxWidth,
+        maxWidth: imageWidth ?? maxWidth ?? 500,
       });
     };
 

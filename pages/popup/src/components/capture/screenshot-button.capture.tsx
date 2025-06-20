@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
+import { AuthMethod, useStorage } from '@extension/shared';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
 import { useUser } from '@extension/store';
 import {
@@ -36,6 +36,7 @@ const captureTypes = [
 export const CaptureScreenshotGroup = () => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const user = useUser();
+
   const captureState = useStorage(captureStateStorage);
   const captureTabId = useStorage(captureTabStorage);
   const pendingReloadTabIds = useStorage(pendingReloadTabsStorage);
@@ -43,17 +44,22 @@ export const CaptureScreenshotGroup = () => {
   const [activeTab, setActiveTab] = useState({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
   const isCaptureScreenshotDisabled = useMemo(() => {
-    // Skip limit check in dev/sandbox environments
-    if (IS_DEV) {
+    const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
+    /**
+     * Skip limit check
+     * - in dev/sandbox environments
+     * - if has account (!GUEST)
+     */
+    if (IS_DEV || !isGuest) {
       return false;
     }
 
-    // Only disable if:
-    // 1. User is a guest
-    // 2. Has hit the daily limit
-    return (
-      user?.fields?.authMethod === 'GUEST' && totalSlicesCreatedToday > 10 && Boolean(activeTab.id) // Check if there's an active capture tab
-    );
+    /**
+     * Only disable if:
+     * - User is a guest
+     * - And has hit the daily limit
+     */
+    return isGuest && totalSlicesCreatedToday > 10 && Boolean(activeTab.id);
   }, [totalSlicesCreatedToday, user?.fields?.authMethod, activeTab.id]);
 
   const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(captureState), [captureState]);

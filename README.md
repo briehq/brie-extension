@@ -50,9 +50,9 @@ _Install <a href="https://go.brie.io/lp" target="_blank">Brie</a> and start ship
 
 3. Send the generated report link via email, Slack, or any platform.
 
-## 📚 Documentation
+<!-- ## 📚 Documentation
 
-For detailed guides and API references, visit the <a href="https://go.brie.io/docs" target="_blank">documentation</a>.
+For detailed guides and API references, visit the <a href="https://go.brie.io/docs" target="_blank">documentation</a>. -->
 
 ## 🤝 Contribute
 

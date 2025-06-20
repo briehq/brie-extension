@@ -26,7 +26,7 @@ export const AddDescription = ({
   onOpen: (open: boolean) => void;
   room: string;
 }) => {
-  const { id: projectId } = useParams();
+  const { id: workspaceId } = useParams();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const spaceId = searchParams.get('spaceId');
@@ -90,8 +90,8 @@ export const AddDescription = ({
   };
 
   const onSubmit = async ({ description }: { description: string }) => {
-    if (!projectId || !spaceId) {
-      toast.error('Project, Room or Issue is not provided!');
+    if (!workspaceId || !spaceId) {
+      toast.error('Workspace, Room or Issue is not provided!');
       return;
     }
 
