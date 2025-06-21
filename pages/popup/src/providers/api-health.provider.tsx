@@ -4,15 +4,14 @@ import type React from 'react';
 import { useEffect, useState, useCallback } from 'react';
 
 import { API_BASE_URL } from '@extension/env';
+import { Alert, AlertDescription, AlertTitle } from '@extension/ui';
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-
-interface ApiErrorHandlerProps {
+interface ApiHealthProviderProps {
   children: React.ReactNode;
   checkInterval?: number;
 }
 
-export const ApiErrorHandler = ({ children, checkInterval = 60000 }: ApiErrorHandlerProps) => {
+export const ApiHealthProvider = ({ children, checkInterval = 60000 }: ApiHealthProviderProps) => {
   const [isApiAvailable, setIsApiAvailable] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -25,7 +24,6 @@ export const ApiErrorHandler = ({ children, checkInterval = 60000 }: ApiErrorHan
         headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
         signal: AbortSignal.timeout(5000),
       });
-      console.log('response', response);
 
       return response.ok;
     } catch (error) {

@@ -20,6 +20,7 @@ export const PopupContent = () => {
 
   return (
     <>
+      ss s
       <Header />
       <CaptureScreenshotGroup />
       {captureState === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
