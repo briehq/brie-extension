@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 
-import { annotationsRedoStorage, annotationsStorage, captureStateStorage } from '@extension/storage';
+import { useStorage } from '@extension/shared';
+import { annotationsRedoStorage, annotationsStorage, captureStateStorage, themeStorage } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
-import { ToasterProviderWrap, TooltipProvider } from '@extension/ui';
+import { cn, ToasterProviderWrap, TooltipProvider } from '@extension/ui';
 
 import Content from './content';
 
 export default function App() {
+  const theme = useStorage(themeStorage);
   const [screenshots, setScreenshots] = useState<{ name: string; image: string }[]>();
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function App() {
   return (
     <ReduxProvider store={store}>
       <TooltipProvider>
-        <div className="light relative">
+        <div className={cn(theme, 'relative')}>
           {screenshots?.length && (
             <main className="flex-1 md:container md:max-w-screen-xl">
               <div className="flex items-center justify-between gap-2 rounded bg-white">

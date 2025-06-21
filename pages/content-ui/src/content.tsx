@@ -24,6 +24,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
   const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
 
+  const showRightSidebar = useMemo(() => {
+    if (user?.authMethod === AuthMethod.GUEST) return false;
+
+    return showRightSection;
+  }, [showRightSection, user?.authMethod]);
+
   const workspace = useMemo(
     () => user?.organization?.workspaces.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
     [user?.organization?.workspaces],
@@ -31,7 +37,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
   const handleToggleMaximize = () => setIsMaximized(!isMaximized);
 
-  const handleToggleRightSection = () => setShowRightSection(!showRightSection);
+  const handleToggleRightSection = () => setShowRightSection(value => !value);
 
   const getRecords = () => {
     return new Promise((resolve, reject) => {
@@ -124,9 +130,9 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             )}
           </Button>
 
-          {user?.authMethod !== AuthMethod.GUEST && (
+          {!isGuest && (
             <Button size="icon" variant="secondary" onClick={handleToggleRightSection} type="button" className="size-6">
-              {isGuest ? (
+              {showRightSidebar ? (
                 <Icon name="PanelRightCloseIcon" className="size-3.5" strokeWidth="1.5" />
               ) : (
                 <Icon name="PanelLeftCloseIcon" className="size-3.5" strokeWidth="1.5" />
@@ -140,7 +146,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         <div
           className={`flex ${
-            isGuest ? 'sm:w-[70%]' : 'w-full'
+            showRightSidebar ? 'sm:w-[70%]' : 'w-full'
           } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
           {/* Content Section */}
 
@@ -153,7 +159,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             </p>
           </div>
 
-          {!isGuest && (
+          {!showRightSidebar && (
             <Button
               className="relative mt-2 w-full sm:absolute sm:bottom-6 sm:right-4 sm:mt-0 sm:w-[150px]"
               onClick={handleOnCreate}
@@ -164,7 +170,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           )}
         </div>
 
-        {isGuest && (
+        {showRightSidebar && (
           <div className="flex flex-col justify-between px-4 pb-4 pt-5 sm:w-[30%] sm:p-6">
             {/* Dropdown and Comment */}
             <div className="space-y-4 sm:mt-8">
