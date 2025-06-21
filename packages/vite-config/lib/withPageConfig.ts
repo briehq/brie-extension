@@ -7,10 +7,6 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import env, { IS_DEV, IS_PROD } from '@extension/env';
 import { watchRebuildPlugin } from '@extension/hmr';
 
-console.log('\n\n\n env', env);
-console.log('\n\n\n IS_DEV IS_PROD', IS_DEV, IS_PROD);
-console.log('process.env', process.env['CLI_DEV'], typeof process.env['CLI_DEV']);
-
 export const watchOption = IS_DEV
   ? {
       chokidar: {

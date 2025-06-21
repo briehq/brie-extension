@@ -59,7 +59,8 @@ export const ApiHealthProvider = ({ children, checkInterval = 60000 }: ApiHealth
           <AlertTitle className="font-semibold text-red-800">Service Unavailable</AlertTitle>
         </div>
         <AlertDescription className="mt-2 text-red-700">
-          We're sorry, our system is currently offline. We'll be back as soon as possible.
+          We're sorry, our system is currently offline. <br />
+          We'll be back as soon as possible.
           {retryCount > 1 && <span className="mt-1 block text-sm text-red-600">Retry attempt: {retryCount}</span>}
         </AlertDescription>
       </Alert>

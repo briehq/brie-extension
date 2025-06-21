@@ -12,25 +12,13 @@ const storage = createStorage<Theme>('theme-storage-key', 'light', {
   liveUpdate: true,
 });
 
-const applyTheme = (theme: Theme) => {
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.add('light');
-  }
-};
-
-// Detecting the system theme
 const detectSystemTheme = (): Theme => {
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   return prefersDark ? 'dark' : 'light';
 };
 
-// applying the theme
 const applySystemTheme = () => {
   const systemTheme = detectSystemTheme();
-  // applyTheme(systemTheme);
-  // storing the theme setting
   storage.set(() => systemTheme);
 };
 
@@ -39,9 +27,7 @@ const listenToSystemThemeChanges = () => {
   mql.addEventListener('change', applySystemTheme);
 };
 
-// You can extend it with your own methods
 export const themeStorage: ThemeStorage & {
-  applyTheme: (theme: Theme) => void;
   applySystemTheme: () => void;
   listenToSystemThemeChanges: () => void;
 } = {
@@ -49,7 +35,6 @@ export const themeStorage: ThemeStorage & {
   toggle: async () => {
     await storage.set(currentTheme => (currentTheme === 'light' ? 'dark' : 'light'));
   },
-  applyTheme,
   applySystemTheme,
   listenToSystemThemeChanges,
 };

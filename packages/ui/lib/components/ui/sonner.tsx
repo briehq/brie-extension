@@ -5,7 +5,6 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 export const ToasterProviderWrap = ({ ...props }: ToasterProps) => {
   // const { theme = 'system' } = useTheme();
-  console.log('ToasterProviderWrap');
 
   return (
     <Sonner
