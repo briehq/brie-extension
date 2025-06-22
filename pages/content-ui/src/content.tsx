@@ -122,7 +122,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
       onClose={onClose}
       actions={
         <>
-          <Button size="icon" variant="secondary" onClick={handleToggleMaximize} type="button" className="size-6">
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={handleToggleMaximize}
+            type="button"
+            className="dark:bg-primary size-6 dark:text-white">
             {isMaximized ? (
               <Icon name="Minimize2Icon" className="size-3" strokeWidth="1.5" />
             ) : (
@@ -131,7 +136,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           </Button>
 
           {!isGuest && (
-            <Button size="icon" variant="secondary" onClick={handleToggleRightSection} type="button" className="size-6">
+            <Button
+              size="icon"
+              variant="secondary"
+              onClick={handleToggleRightSection}
+              type="button"
+              className="dark:bg-primary size-6 dark:text-white">
               {showRightSidebar ? (
                 <Icon name="PanelRightCloseIcon" className="size-3.5" strokeWidth="1.5" />
               ) : (
@@ -215,7 +225,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
                   {t('captureAndShare')}
                 </Button>
               </div>
-              <small className="select-none text-center text-xs text-gray-400 dark:text-white">
+              <small className="text-muted-foreground select-none text-center text-xs">
                 {t('captureAndShareMemo')}
               </small>
             </div>
