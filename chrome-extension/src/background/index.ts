@@ -124,13 +124,10 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
    * context: see issue: #24
    */
   if (['install', 'update'].includes(reason)) {
-    chrome.tabs.query({}, tabs => {
-      tabs.forEach(tab => {
-        if (tab.id) {
-          pendingReloadTabsStorage.add(tab.id);
-        }
-      });
-    });
+    const activeTabs = await chrome.tabs.query({});
+    const activeTabIds = activeTabs.map(t => t.id).filter((id): id is number => id !== undefined);
+
+    await pendingReloadTabsStorage.set(activeTabIds);
   }
 
   // Creates parent context menu item

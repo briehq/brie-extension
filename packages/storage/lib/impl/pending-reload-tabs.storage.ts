@@ -22,10 +22,10 @@ export const pendingReloadTabsStorage: PendingReloadTabsStorage = {
   ...storage,
 
   add: async (tabId: number) => {
-    const current = (await storage.get()) || [];
-    if (!current.includes(tabId)) {
-      await storage.set([...current, tabId]);
-    }
+    await storage.set(prev => {
+      const current = prev ?? [];
+      return current.includes(tabId) ? current : [...current, tabId];
+    });
   },
 
   remove: async (tabId: number) => {

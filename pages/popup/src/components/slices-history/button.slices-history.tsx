@@ -8,7 +8,7 @@ export const SlicesHistoryButton = ({ onClick }: { onClick: () => void }) => {
         type="button"
         variant="ghost"
         size="sm"
-        className="h-6 gap-x-1.5 text-slate-600 dark:text-[#df8801] dark:hover:text-[#df8801]"
+        className="dark:text-muted-foreground h-6 gap-x-1.5 text-slate-600 dark:hover:text-white"
         onClick={onClick}>
         {t('sliceHistoryTitle')} <Icon name="ImageIcon" className="size-4" />
       </Button>

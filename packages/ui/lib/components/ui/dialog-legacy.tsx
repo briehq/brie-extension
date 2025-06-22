@@ -29,11 +29,16 @@ export const DialogLegacy = ({
               isMaximized ? 'h-screen w-full' : 'h-auto w-full rounded-lg shadow-xl sm:max-w-7xl',
             )}>
             {/* Close Button */}
-            <div className="bg-background absolute right-4 top-2 z-10 rounded-lg sm:p-2">
+            <div className="absolute right-4 top-2 z-10 rounded-lg sm:p-2 dark:bg-black">
               <div className="flex items-center gap-x-2">
                 {actions}
 
-                <Button size="icon" variant="secondary" onClick={onClose} type="button" className="size-6">
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  onClick={onClose}
+                  type="button"
+                  className="dark:bg-primary size-6 dark:text-white">
                   <Icon name={'X' as any} className="size-4" strokeWidth="1.5" />
                 </Button>
               </div>
