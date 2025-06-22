@@ -18,6 +18,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [description, setDescription] = useState('');
 
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
@@ -71,6 +72,9 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         const formData = new FormData();
         formData.append('records', jsonFile);
         formData.append('workspaceId', workspace.id);
+        if (description) {
+          formData.append('description', description);
+        }
 
         const canvas = getCanvasElement();
 
@@ -184,15 +188,26 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           <div className="flex flex-col justify-between px-4 pb-4 pt-5 sm:w-[30%] sm:p-6">
             {/* Dropdown and Comment */}
             <div className="space-y-4 sm:mt-8">
-              <Textarea placeholder="Add a description" rows={width < 500 ? 3 : 10} className="w-full" />
+              <Textarea
+                value={description}
+                onChange={e => {
+                  setDescription(e.target.value);
+                }}
+                maxLength={255}
+                placeholder="Add a description"
+                rows={width < 500 ? 3 : 10}
+                className="text-muted-foreground w-full"
+              />
 
-              <small className="select-none text-xs text-gray-400 dark:text-white">{t('sliceDescription')}</small>
+              <small className="dark:text-muted-foreground select-none text-xs text-gray-400">
+                {t('sliceDescription')}
+              </small>
             </div>
 
             {/* Action Buttons */}
             <div className="text-center">
               <div className="mt-6 flex items-center justify-between gap-x-2">
-                <div className="flex gap-x-2">
+                {/* <div className="flex gap-x-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button type="button" size="icon" variant="secondary" onClick={() => {}}>
@@ -214,10 +229,10 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
                       {t('addFolder')}
                     </TooltipContent>
                   </Tooltip>
-                </div>
+                </div> */}
 
                 <Button
-                  className="w-full dark:text-[#df8801]"
+                  className="w-full"
                   variant="secondary"
                   onClick={handleOnCreate}
                   disabled={isCreateLoading}
