@@ -1,9 +1,10 @@
-import { fabric } from 'fabric';
+import type { FabricObject } from 'fabric';
+import { Canvas, util } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { CustomFabricObject } from '@src/models';
 
-export const handleCopy = (canvas: fabric.Canvas) => {
+export const handleCopy = (canvas: Canvas) => {
   const activeObjects = canvas.getActiveObjects();
   if (activeObjects.length > 0) {
     // Serialize the selected objects
@@ -15,8 +16,8 @@ export const handleCopy = (canvas: fabric.Canvas) => {
   return activeObjects;
 };
 
-export const handlePaste = (canvas: fabric.Canvas, syncShapeInStorage: (shape: fabric.Object) => void) => {
-  if (!canvas || !(canvas instanceof fabric.Canvas)) {
+export const handlePaste = (canvas: Canvas, syncShapeInStorage: (shape: FabricObject) => void) => {
+  if (!canvas || !(canvas instanceof Canvas)) {
     console.error('Invalid canvas object. Aborting paste operation.');
     return;
   }
@@ -27,27 +28,22 @@ export const handlePaste = (canvas: fabric.Canvas, syncShapeInStorage: (shape: f
   if (clipboardData) {
     try {
       const parsedObjects = JSON.parse(clipboardData);
-      parsedObjects.forEach((objData: fabric.Object) => {
+      parsedObjects.forEach((objData: FabricObject) => {
         // convert the plain javascript objects retrieved from localStorage into fabricjs objects (deserialization)
-        fabric.util.enlivenObjects(
-          [objData],
-          (enlivenedObjects: fabric.Object[]) => {
-            enlivenedObjects.forEach(enlivenedObj => {
-              // Offset the pasted objects to avoid overlap with existing objects
-              enlivenedObj.set({
-                left: enlivenedObj.left || 0 + 20,
-                top: enlivenedObj.top || 0 + 20,
-                objectId: uuidv4(),
-                fill: '#aabbcc',
-              } as CustomFabricObject<any>);
+        util.enlivenObjects<FabricObject>([objData]).then((enlivenedObjects: FabricObject[]) => {
+          enlivenedObjects.forEach(enlivenedObj => {
+            // Offset the pasted objects to avoid overlap with existing objects
+            enlivenedObj.set({
+              left: enlivenedObj.left || 0 + 20,
+              top: enlivenedObj.top || 0 + 20,
+              objectId: uuidv4(),
+            } as CustomFabricObject<any>);
 
-              canvas.add(enlivenedObj);
-              syncShapeInStorage(enlivenedObj);
-            });
-            canvas.renderAll();
-          },
-          'fabric',
-        );
+            canvas.add(enlivenedObj);
+            syncShapeInStorage(enlivenedObj);
+          });
+          canvas.renderAll();
+        });
       });
     } catch (error) {
       console.error('Error parsing clipboard data:', error);
@@ -55,7 +51,7 @@ export const handlePaste = (canvas: fabric.Canvas, syncShapeInStorage: (shape: f
   }
 };
 
-export const handleDelete = (canvas: fabric.Canvas, deleteShapeFromStorage: (id: string) => void) => {
+export const handleDelete = (canvas: Canvas, deleteShapeFromStorage: (id: string) => void) => {
   const activeObjects = canvas.getActiveObjects();
 
   if (!activeObjects || activeObjects.length === 0) {
@@ -86,10 +82,10 @@ export const handleKeyDown = ({
   deleteShapeFromStorage,
 }: {
   e: KeyboardEvent;
-  canvas: fabric.Canvas | any;
+  canvas: Canvas | any;
   undo: () => void;
   redo: () => void;
-  syncShapeInStorage: (shape: fabric.Object) => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
   deleteShapeFromStorage: (id: string) => void;
 }) => {
   /**

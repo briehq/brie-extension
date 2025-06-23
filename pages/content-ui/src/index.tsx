@@ -1,9 +1,11 @@
 import { createRoot } from 'react-dom/client';
 
+import { themeStorage } from '@extension/storage';
+
 import App from '@src/App';
 
-import tailwindcssOutput from '../dist/tailwind-output.css?inline';
 // @ts-expect-error Because file doesn't exist before build
+import tailwindcssOutput from '../dist/tailwind-output.css?inline';
 
 const root = document.createElement('div');
 root.id = 'brie-root';
@@ -31,6 +33,10 @@ if (navigator.userAgent.includes('Firefox')) {
   globalStyleSheet.replaceSync(tailwindcssOutput);
   shadowRoot.adoptedStyleSheets = [globalStyleSheet];
 }
+
+// Apply the system theme via the storage API
+themeStorage.applySystemTheme();
+themeStorage.listenToSystemThemeChanges();
 
 shadowRoot.appendChild(rootIntoShadow);
 createRoot(rootIntoShadow).render(<App />);

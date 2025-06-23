@@ -16,5 +16,6 @@ export interface Workspace {
   organizationId: string;
   slices: Slice[];
   isFavorite: boolean;
+  isDefault: boolean;
   spaces: Space[];
 }

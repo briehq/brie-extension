@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
+import type { Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
 import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, toast } from '@extension/ui';
@@ -17,9 +18,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [description, setDescription] = useState('');
 
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
+
+  const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
 
   const showRightSidebar = useMemo(() => {
     if (user?.authMethod === AuthMethod.GUEST) return false;
@@ -27,9 +31,14 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
     return showRightSection;
   }, [showRightSection, user?.authMethod]);
 
+  const workspace = useMemo(
+    () => user?.organization?.workspaces.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
+    [user?.organization?.workspaces],
+  );
+
   const handleToggleMaximize = () => setIsMaximized(!isMaximized);
 
-  const handleToggleRightSection = () => setShowRightSection(!showRightSection);
+  const handleToggleRightSection = () => setShowRightSection(value => !value);
 
   const getRecords = () => {
     return new Promise((resolve, reject) => {
@@ -62,6 +71,10 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         const formData = new FormData();
         formData.append('records', jsonFile);
+        formData.append('workspaceId', workspace.id);
+        if (description) {
+          formData.append('description', description);
+        }
 
         const canvas = getCanvasElement();
 
@@ -84,11 +97,11 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         if (data?.externalId) {
           toast(t('openReport'));
 
-          /**
-           * @todo move to env
-           */
+          const path = isGuest ? `s/${data?.externalId}` : `slices/${data?.id}`;
+
           setTimeout(() => {
-            window?.open(`${APP_BASE_URL}/s/${data?.externalId}`, '_blank')?.focus();
+            const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
+            newWindow?.focus();
           }, 1000);
 
           onClose();
@@ -113,7 +126,12 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
       onClose={onClose}
       actions={
         <>
-          <Button size="icon" variant="secondary" onClick={handleToggleMaximize} type="button" className="size-6">
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={handleToggleMaximize}
+            type="button"
+            className="dark:bg-primary size-6 dark:text-white">
             {isMaximized ? (
               <Icon name="Minimize2Icon" className="size-3" strokeWidth="1.5" />
             ) : (
@@ -121,8 +139,13 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
             )}
           </Button>
 
-          {user?.authMethod !== AuthMethod.GUEST && (
-            <Button size="icon" variant="secondary" onClick={handleToggleRightSection} type="button" className="size-6">
+          {!isGuest && (
+            <Button
+              size="icon"
+              variant="secondary"
+              onClick={handleToggleRightSection}
+              type="button"
+              className="dark:bg-primary size-6 dark:text-white">
               {showRightSidebar ? (
                 <Icon name="PanelRightCloseIcon" className="size-3.5" strokeWidth="1.5" />
               ) : (
@@ -132,20 +155,22 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           )}
         </>
       }>
-      <div className="flex h-full flex-col md:flex-row">
+      <div className="flex h-full flex-col md:flex-row dark:bg-black">
         {/* Left Column */}
 
         <div
           className={`flex ${
             showRightSidebar ? 'sm:w-[70%]' : 'w-full'
-          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6`}>
+          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
           {/* Content Section */}
 
           <AnnotationContainer attachments={screenshots} />
 
           {/* Footer Section */}
           <div className="mt-4 flex justify-center">
-            <p className="max-w-lg select-none text-center text-xs text-gray-400">{t('additionalInformation')}</p>
+            <p className="max-w-lg select-none text-center text-xs text-gray-400 dark:text-white">
+              {t('additionalInformation')}
+            </p>
           </div>
 
           {!showRightSidebar && (
@@ -163,15 +188,26 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           <div className="flex flex-col justify-between px-4 pb-4 pt-5 sm:w-[30%] sm:p-6">
             {/* Dropdown and Comment */}
             <div className="space-y-4 sm:mt-8">
-              <Textarea placeholder="Add a description" rows={width < 500 ? 3 : 10} className="w-full" />
+              <Textarea
+                value={description}
+                onChange={e => {
+                  setDescription(e.target.value);
+                }}
+                maxLength={255}
+                placeholder="Add a description"
+                rows={width < 500 ? 3 : 10}
+                className="text-muted-foreground w-full"
+              />
 
-              <small className="select-none text-xs text-gray-400">{t('sliceDescription')}</small>
+              <small className="dark:text-muted-foreground select-none text-xs text-gray-400">
+                {t('sliceDescription')}
+              </small>
             </div>
 
             {/* Action Buttons */}
             <div className="text-center">
               <div className="mt-6 flex items-center justify-between gap-x-2">
-                <div className="flex gap-x-2">
+                {/* <div className="flex gap-x-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button type="button" size="icon" variant="secondary" onClick={() => {}}>
@@ -193,17 +229,20 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
                       {t('addFolder')}
                     </TooltipContent>
                   </Tooltip>
-                </div>
+                </div> */}
 
                 <Button
                   className="w-full"
+                  variant="secondary"
                   onClick={handleOnCreate}
                   disabled={isCreateLoading}
                   loading={isCreateLoading}>
                   {t('captureAndShare')}
                 </Button>
               </div>
-              <small className="select-none text-center text-xs text-gray-400">{t('captureAndShareMemo')}</small>
+              <small className="text-muted-foreground select-none text-center text-xs">
+                {t('captureAndShareMemo')}
+              </small>
             </div>
           </div>
         )}

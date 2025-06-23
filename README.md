@@ -50,9 +50,9 @@ _Install <a href="https://go.brie.io/lp" target="_blank">Brie</a> and start ship
 
 3. Send the generated report link via email, Slack, or any platform.
 
-## 📚 Documentation
+<!-- ## 📚 Documentation
 
-For detailed guides and API references, visit the <a href="https://go.brie.io/docs" target="_blank">documentation</a>.
+For detailed guides and API references, visit the <a href="https://go.brie.io/docs" target="_blank">documentation</a>. -->
 
 ## 🤝 Contribute
 
@@ -82,6 +82,7 @@ Questions or inquiries? Email <a href="mailto:ask@brie.io" target="_blank">ask[a
 - [Russian](./docs/readme/ru.md)
 - [Arabic](./docs/readme/ar.md)
 - [Hindi](./docs/readme/hi.md)
+- [Tagalog](./docs/readme/tl.md)
 
 Don't see your language? Just add a new language to the [`i18n/locales`](./packages/i18n/locales) and [`docs/readme`](./docs/readme) file and open a PR.
 

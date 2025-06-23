@@ -2,7 +2,11 @@ import type { Config } from 'tailwindcss';
 
 export default {
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        black: '#18181b',
+      },
+    },
   },
   plugins: [],
 } as Omit<Config, 'content'>;

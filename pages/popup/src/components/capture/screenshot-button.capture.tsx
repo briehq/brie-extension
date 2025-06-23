@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
+import { AuthMethod, useStorage } from '@extension/shared';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
 import { useUser } from '@extension/store';
 import {
@@ -35,17 +36,31 @@ const captureTypes = [
 export const CaptureScreenshotGroup = () => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const user = useUser();
+
   const captureState = useStorage(captureStateStorage);
   const captureTabId = useStorage(captureTabStorage);
   const pendingReloadTabIds = useStorage(pendingReloadTabsStorage);
 
   const [activeTab, setActiveTab] = useState({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
+  const isCaptureScreenshotDisabled = useMemo(() => {
+    const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
+    /**
+     * Skip limit check
+     * - in dev/sandbox environments
+     * - if has account (!GUEST)
+     */
+    if (IS_DEV || !isGuest) {
+      return false;
+    }
 
-  const isCaptureScreenshotDisabled = useMemo(
-    () => totalSlicesCreatedToday > 10 && user?.fields?.authMethod === 'GUEST',
-    [totalSlicesCreatedToday, user?.fields?.authMethod],
-  );
+    /**
+     * Only disable if:
+     * - User is a guest
+     * - And has hit the daily limit
+     */
+    return isGuest && totalSlicesCreatedToday > 10 && Boolean(activeTab.id);
+  }, [totalSlicesCreatedToday, user?.fields?.authMethod, activeTab.id]);
 
   const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(captureState), [captureState]);
 
@@ -244,7 +259,7 @@ export const CaptureScreenshotGroup = () => {
                 <Label
                   htmlFor={type.slug}
                   className={cn(
-                    'hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-between rounded-md border border-transparent py-3 hover:cursor-pointer hover:border-slate-200',
+                    'hover:bg-accent hover:text-accent-foreground flex flex-col items-center justify-between rounded-md border border-transparent py-3 hover:cursor-pointer hover:border-slate-200 dark:border-0',
                   )}>
                   <Icon name={type.icon} className="mb-3 size-5" strokeWidth={type.slug === 'area' ? 2 : 1.5} />
 

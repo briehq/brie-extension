@@ -1,0 +1,121 @@
+{
+  "extensionDescription": {
+    "description": "Extension description",
+    "message": "Mga Bug Report na Talagang Gusto ng mga Developer!"
+  },
+  "extensionName": {
+    "description": "Extension name",
+    "message": "Brie - Bug Capture"
+  },
+  "loading": {
+    "message": "Naglo-load..."
+  },
+  "sliceHistoryTitle": {
+    "message": "Kasaysayan ng mga Slice"
+  },
+  "slicesLimitLabel": {
+    "message": "mga slice araw-araw"
+  },
+  "deleteAll": {
+    "message": "Tanggalin lahat"
+  },
+  "deleted": {
+    "message": "natanggal"
+  },
+  "slicesSaved": {
+    "message": "Ang mga slice ay nase-save at awtomatikong"
+  },
+  "slicesSavedLimit": {
+    "message": "matapos ang 7 araw. May limitasyon na 10 slice bawat araw."
+  },
+  "noSlicesYet": {
+    "message": "Walang slice na nagawa pa"
+  },
+  "noSlicesYetDescription": {
+    "message": "Hindi ka pa nakagawa ng kahit anong slice."
+  },
+  "inBeta": {
+    "message": "Sa beta pa."
+  },
+  "reportBugsOrRequestFeatures": {
+    "message": "Mag-report ng mga bug o mag-request ng mga feature."
+  },
+  "area": {
+    "message": "Lugar"
+  },
+  "viewport": {
+    "message": "Nakikitang Window"
+  },
+  "fullPage": {
+    "message": "Buong Pahina"
+  },
+  "navigateToWebsite": {
+    "message": "Mag-navigate sa kahit anong website para magsimulang mag-capture ng mga bug."
+  },
+  "saveOrDiscardChanges": {
+    "message": "I-save o itapon ang inyong mga pagbabago"
+  },
+  "unsavedChanges": {
+    "message": "Mukhang may hindi pa nase-save na draft kayo"
+  },
+  "inAnotherTab": {
+    "message": "sa ibang tab."
+  },
+  "discard": {
+    "message": "Itapon"
+  },
+  "openActiveTab": {
+    "message": "Pumunta sa active tab"
+  },
+  "exitCaptureScreenshot": {
+    "message": "Lumabas sa Capture Screenshot"
+  },
+  "additionalInformation": {
+    "message": "Isasama ng Brie ang fullscreen screenshot, kasama ang mga detalye ng browser at OS, network requests, at console logs para matulungan ang mga developer na mag-debug nang epektibo."
+  },
+  "captureAndShare": {
+    "message": "Capture at I-share"
+  },
+  "captureAndShareMemo": {
+    "message": "Gagawa ito ng link na pwede ninyong i-share."
+  },
+  "sliceDescription": {
+    "message": "Ito ang paglalarawan ng issue. Magbigay ng detalyadong impormasyon."
+  },
+  "attachFile": {
+    "message": "Mag-attach ng file"
+  },
+  "addFolder": {
+    "message": "Idagdag sa folder"
+  },
+  "failedToCreateRecords": {
+    "message": "Hindi nakagawa ng records file. Subukan ulit."
+  },
+  "failedToCreateSlice": {
+    "message": "Hindi nakagawa ng slice. Subukan ulit."
+  },
+  "openReport": {
+    "message": "Handa na ang report at magbubukas sa bagong tab."
+  },
+  "noRecordsCaptured": {
+    "message": "Walang requests na na-capture. Subukan ulit mamaya."
+  },
+  "unexpectedError": {
+    "message": "May hindi inaasahang error na nangyari. Subukan ulit."
+  },
+  "selectArea": {
+    "message": "Mag-click o mag-drag para pumili ng lugar para sa screenshot"
+  },
+  "GUEST_DAILY_LIMIT": {
+    "message": "Sa kasamaang palad, naabot mo na ang araw-araw na limitasyon."
+  },
+  "refreshPage": {
+    "message": "I-refresh ang pahinang ito"
+  },
+  "quickRefresh": {
+    "message": "Mabilis na refresh lang at ang extension"
+  },
+  "readyToGo": {
+    "message": "ay magiging handa na!"
+  }
+}

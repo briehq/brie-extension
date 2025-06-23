@@ -1,33 +1,27 @@
-import { useEffect, useState } from 'react';
-
 import { t } from '@extension/i18n';
-import { userUUIDStorage } from '@extension/storage';
+import { useUser } from '@extension/store';
 
 export const BetaNotifier = () => {
-  const [uuid, setUUID] = useState<string | null>();
-
-  useEffect(() => {
-    const getUUID = async () => {
-      const uuid = await userUUIDStorage.get();
-
-      setUUID(uuid);
-    };
-
-    getUUID();
-  }, []);
+  const user = useUser();
+  const uuid = user.fields?.id;
 
   return (
-    <div className="mt-4 text-center text-[10px] font-normal text-slate-600">
+    <div className="dark:text-muted-foreground mt-4 text-center text-[10px] font-normal text-slate-600">
       {t('inBeta')}{' '}
       <a
         href="https://go.brie.io/discord?utm_source=extension"
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-slate-900">
+        className="hover:text-slate-900 dark:hover:text-white">
         {t('reportBugsOrRequestFeatures')}
       </a>
-      <br />
-      <span>UUID: {uuid}</span>
+      {uuid && (
+        <>
+          <br />
+
+          <span>UUID: {uuid}</span>
+        </>
+      )}
     </div>
   );
 };

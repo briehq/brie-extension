@@ -12,12 +12,29 @@ const storage = createStorage<Theme>('theme-storage-key', 'light', {
   liveUpdate: true,
 });
 
-// You can extend it with your own methods
-export const themeStorage: ThemeStorage = {
+const detectSystemTheme = (): Theme => {
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
+};
+
+const applySystemTheme = () => {
+  const systemTheme = detectSystemTheme();
+  storage.set(() => systemTheme);
+};
+
+const listenToSystemThemeChanges = () => {
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  mql.addEventListener('change', applySystemTheme);
+};
+
+export const themeStorage: ThemeStorage & {
+  applySystemTheme: () => void;
+  listenToSystemThemeChanges: () => void;
+} = {
   ...storage,
   toggle: async () => {
-    await storage.set(currentTheme => {
-      return currentTheme === 'light' ? 'dark' : 'light';
-    });
+    await storage.set(currentTheme => (currentTheme === 'light' ? 'dark' : 'light'));
   },
+  applySystemTheme,
+  listenToSystemThemeChanges,
 };

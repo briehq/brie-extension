@@ -17,7 +17,7 @@ const AnnotationSidebar = ({ activeElement, onActiveElement }: any) => {
   };
 
   return (
-    <div className="dark:bg-secondary inset-x-0 mx-auto mt-8 flex w-fit rounded-xl bg-black shadow-md">
+    <div className="dark:bg-primary inset-x-0 mx-auto mt-8 flex w-fit rounded-xl bg-black shadow-md">
       <div className="sm:p2 flex-column flex items-center space-x-1 p-1 sm:space-x-1.5">
         {navElements.map((item: any, idx: number) =>
           item?.value ? (
@@ -35,7 +35,7 @@ const AnnotationSidebar = ({ activeElement, onActiveElement }: any) => {
                   <Icon name={item.icon} className="size-3 sm:size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top" align="start" sideOffset={item?.offset || 14}>
+              <TooltipContent side="top" align="center" sideOffset={item?.offset || 14}>
                 {item.name}
               </TooltipContent>
             </Tooltip>

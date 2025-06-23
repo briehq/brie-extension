@@ -54,8 +54,8 @@ In order to maintain the Brie structure and guarantee code quality please use th
 5. Don't forget to create your env files, see [ENV](/packages/env/README.md);
 6. To check if everything is working, run `pnpm run:chrome:local` command in terminal.
 
-***[optional]** Also,
-when you completed your task, feature or issue, bump up the extension version, see [UPDATE-PACKAGE-VERSIONS](/docs/UPDATE-PACKAGE-VERSIONS.md).*
+**\*[optional]** Also,
+when you completed your task, feature or issue, bump up the extension version, see [UPDATE-PACKAGE-VERSIONS](/docs/UPDATE-PACKAGE-VERSIONS.md).\*
 
 Then, depending on the target browser:
 
@@ -73,16 +73,16 @@ Then, depending on the target browser:
 ### For Firefox: <a name="getting-started-firefox"></a>
 
 1. Run:
-   - Dev: `pnpm run:chrome:local`
-   - Prod: `pnpm run:chrome:production`
+   - Dev: `pnpm run:firefox:local`
+   - Prod: `pnpm run:firefox:production`
 2. Open in browser - `about:debugging#/runtime/this-firefox`
 3. Click - <kbd>Load Temporary Add-on...</kbd> in the upper right corner
 4. Select the `./dist/manifest.json` file from the boilerplate project
 
 > [!NOTE]
-> 1. In Firefox, you load add-ons in temporary mode. That means they'll disappear after each browser close. You have to:
-> load the add-on on every browser launch.
 >
+> 1. In Firefox, you load add-ons in temporary mode. That means they'll disappear after each browser close. You have to:
+>    load the add-on on every browser launch.
 > 2. Remember that these commands must be executed in the root folder of the project.
 
 ### Multi Env Support

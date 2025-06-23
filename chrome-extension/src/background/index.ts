@@ -1,5 +1,4 @@
 import 'webextension-polyfill';
-import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
 import {
@@ -8,7 +7,6 @@ import {
   captureStateStorage,
   captureTabStorage,
   pendingReloadTabsStorage,
-  userUUIDStorage,
 } from '@extension/storage';
 
 import { addOrMergeRecords, getRecords } from '@src/utils';
@@ -21,6 +19,10 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     await pendingReloadTabsStorage.remove(tabId);
   }
 
+  // Always clean up records for any closed tab
+  deleteRecords(tabId);
+
+  // Additional cleanup for capture tabs only
   const captureTabId = await captureTabStorage.getCaptureTabId();
   if (tabId === captureTabId) {
     await captureStateStorage.setCaptureState('idle');
@@ -28,8 +30,6 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 
     annotationsStorage.setAnnotations([]);
     annotationsRedoStorage.setAnnotations([]);
-
-    deleteRecords(tabId);
   }
 });
 
@@ -114,13 +114,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === 'install') {
-    /**
-     * Set unique identifier for the user
-     * to store reported bugs when no account
-     */
-    const userUuid = await userUUIDStorage.get();
-    if (!userUuid) await userUUIDStorage.update(uuidv4());
-
     // Open a welcome page
     // await chrome.tabs.create({ url: 'welcome.html' });
   }
@@ -131,13 +124,10 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
    * context: see issue: #24
    */
   if (['install', 'update'].includes(reason)) {
-    chrome.tabs.query({}, tabs => {
-      tabs.forEach(tab => {
-        if (tab.id) {
-          pendingReloadTabsStorage.add(tab.id);
-        }
-      });
-    });
+    const activeTabs = await chrome.tabs.query({});
+    const activeTabIds = activeTabs.map(t => t.id).filter((id): id is number => id !== undefined);
+
+    await pendingReloadTabsStorage.set(activeTabIds);
   }
 
   // Creates parent context menu item
