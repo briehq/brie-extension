@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useStorage } from '@extension/shared';
 import { annotationsRedoStorage, annotationsStorage, captureStateStorage, themeStorage } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
-import { cn, ToasterProviderWrap, TooltipProvider } from '@extension/ui';
+import { cn, ToasterProvider, TooltipProvider } from '@extension/ui';
 
 import Content from './content';
 
@@ -51,7 +51,7 @@ export default function App() {
             </main>
           )}
 
-          <ToasterProviderWrap richColors />
+          <ToasterProvider richColors theme={theme} />
         </div>
       </TooltipProvider>
     </ReduxProvider>

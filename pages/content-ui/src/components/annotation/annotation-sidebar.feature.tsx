@@ -35,7 +35,7 @@ const AnnotationSidebar = ({ activeElement, onActiveElement }: any) => {
                   <Icon name={item.icon} className="size-3 sm:size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top" align="start" sideOffset={item?.offset || 14}>
+              <TooltipContent side="top" align="center" sideOffset={item?.offset || 14}>
                 {item.name}
               </TooltipContent>
             </Tooltip>

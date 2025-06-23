@@ -5,3 +5,12 @@ import { twMerge } from 'tailwind-merge';
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
+
+export const getShadowRoot = () => {
+  const shadowHost = document.querySelector('#brie-root');
+  const shadowRoot = shadowHost?.shadowRoot;
+
+  if (!shadowRoot) console.log('No Shadow Root');
+
+  return shadowRoot;
+};
