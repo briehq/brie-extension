@@ -1,3 +1,6 @@
+@import 'sonner/dist/styles.css';
+@import '@radix-ui/themes/styles.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
