@@ -82,6 +82,7 @@ Questions or inquiries? Email <a href="mailto:ask@brie.io" target="_blank">ask[a
 - [Russian](./docs/readme/ru.md)
 - [Arabic](./docs/readme/ar.md)
 - [Hindi](./docs/readme/hi.md)
+- [Tagalog](./docs/readme/tl.md)
 
 Don't see your language? Just add a new language to the [`i18n/locales`](./packages/i18n/locales) and [`docs/readme`](./docs/readme) file and open a PR.
 
