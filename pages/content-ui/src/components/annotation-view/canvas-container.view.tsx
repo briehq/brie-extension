@@ -7,10 +7,11 @@ import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import { Button, Icon, toast } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
+import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes } from '@src/models';
 
-import { AnnotationSection } from './annotation-section.feature';
-import AnnotationSidebarFeature from './annotation-sidebar.feature';
+import { CanvasWrapper } from './canvas-wrapper.view';
+import { Toolbar } from './ui';
 import {
   handleCanvasMouseMove,
   handleCanvasMouseDown,
@@ -35,7 +36,7 @@ import {
 
 // import { useCreateIssueMutation } from '@/store/issues';
 
-const AnnotationContainer = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
+const CanvasContainerView = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
   /**
    * @todo
    * use client workspace id
@@ -528,6 +529,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     window.addEventListener('resize', () => {
       handleResize({
         canvas: fabricRef.current,
+        backgroundImage: attachments[0]?.image ?? null,
       });
     });
 
@@ -563,6 +565,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
       window.removeEventListener('resize', () => {
         handleResize({
           canvas: null,
+          backgroundImage: null,
         });
       });
 
@@ -601,12 +604,12 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         img.src = attachments[0].image;
       }
 
-      setCanvasBackground({
-        file: attachments[0]?.image,
-        canvas: fabricRef?.current,
-        minHeight: 500,
-        maxWidth: imageWidth ?? maxWidth ?? 500,
-      });
+      // setCanvasBackground({
+      //   file: attachments[0]?.image,
+      //   canvas: fabricRef?.current,
+      //   minHeight: 500,
+      //   maxWidth: imageWidth ?? maxWidth ?? 500,
+      // });
     };
 
     render();
@@ -685,22 +688,24 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     setActionMenuVisible(false);
   };
 
+  /* inside CanvasContainerView */
+  const gridCellRef = useRef<HTMLDivElement | null>(null); // <— NEW
+
+  /* useFitCanvasToParent hook */
+  useFitCanvasToParent(
+    fabricRef.current,
+    attachments[0]?.image ?? null,
+    gridCellRef.current, // watch the column, not the inner flex wrapper
+  );
+
   return (
-    <div className="sm:px-4 lg:px-8">
-      {/* 
-        @todo: 
-         - add download image button w/ annotations
-         - add blur tool
-      */}
-      <AnnotationSection canvasRef={canvasRef} undo={undo} redo={redo} />
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      <div ref={gridCellRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
+        <CanvasWrapper canvasRef={canvasRef} undo={undo} redo={redo} />
+      </div>
+
       {actionMenuVisible && (
-        <div
-          id="actions-menu"
-          className="absolute"
-          style={{
-            left: menuPosition.left,
-            top: menuPosition.top,
-          }}>
+        <div id="actions-menu" className="absolute" style={{ left: menuPosition.left, top: menuPosition.top }}>
           <Button
             type="button"
             size="icon"
@@ -712,7 +717,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         </div>
       )}
 
-      <AnnotationSidebarFeature activeElement={activeElement} onActiveElement={handleActiveElement} />
+      <Toolbar activeElement={activeElement} onActiveElement={handleActiveElement} />
     </div>
   );
 };
@@ -720,4 +725,4 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 const arePropsEqual = (prevProps, nextProps) =>
   JSON.stringify(prevProps.attachments) === JSON.stringify(nextProps.attachments);
 
-export default memo(AnnotationContainer, arePropsEqual);
+export default memo(CanvasContainerView, arePropsEqual);

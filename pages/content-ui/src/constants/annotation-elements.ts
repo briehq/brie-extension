@@ -16,22 +16,11 @@ export const shapeElements = [
     name: 'Line',
     value: 'line',
   },
-  //   {
-  //     icon: "TextCursorIcon",
-  //     name: "Measurement",
-  //     value: "measurement",
-  //   },
   {
     icon: 'CircleIcon',
     name: 'Circle',
     value: 'circle',
   },
-
-  //   {
-  //     icon: "/assets/image.svg",
-  //     name: "Image",
-  //     value: "image",
-  //   },
 ];
 
 export const defaultNavElement = {
@@ -43,7 +32,26 @@ export const defaultNavElement = {
 
 export const navElements = [
   defaultNavElement,
-  ...shapeElements,
+  {
+    icon: 'SquareIcon',
+    name: 'Rectangle',
+    value: shapeElements,
+  },
+  {
+    icon: 'PipetteIcon',
+    name: 'Pipette',
+    value: 'pipette',
+  },
+  {
+    icon: 'HighlighterIcon',
+    name: 'Highlighter',
+    value: 'highlighter',
+  },
+  {
+    icon: 'BlurIcon',
+    name: 'Blur',
+    value: 'blur',
+  },
   {
     icon: 'PencilIcon',
     name: 'Pencil',
@@ -55,28 +63,6 @@ export const navElements = [
     value: 'text',
   },
   {},
-  //   {
-  //     icon: 'FilePenIcon',
-  //     name: 'Add Description',
-  //     value: 'description',
-  //   },
-  //   {},
-  {
-    icon: 'Undo2Icon',
-    value: 'undo',
-    name: 'Undo',
-  },
-  {
-    icon: 'Redo2Icon',
-    value: 'redo',
-    name: 'Redo',
-  },
-  //   {},
-  //   {
-  //     icon: 'SparklesIcon',
-  //     value: 'suggestions',
-  //     name: 'AI-powered Issue Detection',
-  //   },
 ];
 
 export const directionOptions = [
@@ -185,8 +171,8 @@ export const alignmentOptions = [
 export const shortcuts = [
   {
     key: '1',
-    name: 'Save Image As...',
-    // shortcut: "/",
+    name: 'Save As...',
+    shortcut: '⌘ + S',
   },
   {
     key: '2',
@@ -198,9 +184,4 @@ export const shortcuts = [
     name: 'Redo',
     shortcut: '⌘ + Y',
   },
-  // {
-  //   key: "4",
-  //   name: "Reactions",
-  //   shortcut: "E",
-  // },
 ];

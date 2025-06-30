@@ -1,27 +1,38 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, toast } from '@extension/ui';
+import { Dialog, DialogContent, cn, toast } from '@extension/ui';
 
-import AnnotationContainer from './components/annotation/annotation-container';
-import { useViewportSize } from './hooks';
+import { CanvasContainerView } from './components/annotation-view';
+import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
+import { useElementSize } from './hooks';
 import { base64ToFile, createJsonFile } from './utils';
 import { getCanvasElement } from './utils/annotation';
 
-const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: { name: string; image: string }[] }) => {
-  const { width } = useViewportSize();
+const MD_BREAKPOINT = 768;
+const LG_BREAKPOINT = 1024;
 
-  const [isMaximized, setIsMaximized] = useState(false);
+const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: { name: string; image: string }[] }) => {
+  // const { width } = useViewportSize();
+  const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
+
+  const [isFullScreen, setFullScreen] = useState(false);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
   const [description, setDescription] = useState('');
+  const [workspaceId, setWorkspaceId] = useState('');
 
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
+
+  const workspace = useMemo(
+    () => user?.organization?.workspaces?.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
+    [user?.organization?.workspaces],
+  );
 
   const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
 
@@ -30,13 +41,6 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
     return showRightSection;
   }, [showRightSection, user?.authMethod]);
-
-  const workspace = useMemo(
-    () => user?.organization?.workspaces.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
-    [user?.organization?.workspaces],
-  );
-
-  const handleToggleMaximize = () => setIsMaximized(!isMaximized);
 
   const handleToggleRightSection = () => setShowRightSection(value => !value);
 
@@ -55,7 +59,11 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
     });
   };
 
-  const handleOnCreate = async () => {
+  const handleOnCreate = async (paylaod: any) => {
+    console.log('paylaod', paylaod);
+
+    return;
+
     setIsCreateLoading(true);
 
     try {
@@ -71,7 +79,11 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         const formData = new FormData();
         formData.append('records', jsonFile);
-        formData.append('workspaceId', workspace.id);
+
+        if (workspaceId || workspace?.id) {
+          formData.append('workspaceId', workspaceId || workspace?.id);
+        }
+
         if (description) {
           formData.append('description', description);
         }
@@ -99,10 +111,8 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
           const path = isGuest ? `s/${data?.externalId}` : `slices/${data?.id}`;
 
-          setTimeout(() => {
-            const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
-            newWindow?.focus();
-          }, 1000);
+          const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
+          newWindow?.focus();
 
           onClose();
         } else {
@@ -120,134 +130,117 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
     }
   };
 
+  const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
+  const isDialogOpen = !!screenshots.length && window.location.host === 'example.com';
+
+  const isLg = canvasWidth >= LG_BREAKPOINT;
+  const isMd = canvasWidth >= MD_BREAKPOINT;
+  const hasShots = screenshots.length > 0;
+
+  const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
+  const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
+
+  useEffect(() => {
+    setLeftSidebarOpen(hasShots && isLg);
+
+    setRightSidebarOpen(isMd || isLg);
+  }, [isLg, hasShots, isMd]);
+
   return (
-    <DialogLegacy
-      isMaximized={isMaximized}
-      onClose={onClose}
-      actions={
-        <>
-          <Button
-            size="icon"
-            variant="secondary"
-            onClick={handleToggleMaximize}
-            type="button"
-            className="dark:bg-primary size-6 dark:text-white">
-            {isMaximized ? (
-              <Icon name="Minimize2Icon" className="size-3" strokeWidth="1.5" />
-            ) : (
-              <Icon name="Maximize2Icon" className="size-3" strokeWidth="1.5" />
-            )}
-          </Button>
+    <Dialog open={isDialogOpen} onOpenChange={onClose} modal>
+      <DialogContent
+        onEscapeKeyDown={e => e.preventDefault()}
+        onPointerDownOutside={e => e.preventDefault()}
+        className={cn('grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 bg-[#FAF9F7] bg-repeat p-0', {
+          'size-full !rounded-none': isFullScreen,
+          'h-[80vh] w-[90vw] !rounded-[18px]': !isFullScreen,
+        })}
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: 10,
+        }}>
+        <Header
+          onClose={onClose}
+          onToggleFullScreen={() => setFullScreen(flag => !flag)}
+          isFullScreen={isFullScreen}
+          title="Credentials.pdf"
+          onTitleChange={title => {
+            // setTitle()
+            console.log('title', title);
+          }}
+          onUndo={() => {
+            console.log('onUndo');
+          }}
+          onRedo={() => {
+            console.log('onRedo');
+          }}
+          onStartOver={() => {
+            console.log('onStartOver');
+          }}
+          onMinimize={() => {
+            console.log('onMinimize');
+          }}
+          canvasWidth={canvasWidth}
+          canvasHeight={canvasHeight}
+          onWorkspaceChange={setWorkspaceId}
+          onCreate={handleOnCreate}
+          isCreateLoading={isCreateLoading}
+        />
 
-          {!isGuest && (
-            <Button
-              size="icon"
-              variant="secondary"
-              onClick={handleToggleRightSection}
-              type="button"
-              className="dark:bg-primary size-6 dark:text-white">
-              {showRightSidebar ? (
-                <Icon name="PanelRightCloseIcon" className="size-3.5" strokeWidth="1.5" />
-              ) : (
-                <Icon name="PanelLeftCloseIcon" className="size-3.5" strokeWidth="1.5" />
-              )}
-            </Button>
-          )}
-        </>
-      }>
-      <div className="flex h-full flex-col md:flex-row dark:bg-black">
-        {/* Left Column */}
+        <main
+          ref={canvasRef}
+          className={cn(
+            'grid h-full min-h-0 gap-4 p-4 transition-[grid-template-columns] duration-300',
+            isLeftSidebarOpen && isRightSidebarOpen
+              ? 'grid-cols-[260px_minmax(0,1fr)_260px]'
+              : isLeftSidebarOpen
+                ? 'grid-cols-[260px_minmax(0,1fr)_1px]'
+                : isRightSidebarOpen
+                  ? 'grid-cols-[1px_minmax(0,1fr)_260px]'
+                  : 'grid-cols-[1px_minmax(0,1fr)_1px]',
+          )}>
+          <LeftSidebar
+            open={isLeftSidebarOpen}
+            onOpenChange={setLeftSidebarOpen}
+            items={screenshots}
+            onDeleteImage={id => {
+              console.log('onDelete', id);
+            }}
+            onSelectImage={id => {
+              console.log('onSelect', id);
+            }}
+          />
 
-        <div
-          className={`flex ${
-            showRightSidebar ? 'sm:w-[70%]' : 'w-full'
-          } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
-          {/* Content Section */}
+          <CanvasContainerView attachments={screenshots} />
 
-          <AnnotationContainer attachments={screenshots} />
+          <RightSidebar
+            defaultOpen
+            canvasHeight={canvasHeight}
+            open={isRightSidebarOpen}
+            onOpenChange={setRightSidebarOpen}
+            onDeleteImage={id => {
+              console.log('onDelete', id);
+            }}
+            onSelectImage={id => {
+              console.log('onSelect', id);
+            }}
+            onCreate={id => {
+              console.log('onCreate', id);
+            }}
+          />
+        </main>
 
-          {/* Footer Section */}
-          <div className="mt-4 flex justify-center">
-            <p className="max-w-lg select-none text-center text-xs text-gray-400 dark:text-white">
-              {t('additionalInformation')}
-            </p>
-          </div>
-
-          {!showRightSidebar && (
-            <Button
-              className="relative mt-2 w-full sm:absolute sm:bottom-6 sm:right-4 sm:mt-0 sm:w-[150px]"
-              onClick={handleOnCreate}
-              disabled={isCreateLoading}
-              loading={isCreateLoading}>
-              {t('captureAndShare')}
-            </Button>
-          )}
-        </div>
-
-        {showRightSidebar && (
-          <div className="flex flex-col justify-between px-4 pb-4 pt-5 sm:w-[30%] sm:p-6">
-            {/* Dropdown and Comment */}
-            <div className="space-y-4 sm:mt-8">
-              <Textarea
-                value={description}
-                onChange={e => {
-                  setDescription(e.target.value);
-                }}
-                maxLength={255}
-                placeholder="Add a description"
-                rows={width < 500 ? 3 : 10}
-                className="text-muted-foreground w-full"
-              />
-
-              <small className="dark:text-muted-foreground select-none text-xs text-gray-400">
-                {t('sliceDescription')}
-              </small>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="text-center">
-              <div className="mt-6 flex items-center justify-between gap-x-2">
-                {/* <div className="flex gap-x-2">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button type="button" size="icon" variant="secondary" onClick={() => {}}>
-                        <Icon name="Paperclip" className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" align="start" sideOffset={14}>
-                      {t('attachFile')}
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button type="button" size="icon" variant="secondary" onClick={() => {}}>
-                        <Icon name="Folder" className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" align="start" sideOffset={14}>
-                      {t('addFolder')}
-                    </TooltipContent>
-                  </Tooltip>
-                </div> */}
-
-                <Button
-                  className="w-full"
-                  variant="secondary"
-                  onClick={handleOnCreate}
-                  disabled={isCreateLoading}
-                  loading={isCreateLoading}>
-                  {t('captureAndShare')}
-                </Button>
-              </div>
-              <small className="text-muted-foreground select-none text-center text-xs">
-                {t('captureAndShareMemo')}
-              </small>
-            </div>
-          </div>
-        )}
-      </div>
-    </DialogLegacy>
+        <Footer
+          tool="Move"
+          zoom={100}
+          file="Credentials.pdf"
+          onZoomChange={zoom => {
+            console.log('zoom', zoom);
+            // setZoom()
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 };
 

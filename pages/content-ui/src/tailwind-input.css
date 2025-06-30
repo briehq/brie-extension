@@ -1,1 +1,5 @@
 @import '@extension/ui/global.css';
+
+.bg-gradient-overlay {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), #27241d;
+}

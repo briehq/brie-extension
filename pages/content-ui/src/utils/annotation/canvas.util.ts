@@ -54,8 +54,11 @@ export const initializeFabric = ({
   const canvasElement = getCanvasElement();
 
   // Get the parent container dimensions
-  const maxWidth = canvasElement?.clientWidth || 500;
-  const maxHeight = 500; // Maximum height constraint
+  // const maxWidth = canvasElement?.clientWidth || 500;
+  // const maxHeight = 500; // Maximum height constraint
+
+  const parentWidth = canvasElement?.clientWidth ?? 500;
+  const parentHeight = canvasElement?.clientHeight ?? 500;
 
   // Check if canvas ref is available
   if (!canvasRef.current) {
@@ -64,14 +67,14 @@ export const initializeFabric = ({
 
   // Create the Fabric.js canvas
   const canvas = new Canvas(canvasRef.current, {
-    width: maxWidth,
-    height: maxHeight, // Temporary height until background image is loaded
+    width: parentWidth,
+    height: parentHeight, // Temporary height until background image is loaded
   });
 
   if (backgroundImage) {
     try {
       // Set the background image and adjust canvas dimensions
-      setCanvasBackground({ file: backgroundImage, canvas, maxHeight, maxWidth });
+      setCanvasBackground({ file: backgroundImage, canvas, parentHeight, parentWidth });
     } catch (error) {
       console.error('Failed to set the background image:', error);
     }
@@ -426,22 +429,42 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
   fabricRef.current?.renderAll();
 };
 
-// resize canvas dimensions on window resize
-export const handleResize = ({ canvas }: { canvas: Canvas | null }) => {
-  const canvasElement = getCanvasElement();
-  if (!canvasElement) {
-    return;
-  }
+export const handleResize = ({
+  canvas,
+  backgroundImage,
+}: {
+  canvas: Canvas | null;
+  backgroundImage: string | null;
+}) => {
+  if (!canvas || !backgroundImage) return;
 
-  if (!canvas) {
-    return;
-  }
+  const wrapper = getCanvasElement();
+  if (!wrapper) return;
 
-  canvas.setDimensions({
-    width: canvasElement.clientWidth,
-    height: canvasElement.clientHeight,
+  setCanvasBackground({
+    file: backgroundImage,
+    canvas,
+    parentWidth: wrapper.clientWidth,
+    parentHeight: wrapper.clientHeight,
   });
 };
+
+// resize canvas dimensions on window resize
+// export const handleResize = ({ canvas }: { canvas: Canvas | null }) => {
+//   const canvasElement = getCanvasElement();
+//   if (!canvasElement) {
+//     return;
+//   }
+
+//   if (!canvas) {
+//     return;
+//   }
+
+//   canvas.setDimensions({
+//     width: canvasElement.clientWidth,
+//     height: canvasElement.clientHeight,
+//   });
+// };
 
 // zoom canvas on mouse scroll
 export const handleCanvasZoom = ({ options, canvas }: { options: any; canvas: Canvas }) => {
