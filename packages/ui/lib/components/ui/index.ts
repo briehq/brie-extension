@@ -1,5 +1,11 @@
 export * from './dialog-legacy';
 
+export * from './tabs';
+export * from './tag-input';
+export * from './select';
+export * from './avatar';
+export * from './dropdown-menu';
+export * from './input';
 export * from './button';
 export * from './skeleton';
 export * from './dialog';
@@ -18,4 +24,6 @@ export * from './popover';
 export * from './card';
 export * from './radio-group';
 export { ToasterProvider } from './sonner';
+
 export { toast } from 'sonner';
+export { useController, useFieldArray, useForm, useFormContext, useFormState, useWatch } from 'react-hook-form';
