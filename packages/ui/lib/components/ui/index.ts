@@ -1,5 +1,7 @@
 export * from './dialog-legacy';
 
+export * from './toggle';
+export * from './toggle-group';
 export * from './tabs';
 export * from './tag-input';
 export * from './select';

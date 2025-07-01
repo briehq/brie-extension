@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from '@extension/ui';
 
-import { ExportImage } from '@src/components/dialog-view';
+import { ColorPalette, ExportImage } from '@src/components/dialog-view';
 import { navElements } from '@src/constants';
 
 const Toolbar = ({ activeElement, onActiveElement }: any) => {
@@ -79,20 +79,24 @@ const Toolbar = ({ activeElement, onActiveElement }: any) => {
             ) : (
               <Tooltip key={item.value + idx}>
                 <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    size="icon"
-                    disabled={isActive(item.value)}
-                    className={cn(
-                      'shadow-none disabled:cursor-not-allowed dark:hover:bg-black',
-                      isActive(item.value)
-                        ? 'bg-gradient-overlay text-white disabled:opacity-100 dark:hover:bg-black'
-                        : '',
-                    )}
-                    variant="ghost"
-                    onClick={() => handleOnActiveElement(item)}>
-                    <Icon name={item.icon} className={item.icon === 'BlurIcon' ? 'size-5' : 'size-3 sm:size-4'} />
-                  </Button>
+                  {item.value === 'color-palette' ? (
+                    <ColorPalette isActive={isActive(item.value)} onClick={() => handleOnActiveElement(item)} />
+                  ) : (
+                    <Button
+                      type="button"
+                      size="icon"
+                      disabled={isActive(item.value)}
+                      className={cn(
+                        'shadow-none disabled:cursor-not-allowed dark:hover:bg-black',
+                        isActive(item.value)
+                          ? 'bg-gradient-overlay text-white disabled:opacity-100 dark:hover:bg-black'
+                          : '',
+                      )}
+                      variant="ghost"
+                      onClick={() => handleOnActiveElement(item)}>
+                      <Icon name={item.icon} className={item.value === 'blur' ? 'size-5' : 'size-3 sm:size-4'} />
+                    </Button>
+                  )}
                 </TooltipTrigger>
                 <TooltipContent side="top" align="center" sideOffset={18}>
                   {item.name}

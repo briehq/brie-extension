@@ -38,9 +38,9 @@ export const navElements = [
     value: shapeElements,
   },
   {
-    icon: 'PipetteIcon',
-    name: 'Pipette',
-    value: 'pipette',
+    icon: 'ColorPalette',
+    name: 'Color Palette',
+    value: 'color-palette',
   },
   {
     icon: 'HighlighterIcon',

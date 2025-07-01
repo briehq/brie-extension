@@ -4,3 +4,4 @@ export { CreateDropdown } from './create-dropdown.ui';
 export { GenerateDropdown } from './generate-dropdown.ui';
 export { HoverImage } from './hover-image.ui';
 export { ExportImage } from './export-image.ui';
+export { ColorPalette } from './color-palette.ui';
