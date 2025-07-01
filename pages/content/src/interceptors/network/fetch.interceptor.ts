@@ -7,105 +7,128 @@ interface FetchOptions extends RequestInit {
   body?: BodyInit | null;
 }
 
-export const interceptFetch = (): void => {
-  if ((window.fetch as any).__isIntercepted) return;
+interface ParsedResponse {
+  recordType: string;
+  source: string;
+  method: string;
+  url: string;
+  queryParams: Record<string, string | string[]>;
+  requestHeaders: HeadersInit;
+  requestBody: BodyInit | null;
+  responseHeaders: Record<string, string>;
+  responseBody: string | object;
+  requestStart: string;
+  requestEnd: string;
+  status: number;
+}
 
+// Fetch Interceptor
+export const interceptFetch = (): void => {
   const originalFetch = window.fetch;
 
-  Object.defineProperty(window, 'fetch', {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    value: async function (...args: [RequestInfo | URL, FetchOptions?]): Promise<Response> {
-      const [input, init] = args;
-      const url = input instanceof Request ? input.url : input.toString();
-      const method = input instanceof Request ? input.method : init?.method || 'GET';
-      const requestHeaders: Record<string, string> = {};
+  window.fetch = async function (...args: [RequestInfo | URL, FetchOptions?]): Promise<Response> {
+    const [url, options] = args;
+    const startTime = new Date().toISOString();
 
-      try {
-        new Headers(input instanceof Request ? input.headers : init?.headers || {}).forEach(
-          (v, k) => (requestHeaders[k] = v),
-        );
-      } catch (err) {
-        console.error('[Fetch] Error during fetch:', err);
-      }
+    try {
+      const method = options?.method || 'GET';
+      const requestHeaders = options?.headers || {};
+      const queryParams = extractQueryParams(url.toString());
+      const requestBody = options?.body || null;
 
-      const requestBody = input instanceof Request ? input.body : init?.body;
-      const requestStart = new Date().toISOString();
+      // Initiate the fetch request
+      const response = await originalFetch.apply(this, args);
+      const endTime = new Date().toISOString();
 
-      let response: Response;
-      try {
-        response = await originalFetch.apply(this, args);
-      } catch (err) {
-        console.error('[Fetch] Error during fetch:', err);
-        throw err;
-      }
+      // Check if the response is large or a binary stream before cloning
+      const contentType = response.headers.get('Content-Type');
+      const isBinary =
+        contentType?.includes('application/octet-stream') ||
+        contentType?.includes('image') ||
+        contentType?.includes('audio');
+      const isLargeResponse =
+        response.headers.get('Content-Length') && parseInt(response.headers.get('Content-Length')!, 10) > 1000000; // Arbitrary size limit (1MB)
 
-      try {
-        const requestEnd = new Date().toISOString();
-        const queryParams = extractQueryParams(url);
+      // Clone the response for body parsing (only for non-binary and small responses)
+      const responseClone = response.clone();
 
-        const responseHeaders: Record<string, string> = {};
-        response.headers.forEach((v, k) => (responseHeaders[k] = v));
-
-        const contentType = response.headers.get('Content-Type') || '';
-        const contentLength = parseInt(response.headers.get('Content-Length') || '0', 10);
-        const encoding = response.headers.get('Content-Encoding') || '';
-
-        let responseBody: string | object = 'BRIE: Not captured';
-        if (!response.bodyUsed && contentLength < 1_000_000 && !encoding && !contentType.includes('image')) {
-          try {
-            const clone = response.clone();
-            if (contentType.includes('application/json')) {
-              responseBody = await clone.json();
-            } else if (contentType.includes('text') || contentType.includes('xml')) {
-              responseBody = await clone.text();
-            }
-          } catch {
-            responseBody = 'BRIE: Failed to parse response';
+      let responseBody: string | object;
+      if (isBinary || isLargeResponse) {
+        // Don't clone large or binary responses to save resources
+        responseBody = 'BRIE: Binary or Large content - Unable to display';
+      } else {
+        try {
+          // Handle content types for JSON, text, and other responses
+          if (contentType?.includes('application/json')) {
+            responseBody = await responseClone.json();
+          } else if (contentType?.includes('text')) {
+            responseBody = await responseClone.text();
+          } else if (contentType?.includes('application/xml') || contentType?.includes('text/xml')) {
+            responseBody = await responseClone.text();
+          } else {
+            responseBody = 'BRIE: Unsupported content type';
           }
+        } catch (error) {
+          console.error('Failed to parse fetch response body:', error);
+          responseBody = 'BRIE: Error parsing response body';
         }
+      }
 
-        const timestamp = Date.now();
-        const payload = {
-          method,
-          url,
-          queryParams,
-          requestHeaders,
-          requestBody,
-          responseHeaders,
-          responseBody,
-          requestStart,
-          requestEnd,
-          status: response.status,
-        };
-
-        safePostMessage('ADD_RECORD', {
-          recordType: 'network',
-          source: 'client',
-          timestamp,
-          ...payload,
+      // Post message to main thread (ensure compatibility)
+      try {
+        const serializedHeaders: Record<string, string> = {};
+        responseClone?.headers?.forEach((value, key) => {
+          serializedHeaders[key] = value;
         });
 
-        if (response.status >= 400) {
+        if (typeof window !== 'undefined') {
+          const timestamp = Date.now();
+          const payload = {
+            method,
+            url: url.toString(),
+            queryParams,
+            requestHeaders,
+            requestBody,
+            responseHeaders: serializedHeaders,
+            responseBody,
+            requestStart: startTime,
+            requestEnd: endTime,
+            status: responseClone.status,
+          };
+
           safePostMessage('ADD_RECORD', {
-            timestamp,
-            type: 'log',
-            recordType: 'console',
+            recordType: 'network',
             source: 'client',
-            method: 'error',
-            args: [`[Fetch] ${method} ${url} responded with status ${response.status}`, payload],
-            stackTrace: { parsed: 'interceptFetch', raw: '' },
-            pageUrl: window.location.href,
+            timestamp,
+            ...payload,
           });
+
+          if (responseClone.status >= 400) {
+            safePostMessage('ADD_RECORD', {
+              timestamp,
+              type: 'log',
+              recordType: 'console',
+              source: 'client',
+              method: 'error',
+              args: [`[Fetch] ${method} ${url} responded with status ${responseClone.status}`, payload],
+              stackTrace: {
+                parsed: 'interceptFetch',
+                raw: '',
+              },
+              pageUrl: window.location.href,
+            });
+          }
+        } else {
+          console.warn('[Fetch] safePostMessage is not supported.');
         }
-      } catch (err) {
-        console.warn('[Fetch] Failed to log fetch:', err);
+      } catch (error) {
+        console.error('[Fetch] Error posting message:', error);
       }
 
       return response;
-    },
-  });
-
-  (window.fetch as any).__isIntercepted = true;
+    } catch (error) {
+      console.error('[Fetch] Error intercepting:', error);
+      return originalFetch.apply(this, args);
+    }
+  };
 };
