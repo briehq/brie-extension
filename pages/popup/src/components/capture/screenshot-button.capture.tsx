@@ -33,6 +33,8 @@ const captureTypes = [
   },
 ];
 
+const DEFAULT_MODE = 'multiple';
+
 export const CaptureScreenshotGroup = () => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const user = useUser();
@@ -43,6 +45,7 @@ export const CaptureScreenshotGroup = () => {
 
   const [activeTab, setActiveTab] = useState({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number>();
+  const [mode, setMode] = useState(DEFAULT_MODE);
   const isCaptureScreenshotDisabled = useMemo(() => {
     const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
     /**
@@ -100,24 +103,26 @@ export const CaptureScreenshotGroup = () => {
   }, []);
 
   const handleCaptureScreenshot = async (type?: 'full-page' | 'viewport' | 'area') => {
-    if (captureState === 'unsaved' && activeTab?.id) {
-      handleOnDiscard(activeTab?.id);
-    }
+    // if (mode === 'single') {
+    //   if (captureState === 'unsaved' && activeTab?.id) {
+    //     handleOnDiscard(activeTab?.id);
+    //   }
 
-    if (['capturing', 'unsaved'].includes(captureState)) {
-      chrome.tabs.sendMessage(activeTab?.id, { action: 'EXIT_CAPTURE' }, response => {
-        if (chrome.runtime.lastError) {
-          console.error('Error stopping unsaved:', chrome.runtime.lastError.message);
-        } else {
-          console.log('Unsaved closed:', response);
-        }
-      });
+    //   if (['capturing', 'unsaved'].includes(captureState)) {
+    //     chrome.tabs.sendMessage(activeTab?.id, { action: 'EXIT_CAPTURE' }, response => {
+    //       if (chrome.runtime.lastError) {
+    //         console.error('Error stopping unsaved:', chrome.runtime.lastError.message);
+    //       } else {
+    //         console.log('Unsaved closed:', response);
+    //       }
+    //     });
 
-      await updateCaptureState('idle');
-      await updateActiveTab(null);
+    //     await updateCaptureState('idle');
+    //     await updateActiveTab(null);
 
-      return;
-    }
+    //     return;
+    //   }
+    // }
 
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -177,6 +182,8 @@ export const CaptureScreenshotGroup = () => {
   };
 
   const isInternalPage = activeTab.url.startsWith('about:') || activeTab.url.startsWith('chrome:');
+  const showExitCapture =
+    (isCaptureActive && mode === 'single') || (isCaptureActive && currentActiveTab !== activeTab.id);
 
   if (currentActiveTab && pendingReloadTabIds.includes(currentActiveTab)) {
     return (
@@ -236,12 +243,12 @@ export const CaptureScreenshotGroup = () => {
     <>
       <RadioGroup
         className={cn('border-muted grid w-full gap-4 rounded-xl border bg-slate-100/20 p-2', {
-          'grid-cols-3': !isCaptureActive,
+          'grid-cols-3': !showExitCapture,
         })}>
-        {isCaptureActive ? (
+        {showExitCapture ? (
           <button
             className="hover:bg-accent flex w-full items-center justify-center rounded-md border border-transparent py-4"
-            onClick={() => handleCaptureScreenshot()}>
+            onClick={() => activeTab?.id && handleOnDiscard(activeTab.id)}>
             <Icon name="X" size={20} strokeWidth={1.5} className="mr-1" />
             <span>{t('exitCaptureScreenshot')}</span>
           </button>
