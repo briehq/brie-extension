@@ -9,18 +9,27 @@ import { Dialog, DialogContent, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
-import { useElementSize } from './hooks';
+import { useElementSize, useViewportSize } from './hooks';
 import { base64ToFile, createJsonFile } from './utils';
 import { getCanvasElement } from './utils/annotation';
 
+const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
 const LG_BREAKPOINT = 1024;
 
-const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: { name: string; image: string }[] }) => {
-  // const { width } = useViewportSize();
+const Content = ({
+  screenshots,
+  onClose,
+  onMinimize,
+}: {
+  screenshots: { name: string; image: string }[];
+  onClose: () => void;
+  onMinimize: () => void;
+}) => {
+  const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
 
-  const [isFullScreen, setFullScreen] = useState(false);
+  const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
   const [description, setDescription] = useState('');
@@ -161,6 +170,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
         }}>
         <Header
           onClose={onClose}
+          onMinimize={onMinimize}
           onToggleFullScreen={() => setFullScreen(flag => !flag)}
           isFullScreen={isFullScreen}
           title="Credentials.pdf"
@@ -176,9 +186,6 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           }}
           onStartOver={() => {
             console.log('onStartOver');
-          }}
-          onMinimize={() => {
-            console.log('onMinimize');
           }}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
