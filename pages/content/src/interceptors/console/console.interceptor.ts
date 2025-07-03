@@ -61,10 +61,22 @@ export const interceptConsole = () => {
     }
   };
 
-  ['log', 'warn', 'error', 'info', 'debug', 'table'].forEach(method => {
-    console[method] = (...args: any[]) => {
-      captureLog(method, args);
-      originalConsole[method](...args);
-    };
+  (['log', 'warn', 'error', 'info', 'debug', 'table'] as const).forEach(method => {
+    const original = originalConsole[method];
+    if (typeof original !== 'function') return;
+
+    Object.defineProperty(console, method, {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function (...args: any[]) {
+        try {
+          captureLog(method, args);
+        } catch {
+          // Silently fail
+        }
+        original.apply(console, args);
+      },
+    });
   });
 };

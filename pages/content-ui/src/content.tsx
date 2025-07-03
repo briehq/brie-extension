@@ -71,7 +71,10 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
 
         const formData = new FormData();
         formData.append('records', jsonFile);
-        formData.append('workspaceId', workspace.id);
+
+        if (workspace?.id) {
+          formData.append('workspaceId', workspace.id);
+        }
         if (description) {
           formData.append('description', description);
         }
