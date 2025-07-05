@@ -16,15 +16,16 @@ import { exportToPng } from '@src/utils/annotation';
 
 type Props = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
-  undo: () => void;
-  redo: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onStartOver: () => void;
 };
 
-export const CanvasWrapper = ({ canvasRef, undo, redo }: Props) => {
+export const CanvasWrapper = ({ canvasRef, onUndo, onRedo, onStartOver }: Props) => {
   // trigger respective actions when the user clicks on the right menu
   const handleContextMenuClick = useCallback(
-    (key: string) => {
-      switch (key) {
+    (value: string) => {
+      switch (value) {
         // case "Chat":
         //   setCursorState({
         //     mode: CursorMode.Chat,
@@ -33,23 +34,28 @@ export const CanvasWrapper = ({ canvasRef, undo, redo }: Props) => {
         //   });
         //   break;
 
-        case 'Save as Image':
-          exportToPng('image-issue');
+        case 'save':
+          // @todo
+          // exportToPng('image-issue');
           break;
 
-        case 'Undo':
-          undo();
+        case 'undo':
+          onUndo();
           break;
 
-        case 'Redo':
-          redo();
+        case 'redo':
+          onRedo();
+          break;
+
+        case 'start_over':
+          onStartOver();
           break;
 
         default:
           break;
       }
     },
-    [redo, undo],
+    [onRedo, onStartOver, onUndo],
   );
 
   return (
@@ -64,8 +70,8 @@ export const CanvasWrapper = ({ canvasRef, undo, redo }: Props) => {
       <ContextMenuContent className="right-menu-content">
         {shortcuts.map(item => (
           <ContextMenuItem
-            key={item.key}
-            onClick={() => handleContextMenuClick(item.name)}
+            key={item.value}
+            onClick={() => handleContextMenuClick(item.value)}
             className="right-menu-item cursor-pointer text-xs">
             {item.name}
             <ContextMenuShortcut>{item.shortcut}</ContextMenuShortcut>

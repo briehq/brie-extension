@@ -5,6 +5,8 @@ import { authReducer, authPublicAPI } from './auth/index.js';
 import { organizationAPI } from './organization/index.js';
 import { overviewAPI } from './overview/index.js';
 import { screenshotAPI } from './screenshot/index.js';
+import { canvasSlice } from './shared/canvas.reducer.js';
+import { canvasReducer } from './shared/index.js';
 import { slicesPrivateAPI, slicesPublicAPI, slicesReducer } from './slices/index.js';
 import { spacesAPI } from './spaces/index.js';
 import { subscriptionsAPI } from './subscriptions/index.js';
@@ -34,6 +36,8 @@ const rootReducer = combineReducers({
   [organizationAPI.reducerPath]: organizationAPI.reducer,
 
   [screenshotAPI.reducerPath]: screenshotAPI.reducer,
+
+  canvasReducer,
 });
 
 const setupStore = () =>
@@ -75,3 +79,4 @@ export const { useLazyGetFullScreenshotQuery } = screenshotAPI;
 
 // export const { setFilters, clearFilters } = slicesSlice.actions;
 // export const { setFilters, clearFilters } = workspacesSlice.actions;
+export const { triggerCanvasAction, clearCanvasState } = canvasSlice.actions;

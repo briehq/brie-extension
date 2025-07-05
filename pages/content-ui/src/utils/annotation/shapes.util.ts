@@ -236,122 +236,6 @@ export const handleImageUpload = ({ file, canvas, shapeRef, syncShapeInStorage }
   reader.readAsDataURL(file);
 };
 
-// export const setCanvasBackground = async ({
-//   file,
-//   canvas,
-//   maxHeight = 500,
-//   maxWidth,
-// }: {
-//   file: string;
-//   canvas: Canvas;
-//   maxHeight: number;
-//   maxWidth: number;
-// }) => {
-//   FabricImage.fromURL(file, { crossOrigin: 'anonymous' }).then(img => {
-//     const originalWidth = img.width || 1;
-//     const originalHeight = img.height || 1;
-
-//     // Calculate scaling factor to fit within maxWidth and maxHeight while maintaining aspect ratio
-//     const widthScale = maxWidth / originalWidth;
-//     const heightScale = maxHeight / originalHeight;
-//     const scaleFactor = Math.min(widthScale, heightScale, 1);
-
-//     const newWidth = originalWidth * scaleFactor;
-//     const newHeight = originalHeight * scaleFactor;
-
-//     // Resize canvas to fit the scaled image dimensions
-//     canvas.setWidth(newWidth);
-//     canvas.setHeight(newHeight);
-
-//     // Scale the image
-//     img.scaleX = newWidth / originalWidth;
-//     img.scaleY = newHeight / originalHeight;
-
-//     // Associate the image with the canvas for correct rendering
-//     img.canvas = canvas;
-
-//     // Set as background image and render
-//     canvas.backgroundImage = img;
-//     canvas.renderAll();
-//   });
-// };
-
-// export const setCanvasBackground = async ({
-//   file,
-//   canvas,
-//   parentWidth,
-//   parentHeight,
-// }: {
-//   file: string;
-//   canvas: Canvas;
-//   parentWidth: number;
-//   parentHeight: number;
-// }) => {
-//   const img = await FabricImage.fromURL(file, { crossOrigin: 'anonymous' });
-
-//   const iw = img.width || 1; // intrinsic img size
-//   const ih = img.height || 1;
-
-//   // Compare aspect-ratios
-//   const parentRatio = parentWidth / parentHeight;
-//   const imgRatio = iw / ih;
-
-//   // If image is wider → fill width; otherwise fill height
-//   const [newW, newH] =
-//     imgRatio >= parentRatio
-//       ? [parentWidth, parentWidth / imgRatio] // fill width
-//       : [parentHeight * imgRatio, parentHeight]; // fill height
-
-//   // Resize canvas & scale image
-//   canvas.setWidth(newW);
-//   canvas.setHeight(newH);
-//   img.scaleX = newW / iw;
-//   img.scaleY = newH / ih;
-//   img.originX = 'left';
-//   img.originY = 'top';
-
-//   // canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-
-//   canvas.backgroundImage = img;
-//   canvas.renderAll();
-// };
-
-// export const setCanvasBackground = async ({
-//   file,
-//   canvas,
-//   parentWidth,
-//   parentHeight,
-// }: {
-//   file: string;
-//   canvas: Canvas;
-//   parentWidth: number;
-//   parentHeight: number;
-// }) => {
-//   const img = await FabricImage.fromURL(file, { crossOrigin: 'anonymous' });
-
-//   const iw = img.width || 1;
-//   const ih = img.height || 1;
-
-//   // single factor keeps BOTH sides ≤ parent
-//   const scaleFactor = Math.min(parentWidth / iw, parentHeight / ih, 1);
-
-//   const newW = iw * scaleFactor;
-//   const newH = ih * scaleFactor;
-
-//   canvas.setWidth(newW);
-//   canvas.setHeight(newH);
-
-//   img.set({
-//     originX: 'left',
-//     originY: 'top',
-//     scaleX: scaleFactor,
-//     scaleY: scaleFactor,
-//   });
-
-//   canvas.backgroundImage = img;
-//   canvas.renderAll();
-// };
-
 export const setCanvasBackground = async ({
   file,
   canvas,
@@ -375,11 +259,9 @@ export const setCanvasBackground = async ({
   let newH: number;
 
   if (imgRatio > parentRatio) {
-    // ➜ Image is wider: fill width
     newW = parentWidth;
     newH = parentWidth / imgRatio;
   } else {
-    // ➜ Image is taller: fill height
     newH = parentHeight;
     newW = parentHeight * imgRatio;
   }

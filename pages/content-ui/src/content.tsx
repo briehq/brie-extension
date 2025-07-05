@@ -4,7 +4,7 @@ import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
-import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
+import { triggerCanvasAction, useAppDispatch, useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
 import { Dialog, DialogContent, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
@@ -26,12 +26,14 @@ const Content = ({
   onClose: () => void;
   onMinimize: () => void;
 }) => {
+  const dispatch = useAppDispatch();
   const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
 
   const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [title, setTitle] = useState('Untitled report');
   const [description, setDescription] = useState('');
   const [workspaceId, setWorkspaceId] = useState('');
 
@@ -93,6 +95,10 @@ const Content = ({
           formData.append('workspaceId', workspaceId || workspace?.id);
         }
 
+        if (title) {
+          formData.append('title', title);
+        }
+
         if (description) {
           formData.append('description', description);
         }
@@ -140,8 +146,7 @@ const Content = ({
   };
 
   const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
-  const isDialogOpen = !!screenshots.length && window.location.host === 'example.com';
-
+  const isDialogOpen = !!screenshots.length;
   const isLg = canvasWidth >= LG_BREAKPOINT;
   const isMd = canvasWidth >= MD_BREAKPOINT;
   const hasShots = screenshots.length > 0;
@@ -173,19 +178,16 @@ const Content = ({
           onMinimize={onMinimize}
           onToggleFullScreen={() => setFullScreen(flag => !flag)}
           isFullScreen={isFullScreen}
-          title="Credentials.pdf"
-          onTitleChange={title => {
-            // setTitle()
-            console.log('title', title);
-          }}
+          title={title}
+          onTitleChange={setTitle}
           onUndo={() => {
-            console.log('onUndo');
+            dispatch(triggerCanvasAction('UNDO'));
           }}
           onRedo={() => {
-            console.log('onRedo');
+            dispatch(triggerCanvasAction('REDO'));
           }}
           onStartOver={() => {
-            console.log('onStartOver');
+            dispatch(triggerCanvasAction('START_OVER'));
           }}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}

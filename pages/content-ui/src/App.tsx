@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { useStorage } from '@extension/shared';
-import { annotationsRedoStorage, annotationsStorage, captureStateStorage, themeStorage } from '@extension/storage';
+import {
+  annotationHistoryStorage,
+  annotationsRedoStorage,
+  annotationsStorage,
+  captureStateStorage,
+  themeStorage,
+} from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
 import { cn, ToasterProvider, TooltipProvider } from '@extension/ui';
 
@@ -44,6 +50,7 @@ export default function App() {
     await captureStateStorage.setCaptureState('idle');
     await annotationsStorage.setAnnotations([]);
     await annotationsRedoStorage.setAnnotations([]);
+    await annotationHistoryStorage.setHistory([]);
   }, []);
 
   const handleOnMinimize = () => setMinimized(true);

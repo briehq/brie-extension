@@ -3,7 +3,9 @@ import { PencilBrush } from 'fabric';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import type { RootState } from '@extension/store';
+import { clearCanvasState, useAppDispatch, useAppSelector } from '@extension/store';
 import { Button, Icon, toast } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
@@ -37,6 +39,9 @@ import {
 // import { useCreateIssueMutation } from '@/store/issues';
 
 const CanvasContainerView = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
+  const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
+  const dispatch = useAppDispatch();
+
   /**
    * @todo
    * use client workspace id
@@ -153,31 +158,40 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
+  const restoreObjects = async (canvas: any, snapshot: { objects: any[] }) => {
+    canvas.loadFromJSON(snapshot);
+
+    setCanvasBackground({
+      file: selectedImage!.image,
+      canvas,
+      parentHeight: canvas.getHeight(),
+      parentWidth: canvas.getWidth(),
+    });
+  };
+
   const undo = async () => {
-    const result = await undoAnnotation();
+    const history = await undoAnnotation();
 
-    if (result?.prevState && fabricRef.current) {
-      isProgrammaticChange.current = result.fromhistory;
+    if (history?.prevState && fabricRef.current) {
+      isProgrammaticChange.current = history.fromHistory;
 
-      fabricRef.current.loadFromJSON(result.prevState, async () => {
-        fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON();
-        await annotationsStorage.setAnnotations(json?.objects || []);
-      });
+      await restoreObjects(fabricRef.current, history.prevState);
+
+      const json = fabricRef.current.toJSON();
+      await annotationsStorage.setAnnotations(json.objects ?? []);
     }
   };
 
   const redo = async () => {
-    const result = await redoAnnotation();
+    const history = await redoAnnotation();
 
-    if (result?.restoredState && fabricRef.current) {
-      isProgrammaticChange.current = result.fromhistory;
+    if (history?.restoredState && fabricRef.current) {
+      isProgrammaticChange.current = history.fromHistory;
 
-      fabricRef.current.loadFromJSON(result.restoredState, async () => {
-        fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON();
-        await annotationsStorage.setAnnotations(json?.objects || []);
-      });
+      await restoreObjects(fabricRef.current, history.restoredState);
+
+      const json = fabricRef.current.toJSON();
+      await annotationsStorage.setAnnotations(json.objects ?? []);
     }
   };
 
@@ -203,8 +217,8 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(updatedAnnotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
+      const canvasObjects = fabricRef.current.toJSON();
+      await saveHistory(canvasObjects, { clearRedo: isProgrammaticChange.current });
     }
   }, []);
 
@@ -212,18 +226,22 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    * deleteAllShapes is a mutation that deletes all the shapes from the
    * key-value store of local store.
    *
-   * We're using this mutation to delete all the shapes from the key-value store when the user clicks on the reset button.
+   * We're using this mutation to delete all the shapes from the key-value store
+   * when the user clicks on the reset button.
    */
   const deleteAllShapes = useCallback(async () => {
-    // get the canvasObjects store
-    const annotations = await annotationsStorage.getAnnotations();
-    if (!annotations || annotations.length === 0) return true;
-    await annotationsStorage.setAnnotations([]);
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
+      const bg = fabricRef.current.backgroundImage;
+      fabricRef.current.clear();
+      fabricRef.current.backgroundImage = bg;
+      fabricRef.current.renderAll();
     }
-    return true;
+
+    await Promise.all([
+      annotationsStorage.setAnnotations([]),
+      annotationsRedoStorage.setAnnotations([]),
+      annotationHistoryStorage.setHistory([]),
+    ]);
   }, []);
 
   /**
@@ -253,8 +271,8 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     await annotationsStorage.setAnnotations(annotations);
 
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
+      const canvasObjects = fabricRef.current.toJSON();
+      await saveHistory(canvasObjects, { clearRedo: isProgrammaticChange.current });
     }
     // setActiveUpdateAction(uuidv4());
   }, []);
@@ -278,7 +296,7 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
         break;
 
       // delete all the shapes from the canvas
-      case 'reset':
+      case 'start_over':
         // clear the storage
         deleteAllShapes();
         // clear the canvas
@@ -333,6 +351,24 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
         break;
     }
   };
+
+  useEffect(() => {
+    if (!lastAction) return;
+
+    switch (lastAction) {
+      case 'UNDO':
+        undo();
+        break;
+      case 'REDO':
+        redo();
+        break;
+      case 'START_OVER':
+        deleteAllShapes();
+        break;
+    }
+
+    dispatch(clearCanvasState());
+  }, [tick]);
 
   useEffect(() => {
     // initialize the fabric canvas
@@ -580,59 +616,60 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
         }),
       );
     };
-  }, [canvasRef]); // run this effect only once when the component mounts and the canvasRef changes
+  }, [attachments]); // run this effect only once when the component mounts and the canvasRef changes
 
   // render the canvas when the canvasObjects from live storage changes
+  // useEffect(() => {
+  //   const render = async () => {
+  //     const annotations = await annotationsStorage.getAnnotations();
+
+  //     renderCanvas({
+  //       fabricRef,
+  //       canvasObjects: annotations,
+  //       activeObjectRef,
+  //     });
+
+  //     const maxWidth = canvasRef.current?.clientWidth;
+  //     let imageWidth: number | undefined = undefined;
+
+  //     if (attachments[0]?.image) {
+  //       const img = new window.Image();
+  //       img.onload = () => {
+  //         imageWidth = img.naturalWidth;
+  //       };
+  //       img.src = attachments[0].image;
+  //     }
+
+  //     setCanvasBackground({
+  //       file: attachments[0]?.image,
+  //       canvas: fabricRef?.current,
+  //       parentHeight: 500,
+  //       parentWidth: imageWidth ?? maxWidth ?? 500,
+  //     });
+  //   };
+
+  //   render();
+  // }, [activeUpdateAction]);
+
+  // Warn the user when they try to close or refresh the tab
   useEffect(() => {
-    const render = async () => {
-      const annotations = await annotationsStorage.getAnnotations();
-
-      renderCanvas({
-        fabricRef,
-        canvasObjects: annotations,
-        activeObjectRef,
-      });
-
-      const maxWidth = canvasRef.current?.clientWidth;
-      let imageWidth: number | undefined = undefined;
-
-      if (attachments[0]?.image) {
-        const img = new window.Image();
-        img.onload = () => {
-          imageWidth = img.naturalWidth;
-        };
-        img.src = attachments[0].image;
-      }
-
-      // setCanvasBackground({
-      //   file: attachments[0]?.image,
-      //   canvas: fabricRef?.current,
-      //   minHeight: 500,
-      //   maxWidth: imageWidth ?? maxWidth ?? 500,
-      // });
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
     };
 
-    render();
-  }, [activeUpdateAction]);
-
-  useEffect(() => {
-    const handleOnBeforeUnload = event => {
-      event.preventDefault();
-      event.returnValue = '';
-      return '';
-    };
-
-    const handleOnUnload = () => {
+    const handleUnload = () => {
       annotationsStorage.setAnnotations([]);
       annotationsRedoStorage.setAnnotations([]);
+      annotationHistoryStorage.setHistory([]);
     };
 
-    window.addEventListener('unload', handleOnUnload);
-    window.addEventListener('beforeunload', handleOnBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('unload', handleUnload);
+
     return () => {
-      window.removeEventListener('beforeunload', handleOnBeforeUnload);
-      window.removeEventListener('beforeunload', handleOnUnload);
-      handleOnUnload();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('unload', handleUnload);
     };
   }, []);
 
@@ -688,20 +725,13 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     setActionMenuVisible(false);
   };
 
-  /* inside CanvasContainerView */
-  const gridCellRef = useRef<HTMLDivElement | null>(null); // <— NEW
-
-  /* useFitCanvasToParent hook */
-  useFitCanvasToParent(
-    fabricRef.current,
-    attachments[0]?.image ?? null,
-    gridCellRef.current, // watch the column, not the inner flex wrapper
-  );
+  const gridCellRef = useRef<HTMLDivElement | null>(null);
+  useFitCanvasToParent(fabricRef.current, attachments[0]?.image ?? null, gridCellRef.current);
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       <div ref={gridCellRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
-        <CanvasWrapper canvasRef={canvasRef} undo={undo} redo={redo} />
+        <CanvasWrapper canvasRef={canvasRef} onUndo={undo} onRedo={redo} onStartOver={deleteAllShapes} />
       </div>
 
       {actionMenuVisible && (
