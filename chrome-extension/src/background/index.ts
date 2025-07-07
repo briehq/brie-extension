@@ -28,8 +28,8 @@ chrome.tabs.onRemoved.addListener(async tabId => {
     await captureStateStorage.setCaptureState('idle');
     await captureTabStorage.setCaptureTabId(null);
 
-    annotationsStorage.setAnnotations([]);
-    annotationsRedoStorage.setAnnotations([]);
+    annotationsStorage.clearAll();
+    annotationsRedoStorage.clearAll();
   }
 });
 
@@ -57,8 +57,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     await captureStateStorage.setCaptureState('idle');
     await captureTabStorage.setCaptureTabId(null);
 
-    annotationsStorage.setAnnotations([]);
-    annotationsRedoStorage.setAnnotations([]);
+    annotationsStorage.clearAll();
+    annotationsRedoStorage.clearAll();
   }
 });
 
@@ -70,8 +70,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     captureStateStorage.setCaptureState('idle');
     captureTabStorage.setCaptureTabId(null);
 
-    annotationsStorage.setAnnotations([]);
-    annotationsRedoStorage.setAnnotations([]);
+    annotationsStorage.clearAll();
+    annotationsRedoStorage.clearAll();
     sendResponse({ status: 'success' });
   }
 

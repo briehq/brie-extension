@@ -2,14 +2,18 @@ import { createStorage } from '../base/base.js';
 import { StorageEnum } from '../base/enums.js';
 import type { BaseStorage } from '../base/types.js';
 
-type AnnotationsStorage = BaseStorage<any> & {
-  setAnnotations: (state: any) => Promise<void>;
-  getAnnotations: () => Promise<any>;
+type Annotations = any[];
+type AnnotationMap = Record<string, Annotations>;
+type AnnotationsStorage = BaseStorage<AnnotationMap> & {
+  setAnnotations: (id: string, annotations: Annotations) => Promise<void>;
+  getAnnotations: (id: string) => Promise<Annotations>;
+  deleteAnnotations: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
 };
 
-const storage = createStorage<any>(
+const storage = createStorage<AnnotationMap>(
   'annotations-storage-key',
-  [], // Default state is idle
+  {}, // Default state is idle
   {
     storageEnum: StorageEnum.Local,
     liveUpdate: true,
@@ -19,11 +23,24 @@ const storage = createStorage<any>(
 export const annotationsStorage: AnnotationsStorage = {
   ...storage,
 
-  setAnnotations: async (state: any) => {
-    await storage.set(state);
+  async setAnnotations(id, annotations) {
+    const map = await storage.get();
+    map[id] = annotations;
+    await storage.set(map);
   },
 
-  getAnnotations: async () => {
-    return await storage.get();
+  async getAnnotations(id) {
+    const map = await storage.get();
+    return map[id] ?? [];
+  },
+
+  async deleteAnnotations(id) {
+    const map = await storage.get();
+    delete map[id];
+    await storage.set(map);
+  },
+
+  async clearAll() {
+    await storage.set({});
   },
 };

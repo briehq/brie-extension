@@ -26,7 +26,7 @@ export const shapeElements = [
 export const defaultNavElement = {
   // icon: 'MousePointer2Icon',
   icon: 'HandIcon',
-  name: 'Select',
+  name: 'Move',
   value: 'select',
 };
 

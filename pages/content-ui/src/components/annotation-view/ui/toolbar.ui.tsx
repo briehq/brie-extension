@@ -15,8 +15,14 @@ import {
 
 import { ColorPalette, ExportImage } from '@src/components/dialog-view';
 import { navElements } from '@src/constants';
+import type { ActiveElement } from '@src/models';
 
-const Toolbar = ({ activeElement, onActiveElement }: any) => {
+interface ToolbarProps {
+  activeElement: ActiveElement;
+  onActiveElement: (element: ActiveElement) => void;
+}
+
+const Toolbar = ({ activeElement, onActiveElement }: ToolbarProps) => {
   const isActive = (value: string | Array<any>) =>
     (activeElement && activeElement.value === value) ||
     (Array.isArray(value) && value.some(val => val?.value === activeElement?.value));
@@ -114,6 +120,7 @@ const Toolbar = ({ activeElement, onActiveElement }: any) => {
   );
 };
 
-const arePropsEqual = (prevProps, nextProps) => prevProps.activeElement === nextProps.activeElement;
+const arePropsEqual = (prevProps: ToolbarProps, nextProps: ToolbarProps) =>
+  prevProps.activeElement === nextProps.activeElement;
 
 export default memo(Toolbar, arePropsEqual);

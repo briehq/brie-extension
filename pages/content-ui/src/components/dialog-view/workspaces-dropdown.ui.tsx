@@ -91,7 +91,7 @@ export const WorkspacesDropdown = ({ value, onChange }: Props) => {
               className={cn('gap-x-2 capitalize', {
                 'text-muted-foreground': (activeWorkspaceId || defaultWorkspace?.id) !== workspace.id,
               })}>
-              <Avatar className="h-8 w-8">
+              <Avatar className="hover:bg-primary h-8 w-8">
                 <AvatarImage src={`${API_BASE_URL}/uploads/workspaces/${workspace.avatarId}`} crossOrigin="anonymous" />
                 <AvatarFallback>
                   <span className="text-xs font-medium text-[rgba(39,36,29,0.4)]">{getInitials(workspace.name)}</span>

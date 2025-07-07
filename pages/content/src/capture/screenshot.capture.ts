@@ -1,6 +1,8 @@
 import html2canvas from 'html2canvas';
+import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
+import type { Screenshot } from '@extension/shared';
 
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -507,8 +509,8 @@ const processScreenshot = async ({
 
   saveAndNotify({
     screenshots: [
-      { image: croppedScreenshotImage || '', isPrimary: true },
-      ...(mode === 'single' ? [{ image: fullScreenshotImage }] : []),
+      { src: croppedScreenshotImage || '', isPrimary: true },
+      ...(mode === 'single' ? [{ src: fullScreenshotImage }] : []),
     ],
     mode,
   });
@@ -521,13 +523,7 @@ const processScreenshot = async ({
 };
 
 // Save and notify with screenshots
-const saveAndNotify = ({
-  screenshots,
-  mode,
-}: {
-  screenshots: { image: string; isPrimary?: boolean; name?: string }[];
-  mode: 'single' | 'multiple';
-}) => {
+const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode: 'single' | 'multiple' }) => {
   const timestamp = Date.now();
   const screenshotName: string = `${location.host}-${timestamp}`.replaceAll('.', '-');
 
@@ -557,6 +553,7 @@ const saveAndNotify = ({
       screenshots: screenshots.map(screenshot => ({
         ...screenshot,
         name: screenshotName,
+        id: uuidv4(),
       })),
     },
   });
@@ -597,14 +594,14 @@ export const startScreenshotCapture = async ({
       },
     });
 
-    saveAndNotify({ screenshots: [{ image: fullCanvas.toDataURL('image/png', 1.0) }], mode });
+    saveAndNotify({ screenshots: [{ src: fullCanvas.toDataURL('image/png', 1.0) }], mode });
     return;
   }
 
   if (type === 'viewport') {
     const viewport = await captureTab();
 
-    saveAndNotify({ screenshots: [{ image: viewport }], mode });
+    saveAndNotify({ screenshots: [{ src: viewport }], mode });
 
     return;
   }

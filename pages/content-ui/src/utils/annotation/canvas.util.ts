@@ -50,31 +50,20 @@ export const initializeFabric = ({
   canvasRef: RefObject<HTMLCanvasElement | null>;
   backgroundImage: string;
 }) => {
-  // get canvas element
-  const canvasElement = getCanvasElement();
+  if (!canvasRef?.current) throw new Error('Canvas ref is not available');
 
-  // Get the parent container dimensions
-  // const maxWidth = canvasElement?.clientWidth || 500;
-  // const maxHeight = 500; // Maximum height constraint
+  const parent = canvasRef.current.parentElement!;
+  const { width, height } = parent.getBoundingClientRect();
 
-  const parentWidth = canvasElement?.clientWidth ?? 500;
-  const parentHeight = canvasElement?.clientHeight ?? 500;
-
-  // Check if canvas ref is available
-  if (!canvasRef.current) {
-    throw new Error('Canvas ref is not available');
-  }
-
-  // Create the Fabric.js canvas
   const canvas = new Canvas(canvasRef.current, {
-    width: parentWidth,
-    height: parentHeight, // Temporary height until background image is loaded
+    width,
+    height,
   });
 
   if (backgroundImage) {
     try {
       // Set the background image and adjust canvas dimensions
-      setCanvasBackground({ file: backgroundImage, canvas, parentHeight, parentWidth });
+      setCanvasBackground({ file: backgroundImage, canvas, parentHeight: height, parentWidth: width });
     } catch (error) {
       console.error('Failed to set the background image:', error);
     }

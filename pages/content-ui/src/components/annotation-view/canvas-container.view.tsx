@@ -1,8 +1,8 @@
 import type { Canvas, FabricObject } from 'fabric';
 import { PencilBrush } from 'fabric';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { Screenshot } from '@extension/shared';
 import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import type { RootState } from '@extension/store';
 import { clearCanvasState, useAppDispatch, useAppSelector } from '@extension/store';
@@ -29,34 +29,25 @@ import {
   initializeFabric,
   redoAnnotation,
   undoAnnotation,
-  getCanvasElement,
   renderCanvas,
   setCanvasBackground,
-  getShadowHostElement,
   saveHistory,
 } from '../../utils/annotation';
 
-// import { useCreateIssueMutation } from '@/store/issues';
+interface CanvasContainerProps {
+  screenshot: Screenshot;
+  onElement: (elem: ActiveElement) => void;
+}
 
-const CanvasContainerView = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
+const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
+  console.log('screenshot', screenshot);
 
-  /**
-   * @todo
-   * use client workspace id
-   */
-  const { id: workspaceId } = { id: uuidv4() };
+  const gridCellRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticChange = useRef(true);
-  const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ left: 0, top: 0 });
-  const [activeUpdateAction, setActiveUpdateAction] = useState('');
-  const [selectedImage, setSelectedImage] = useState<{
-    name: string;
-    image: string;
-  }>();
-  // const [createIssue, { isLoading: isCreating }] = useCreateIssueMutation();
 
   /**
    * useStorage is a hook provided by local store that allows you to store
@@ -158,11 +149,11 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  const restoreObjects = async (canvas: any, snapshot: { objects: any[] }) => {
-    canvas.loadFromJSON(snapshot);
+  const restoreObjects = (canvas: any, snapshot?: { objects: any[] }) => {
+    if (snapshot?.objects) canvas.loadFromJSON({ objects: snapshot.objects });
 
     setCanvasBackground({
-      file: selectedImage!.image,
+      file: screenshot.src,
       canvas,
       parentHeight: canvas.getHeight(),
       parentWidth: canvas.getWidth(),
@@ -170,28 +161,28 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
   };
 
   const undo = async () => {
-    const history = await undoAnnotation();
+    const history = await undoAnnotation(screenshot.id!);
 
     if (history?.prevState && fabricRef.current) {
       isProgrammaticChange.current = history.fromHistory;
 
-      await restoreObjects(fabricRef.current, history.prevState);
+      restoreObjects(fabricRef.current, history.prevState);
 
-      const json = fabricRef.current.toJSON();
-      await annotationsStorage.setAnnotations(json.objects ?? []);
+      const canvasObjects = fabricRef.current.toJSON();
+      await annotationsStorage.setAnnotations(screenshot.id!, canvasObjects.objects ?? []);
     }
   };
 
   const redo = async () => {
-    const history = await redoAnnotation();
+    const history = await redoAnnotation(screenshot.id!);
 
     if (history?.restoredState && fabricRef.current) {
       isProgrammaticChange.current = history.fromHistory;
 
-      await restoreObjects(fabricRef.current, history.restoredState);
+      restoreObjects(fabricRef.current, history.restoredState);
 
-      const json = fabricRef.current.toJSON();
-      await annotationsStorage.setAnnotations(json.objects ?? []);
+      const canvasObjects = fabricRef.current.toJSON();
+      await annotationsStorage.setAnnotations(screenshot.id!, canvasObjects.objects ?? []);
     }
   };
 
@@ -204,23 +195,25 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    * We're using this mutation to delete a shape from the key-value store when
    * the user deletes a shape from the canvas.
    */
-  const deleteShapeFromStorage = useCallback(async (shapeId: string) => {
-    /**
-     * canvasObjects is a Map that contains all the shapes in the key-value.
-     * Like a store. We can create multiple stores in local store.
-     */
+  const deleteShapeFromStorage = useCallback(
+    async (shapeId: string) => {
+      /**
+       * canvasObjects is a Map that contains all the shapes in the key-value.
+       * Like a store. We can create multiple stores in local store.
+       */
+      const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
+      if (!annotations) return;
 
-    const annotations = await annotationsStorage.getAnnotations();
-    if (!annotations) return;
+      const updatedAnnotations = annotations.filter((a: any) => a.objectId !== shapeId);
+      await annotationsStorage.setAnnotations(screenshot.id!, updatedAnnotations);
 
-    const updatedAnnotations = annotations.filter((a: any) => a.objectId !== shapeId);
-    await annotationsStorage.setAnnotations(updatedAnnotations);
-
-    if (fabricRef.current) {
-      const canvasObjects = fabricRef.current.toJSON();
-      await saveHistory(canvasObjects, { clearRedo: isProgrammaticChange.current });
-    }
-  }, []);
+      if (fabricRef.current) {
+        const canvasObjects = fabricRef.current.toJSON();
+        await saveHistory(screenshot.id!, canvasObjects, { clearRedo: isProgrammaticChange.current });
+      }
+    },
+    [screenshot?.id],
+  );
 
   /**
    * deleteAllShapes is a mutation that deletes all the shapes from the
@@ -238,11 +231,11 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     }
 
     await Promise.all([
-      annotationsStorage.setAnnotations([]),
-      annotationsRedoStorage.setAnnotations([]),
-      annotationHistoryStorage.setHistory([]),
+      annotationsStorage.deleteAnnotations(screenshot.id!),
+      annotationsRedoStorage.deleteAnnotations(screenshot.id!),
+      annotationHistoryStorage.deleteAnnotations(screenshot.id!),
     ]);
-  }, []);
+  }, [screenshot?.id]);
 
   /**
    * syncShapeInStorage is a mutation that syncs the shape in the key-value
@@ -252,30 +245,31 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    * whenever user performs any action on the canvas such as drawing, moving
    * editing, deleting etc.
    */
-  const syncShapeInStorage = useCallback(async (object: any) => {
-    // if the passed object is null, return
-    if (!object) return;
+  const syncShapeInStorage = useCallback(
+    async (object: any) => {
+      if (!object) return;
 
-    const { objectId } = object;
-    const shapeData = object.toJSON();
-    const shape = { ...shapeData, objectId };
+      const { objectId } = object;
+      const shapeData = object.toJSON();
+      const shape = { ...shapeData, objectId };
 
-    let annotations = (await annotationsStorage.getAnnotations()) || [];
-    const foundIndex = annotations.findIndex((x: any) => x.objectId === shape.objectId);
-    if (foundIndex !== -1) {
-      annotations[foundIndex] = shape;
-    } else {
-      annotations = [...annotations, shape];
-    }
+      let annotations = (await annotationsStorage.getAnnotations(screenshot.id!)) || [];
+      const foundIndex = annotations.findIndex((x: any) => x.objectId === shape.objectId);
+      if (foundIndex !== -1) {
+        annotations[foundIndex] = shape;
+      } else {
+        annotations = [...annotations, shape];
+      }
 
-    await annotationsStorage.setAnnotations(annotations);
+      await annotationsStorage.setAnnotations(screenshot.id!, annotations);
 
-    if (fabricRef.current) {
-      const canvasObjects = fabricRef.current.toJSON();
-      await saveHistory(canvasObjects, { clearRedo: isProgrammaticChange.current });
-    }
-    // setActiveUpdateAction(uuidv4());
-  }, []);
+      if (fabricRef.current) {
+        const canvasObjects = fabricRef.current.toJSON();
+        await saveHistory(screenshot.id!, canvasObjects, { clearRedo: isProgrammaticChange.current });
+      }
+    },
+    [screenshot?.id],
+  );
 
   /**
    * Set the active element in the navbar and perform the action based
@@ -285,6 +279,8 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
    */
   const handleActiveElement = (elem: ActiveElement) => {
     setActiveElement(elem);
+
+    onElement(elem);
 
     switch (elem?.value) {
       case 'undo':
@@ -371,38 +367,30 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
   }, [tick]);
 
   useEffect(() => {
-    // initialize the fabric canvas
+    if (!screenshot) {
+      // fabricRef.current?.clear();
 
-    if (!attachments?.length) {
-      // Close annotation modal
       toast.error('No screenshots available. Please try capturing again!');
       return;
     }
 
-    const backgroundImage = attachments?.length ? attachments[0].image : null;
     const canvas = initializeFabric({
       canvasRef,
       fabricRef,
-      backgroundImage,
+      backgroundImage: screenshot?.src,
     });
 
-    setSelectedImage(attachments[0] || null);
+    const getSavedAnnotations = async () => {
+      const canvasObjects = await annotationsStorage.getAnnotations(screenshot.id!);
 
-    // window.addEventListener('click', e => {
-    //   const { target } = e;
+      if (canvasObjects?.length) {
+        renderCanvas({ fabricRef, canvasObjects, activeObjectRef });
 
-    //   // Get the shadow host (the element that hosts the shadow DOM)
-    //   const shadowHost = getCanvasElement();
+        restoreObjects(fabricRef.current);
+      }
+    };
 
-    //   console.log('target', target);
-
-    //   // Check if the clicked target is outside the canvas (with id #canvas) and not inside the shadow DOM
-    //   if (target instanceof HTMLElement && !target.contains(shadowHost) && target.id !== 'canvas') {
-    //     // Deselect the object if clicked outside
-    //     canvas.discardActiveObject();
-    //     canvas.renderAll();
-    //   }
-    // });
+    getSavedAnnotations();
 
     /**
      * listen to the mouse down event on the canvas which is fired when the
@@ -565,7 +553,7 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     window.addEventListener('resize', () => {
       handleResize({
         canvas: fabricRef.current,
-        backgroundImage: attachments[0]?.image ?? null,
+        backgroundImage: screenshot?.src ?? null,
       });
     });
 
@@ -616,40 +604,9 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
         }),
       );
     };
-  }, [attachments]); // run this effect only once when the component mounts and the canvasRef changes
+  }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
 
-  // render the canvas when the canvasObjects from live storage changes
-  // useEffect(() => {
-  //   const render = async () => {
-  //     const annotations = await annotationsStorage.getAnnotations();
-
-  //     renderCanvas({
-  //       fabricRef,
-  //       canvasObjects: annotations,
-  //       activeObjectRef,
-  //     });
-
-  //     const maxWidth = canvasRef.current?.clientWidth;
-  //     let imageWidth: number | undefined = undefined;
-
-  //     if (attachments[0]?.image) {
-  //       const img = new window.Image();
-  //       img.onload = () => {
-  //         imageWidth = img.naturalWidth;
-  //       };
-  //       img.src = attachments[0].image;
-  //     }
-
-  //     setCanvasBackground({
-  //       file: attachments[0]?.image,
-  //       canvas: fabricRef?.current,
-  //       parentHeight: 500,
-  //       parentWidth: imageWidth ?? maxWidth ?? 500,
-  //     });
-  //   };
-
-  //   render();
-  // }, [activeUpdateAction]);
+  useFitCanvasToParent(fabricRef.current, screenshot?.src, gridCellRef.current);
 
   // Warn the user when they try to close or refresh the tab
   useEffect(() => {
@@ -659,9 +616,9 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     };
 
     const handleUnload = () => {
-      annotationsStorage.setAnnotations([]);
-      annotationsRedoStorage.setAnnotations([]);
-      annotationHistoryStorage.setHistory([]);
+      annotationsStorage.clearAll();
+      annotationsRedoStorage.clearAll();
+      annotationHistoryStorage.clearAll();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -725,9 +682,6 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
     setActionMenuVisible(false);
   };
 
-  const gridCellRef = useRef<HTMLDivElement | null>(null);
-  useFitCanvasToParent(fabricRef.current, attachments[0]?.image ?? null, gridCellRef.current);
-
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       <div ref={gridCellRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
@@ -752,7 +706,4 @@ const CanvasContainerView = ({ attachments }: { attachments: { name: string; ima
   );
 };
 
-const arePropsEqual = (prevProps, nextProps) =>
-  JSON.stringify(prevProps.attachments) === JSON.stringify(nextProps.attachments);
-
-export default memo(CanvasContainerView, arePropsEqual);
+export default CanvasContainerView;

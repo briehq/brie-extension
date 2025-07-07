@@ -1,23 +1,24 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 import type { FC } from 'react';
 
+import type { Screenshot } from '@extension/shared';
 import { Button, cn, Icon, toast } from '@extension/ui';
 
 import { copyBase64ImageToClipboard, saveBase64Image } from '@src/utils';
 
 interface MinimizedPreviewProps {
-  screenshots: any;
+  screenshots: Screenshot[];
   unsaved?: boolean;
   onEdit: () => void;
   onDiscard: () => void;
 }
 
 export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsaved = false, onEdit, onDiscard }) => {
-  const lastImage = screenshots[screenshots.length - 1];
+  const lastImage: Screenshot = screenshots[screenshots.length - 1];
 
   const handleOnSave = async () => {
     try {
-      await saveBase64Image(lastImage.image, lastImage.name);
+      await saveBase64Image(lastImage.src, lastImage.src);
       toast.info('Preparing your image for download…');
     } catch (e) {
       toast.error('Preparing your image for download failed.');
@@ -26,7 +27,7 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
 
   const handleOnCopy = async () => {
     try {
-      await copyBase64ImageToClipboard(lastImage.image);
+      await copyBase64ImageToClipboard(lastImage.src);
       toast.success('Screenshot copied!');
     } catch (e) {
       toast.error('Clipboard copy failed.');
@@ -107,7 +108,7 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
       </div>
 
       <img
-        src={lastImage.image}
+        src={lastImage.src}
         alt={`Last captured screenshot: ${lastImage.name}`}
         className="h-full w-full object-cover"
         draggable={false}

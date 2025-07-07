@@ -8,29 +8,29 @@ import { setCanvasBackground } from '@src/utils/annotation';
  * fits inside the parent wrapper without exceeding either dimension.
  *
  * @param fabricCanvas   the fabric.Canvas instance (or null while loading)
- * @param imageUrl       URL of the screenshot / photo used as background
+ * @param screenshotSrc       URL of the screenshot / photo used as background
  * @param parentElt      the DOM element whose box we want to fill
  */
 export const useFitCanvasToParent = (
   fabricCanvas: Canvas | null,
-  imageUrl: string | null,
+  screenshotUrl: string | null,
   parentElt: HTMLElement | null,
 ) => {
   useEffect(() => {
-    if (!fabricCanvas || !imageUrl || !parentElt) return;
+    if (!fabricCanvas || !screenshotUrl || !parentElt) return;
 
     const fit = () =>
       setCanvasBackground({
-        file: imageUrl,
+        file: screenshotUrl,
         canvas: fabricCanvas,
         parentWidth: parentElt.clientWidth,
         parentHeight: parentElt.clientHeight,
       });
 
-    fit(); // first run
+    fit();
 
     const ro = new ResizeObserver(fit);
     ro.observe(parentElt);
     return () => ro.disconnect();
-  }, [fabricCanvas, imageUrl, parentElt]);
+  }, [fabricCanvas, screenshotUrl, parentElt]);
 };

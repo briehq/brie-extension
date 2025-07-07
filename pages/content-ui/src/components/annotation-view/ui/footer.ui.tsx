@@ -9,7 +9,6 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZoomChange }) => {
-  /* helpers --------------------------------------------------------------- */
   const incZoom = () => onZoomChange?.((zoom ?? 100) + 10);
   const decZoom = () => onZoomChange?.((zoom ?? 100) - 10);
 
@@ -19,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZ
         {tool && (
           <div className="flex items-center gap-x-1">
             <span className="text-muted-foreground">Tool:</span>
-            <span>{tool}</span>
+            <span className="text-primary">{tool}</span>
           </div>
         )}
 
@@ -35,7 +34,7 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZ
               <Icon name="ChevronDownIcon" size={10} />
             </Button> */}
 
-            <span>{zoom}%</span>
+            <span className="text-primary">{zoom}%</span>
 
             {/* <Button
               size="icon"
@@ -51,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZ
         {file && (
           <div className="flex items-center gap-x-1">
             <span className="text-muted-foreground">File:</span>
-            <span className="max-w-[10rem] truncate">{file}</span>
+            <span className="text-primary max-w-[10rem] truncate">{file}</span>
           </div>
         )}
       </div>

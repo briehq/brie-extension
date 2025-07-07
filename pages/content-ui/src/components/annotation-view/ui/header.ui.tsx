@@ -1,11 +1,14 @@
 import { IS_DEV } from '@extension/env';
 import { useStorage } from '@extension/shared';
 import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
-import { Button, cn, Icon } from '@extension/ui';
+import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 import { CreateDropdown, EditableTitle, WorkspacesDropdown } from '@src/components/dialog-view';
 
 interface EditorHeaderProps {
+  /** active screenshot id */
+  id: string;
+
   /** window controls */
   onClose: () => void;
   onMinimize: () => void;
@@ -34,6 +37,8 @@ interface EditorHeaderProps {
 }
 
 export const Header: React.FC<EditorHeaderProps> = ({
+  id,
+
   onClose,
   onMinimize,
   onToggleFullScreen,
@@ -59,10 +64,9 @@ export const Header: React.FC<EditorHeaderProps> = ({
   const redoAnnotations = useStorage(annotationsRedoStorage);
   const annotations = useStorage(annotationsStorage);
 
-  const canUndo = historyAnnotations.length;
-  const canRedo = redoAnnotations.length;
-  const canStartOver = annotations.length || canRedo || canUndo;
-  console.log('ann', historyAnnotations.length, redoAnnotations.length, annotations.length);
+  const canUndo = historyAnnotations[id]?.length;
+  const canRedo = redoAnnotations[id]?.length;
+  const canStartOver = annotations[id]?.length || canRedo || canUndo;
 
   return (
     <header
@@ -72,32 +76,53 @@ export const Header: React.FC<EditorHeaderProps> = ({
       )}>
       <div className="flex items-center gap-[14px]">
         <div className="flex items-center">
-          <Button
-            size="icon"
-            variant="destructive"
-            onClick={onClose}
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label="Close">
-            <Icon name="X" size={16} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="destructive"
+                onClick={onClose}
+                className="dark:bg-primary size-[35px] dark:text-white"
+                aria-label="Close">
+                <Icon name="X" size={16} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="center">
+              Close
+            </TooltipContent>
+          </Tooltip>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onMinimize}
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label="Minimize">
-            <Icon name="MinusIcon" size={16} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={onMinimize}
+                className="dark:bg-primary size-[35px] dark:text-white"
+                aria-label="Minimize">
+                <Icon name="MinusIcon" size={16} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="center">
+              Minimize
+            </TooltipContent>
+          </Tooltip>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onToggleFullScreen}
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}>
-            <Icon name={isFullScreen ? 'MinimizeIcon' : 'MaximizeIcon'} size={14} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={onToggleFullScreen}
+                className="dark:bg-primary size-[35px] dark:text-white"
+                aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}>
+                <Icon name={isFullScreen ? 'MinimizeIcon' : 'MaximizeIcon'} size={14} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="center">
+              {isFullScreen ? 'Exit full screen' : 'Enter full screen'}
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <EditableTitle value={title} onChange={onTitleChange} />
@@ -105,34 +130,55 @@ export const Header: React.FC<EditorHeaderProps> = ({
 
       <div className="flex items-center justify-center gap-2">
         <div className="flex items-center">
-          <Button
-            disabled={!canUndo}
-            size="icon"
-            variant="ghost"
-            onClick={onUndo}
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label="Undo">
-            <Icon name="Undo2Icon" size={16} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                disabled={!canUndo}
+                size="icon"
+                variant="ghost"
+                onClick={onUndo}
+                className="dark:bg-primary size-[35px] dark:text-white"
+                aria-label="Undo">
+                <Icon name="Undo2Icon" size={16} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="center">
+              Undo
+            </TooltipContent>
+          </Tooltip>
 
-          <Button
-            disabled={!canRedo}
-            size="icon"
-            variant="ghost"
-            onClick={onRedo}
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label="Redo">
-            <Icon name="Redo2Icon" size={16} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                disabled={!canRedo}
+                size="icon"
+                variant="ghost"
+                onClick={onRedo}
+                className="dark:bg-primary size-[35px] dark:text-white"
+                aria-label="Redo">
+                <Icon name="Redo2Icon" size={16} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="center">
+              Redo
+            </TooltipContent>
+          </Tooltip>
         </div>
 
-        <Button
-          disabled={!canStartOver}
-          variant="destructive"
-          onClick={onStartOver}
-          className="dark:bg-primary h-[35px] px-[10px] dark:text-white">
-          <span className="font-normal leading-normal">Start over</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              disabled={!canStartOver}
+              variant="destructive"
+              onClick={onStartOver}
+              className="dark:bg-primary h-[35px] px-[10px] dark:text-white">
+              <span className="font-normal leading-normal">Start over</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" align="center">
+            Deletes all the shapes
+          </TooltipContent>
+        </Tooltip>
 
         {IS_DEV && (
           <div className="text-muted-foreground text-sm">

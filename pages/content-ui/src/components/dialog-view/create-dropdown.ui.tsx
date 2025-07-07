@@ -5,17 +5,19 @@ import {
   cn,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Icon,
 } from '@extension/ui';
 
 const createActions = [
   { icon: 'LinkIcon', name: 'Create a link', key: 'link', isDefault: true },
-  { icon: 'BlocksIcon', name: 'Create in Linear', key: 'linear' },
-  { icon: 'BlocksIcon', name: 'Create in Jira', key: 'jira' },
-  { icon: 'BlocksIcon', name: 'Create in Azure', key: 'azure' },
+  // { icon: 'BlocksIcon', name: 'Create in Linear', key: 'linear' },
+  // { icon: 'BlocksIcon', name: 'Create in Jira', key: 'jira' },
+  // { icon: 'BlocksIcon', name: 'Create in Azure', key: 'azure' },
 ];
 
 export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; onChange: (key: string) => void }) => {
@@ -60,6 +62,12 @@ export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; on
               <span>{action.name}</span>
             </DropdownMenuRadioItem>
           ))}
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuLabel className="text-muted-foreground text-center text-[10px] font-normal">
+            More integration coming soon...
+          </DropdownMenuLabel>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,15 +1,17 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
-import type { Workspace } from '@extension/shared';
+import type { Screenshot, Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { triggerCanvasAction, useAppDispatch, useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
 import { Dialog, DialogContent, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
+import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
+import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
 import { getCanvasElement } from './utils/annotation';
 
@@ -17,15 +19,23 @@ const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
 const LG_BREAKPOINT = 1024;
 
-const Content = ({
-  screenshots,
-  onClose,
-  onMinimize,
-}: {
-  screenshots: { name: string; image: string }[];
+interface ContentProps {
+  activeScreenshotId: string;
+  screenshots: Screenshot[];
   onClose: () => void;
   onMinimize: () => void;
-}) => {
+  onDeleteScreenshot: (id: string) => void;
+  onSelectScreenshot(id: string): void;
+}
+
+const Content = ({
+  screenshots = [],
+  activeScreenshotId,
+  onClose,
+  onMinimize,
+  onDeleteScreenshot,
+  onSelectScreenshot,
+}: ContentProps) => {
   const dispatch = useAppDispatch();
   const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
@@ -36,9 +46,15 @@ const Content = ({
   const [title, setTitle] = useState('Untitled report');
   const [description, setDescription] = useState('');
   const [workspaceId, setWorkspaceId] = useState('');
+  const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
 
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
+
+  const activeScreenshot = useMemo(
+    () => screenshots.find(s => s.id === activeScreenshotId),
+    [activeScreenshotId, screenshots],
+  );
 
   const workspace = useMemo(
     () => user?.organization?.workspaces?.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
@@ -55,6 +71,8 @@ const Content = ({
 
   const handleToggleRightSection = () => setShowRightSection(value => !value);
 
+  const handleOnElement = (element: ActiveElement) => setActiveElement(element);
+
   const getRecords = () => {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({ type: 'GET_RECORDS' }, response => {
@@ -70,10 +88,10 @@ const Content = ({
     });
   };
 
-  const handleOnCreate = async (paylaod: any) => {
-    console.log('paylaod', paylaod);
-
-    return;
+  const handleOnCreate = async (type: any) => {
+    console.log('paylaod', type);
+    if (type !== 'link') return;
+    return; // remove this
 
     setIsCreateLoading(true);
 
@@ -174,6 +192,7 @@ const Content = ({
           backgroundSize: 10,
         }}>
         <Header
+          id={activeScreenshotId || ''}
           onClose={onClose}
           onMinimize={onMinimize}
           onToggleFullScreen={() => setFullScreen(flag => !flag)}
@@ -209,18 +228,20 @@ const Content = ({
                   : 'grid-cols-[1px_minmax(0,1fr)_1px]',
           )}>
           <LeftSidebar
+            activeScreenshotId={activeScreenshotId!}
+            canvasHeight={canvasHeight}
             open={isLeftSidebarOpen}
             onOpenChange={setLeftSidebarOpen}
-            items={screenshots}
-            onDeleteImage={id => {
-              console.log('onDelete', id);
-            }}
-            onSelectImage={id => {
-              console.log('onSelect', id);
-            }}
+            screenshots={screenshots}
+            onDelete={onDeleteScreenshot}
+            onSelect={onSelectScreenshot}
           />
 
-          <CanvasContainerView attachments={screenshots} />
+          <CanvasContainerView
+            key={activeScreenshotId ?? 'empty'}
+            screenshot={activeScreenshot!}
+            onElement={handleOnElement}
+          />
 
           <RightSidebar
             defaultOpen
@@ -240,10 +261,14 @@ const Content = ({
         </main>
 
         <Footer
-          tool="Move"
+          tool={activeElement?.name}
           zoom={100}
-          file="Credentials.pdf"
+          file={title}
           onZoomChange={zoom => {
+            /**
+             * @todo
+             * implement zoon feature: min: 100% and max: 100%
+             */
             console.log('zoom', zoom);
             // setZoom()
           }}
@@ -253,7 +278,4 @@ const Content = ({
   );
 };
 
-const arePropsEqual = (prevProps, nextProps) =>
-  JSON.stringify(prevProps.screenshots[0].image) === JSON.stringify(nextProps.screenshots[0].image);
-
-export default memo(Content, arePropsEqual);
+export default Content;

@@ -28,12 +28,6 @@ import {
 
 import { GenerateDropdown } from '@src/components/dialog-view';
 
-export interface Screenshot {
-  id: string;
-  src: string;
-  alt?: string;
-}
-
 interface RightSidebarProps {
   open?: boolean;
   className?: string;
@@ -41,8 +35,6 @@ interface RightSidebarProps {
   defaultOpen?: boolean;
   onCreate: (payload: any) => void;
   onOpenChange: (open: boolean) => void;
-  onDeleteImage: (id: string) => void;
-  onSelectImage: (id: string) => void;
 }
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -51,8 +43,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   onCreate,
   onOpenChange,
   canvasHeight = 500,
-  onDeleteImage,
-  onSelectImage,
   className,
 }) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -96,7 +86,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           className,
         )}>
         <div className="flex w-full items-center justify-between">
-          <p className="text-sm font-medium">Details</p>
+          <p className="text-primary text-sm font-medium">Details</p>
 
           <Icon
             size={16}
@@ -146,9 +136,10 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                       {Object.keys(SlicePriority).map(key => (
                         <SelectItem key={key} value={key}>
                           <div
-                            className={cn('hover:text-primary flex w-full items-center gap-2', {
-                              'text-muted-foreground': (field.value || SlicePriority.LOW) !== key,
-                            })}>
+                            className={cn(
+                              'hover:text-primary flex w-full items-center gap-2',
+                              (field.value || SlicePriority.LOW) !== key ? 'text-muted-foreground' : 'text-primary',
+                            )}>
                             <div
                               className={cn('size-2.5 rounded-full', {
                                 'bg-[#D32F2F]': key === SlicePriority.HIGHEST,
@@ -168,7 +159,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 </FormItem>
               )}
             />
-
+            {canvasHeight}
             {canvasHeight < 520 ? (
               <FormField
                 control={control}

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
 import {
   annotationHistoryStorage,
@@ -18,7 +19,8 @@ export default function App() {
   const captureState = useStorage(captureStateStorage);
   const theme = useStorage(themeStorage);
   const [minimized, setMinimized] = useState(true);
-  const [screenshots, setScreenshots] = useState<{ name: string; image: string }[]>();
+  const [screenshots, setScreenshots] = useState<Screenshot[]>();
+  const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
 
   useEffect(() => {
     window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
@@ -47,14 +49,48 @@ export default function App() {
     setScreenshots([]);
     setMinimized(false);
 
-    await captureStateStorage.setCaptureState('idle');
-    await annotationsStorage.setAnnotations([]);
-    await annotationsRedoStorage.setAnnotations([]);
-    await annotationHistoryStorage.setHistory([]);
+    await Promise.all([
+      captureStateStorage.setCaptureState('idle'),
+      annotationsStorage.clearAll(),
+      annotationsRedoStorage.clearAll(),
+      annotationHistoryStorage.clearAll(),
+    ]);
   }, []);
 
+  const handleOnSelectScreenshot = useCallback(
+    (id: string) => {
+      if (id !== activeScreenshotId) setActiveScreenshotId(id);
+    },
+    [activeScreenshotId],
+  );
+
+  const handleOnDeleteScreenshot = useCallback(
+    async (id: string) => {
+      setScreenshots(prev => {
+        const next = prev?.filter(s => s.id !== id);
+
+        if (activeScreenshotId === id) setActiveScreenshotId(next?.[0]?.id ?? null);
+
+        return next;
+      });
+
+      await Promise.all([
+        annotationsStorage.deleteAnnotations(id),
+        annotationsRedoStorage.deleteAnnotations(id),
+        annotationHistoryStorage.deleteAnnotations(id),
+      ]);
+    },
+    [activeScreenshotId],
+  );
+
   const handleOnMinimize = () => setMinimized(true);
-  const handleOnEdit = () => setMinimized(false);
+  const handleOnEdit = () => {
+    if (!activeScreenshotId) {
+      setActiveScreenshotId(screenshots?.[0]?.id);
+    }
+
+    setMinimized(false);
+  };
 
   if (!screenshots?.length) return null;
 
@@ -72,7 +108,14 @@ export default function App() {
               onDiscard={handleOnClose}
             />
           ) : (
-            <Content screenshots={screenshots} onClose={handleOnClose} onMinimize={handleOnMinimize} />
+            <Content
+              activeScreenshotId={activeScreenshotId || ''}
+              screenshots={screenshots}
+              onClose={handleOnClose}
+              onMinimize={handleOnMinimize}
+              onDeleteScreenshot={handleOnDeleteScreenshot}
+              onSelectScreenshot={handleOnSelectScreenshot}
+            />
           )}
 
           <ToasterProvider theme={theme} />
