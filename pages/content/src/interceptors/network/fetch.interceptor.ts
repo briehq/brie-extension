@@ -7,28 +7,14 @@ interface FetchOptions extends RequestInit {
   body?: BodyInit | null;
 }
 
-interface ParsedResponse {
-  recordType: string;
-  source: string;
-  method: string;
-  url: string;
-  queryParams: Record<string, string | string[]>;
-  requestHeaders: HeadersInit;
-  requestBody: BodyInit | null;
-  responseHeaders: Record<string, string>;
-  responseBody: string | object;
-  requestStart: string;
-  requestEnd: string;
-  status: number;
-}
-
 // Fetch Interceptor
-export const interceptFetch = (): void => {
+const interceptFetch = (): void => {
   const originalFetch = window.fetch;
 
   window.fetch = async function (...args: [RequestInfo | URL, FetchOptions?]): Promise<Response> {
     const [url, options] = args;
     const startTime = new Date().toISOString();
+    const startTimestamp = performance.now();
 
     try {
       const method = options?.method || 'GET';
@@ -36,9 +22,14 @@ export const interceptFetch = (): void => {
       const queryParams = extractQueryParams(url.toString());
       const requestBody = options?.body || null;
 
+      // Calculate request size
+      const requestSize = calculateRequestSize(requestBody, requestHeaders);
+
       // Initiate the fetch request
       const response = await originalFetch.apply(this, args);
       const endTime = new Date().toISOString();
+      const endTimestamp = performance.now();
+      const duration = endTimestamp - startTimestamp;
 
       // Check if the response is large or a binary stream before cloning
       const contentType = response.headers.get('Content-Type');
@@ -48,6 +39,9 @@ export const interceptFetch = (): void => {
         contentType?.includes('audio');
       const isLargeResponse =
         response.headers.get('Content-Length') && parseInt(response.headers.get('Content-Length')!, 10) > 1000000; // Arbitrary size limit (1MB)
+
+      // Calculate response size
+      const responseSize = calculateResponseSize(response);
 
       // Clone the response for body parsing (only for non-binary and small responses)
       const responseClone = response.clone();
@@ -94,6 +88,15 @@ export const interceptFetch = (): void => {
             requestStart: startTime,
             requestEnd: endTime,
             status: responseClone.status,
+            // Enhanced waterfall data
+            duration,
+            requestSize,
+            responseSize,
+            timing: {
+              requestStart: startTimestamp,
+              requestEnd: endTimestamp,
+              duration,
+            },
           };
 
           safePostMessage('ADD_RECORD', {
@@ -132,3 +135,67 @@ export const interceptFetch = (): void => {
     }
   };
 };
+
+// Helper function to calculate request size
+const calculateRequestSize = (body: BodyInit | null, headers: HeadersInit): number => {
+  let size = 0;
+
+  if (body) {
+    if (typeof body === 'string') {
+      size = new Blob([body]).size;
+    } else if (body instanceof FormData) {
+      // Approximate size for FormData (not exact due to boundaries)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entries = Array.from((body as any).entries()) as [string, string | File][];
+        size = entries.reduce((total: number, [key, value]) => {
+          const keySize = new Blob([key]).size;
+          const valueSize = typeof value === 'string' ? new Blob([value]).size : (value as File)?.size || 0;
+          return total + keySize + valueSize;
+        }, 0);
+      } catch {
+        // Fallback if FormData.entries() is not available
+        size = 0;
+      }
+    } else if (body instanceof Blob) {
+      size = body.size;
+    } else if (body instanceof ArrayBuffer) {
+      size = body.byteLength;
+    } else if (body instanceof URLSearchParams) {
+      size = new Blob([body.toString()]).size;
+    }
+  }
+
+  // Add approximate header size
+  if (headers) {
+    try {
+      const headersObj =
+        headers instanceof Headers
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            Object.fromEntries((headers as any).entries())
+          : (headers as Record<string, string>);
+      size += Object.entries(headersObj).reduce((total, [key, value]) => {
+        return total + new Blob([`${key}: ${value}\r\n`]).size;
+      }, 0);
+    } catch {
+      // Fallback if headers processing fails
+      console.warn('Failed to calculate header size');
+    }
+  }
+
+  return size;
+};
+
+// Helper function to calculate response size
+const calculateResponseSize = (response: Response): number => {
+  const contentLength = response.headers.get('Content-Length');
+  if (contentLength) {
+    return parseInt(contentLength, 10);
+  }
+
+  // If no Content-Length header, we can't determine size without consuming the response
+  // Return 0 and let the waterfall view handle unknown sizes
+  return 0;
+};
+
+export { interceptFetch };

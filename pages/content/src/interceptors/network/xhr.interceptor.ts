@@ -6,6 +6,7 @@ interface RequestDetails {
   url: string;
   requestStart: string;
   requestBody: Document | XMLHttpRequestBodyInit | null;
+  requestStartTimestamp: number;
 }
 
 // Extend the XMLHttpRequest type to include custom properties
@@ -14,7 +15,7 @@ interface ExtendedXMLHttpRequest extends XMLHttpRequest {
 }
 
 // XMLHttpRequest Interceptor
-export const interceptXHR = (): void => {
+const interceptXHR = (): void => {
   const originalOpen = XMLHttpRequest.prototype.open;
   const originalSend = XMLHttpRequest.prototype.send;
 
@@ -23,6 +24,7 @@ export const interceptXHR = (): void => {
     this: ExtendedXMLHttpRequest,
     method: string,
     url: string | URL,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...rest: any[]
   ): void {
     this._requestDetails = {
@@ -30,8 +32,10 @@ export const interceptXHR = (): void => {
       url: url.toString(),
       requestStart: new Date().toISOString(),
       requestBody: null,
+      requestStartTimestamp: performance.now(),
     };
-    originalOpen.apply(this, [method, url, ...rest]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (originalOpen as any).apply(this, [method, url, ...rest]);
   };
 
   // Intercept XMLHttpRequest send method
@@ -45,10 +49,13 @@ export const interceptXHR = (): void => {
 
     const originalOnReadyStateChange = this.onreadystatechange;
 
-    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, ...args: any[]): void {
+    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, event: Event): void {
       if (this.readyState === 4 && this._requestDetails) {
         // Request completed
         const endTime = new Date().toISOString();
+        const endTimestamp = performance.now();
+        const duration = endTimestamp - this._requestDetails.requestStartTimestamp;
+
         const rawHeaders = this.getAllResponseHeaders();
         const responseHeaders = rawHeaders
           .split('\r\n')
@@ -56,6 +63,12 @@ export const interceptXHR = (): void => {
           .map(line => line.split(':').map(str => str.trim()));
 
         const { requestBody } = this._requestDetails;
+
+        // Calculate request size
+        const requestSize = calculateXHRRequestSize(requestBody);
+
+        // Calculate response size
+        const responseSize = calculateXHRResponseSize(this);
 
         // Check for large or binary content (skip cloning and parsing for binary data)
         const contentType = this.getResponseHeader('Content-Type');
@@ -91,6 +104,15 @@ export const interceptXHR = (): void => {
               status: this.status,
               responseHeaders,
               responseBody,
+              // Enhanced waterfall data
+              duration,
+              requestSize,
+              responseSize,
+              timing: {
+                requestStart: this._requestDetails.requestStartTimestamp,
+                requestEnd: endTimestamp,
+                duration,
+              },
             };
 
             safePostMessage('ADD_RECORD', {
@@ -128,10 +150,64 @@ export const interceptXHR = (): void => {
 
       // Call the original onreadystatechange handler if defined
       if (originalOnReadyStateChange) {
-        originalOnReadyStateChange.apply(this, args);
+        originalOnReadyStateChange.call(this, event);
       }
     };
 
     originalSend.apply(this, [body]);
   };
 };
+
+// Helper function to calculate XHR request size
+const calculateXHRRequestSize = (body: Document | XMLHttpRequestBodyInit | null): number => {
+  let size = 0;
+
+  if (body) {
+    if (typeof body === 'string') {
+      size = new Blob([body]).size;
+    } else if (body instanceof FormData) {
+      // Approximate size for FormData (not exact due to boundaries)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entries = Array.from((body as any).entries()) as [string, string | File][];
+        size = entries.reduce((total: number, [key, value]) => {
+          const keySize = new Blob([key]).size;
+          const valueSize = typeof value === 'string' ? new Blob([value]).size : (value as File)?.size || 0;
+          return total + keySize + valueSize;
+        }, 0);
+      } catch {
+        // Fallback if FormData.entries() is not available
+        size = 0;
+      }
+    } else if (body instanceof Blob) {
+      size = body.size;
+    } else if (body instanceof ArrayBuffer) {
+      size = body.byteLength;
+    } else if (body instanceof URLSearchParams) {
+      size = new Blob([body.toString()]).size;
+    } else if (body instanceof Document) {
+      // For XML documents, serialize to get approximate size
+      size = new Blob([new XMLSerializer().serializeToString(body)]).size;
+    }
+  }
+
+  return size;
+};
+
+// Helper function to calculate XHR response size
+const calculateXHRResponseSize = (xhr: XMLHttpRequest): number => {
+  const contentLength = xhr.getResponseHeader('Content-Length');
+  if (contentLength) {
+    return parseInt(contentLength, 10);
+  }
+
+  // If no Content-Length header, try to estimate from response text
+  if (xhr.responseText) {
+    return new Blob([xhr.responseText]).size;
+  }
+
+  // Return 0 for unknown sizes
+  return 0;
+};
+
+export { interceptXHR };
