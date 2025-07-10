@@ -22,18 +22,15 @@ export const useElementSize = <T extends HTMLElement = HTMLDivElement>(): {
   const observerRef = useRef<ResizeObserver | null>(null);
 
   const ref = useCallback((node: T | null) => {
-    // Disconnect the old observer
     observerRef.current?.disconnect();
     if (!node) return;
 
-    // Update immediately
     const { width, height } = node.getBoundingClientRect();
-    setSize({ width, height });
+    setSize({ width: Math.round(width), height: Math.round(height) });
 
-    // Observe future resizes
     observerRef.current = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      setSize({ width, height });
+      setSize({ width: Math.round(width), height: Math.round(height) });
     });
     observerRef.current.observe(node);
   }, []);

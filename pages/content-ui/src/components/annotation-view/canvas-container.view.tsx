@@ -10,7 +10,7 @@ import { Button, Icon, toast } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
 import { useFitCanvasToParent } from '@src/hooks';
-import type { ActiveElement, Attributes } from '@src/models';
+import type { ActiveElement, Attributes, ShapeSnapshot } from '@src/models';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
 import { Toolbar } from './ui';
@@ -42,7 +42,6 @@ interface CanvasContainerProps {
 const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
-  console.log('screenshot', screenshot);
 
   const gridCellRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticChange = useRef(true);
@@ -149,14 +148,18 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  const restoreObjects = (canvas: any, snapshot?: { objects: any[] }) => {
+  const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
     if (snapshot?.objects) canvas.loadFromJSON({ objects: snapshot.objects });
 
-    setCanvasBackground({
+    const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+
+    if (!meta?.width) return;
+
+    await setCanvasBackground({
       file: screenshot.src,
-      canvas,
-      parentHeight: canvas.getHeight(),
-      parentWidth: canvas.getWidth(),
+      canvas: fabricRef.current!,
+      parentWidth: meta?.width,
+      parentHeight: meta?.height,
     });
   };
 
@@ -166,10 +169,10 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     if (history?.prevState && fabricRef.current) {
       isProgrammaticChange.current = history.fromHistory;
 
-      restoreObjects(fabricRef.current, history.prevState);
+      await restoreObjects(fabricRef.current, history.prevState);
 
       const canvasObjects = fabricRef.current.toJSON();
-      await annotationsStorage.setAnnotations(screenshot.id!, canvasObjects.objects ?? []);
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
 
@@ -179,10 +182,10 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     if (history?.restoredState && fabricRef.current) {
       isProgrammaticChange.current = history.fromHistory;
 
-      restoreObjects(fabricRef.current, history.restoredState);
+      await restoreObjects(fabricRef.current, history.restoredState);
 
       const canvasObjects = fabricRef.current.toJSON();
-      await annotationsStorage.setAnnotations(screenshot.id!, canvasObjects.objects ?? []);
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
 
@@ -201,15 +204,19 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
        * canvasObjects is a Map that contains all the shapes in the key-value.
        * Like a store. We can create multiple stores in local store.
        */
-      const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
-      if (!annotations) return;
+      const { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+      if (!objects) return;
 
-      const updatedAnnotations = annotations.filter((a: any) => a.objectId !== shapeId);
-      await annotationsStorage.setAnnotations(screenshot.id!, updatedAnnotations);
+      const updatedAnnotations = objects.filter((a: any) => a.objectId !== shapeId);
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: updatedAnnotations });
 
       if (fabricRef.current) {
         const canvasObjects = fabricRef.current.toJSON();
-        await saveHistory(screenshot.id!, canvasObjects, { clearRedo: isProgrammaticChange.current });
+        await saveHistory(
+          screenshot.id!,
+          { objects: canvasObjects.objects },
+          { clearRedo: isProgrammaticChange.current },
+        );
       }
     },
     [screenshot?.id],
@@ -247,25 +254,43 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    */
   const syncShapeInStorage = useCallback(
     async (object: any) => {
-      if (!object) return;
+      if (!object || !fabricRef.current) return;
 
       const { objectId } = object;
       const shapeData = object.toJSON();
       const shape = { ...shapeData, objectId };
 
-      let annotations = (await annotationsStorage.getAnnotations(screenshot.id!)) || [];
-      const foundIndex = annotations.findIndex((x: any) => x.objectId === shape.objectId);
+      // eslint-disable-next-line prefer-const
+      let { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
+        objects: [],
+        meta: null,
+      };
+
+      const foundIndex = objects.findIndex((x: any) => x.objectId === shape.objectId);
       if (foundIndex !== -1) {
-        annotations[foundIndex] = shape;
+        objects[foundIndex] = shape;
       } else {
-        annotations = [...annotations, shape];
+        objects = [...objects, shape];
       }
 
-      await annotationsStorage.setAnnotations(screenshot.id!, annotations);
+      const scale = fabricRef.current.viewportTransform?.[0] ?? 1;
+      const metadata = meta ?? {
+        width: Math.round(fabricRef.current.getWidth() / scale),
+        height: Math.round(fabricRef.current.getHeight() / scale),
+        scale,
+      };
+
+      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [], meta: metadata };
+
+      await annotationsStorage.setAnnotations(screenshot.id!, shapeSnapshot);
 
       if (fabricRef.current) {
         const canvasObjects = fabricRef.current.toJSON();
-        await saveHistory(screenshot.id!, canvasObjects, { clearRedo: isProgrammaticChange.current });
+        await saveHistory(
+          screenshot.id!,
+          { objects: canvasObjects.objects ?? [], meta },
+          { clearRedo: isProgrammaticChange.current },
+        );
       }
     },
     [screenshot?.id],
@@ -367,9 +392,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   }, [tick]);
 
   useEffect(() => {
-    if (!screenshot) {
-      // fabricRef.current?.clear();
-
+    if (!screenshot?.id) {
       toast.error('No screenshots available. Please try capturing again!');
       return;
     }
@@ -381,12 +404,19 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     });
 
     const getSavedAnnotations = async () => {
-      const canvasObjects = await annotationsStorage.getAnnotations(screenshot.id!);
+      const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
 
-      if (canvasObjects?.length) {
-        renderCanvas({ fabricRef, canvasObjects, activeObjectRef });
+      if (annotations?.objects?.length) {
+        await restoreObjects(canvas, annotations);
+      } else {
+        const meta = await setCanvasBackground({
+          file: screenshot.src,
+          canvas,
+          parentWidth: canvas.getWidth(),
+          parentHeight: canvas.getHeight(),
+        });
 
-        restoreObjects(fabricRef.current);
+        await annotationsStorage.setAnnotations(screenshot.id!, { objects: [], meta });
       }
     };
 

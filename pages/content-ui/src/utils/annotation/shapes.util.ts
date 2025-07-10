@@ -1,8 +1,8 @@
 import type { Canvas } from 'fabric';
-import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText } from 'fabric'; // check for Image
+import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
+import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
 
 export const createRectangle = (pointer: PointerEvent) => {
   const rect = new Rect({
@@ -236,6 +236,15 @@ export const handleImageUpload = ({ file, canvas, shapeRef, syncShapeInStorage }
   reader.readAsDataURL(file);
 };
 
+/**
+ * Fit an image inside a parent frame *without* modifying object coordinates.
+ *
+ * @param file         URL or data:URL
+ * @param canvas       Fabric canvas (already created)
+ * @param parentWidth  available width  (e.g. grid column)
+ * @param parentHeight available height (e.g. grid row)
+ * @returns            { w, h, scale } meta to store with annotations
+ */
 export const setCanvasBackground = async ({
   file,
   canvas,
@@ -246,38 +255,32 @@ export const setCanvasBackground = async ({
   canvas: Canvas;
   parentWidth: number;
   parentHeight: number;
-}) => {
+}): Promise<BackgroundFitMeta> => {
   const img = await FabricImage.fromURL(file, { crossOrigin: 'anonymous' });
+  const naturalWidth = img.width ?? 1;
+  const naturalHeight = img.height ?? 1;
 
-  const iw = img.width || 1;
-  const ih = img.height || 1;
+  const scale = Math.min(parentWidth / naturalWidth, parentHeight / naturalHeight, 1);
+  const fitWidth = Math.round(naturalWidth * scale);
+  const fitHeight = Math.round(naturalHeight * scale);
 
-  const parentRatio = parentWidth / parentHeight;
-  const imgRatio = iw / ih;
+  canvas.setDimensions({ width: fitWidth, height: fitHeight });
 
-  let newW: number;
-  let newH: number;
-
-  if (imgRatio > parentRatio) {
-    newW = parentWidth;
-    newH = parentWidth / imgRatio;
-  } else {
-    newH = parentHeight;
-    newW = parentHeight * imgRatio;
-  }
-
-  canvas.setWidth(newW);
-  canvas.setHeight(newH);
+  canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
 
   img.set({
     originX: 'left',
     originY: 'top',
-    scaleX: newW / iw,
-    scaleY: newH / ih,
+    left: 0,
+    top: 0,
+    scaleX: 1,
+    scaleY: 1,
   });
 
   canvas.backgroundImage = img;
-  canvas.renderAll();
+  await canvas.requestRenderAll();
+
+  return { width: naturalWidth, height: naturalHeight, scale };
 };
 
 export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string) => {

@@ -32,3 +32,5 @@ export {
   bringElement,
 } from './shapes.util';
 export { saveHistory, undoAnnotation, redoAnnotation } from './history.util';
+export { mergeScreenshot } from './merge-screenshot.util';
+export { createAnnotationsJsonFile } from './create-annotations-file.util';

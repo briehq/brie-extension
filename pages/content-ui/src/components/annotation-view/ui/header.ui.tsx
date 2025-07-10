@@ -64,9 +64,9 @@ export const Header: React.FC<EditorHeaderProps> = ({
   const redoAnnotations = useStorage(annotationsRedoStorage);
   const annotations = useStorage(annotationsStorage);
 
-  const canUndo = historyAnnotations[id]?.length;
-  const canRedo = redoAnnotations[id]?.length;
-  const canStartOver = annotations[id]?.length || canRedo || canUndo;
+  const canUndo = historyAnnotations[id]?.objects?.length;
+  const canRedo = redoAnnotations[id]?.objects?.length;
+  const canStartOver = annotations[id]?.objects?.length || canRedo || canUndo;
 
   return (
     <header

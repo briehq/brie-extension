@@ -29,6 +29,7 @@ export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; on
   return (
     <DropdownMenu>
       <Button
+        form="details-form"
         disabled={isLoading}
         onClick={() => onChange(activeActionKey)}
         className="bg-gradient-overlay flex h-[35px] min-w-[160px] justify-between gap-x-2 p-0">

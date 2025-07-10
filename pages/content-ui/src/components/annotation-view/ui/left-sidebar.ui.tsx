@@ -1,5 +1,5 @@
 import type { WheelEvent } from 'react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
@@ -102,7 +102,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             {screenshots.map(screenshot => (
               <HoverImage
                 key={screenshot.id}
-                isEdited={!!annotations[screenshot.id!]?.length}
+                isEdited={!!annotations[screenshot.id!]?.objects?.length}
                 isActive={screenshot.id === activeScreenshotId}
                 src={screenshot.src}
                 alt={screenshot.alt ?? `Screenshot ${screenshot.name}`}

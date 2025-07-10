@@ -8,6 +8,22 @@ export enum CursorMode {
   Reaction,
 }
 
+export interface SaveOptions {
+  clearRedo?: boolean;
+  max?: number;
+}
+
+export interface BackgroundFitMeta {
+  width: number;
+  height: number;
+  scale: number;
+}
+
+export interface ShapeSnapshot {
+  objects: FabricObject[];
+  meta: BackgroundFitMeta;
+}
+
 export type CursorState =
   | {
       mode: CursorMode.Hidden;

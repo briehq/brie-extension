@@ -27,6 +27,7 @@ import {
 } from '@extension/ui';
 
 import { GenerateDropdown } from '@src/components/dialog-view';
+import { useElementSize } from '@src/hooks';
 
 interface RightSidebarProps {
   open?: boolean;
@@ -36,6 +37,8 @@ interface RightSidebarProps {
   onCreate: (payload: any) => void;
   onOpenChange: (open: boolean) => void;
 }
+
+const DETAILS_VIEW_PADDING = 32;
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({
   open,
@@ -50,6 +53,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   const isOpen = isControlled ? open! : internalOpen;
   const [labels, setLabels] = useState<TagType[]>([]);
 
+  const { ref: detailsViewRef, height: detailsViewHeight } = useElementSize<HTMLDivElement>();
   const formMethods = useForm({ mode: 'onChange' });
   const { setValue, handleSubmit, control } = formMethods;
 
@@ -80,6 +84,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       )}
 
       <aside
+        ref={detailsViewRef}
         className={cn(
           'relative flex h-fit flex-col space-y-2.5 overflow-hidden rounded-lg border border-[#EDECE8] bg-white p-4',
           isOpen ? 'opacity-100' : `pointer-events-none size-0 opacity-0`,
@@ -98,7 +103,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
         </div>
 
         <Form {...formMethods}>
-          <form onSubmit={handleSubmit(onCreate)} className="w-full space-y-2">
+          <form onSubmit={handleSubmit(onCreate)} className="w-full space-y-2" id="details-form">
             <FormField
               control={control}
               rules={{
@@ -123,6 +128,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
             <FormField
               control={control}
               name="priority"
+              defaultValue={SlicePriority.LOW}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-muted-foreground text-xs">Priority</FormLabel>
@@ -159,8 +165,8 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 </FormItem>
               )}
             />
-            {canvasHeight}
-            {canvasHeight < 520 ? (
+
+            {canvasHeight > detailsViewHeight + DETAILS_VIEW_PADDING ? (
               <FormField
                 control={control}
                 name="labels"
@@ -170,7 +176,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                     <FormControl>
                       <TagInput
                         {...field}
-                        maxTags={canvasHeight > 600 ? 6 : 2}
+                        maxTags={detailsViewHeight > 550 ? 6 : 2}
                         showCount={false}
                         truncate={15}
                         textCase="lowercase"

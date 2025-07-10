@@ -4,8 +4,9 @@ import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Screenshot, Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
+import { annotationsStorage } from '@extension/storage';
 import { triggerCanvasAction, useAppDispatch, useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Dialog, DialogContent, cn, toast } from '@extension/ui';
+import { Dialog, DialogContent, DialogTitle, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
@@ -13,7 +14,7 @@ import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
-import { getCanvasElement } from './utils/annotation';
+import { getCanvasElement, mergeScreenshot } from './utils/annotation';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
@@ -44,9 +45,9 @@ const Content = ({
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
   const [title, setTitle] = useState('Untitled report');
-  const [description, setDescription] = useState('');
   const [workspaceId, setWorkspaceId] = useState('');
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
+  const [createType, setCreateType] = useState();
 
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
@@ -72,6 +73,7 @@ const Content = ({
   const handleToggleRightSection = () => setShowRightSection(value => !value);
 
   const handleOnElement = (element: ActiveElement) => setActiveElement(element);
+  const handleOnCreateType = (type: string) => setCreateType(type);
 
   const getRecords = () => {
     return new Promise((resolve, reject) => {
@@ -79,19 +81,22 @@ const Content = ({
         if (chrome.runtime.lastError) {
           return reject(new Error(chrome.runtime.lastError.message));
         }
-        if (response?.records?.length) {
-          resolve(response.records);
-        } else {
-          reject(new Error('No records captured.'));
-        }
+
+        // if (response?.records?.length) {
+        resolve(response.records);
+        // }
+        // else {
+        //   reject(new Error('No records captured.'));
+        // }
       });
     });
   };
 
-  const handleOnCreate = async (type: any) => {
-    console.log('paylaod', type);
-    if (type !== 'link') return;
-    return; // remove this
+  const handleOnCreate = async (payload: any) => {
+    console.log('createType', createType);
+    console.log('payload', payload);
+    if (createType !== 'link') return;
+    // return; // remove this
 
     setIsCreateLoading(true);
 
@@ -117,28 +122,54 @@ const Content = ({
           formData.append('title', title);
         }
 
-        if (description) {
-          formData.append('description', description);
-        }
-
-        const canvas = getCanvasElement();
-
-        if (!canvas) {
-          toast.error(t('failedToCreateRecords'));
-          return;
-        }
-
-        const secondaryScreenshot = screenshots.find(s => s.name === 'secondary');
-        const primaryScreenshot = { image: canvas?.toDataURL('image/jpeg'), name: 'primary' };
-        const screenshotFiles = [primaryScreenshot, secondaryScreenshot].map(({ name, image }) =>
-          base64ToFile(image, name),
-        );
-
-        screenshotFiles.forEach(file => {
-          formData.append(file.name, file);
+        Object.keys(payload).forEach((key: any) => {
+          if ((payload as any)[key]) {
+            if (key === 'attachments') {
+              if ((payload as any)[key].length >= 1) {
+                for (let i = 0; i < (payload as any)[key].length; i++) {
+                  if (!(payload as any)[key][i]['id']) {
+                    formData.append(key, (payload as any)[key][i]);
+                  }
+                }
+              }
+            } else if (key === 'labels') {
+              formData.append(key, JSON.stringify((payload as any)[key]));
+            } else {
+              formData.append(key, (payload as any)[key]);
+            }
+          }
         });
 
+        /**
+         * @todo
+         * use annotations store to sent them to BE and allow user to edit annotations
+         * packs each screenshot annotation into one file annotations.json
+         * add to a File object and drop into a FormData
+         *
+         * see: createAnnotationsJsonFile
+         */
+        for (const screenshot of screenshots) {
+          const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+
+          let file = null;
+
+          if (!meta?.height || !objects?.length) {
+            file = await base64ToFile(screenshot.src, `${screenshot.name}.png`);
+          } else {
+            file = await mergeScreenshot({ screenshot, objects, parentHeight: meta.height, parentWidth: meta.width });
+          }
+
+          formData.append('screenshots', file);
+          const previewUrl = URL.createObjectURL(file);
+
+          const img = new Image();
+          img.src = previewUrl;
+          img.style.cssText = 'position:fixed;bottom:1rem;left:1rem;max-width:30%;border:2px solid lime;';
+          document.body.appendChild(img);
+        }
+
         const { data } = await createSlice(formData);
+
         if (data?.externalId) {
           toast(t('openReport'));
 
@@ -167,7 +198,7 @@ const Content = ({
   const isDialogOpen = !!screenshots.length;
   const isLg = canvasWidth >= LG_BREAKPOINT;
   const isMd = canvasWidth >= MD_BREAKPOINT;
-  const hasShots = screenshots.length > 0;
+  const hasShots = screenshots.length > 1;
 
   const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
   const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
@@ -181,6 +212,7 @@ const Content = ({
   return (
     <Dialog open={isDialogOpen} onOpenChange={onClose} modal>
       <DialogContent
+        aria-describedby="Annotation Modal"
         onEscapeKeyDown={e => e.preventDefault()}
         onPointerDownOutside={e => e.preventDefault()}
         className={cn('grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 bg-[#FAF9F7] bg-repeat p-0', {
@@ -211,7 +243,7 @@ const Content = ({
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
           onWorkspaceChange={setWorkspaceId}
-          onCreate={handleOnCreate}
+          onCreate={handleOnCreateType}
           isCreateLoading={isCreateLoading}
         />
 
@@ -248,15 +280,7 @@ const Content = ({
             canvasHeight={canvasHeight}
             open={isRightSidebarOpen}
             onOpenChange={setRightSidebarOpen}
-            onDeleteImage={id => {
-              console.log('onDelete', id);
-            }}
-            onSelectImage={id => {
-              console.log('onSelect', id);
-            }}
-            onCreate={id => {
-              console.log('onCreate', id);
-            }}
+            onCreate={handleOnCreate}
           />
         </main>
 
