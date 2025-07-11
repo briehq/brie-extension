@@ -1,6 +1,6 @@
 {
   "name": "@extension/store",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "chrome extension - store",
   "type": "module",
   "private": true,
