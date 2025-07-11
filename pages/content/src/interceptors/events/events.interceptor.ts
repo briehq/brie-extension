@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, isExtensionElement } from '@extension/shared';
 
 import {
   findClickableParent,
@@ -7,7 +7,6 @@ import {
   isClickableElement,
   shouldSkipClick,
   shouldSkipInputTracking,
-  isExtensionElement,
 } from '@src/utils';
 
 import { historyApiInterceptor } from './history.interceptor';
