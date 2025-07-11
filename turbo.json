@@ -3,7 +3,7 @@
   "ui": "tui",
   "globalEnv": ["*", "CLI_*"],
   "globalDependencies": [".env"],
-  "daemon": true,
+  "daemon": false,
   "tasks": {
     "ready": {
       "dependsOn": ["^ready"],
@@ -19,16 +19,16 @@
     "build": {
       "dependsOn": ["ready", "^build"],
       "outputs": ["../../dist/**", "dist/**"],
-      "cache": true
+      "cache": false
     },
     "e2e": {
       "cache": false
     },
     "type-check": {
-      "cache": true
+      "cache": false
     },
     "lint": {
-      "cache": true
+      "cache": false
     },
     "lint:fix": {
       "cache": false
