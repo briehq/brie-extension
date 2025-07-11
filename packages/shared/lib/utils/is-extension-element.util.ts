@@ -1,5 +1,1 @@
-export const isExtensionElement = (element: HTMLElement): boolean => {
-  if (!element) return false;
-
-  return element.closest('#brie-root') !== null;
-};
+export const isExtensionElement = (element: HTMLElement): boolean => !!element?.closest?.('#brie-root');

@@ -6,6 +6,3 @@ export { isClickableElement } from './element-clickable.util';
 export { findClickableParent } from './find-clickable-element.util';
 export { shouldSkipClick } from './should-skip-click.util';
 export { shouldSkipInputTracking } from './should-skip-input-tracking.util';
-
-// Import from shared package
-export { isExtensionElement } from '@extension/shared';
