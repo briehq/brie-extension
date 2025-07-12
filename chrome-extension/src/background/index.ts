@@ -183,22 +183,149 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 });
 
 /**
- * @todo
- * there is an scenario when tabId is -1,
- * but we know the requestId and we can use it to populate the right request data
- *
- * related to all 3 web req states
+ * Enhanced network request tracking with detailed timing information
+ * for waterfall view support
  */
 
-// Listener for onCompleted
+// Store request timing data
+const requestTimingMap = new Map<
+  string,
+  {
+    startTime: number;
+    requestStart?: number;
+    responseStart?: number;
+    requestSize?: number;
+  }
+>();
+
+// Listener for onBeforeRequest - captures initial request data
+chrome.webRequest.onBeforeRequest.addListener(
+  (request: chrome.webRequest.WebRequestBodyDetails) => {
+    const requestKey = `${request.tabId}-${request.requestId}`;
+
+    // Calculate request size
+    let requestSize = 0;
+    if (request.requestBody) {
+      if (request.requestBody.formData) {
+        // Estimate FormData size
+        Object.entries(request.requestBody.formData).forEach(([key, values]) => {
+          requestSize += new Blob([key]).size;
+          values.forEach(value => {
+            requestSize += new Blob([value]).size;
+          });
+        });
+      } else if (request.requestBody.raw) {
+        // Calculate raw data size
+        request.requestBody.raw.forEach(chunk => {
+          requestSize += chunk.bytes ? chunk.bytes.byteLength : 0;
+        });
+      }
+    }
+
+    // Store timing data
+    requestTimingMap.set(requestKey, {
+      startTime: request.timeStamp,
+      requestSize,
+    });
+
+    addOrMergeRecords(request.tabId, {
+      recordType: 'network',
+      source: 'background',
+      requestSize,
+      timing: {
+        startTime: request.timeStamp,
+      },
+      ...structuredClone(request),
+    });
+  },
+  { urls: ['<all_urls>'] },
+  ['requestBody'],
+);
+
+// Listener for onBeforeSendHeaders - captures request headers and timing
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  (request: chrome.webRequest.WebRequestHeadersDetails) => {
+    const requestKey = `${request.tabId}-${request.requestId}`;
+    const timingData = requestTimingMap.get(requestKey);
+
+    if (timingData) {
+      timingData.requestStart = request.timeStamp;
+    }
+
+    addOrMergeRecords(request.tabId, {
+      recordType: 'network',
+      source: 'background',
+      timing: {
+        requestStart: request.timeStamp,
+        ...timingData,
+      },
+      ...structuredClone(request),
+    });
+  },
+  { urls: ['<all_urls>'] },
+  ['requestHeaders'],
+);
+
+// Listener for onResponseStarted - captures response start timing
+chrome.webRequest.onResponseStarted.addListener(
+  (request: chrome.webRequest.WebResponseDetails) => {
+    const requestKey = `${request.tabId}-${request.requestId}`;
+    const timingData = requestTimingMap.get(requestKey);
+
+    if (timingData) {
+      timingData.responseStart = request.timeStamp;
+    }
+
+    addOrMergeRecords(request.tabId, {
+      recordType: 'network',
+      source: 'background',
+      timing: {
+        responseStart: request.timeStamp,
+        ...timingData,
+      },
+      ...structuredClone(request),
+    });
+  },
+  { urls: ['<all_urls>'] },
+  ['responseHeaders'],
+);
+
+// Listener for onCompleted - captures final timing and response data
 chrome.webRequest.onCompleted.addListener(
   (request: chrome.webRequest.WebResponseCacheDetails) => {
+    const requestKey = `${request.tabId}-${request.requestId}`;
+    const timingData = requestTimingMap.get(requestKey);
+
+    let duration = 0;
+    let responseSize = 0;
+
+    if (timingData) {
+      duration = request.timeStamp - timingData.startTime;
+
+      // Try to get response size from headers
+      const responseHeaders = request.responseHeaders || [];
+      const contentLengthHeader = responseHeaders.find(h => h.name.toLowerCase() === 'content-length');
+      if (contentLengthHeader && contentLengthHeader.value) {
+        responseSize = parseInt(contentLengthHeader.value, 10) || 0;
+      }
+    }
+
     const clonedRequest = structuredClone(request);
     addOrMergeRecords(clonedRequest.tabId, {
       recordType: 'network',
       source: 'background',
+      duration,
+      responseSize,
+      timing: {
+        responseEnd: request.timeStamp,
+        duration,
+        ...timingData,
+      },
       ...clonedRequest,
     });
+
+    // Clean up timing data to prevent memory leaks
+    requestTimingMap.delete(requestKey);
 
     if (clonedRequest.statusCode >= 400) {
       addOrMergeRecords(clonedRequest.tabId, {
@@ -220,30 +347,5 @@ chrome.webRequest.onCompleted.addListener(
     }
   },
   { urls: ['<all_urls>'] },
-);
-
-// Listener for onBeforeRequest
-chrome.webRequest.onBeforeRequest.addListener(
-  (request: chrome.webRequest.WebRequestBodyDetails) => {
-    addOrMergeRecords(request.tabId, {
-      recordType: 'network',
-      source: 'background',
-      ...structuredClone(request),
-    });
-  },
-  { urls: ['<all_urls>'] },
-  ['requestBody'],
-);
-
-// Listener for onBeforeSendHeaders
-chrome.webRequest.onBeforeSendHeaders.addListener(
-  (request: chrome.webRequest.WebRequestHeadersDetails) => {
-    addOrMergeRecords(request.tabId, {
-      recordType: 'network',
-      source: 'background',
-      ...structuredClone(request),
-    });
-  },
-  { urls: ['<all_urls>'] },
-  ['requestHeaders'],
+  ['responseHeaders'],
 );

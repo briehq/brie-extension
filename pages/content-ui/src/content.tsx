@@ -1,14 +1,16 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Button, DialogLegacy, Icon, Textarea, Tooltip, TooltipContent, TooltipTrigger, toast } from '@extension/ui';
+import { Button, DialogLegacy, Icon, Textarea, toast } from '@extension/ui';
 
 import AnnotationContainer from './components/annotation/annotation-container';
+import WaterfallView from './components/waterfall/waterfall-view';
 import { useViewportSize } from './hooks';
+import type { NetworkRecord } from './types/network';
 import { base64ToFile, createJsonFile } from './utils';
 import { getCanvasElement } from './utils/annotation';
 
@@ -19,8 +21,10 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
   const [description, setDescription] = useState('');
+  const [activeTab, setActiveTab] = useState<'annotation' | 'network'>('annotation');
+  const [networkRecords, setNetworkRecords] = useState<NetworkRecord[]>([]);
 
-  const { isLoading, isError, data: user } = useGetUserDetailsQuery();
+  const { data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
 
   const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
@@ -35,6 +39,20 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
     () => user?.organization?.workspaces.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
     [user?.organization?.workspaces],
   );
+
+  // Load network records when component mounts or when switching to network tab
+  useEffect(() => {
+    if (activeTab === 'network') {
+      getRecords()
+        .then((records: unknown) => {
+          setNetworkRecords((records as NetworkRecord[]) || []);
+        })
+        .catch(error => {
+          console.error('Failed to load network records:', error);
+          setNetworkRecords([]);
+        });
+    }
+  }, [activeTab]);
 
   const handleToggleMaximize = () => setIsMaximized(!isMaximized);
 
@@ -59,7 +77,7 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
     setIsCreateLoading(true);
 
     try {
-      const records: any = await getRecords();
+      const records: NetworkRecord[] = (await getRecords()) as NetworkRecord[];
 
       if (records?.length) {
         const jsonFile = createJsonFile(records.flat(), 'records.json');
@@ -165,9 +183,34 @@ const Content = ({ screenshots, onClose }: { onClose: () => void; screenshots: {
           className={`flex ${
             showRightSidebar ? 'sm:w-[70%]' : 'w-full'
           } mt-10 flex-col justify-center bg-gray-50 px-4 pb-4 pt-5 sm:mt-0 sm:p-6 dark:bg-black`}>
-          {/* Content Section */}
+          {/* Tab Navigation */}
+          <div className="mb-4 flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('annotation')}
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'annotation'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}>
+              Screenshot & Annotations
+            </button>
+            <button
+              onClick={() => setActiveTab('network')}
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'network'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}>
+              Network Waterfall
+            </button>
+          </div>
 
-          <AnnotationContainer attachments={screenshots} />
+          {/* Content Section */}
+          {activeTab === 'annotation' ? (
+            <AnnotationContainer attachments={screenshots} />
+          ) : (
+            <WaterfallView records={networkRecords} />
+          )}
 
           {/* Footer Section */}
           <div className="mt-4 flex justify-center">
