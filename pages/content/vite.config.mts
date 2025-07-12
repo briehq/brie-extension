@@ -15,6 +15,7 @@ export default withPageConfig({
   publicDir: resolve(rootDir, 'public'),
   plugins: [IS_DEV && makeEntryPointPlugin()],
   build: {
+    minify: false,
     rollupOptions: {
       input: {
         index: resolve(rootDir, 'src/index.ts'),
@@ -22,6 +23,8 @@ export default withPageConfig({
       },
       output: {
         entryFileNames: '[name].iife.js',
+        manualChunks: undefined,
+        inlineDynamicImports: false,
       },
     },
     outDir: resolve(rootDir, '..', '..', 'dist', 'content'),

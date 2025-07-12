@@ -6,7 +6,7 @@ import type { Screenshot, Workspace } from '@extension/shared';
 import { AuthMethod } from '@extension/shared';
 import { annotationsStorage } from '@extension/storage';
 import { triggerCanvasAction, useAppDispatch, useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Dialog, DialogContent, DialogTitle, cn, toast } from '@extension/ui';
+import { Dialog, DialogContent, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
@@ -14,7 +14,7 @@ import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
-import { getCanvasElement, mergeScreenshot } from './utils/annotation';
+import { mergeScreenshot } from './utils/annotation';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
@@ -115,7 +115,7 @@ const Content = ({
         formData.append('records', jsonFile);
 
         if (workspaceId || workspace?.id) {
-          formData.append('workspaceId', workspaceId || workspace?.id);
+          formData.append('workspaceId', workspaceId ?? workspace?.id);
         }
 
         if (title) {

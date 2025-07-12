@@ -3,8 +3,15 @@ import { interceptConsole } from './console';
 import { interceptEvents } from './events';
 import { interceptFetch, interceptXHR } from './network';
 
-// Initialize interceptors
-interceptFetch();
+/**
+ * @todo #91
+ */
+const BLOCKED_DOMAINS = ['docs.google.com'];
+
+if (!BLOCKED_DOMAINS.includes(window.location.host)) {
+  interceptFetch();
+}
+
 interceptXHR();
 interceptConsole();
 interceptEvents();

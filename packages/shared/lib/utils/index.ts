@@ -7,3 +7,4 @@ export { stripUnCloneable } from './strip-uncloneable.util.js';
 export { safeStructuredClone } from './structured-clone.util.js';
 export { capitalizeWord } from './capitalize.util.js';
 export { getInitials } from './get-initials.util.js';
+export { isExtensionElement } from './is-extension-element.util.js';

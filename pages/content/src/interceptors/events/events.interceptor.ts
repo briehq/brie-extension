@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { safePostMessage, isExtensionElement } from '@extension/shared';
 
 import {
   findClickableParent,
@@ -81,6 +81,7 @@ export const interceptEvents = () => {
 
   document.addEventListener('change', ({ target }) => {
     if (!interactionStarted || !(target instanceof HTMLElement)) return;
+    if (isExtensionElement(target)) return;
 
     const tagName = target.tagName;
     const inputType = target.getAttribute('type')?.toLowerCase() || '';
@@ -114,8 +115,8 @@ export const interceptEvents = () => {
     activateTracking();
 
     const target = document.activeElement;
-
     if (!target?.tagName) return;
+    if (isExtensionElement(target as HTMLElement)) return;
 
     if (['Enter', ' '].includes(event.key)) {
       if (isClickableElement(target as HTMLElement)) {
@@ -140,7 +141,7 @@ export const interceptEvents = () => {
     activateTracking();
 
     const target = event.target as HTMLElement;
-    if (!target || shouldSkipClick(target)) return;
+    if (!target || shouldSkipClick(target) || isExtensionElement(target)) return;
 
     const role = target.getAttribute('role');
     if (role === 'option') {
@@ -158,6 +159,10 @@ export const interceptEvents = () => {
   document.addEventListener('submit', event => {
     activateTracking();
 
+    // Try to get the form element
+    const target = event.target as HTMLElement;
+    if (target && isExtensionElement(target)) return;
+
     trackEvent({
       event: 'FormSubmit',
       url: window.location.href,
@@ -169,6 +174,7 @@ export const interceptEvents = () => {
     'blur',
     ({ target }) => {
       if (!interactionStarted || !(target instanceof HTMLElement)) return;
+      if (isExtensionElement(target)) return;
 
       const tagName = target.tagName;
       const inputType = target?.getAttribute('type')?.toLowerCase() || '';
