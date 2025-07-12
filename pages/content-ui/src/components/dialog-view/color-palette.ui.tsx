@@ -16,23 +16,37 @@ import {
   ToggleGroupItem,
 } from '@extension/ui';
 
-export const ColorPalette = ({ isActive, onClick }: { isActive: boolean; onClick: () => void }) => {
-  const [selectedColor, setSelectedColor] = useState('red');
+const HEX_COLORS: Record<string, string> = {
+  '#ef4444': 'bg-red-500',
+  '#22c55e': 'bg-green-500',
+  '#eab308': 'bg-yellow-500',
+  '#3b82f6': 'bg-blue-500',
+  '#a855f7': 'bg-purple-500',
+  '#f97316': 'bg-orange-500',
+};
+export const ColorPalette = ({
+  isActive,
+  onChangeColor,
+}: {
+  isActive: boolean;
+  onChangeColor: (hex: string) => void;
+}) => {
+  const [selectedColor, setSelectedColor] = useState('#ef4444');
+  const [open, setOpen] = useState(false);
 
   return (
-    <Popover>
+    <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
           type="button"
           size="icon"
-          disabled={isActive}
+          disabled={open && isActive}
           className={cn(
             'shadow-none disabled:cursor-not-allowed dark:hover:bg-black',
             isActive ? 'bg-gradient-overlay text-white disabled:opacity-100 dark:hover:bg-black' : '',
           )}
-          variant="ghost"
-          onClick={onClick}>
-          <div className={`group size-4 rounded-full bg-${selectedColor}-500`} />
+          variant="ghost">
+          <div className={`group size-4 rounded-full ${HEX_COLORS[selectedColor]}`} />
         </Button>
       </PopoverTrigger>
       <PopoverContent side="top" align="start" sideOffset={18}>
@@ -48,19 +62,24 @@ export const ColorPalette = ({ isActive, onClick }: { isActive: boolean; onClick
                 type="single"
                 defaultValue={selectedColor}
                 onValueChange={value => {
-                  console.log('color', value);
                   setSelectedColor(value);
+                  onChangeColor(value);
+                  setOpen(false);
                 }}>
-                {['red', 'green', 'yellow', 'blue', 'purple', 'orange'].map(color => (
-                  <ToggleGroupItem value={color} aria-label={`Toggle ${color}`}>
+                {['#ef4444', '#22c55e', '#eab308', '#3b82f6', '#a855f7', '#f97316'].map(color => (
+                  <ToggleGroupItem
+                    key={color}
+                    value={color}
+                    aria-label={`Toggle ${color}`}
+                    disabled={color === selectedColor}>
                     <div
                       className={cn('group size-4 rounded-full', {
-                        'bg-red-500': color === 'red',
-                        'bg-green-500': color === 'green',
-                        'bg-yellow-500': color === 'yellow',
-                        'bg-blue-500': color === 'blue',
-                        'bg-purple-500': color === 'purple',
-                        'bg-orange-500': color === 'orange',
+                        'bg-red-500': color === '#ef4444',
+                        'bg-green-500': color === '#22c55e',
+                        'bg-yellow-500': color === '#eab308',
+                        'bg-blue-500': color === '#3b82f6',
+                        'bg-purple-500': color === '#a855f7',
+                        'bg-orange-500': color === '#f97316',
                       })}
                     />
                   </ToggleGroupItem>

@@ -14,10 +14,8 @@ import type {
   RenderCanvas,
 } from '@src/models';
 
-import { createDefaultControls } from './controls';
+import { createDefaultControls } from './controls.util';
 import { createSpecificShape, setCanvasBackground } from './shapes.util';
-
-const rotateSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
 
 export const getShadowHostElement = () => document.querySelector('#brie-root');
 
@@ -92,7 +90,14 @@ export const initializeFabric = ({
 };
 
 // instantiate creation of custom fabric object/shape and add it to canvas
-export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDrawing, shapeRef }: CanvasMouseDown) => {
+export const handleCanvasMouseDown = ({
+  options,
+  canvas,
+  selectedShapeRef,
+  isDrawing,
+  shapeRef,
+  currentColorRef,
+}: CanvasMouseDown) => {
   // get pointer coordinates
   const pointer = canvas.getScenePoint(options.e);
 
@@ -114,7 +119,7 @@ export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDra
     isDrawing.current = true;
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = 3;
-    canvas.freeDrawingBrush.color = '#dc2626';
+    canvas.freeDrawingBrush.color = currentColorRef.current;
     return;
   }
 
@@ -136,7 +141,7 @@ export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDra
     isDrawing.current = true;
 
     // create custom fabric object/shape and set it to shapeRef
-    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any);
+    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any, currentColorRef?.current);
 
     // if shapeRef is not null, add it to canvas
     if (shapeRef.current) {
@@ -437,23 +442,6 @@ export const handleResize = ({
     parentHeight: wrapper.clientHeight,
   });
 };
-
-// resize canvas dimensions on window resize
-// export const handleResize = ({ canvas }: { canvas: Canvas | null }) => {
-//   const canvasElement = getCanvasElement();
-//   if (!canvasElement) {
-//     return;
-//   }
-
-//   if (!canvas) {
-//     return;
-//   }
-
-//   canvas.setDimensions({
-//     width: canvasElement.clientWidth,
-//     height: canvasElement.clientHeight,
-//   });
-// };
 
 // zoom canvas on mouse scroll
 export const handleCanvasZoom = ({ options, canvas }: { options: any; canvas: Canvas }) => {

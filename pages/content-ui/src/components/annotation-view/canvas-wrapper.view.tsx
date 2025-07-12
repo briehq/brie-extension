@@ -12,7 +12,6 @@ import {
 } from '@extension/ui';
 
 import { shortcuts } from '@src/constants';
-import { exportToPng } from '@src/utils/annotation';
 
 type Props = {
   canvasRef: RefObject<HTMLCanvasElement | null>;

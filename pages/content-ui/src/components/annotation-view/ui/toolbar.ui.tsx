@@ -86,7 +86,10 @@ const Toolbar = ({ activeElement, onActiveElement }: ToolbarProps) => {
               <Tooltip key={item.value + idx}>
                 <TooltipTrigger asChild>
                   {item.value === 'color-palette' ? (
-                    <ColorPalette isActive={isActive(item.value)} onClick={() => handleOnActiveElement(item)} />
+                    <ColorPalette
+                      isActive={isActive(item.value)}
+                      onChangeColor={(color: string) => handleOnActiveElement({ ...item, payload: { color } })}
+                    />
                   ) : (
                     <Button
                       type="button"

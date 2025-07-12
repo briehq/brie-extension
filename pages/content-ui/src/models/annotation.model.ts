@@ -79,6 +79,7 @@ export type ActiveElement = {
   name: string;
   value: string;
   icon: string;
+  payload?: { color?: string };
 } | null;
 
 export interface CustomFabricObject<T extends FabricObject> extends FabricObject {
@@ -139,6 +140,7 @@ export type CanvasMouseDown = {
   selectedShapeRef: any;
   isDrawing: RefObject<boolean>;
   shapeRef: RefObject<FabricObject | null>;
+  currentColorRef: RefObject<string>;
 };
 
 export type CanvasMouseMove = {

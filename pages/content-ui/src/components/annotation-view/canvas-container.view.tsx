@@ -32,6 +32,7 @@ import {
   renderCanvas,
   setCanvasBackground,
   saveHistory,
+  modifyShape,
 } from '../../utils/annotation';
 
 interface CanvasContainerProps {
@@ -125,7 +126,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
 
   /**
-   * @todo
    * elementAttributes is an object that contains the attributes of the selected
    * element in the canvas.
    *
@@ -133,16 +133,17 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * is editing the width, height, color etc properties/attributes of the
    * object.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [elementAttributes, setElementAttributes] = useState<Attributes>({
     width: '',
     height: '',
     fontSize: '',
     fontFamily: '',
     fontWeight: '',
-    fill: '#aabbcc',
-    stroke: '#aabbcc',
+    fill: '',
+    stroke: '#ef4444',
   });
+  const currentColorRef = useRef<string>('#ef4444');
 
   /**
    * useUndo and useRedo are hooks provided by local store that allow you to
@@ -334,6 +335,29 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         setActiveElement(defaultNavElement);
         break;
 
+      case 'color-palette':
+        currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
+
+        // stoke or fill based on active selection?
+
+        if (fabricRef.current?.isDrawingMode) {
+          (fabricRef.current.freeDrawingBrush as PencilBrush).color = elem?.payload?.color || elementAttributes.stroke;
+        }
+
+        setElementAttributes(prevAttributes => ({
+          ...prevAttributes,
+          stroke: elem?.payload?.color || elementAttributes.stroke,
+        }));
+
+        modifyShape({
+          canvas: fabricRef.current!,
+          property: 'stroke',
+          value: elem?.payload?.color || elementAttributes.stroke,
+          activeObjectRef,
+          syncShapeInStorage,
+        });
+        break;
+
       // upload an image to the canvas
       case 'image':
         // trigger the click event on the input element which opens the file dialog
@@ -357,7 +381,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
             const brush = new PencilBrush(fabricRef.current);
-            brush.color = '#dc2626';
+
+            brush.color = currentColorRef.current;
             brush.width = 3;
             fabricRef.current.freeDrawingBrush = brush;
           } else {
@@ -436,6 +461,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         selectedShapeRef,
         isDrawing,
         shapeRef,
+        currentColorRef,
       });
 
       if (!options.target) {

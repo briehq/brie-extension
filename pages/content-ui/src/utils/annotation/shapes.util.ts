@@ -4,13 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
 
-export const createRectangle = (pointer: PointerEvent) => {
+export const createRectangle = (pointer: PointerEvent, stroke: string) => {
   const rect = new Rect({
     left: pointer.x,
     top: pointer.y,
     width: 100,
     height: 100,
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
     fill: 'transparent',
     objectId: uuidv4(),
@@ -23,13 +23,13 @@ export const createRectangle = (pointer: PointerEvent) => {
   return rect;
 };
 
-export const createTriangle = (pointer: PointerEvent) => {
+export const createTriangle = (pointer: PointerEvent, stroke: string) => {
   return new Triangle({
     left: pointer.x,
     top: pointer.y,
     width: 100,
     height: 100,
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
     fill: 'transparent',
     objectId: uuidv4(),
@@ -40,12 +40,12 @@ export const createTriangle = (pointer: PointerEvent) => {
   } as CustomFabricObject<Triangle> | any);
 };
 
-export const createCircle = (pointer: PointerEvent) => {
+export const createCircle = (pointer: PointerEvent, stroke: string) => {
   return new Circle({
     left: pointer.x,
     top: pointer.y,
     radius: 100,
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
     fill: 'transparent',
     objectId: uuidv4(),
@@ -56,9 +56,9 @@ export const createCircle = (pointer: PointerEvent) => {
   } as any);
 };
 
-export const createLine = (pointer: PointerEvent) => {
+export const createLine = (pointer: PointerEvent, stroke: string) => {
   return new Line([pointer.x, pointer.y, pointer.x + 100, pointer.y + 100], {
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
     objectId: uuidv4(),
     cornerSize: 8,
@@ -68,10 +68,10 @@ export const createLine = (pointer: PointerEvent) => {
   } as CustomFabricObject<Line> | any);
 };
 
-export const createArrow = (pointer: PointerEvent) => {
+export const createArrow = (pointer: PointerEvent, stroke: string) => {
   // Create the line (shaft of the arrow)
   const line = new Line([0, 0, 100, 0], {
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
     selectable: false, // Ensure only the group is selectable, not individual parts
     originX: 'center', // Center the line in the group
@@ -82,7 +82,7 @@ export const createArrow = (pointer: PointerEvent) => {
   const triangle = new Triangle({
     width: 12,
     height: 18,
-    fill: '#dc2626',
+    fill: line.stroke,
     originX: 'center',
     originY: 'center',
     angle: 90, // Ensure the arrowhead points correctly
@@ -173,11 +173,11 @@ export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, clas
   } as any);
 };
 
-export const createText = (pointer: PointerEvent, text: string) => {
+export const createText = (pointer: PointerEvent, fill: string, text: string) => {
   return new IText(text, {
     left: pointer.x,
     top: pointer.y,
-    fill: '#dc2626',
+    fill,
     fontFamily: 'Helvetica',
     fontSize: 24,
     fontWeight: '400',
@@ -189,25 +189,25 @@ export const createText = (pointer: PointerEvent, text: string) => {
   });
 };
 
-export const createSpecificShape = (shapeType: string, pointer: PointerEvent) => {
+export const createSpecificShape = (shapeType: string, pointer: PointerEvent, color: string) => {
   switch (shapeType) {
     case 'rectangle':
-      return createRectangle(pointer);
+      return createRectangle(pointer, color);
 
     case 'triangle':
-      return createTriangle(pointer);
+      return createTriangle(pointer, color);
 
     case 'circle':
-      return createCircle(pointer);
+      return createCircle(pointer, color);
 
     case 'line':
-      return createLine(pointer);
+      return createLine(pointer, color);
 
     case 'arrow':
-      return createArrow(pointer);
+      return createArrow(pointer, color);
 
     case 'text':
-      return createText(pointer, 'Tap to Type');
+      return createText(pointer, color, 'Tap to Type');
 
     default:
       return null;
@@ -283,13 +283,13 @@ export const setCanvasBackground = async ({
   return { width: naturalWidth, height: naturalHeight, scale };
 };
 
-export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string) => {
+export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string, color: string) => {
   if (shapeType === 'freeform') {
     canvas.isDrawingMode = true;
     return null;
   }
 
-  return createSpecificShape(shapeType, pointer);
+  return createSpecificShape(shapeType, pointer, color);
 };
 
 export const modifyShape = ({ canvas, property, value, activeObjectRef, syncShapeInStorage }: ModifyShape) => {
@@ -314,6 +314,7 @@ export const modifyShape = ({ canvas, property, value, activeObjectRef, syncShap
   }
 
   // set selectedElement to activeObjectRef
+  canvas.requestRenderAll();
   activeObjectRef.current = selectedElement;
 
   syncShapeInStorage(selectedElement);
