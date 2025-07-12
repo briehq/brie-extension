@@ -26,7 +26,7 @@ export const withPageConfig = (config: UserConfig) =>
         plugins: [react(), IS_DEV && watchRebuildPlugin({ refresh: true }), nodePolyfills()],
         build: {
           sourcemap: IS_DEV,
-          minify: IS_PROD,
+          minify: config?.build?.minify || IS_PROD,
           reportCompressedSize: IS_PROD,
           emptyOutDir: IS_PROD,
           watch: watchOption,
