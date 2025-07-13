@@ -14,6 +14,7 @@ import type {
   RenderCanvas,
 } from '@src/models';
 
+import { getCanvasScale } from './canvas-scale.utils';
 import { createDefaultControls } from './controls.util';
 import { hexToRgba } from './hex-to-rgba.util';
 import { createSpecificShape, setCanvasBackground } from './shapes.util';
@@ -189,7 +190,7 @@ export const handleCanvasMouseMove = ({
   canvas.isDrawingMode = false;
 
   // get pointer coordinates
-  const pointer = canvas.getPointer(options.e);
+  const pointer = canvas.getScenePoint(options.e);
 
   // depending on the selected shape, set the dimensions of the shape stored in shapeRef in previous step of handelCanvasMouseDown
   // calculate shape dimensions based on pointer coordinates
@@ -311,31 +312,27 @@ export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCre
 };
 
 // check how object is moving on canvas and restrict it to canvas boundaries
+/** Keep object fully inside the canvas, whatever the zoom. */
 export const handleCanvasObjectMoving = ({ options }: { options: any }) => {
-  // get target object which is moving
   const target = options.target as FabricObject;
+  if (!target) return;
 
-  // target.canvas is the canvas on which the object is moving
   const canvas = target.canvas as Canvas;
+  if (!canvas) return;
 
-  // set coordinates of target object
+  const scale = getCanvasScale(canvas);
+  const sceneWidth = (canvas.width ?? 0) / scale;
+  const sceneHeight = (canvas.height ?? 0) / scale;
+
+  const objW = (target.width ?? 0) * (target.scaleX ?? 1);
+  const objH = (target.height ?? 0) * (target.scaleY ?? 1);
+
+  target.set({
+    left: Math.min(Math.max(0, target.left ?? 0), sceneWidth - objW),
+    top: Math.min(Math.max(0, target.top ?? 0), sceneHeight - objH),
+  });
+
   target.setCoords();
-
-  // restrict object to canvas boundaries (horizontal)
-  if (target && target.left) {
-    target.left = Math.max(
-      0,
-      Math.min(target.left, (canvas.width || 0) - (target.getScaledWidth() || target.width || 0)),
-    );
-  }
-
-  // restrict object to canvas boundaries (vertical)
-  if (target && target.top) {
-    target.top = Math.max(
-      0,
-      Math.min(target.top, (canvas.height || 0) - (target.getScaledHeight() || target.height || 0)),
-    );
-  }
 };
 
 // set element attributes when element is selected

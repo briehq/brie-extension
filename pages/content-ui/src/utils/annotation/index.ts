@@ -36,3 +36,4 @@ export { mergeScreenshot } from './merge-screenshot.util';
 export { createAnnotationsJsonFile } from './create-annotations-file.util';
 export { createDefaultControls } from './controls.util';
 export { hexToRgba } from './hex-to-rgba.util';
+export { getCanvasScale } from './canvas-scale.utils';

@@ -1,3 +1,4 @@
+import { iMatrix } from 'fabric';
 import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -29,11 +30,10 @@ import {
   initializeFabric,
   redoAnnotation,
   undoAnnotation,
-  renderCanvas,
   setCanvasBackground,
   saveHistory,
   modifyShape,
-  hexToRgba,
+  getCanvasScale,
 } from '../../utils/annotation';
 
 interface CanvasContainerProps {
@@ -546,6 +546,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       handleCanvasObjectMoving({
         options,
       });
+
+      updateMenuPosition(options);
     });
 
     /**
@@ -563,12 +565,19 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       });
 
       onChangeSelection(options);
+
+      updateMenuPosition(options);
     });
 
     canvas.on('selection:updated', options => {
       onChangeSelection(options);
+
+      updateMenuPosition(options);
     });
 
+    canvas.on('selection:cleared', options => {
+      setActionMenuVisible(false);
+    });
     /**
      * listen to the scaling event on the canvas which is fired when the
      * user scales an object on the canvas.
@@ -581,6 +590,12 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         options,
         setElementAttributes,
       });
+
+      updateMenuPosition(options);
+    });
+
+    canvas.on('object:rotating', options => {
+      updateMenuPosition(options);
     });
 
     /**
@@ -684,47 +699,31 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     };
   }, []);
 
+  const updateMenuPosition = (options: any) => {
+    const obj = options.selected ? options.selected[0] : fabricRef.current.getActiveObject();
+    if (!obj) return;
+
+    const { left, top, width, height } = obj.getBoundingRect(false, true);
+
+    const vpt = fabricRef.current.viewportTransform!;
+    const vx = vpt[0] * (left + width / 2) + vpt[4];
+    const vy = vpt[3] * (top + height) + vpt[5];
+
+    setMenuPosition({
+      left: vx + 100,
+      top: vy + 40,
+    });
+  };
+
   const onChangeSelection = useCallback((options: any) => {
-    // if no element is selected, return
     if (!options?.selected) {
       return;
     }
 
-    // Get the selected element
     const selectedElement: any = options?.selected[0] as FabricObject;
-
-    const updateMenuPosition = () => {
-      const { left, top, width, height } = selectedElement.getBoundingRect();
-
-      const menuWidth = 28; // Default to 64 if undefined
-
-      // Dynamically set the position of the action menu
-      setMenuPosition({
-        left: left + (width - menuWidth) + 41, // Center horizontally
-        top: top + height + 40, // Align vertically below the shape
-      });
-    };
 
     selectedElement.set({
       padding: 10,
-    });
-
-    // Update menu position initially when the selection changes
-    updateMenuPosition();
-
-    // Attach an event listener to track movement of the selected shape
-    selectedElement.on('moving', () => {
-      updateMenuPosition();
-    });
-
-    // Attach an event listener to track resizing of the selected shape
-    selectedElement.on('scaling', () => {
-      updateMenuPosition();
-    });
-
-    // Attach an event listener to track rotation of the selected shape
-    selectedElement.on('rotating', () => {
-      updateMenuPosition();
     });
 
     setActionMenuVisible(true);
