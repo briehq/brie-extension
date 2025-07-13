@@ -15,7 +15,10 @@ import type {
 } from '@src/models';
 
 import { createDefaultControls } from './controls.util';
+import { hexToRgba } from './hex-to-rgba.util';
 import { createSpecificShape, setCanvasBackground } from './shapes.util';
+
+export const DRAWING_TOOLS = ['freeform', 'highlighter'];
 
 export const getShadowHostElement = () => document.querySelector('#brie-root');
 
@@ -89,6 +92,22 @@ export const initializeFabric = ({
   return canvas;
 };
 
+export const applyBrush = (tool: 'freeform' | 'highlighter', canvas, currentColorRef) => {
+  const brush = new PencilBrush(canvas);
+
+  if (tool === 'freeform') {
+    brush.width = 3;
+    brush.color = currentColorRef.current;
+    brush.globalCompositeOperation = 'source-over';
+  } else {
+    brush.width = 18;
+    brush.color = hexToRgba(currentColorRef.current, 0.45);
+    brush.globalCompositeOperation = 'multiply';
+  }
+
+  canvas.freeDrawingBrush = brush;
+};
+
 // instantiate creation of custom fabric object/shape and add it to canvas
 export const handleCanvasMouseDown = ({
   options,
@@ -113,13 +132,12 @@ export const handleCanvasMouseDown = ({
   canvas.isDrawingMode = false;
 
   // if selected shape is freeform, set drawing mode to true and return
-  if (selectedShapeRef.current === 'freeform') {
-    const brush = new PencilBrush(canvas);
-    canvas.freeDrawingBrush = brush;
-    isDrawing.current = true;
+
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current!)) {
+    applyBrush(selectedShapeRef.current, canvas, currentColorRef);
+
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 3;
-    canvas.freeDrawingBrush.color = currentColorRef.current;
+    isDrawing.current = true;
     return;
   }
 
@@ -164,7 +182,7 @@ export const handleCanvasMouseMove = ({
   if (!isDrawing.current) {
     return;
   }
-  if (selectedShapeRef.current === 'freeform') {
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current)) {
     return;
   }
 
@@ -241,7 +259,7 @@ export const handleCanvasMouseUp = ({
   setActiveElement,
 }: CanvasMouseUp) => {
   isDrawing.current = false;
-  if (selectedShapeRef.current === 'freeform') {
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current)) {
     return;
   }
 

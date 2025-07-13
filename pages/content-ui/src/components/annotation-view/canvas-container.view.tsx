@@ -1,5 +1,4 @@
-import type { Canvas, FabricObject } from 'fabric';
-import { PencilBrush } from 'fabric';
+import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Screenshot } from '@extension/shared';
@@ -11,6 +10,7 @@ import { Button, Icon, toast } from '@extension/ui';
 import { defaultNavElement } from '@src/constants';
 import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes, ShapeSnapshot } from '@src/models';
+import { applyBrush, DRAWING_TOOLS } from '@src/utils/annotation/canvas.util';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
 import { Toolbar } from './ui';
@@ -33,6 +33,7 @@ import {
   setCanvasBackground,
   saveHistory,
   modifyShape,
+  hexToRgba,
 } from '../../utils/annotation';
 
 interface CanvasContainerProps {
@@ -375,16 +376,29 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         }
         break;
 
+      // case 'highlighter': {
+      //   if (!fabricRef.current) break;
+      //   console.log('highlighter');
+
+      //   isDrawing.current = true;
+      //   fabricRef.current.isDrawingMode = true;
+
+      //   const brush = new PencilBrush(fabricRef.current);
+      //   brush.width = 18;
+      //   brush.color = hexToRgba(currentColorRef.current, 0.45);
+
+      //   fabricRef.current.freeDrawingBrush = brush;
+
+      //   break;
+      // }
+
       default:
         if (fabricRef.current) {
-          if (elem?.value === 'freeform') {
+          if (DRAWING_TOOLS.includes(elem?.value || '')) {
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
-            const brush = new PencilBrush(fabricRef.current);
 
-            brush.color = currentColorRef.current;
-            brush.width = 3;
-            fabricRef.current.freeDrawingBrush = brush;
+            applyBrush(elem?.value, fabricRef.current, currentColorRef);
           } else {
             isDrawing.current = false;
             fabricRef.current.isDrawingMode = false;
