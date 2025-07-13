@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
 
+import { DRAWING_TOOLS } from './canvas.util';
+
 export const createRectangle = (pointer: PointerEvent, stroke: string) => {
   const rect = new Rect({
     left: pointer.x,
@@ -284,7 +286,7 @@ export const setCanvasBackground = async ({
 };
 
 export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string, color: string) => {
-  if (shapeType === 'freeform') {
+  if (DRAWING_TOOLS.includes(shapeType)) {
     canvas.isDrawingMode = true;
     return null;
   }

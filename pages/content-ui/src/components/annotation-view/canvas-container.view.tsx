@@ -376,29 +376,13 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         }
         break;
 
-      // case 'highlighter': {
-      //   if (!fabricRef.current) break;
-      //   console.log('highlighter');
-
-      //   isDrawing.current = true;
-      //   fabricRef.current.isDrawingMode = true;
-
-      //   const brush = new PencilBrush(fabricRef.current);
-      //   brush.width = 18;
-      //   brush.color = hexToRgba(currentColorRef.current, 0.45);
-
-      //   fabricRef.current.freeDrawingBrush = brush;
-
-      //   break;
-      // }
-
       default:
         if (fabricRef.current) {
           if (DRAWING_TOOLS.includes(elem?.value || '')) {
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
 
-            applyBrush(elem?.value, fabricRef.current, currentColorRef);
+            applyBrush(elem.value, fabricRef.current, currentColorRef);
           } else {
             isDrawing.current = false;
             fabricRef.current.isDrawingMode = false;
