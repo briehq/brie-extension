@@ -1,20 +1,6 @@
 import { useState } from 'react';
 
-import {
-  Button,
-  cn,
-  Icon,
-  Input,
-  Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  ToggleGroup,
-  ToggleGroupItem,
-} from '@extension/ui';
+import { Button, cn, Popover, PopoverContent, PopoverTrigger, ToggleGroup, ToggleGroupItem } from '@extension/ui';
 
 const HEX_COLORS: Record<string, string> = {
   '#ef4444': 'bg-red-500',

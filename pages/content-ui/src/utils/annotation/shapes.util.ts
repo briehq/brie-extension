@@ -1,5 +1,5 @@
 import type { Canvas } from 'fabric';
-import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText } from 'fabric';
+import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText, filters as FabricFilters } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
@@ -119,6 +119,55 @@ export const createArrow = (pointer: PointerEvent, stroke: string) => {
   return arrowGroup;
 };
 
+/**
+ * Adds a blurred clone of the canvas background
+ * and clips it to a draggable / resizable rectangle.
+ *
+ * @param canvas   Fabric canvas (backgroundImage already set)
+ * @param pointer  result of canvas.getScenePoint(e)
+ * @returns        the rectangle (interactive object)
+ */
+export const createBlur = (canvas: Canvas, pointer: PointerEvent): Rect => {
+  let blurred = {} as FabricImage;
+
+  const bg = canvas.backgroundImage as FabricImage | undefined;
+  if (!bg) throw new Error('[Brie] Background image must be set before blur tool');
+
+  blurred = bg.cloneAsImage({});
+  blurred.filters = [new FabricFilters.Blur({ blur: 0.1 })];
+  blurred.applyFilters();
+
+  blurred.set({
+    selectable: false,
+    evented: false,
+    objectCaching: false,
+    data: 'blur-layer',
+  });
+
+  canvas.add(blurred);
+  canvas.sendObjectToBack(blurred);
+
+  const win = new Rect({
+    left: pointer.x,
+    top: pointer.y,
+    width: 100,
+    height: 100,
+    fill: 'rgba(0,0,0,0)',
+    cornerSize: 8,
+    transparentCorners: false,
+    objectCaching: false,
+    objectId: uuidv4(),
+    data: 'blur-window',
+    shapeType: 'blur',
+    selectable: true,
+    absolutePositioned: true,
+  });
+
+  blurred.clipPath = win;
+
+  return win;
+};
+
 export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, className, score }: any) => {
   // Create lines for the bounding box (without the top line)
   const leftLine = new Line([boxLeft, boxTop, boxLeft, boxTop + boxHeight], {
@@ -191,7 +240,7 @@ export const createText = (pointer: PointerEvent, fill: string, text: string) =>
   });
 };
 
-export const createSpecificShape = (shapeType: string, pointer: PointerEvent, color: string) => {
+export const createSpecificShape = (shapeType: string, pointer: PointerEvent, color: string, canvas?: Canvas) => {
   switch (shapeType) {
     case 'rectangle':
       return createRectangle(pointer, color);
@@ -210,6 +259,9 @@ export const createSpecificShape = (shapeType: string, pointer: PointerEvent, co
 
     case 'text':
       return createText(pointer, color, 'Tap to Type');
+
+    case 'blur':
+      return createBlur(canvas, pointer, color);
 
     default:
       return null;
@@ -291,7 +343,7 @@ export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: st
     return null;
   }
 
-  return createSpecificShape(shapeType, pointer, color);
+  return createSpecificShape(shapeType, pointer, color, canvas);
 };
 
 export const modifyShape = ({ canvas, property, value, activeObjectRef, syncShapeInStorage }: ModifyShape) => {

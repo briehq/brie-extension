@@ -33,14 +33,19 @@ export const defaultNavElement = {
 export const navElements = [
   defaultNavElement,
   {
+    icon: 'ColorPalette',
+    name: 'Color Palette',
+    value: 'color-palette',
+  },
+  {
     icon: 'SquareIcon',
     name: 'Rectangle',
     value: shapeElements,
   },
   {
-    icon: 'ColorPalette',
-    name: 'Color Palette',
-    value: 'color-palette',
+    icon: 'PencilIcon',
+    name: 'Pencil',
+    value: 'freeform',
   },
   {
     icon: 'HighlighterIcon',
@@ -51,11 +56,6 @@ export const navElements = [
     icon: 'BlurIcon',
     name: 'Blur',
     value: 'blur',
-  },
-  {
-    icon: 'PencilIcon',
-    name: 'Pencil',
-    value: 'freeform',
   },
   {
     icon: 'TypeIcon',

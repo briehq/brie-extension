@@ -93,7 +93,7 @@ export const initializeFabric = ({
   return canvas;
 };
 
-export const applyBrush = (tool: 'freeform' | 'highlighter', canvas, currentColorRef) => {
+export const applyBrush = (tool: 'freeform' | 'highlighter', canvas: Canvas, currentColorRef) => {
   const brush = new PencilBrush(canvas);
 
   if (tool === 'freeform') {
@@ -160,7 +160,7 @@ export const handleCanvasMouseDown = ({
     isDrawing.current = true;
 
     // create custom fabric object/shape and set it to shapeRef
-    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any, currentColorRef?.current);
+    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any, currentColorRef?.current, canvas);
 
     // if shapeRef is not null, add it to canvas
     if (shapeRef.current) {
@@ -196,6 +196,10 @@ export const handleCanvasMouseMove = ({
   // calculate shape dimensions based on pointer coordinates
   switch (selectedShapeRef?.current) {
     case 'rectangle':
+    case 'triangle':
+    case 'arrow':
+    case 'blur':
+    case 'image':
       shapeRef.current?.set({
         width: pointer.x - (shapeRef.current?.left || 0),
         height: pointer.y - (shapeRef.current?.top || 0),
@@ -208,31 +212,10 @@ export const handleCanvasMouseMove = ({
       });
       break;
 
-    case 'triangle':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
-      });
-      break;
-
     case 'line':
       shapeRef.current?.set({
         x2: pointer.x,
         y2: pointer.y,
-      });
-      break;
-
-    case 'arrow':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
-      });
-      break;
-
-    case 'image':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
       });
       break;
 
