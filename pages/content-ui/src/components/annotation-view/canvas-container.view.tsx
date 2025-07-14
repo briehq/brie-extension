@@ -1,5 +1,5 @@
-import { iMatrix } from 'fabric';
 import type { Canvas, FabricObject, PencilBrush } from 'fabric';
+import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Screenshot } from '@extension/shared';
@@ -11,6 +11,7 @@ import { Button, Icon, toast } from '@extension/ui';
 import { defaultNavElement } from '@src/constants';
 import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes, ShapeSnapshot } from '@src/models';
+import { base64ToFile } from '@src/utils';
 import { applyBrush, DRAWING_TOOLS } from '@src/utils/annotation/canvas.util';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
@@ -34,6 +35,7 @@ import {
   saveHistory,
   modifyShape,
   getCanvasScale,
+  mergeScreenshot,
 } from '../../utils/annotation';
 
 interface CanvasContainerProps {
@@ -258,9 +260,10 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     async (object: any) => {
       if (!object || !fabricRef.current) return;
 
-      const { objectId } = object;
+      const { objectId, shapeType, blurRadius } = object;
+
       const shapeData = object.toJSON();
-      const shape = { ...shapeData, objectId };
+      const shape = { ...shapeData, objectId, shapeType, ...(blurRadius ? { blurRadius } : {}) };
 
       // eslint-disable-next-line prefer-const
       let { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
@@ -729,6 +732,22 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     setActionMenuVisible(true);
   }, []);
 
+  const handleOnExportScreenshot = async (format: string) => {
+    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+    console.log('objects', objects);
+
+    const fileName = `${screenshot.name}.${format}`;
+    let file = null;
+
+    if (!meta?.height || !objects?.length) {
+      file = await base64ToFile(screenshot.src, fileName);
+    } else {
+      file = await mergeScreenshot({ screenshot, objects, parentHeight: meta.height, parentWidth: meta.width });
+    }
+
+    saveAs(file, fileName);
+  };
+
   const handleOnRemove = () => {
     handleActiveElement({ value: 'delete' } as any);
 
@@ -754,7 +773,11 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         </div>
       )}
 
-      <Toolbar activeElement={activeElement} onActiveElement={handleActiveElement} />
+      <Toolbar
+        activeElement={activeElement}
+        onActiveElement={handleActiveElement}
+        onExport={handleOnExportScreenshot}
+      />
     </div>
   );
 };

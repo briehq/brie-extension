@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import {
   Button,
   Icon,
@@ -11,29 +13,41 @@ import {
   TabsTrigger,
 } from '@extension/ui';
 
-export const ExportImage = () => {
+export const ExportImage = ({ onExport }: { onExport: (format: string) => void }) => {
+  const [selectedFormat, setSelectedFormat] = useState('png');
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="flex items-center space-x-2">
-      <Button disabled={false} onClick={() => {}} className="bg-gradient-overlay flex h-[35px] gap-x-[6px] px-2.5">
+      <Button
+        disabled={false}
+        onClick={() => onExport(selectedFormat)}
+        className="bg-gradient-overlay flex h-[35px] gap-x-[6px] px-2.5">
         <Icon name="ArrowUpIcon" size={16} />
 
         <span>Export</span>
 
-        <span className="text-muted-foreground">1x • PNG</span>
+        <span className="text-muted-foreground text-xs">
+          1x • <span className="uppercase">{selectedFormat}</span>
+        </span>
       </Button>
 
-      <Popover>
+      <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
             size="icon"
             variant="secondary"
-            onClick={() => {}}
             className="dark:bg-primary size-[35px] dark:text-white"
             aria-label="Export Image Settings">
             <Icon name="Settings2Icon" size={16} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[250px]" side="top" align="end" sideOffset={18}>
+        <PopoverContent
+          onOpenAutoFocus={e => e.preventDefault()}
+          className="w-[250px]"
+          side="top"
+          align="end"
+          sideOffset={18}>
           <div className="grid gap-3">
             <h4 className="font-medium leading-none">Export Settings</h4>
 
@@ -41,14 +55,25 @@ export const ExportImage = () => {
               <div className="space-y-1.5">
                 <p className="text-muted-foreground text-sm">Image format</p>
 
-                <Tabs defaultValue="png" onChange={v => console.log('tab change', v)} className="w-full">
-                  <TabsList className="w-full">
-                    <TabsTrigger defaultChecked className="w-full" value="png">
-                      PNG
-                    </TabsTrigger>
-                    <TabsTrigger className="w-full" value="jpeg">
-                      JPEG
-                    </TabsTrigger>
+                <Tabs
+                  value={selectedFormat}
+                  onClick={e => e.preventDefault()}
+                  onValueChange={value => {
+                    setSelectedFormat(value);
+                    onChangeFormat(value);
+                  }}
+                  className="w-full">
+                  <TabsList
+                    className="w-full"
+                    onClick={e => {
+                      e.preventDefault();
+                      setOpen(false);
+                    }}>
+                    {['png', 'jpeg'].map(format => (
+                      <TabsTrigger key={format} value={format} className="w-full uppercase">
+                        {format}
+                      </TabsTrigger>
+                    ))}
                   </TabsList>
                 </Tabs>
               </div>
@@ -58,6 +83,7 @@ export const ExportImage = () => {
                   Output Resolution
                 </Label>
                 <Input
+                  disabled
                   maxLength={4}
                   id="width"
                   defaultValue="100%"

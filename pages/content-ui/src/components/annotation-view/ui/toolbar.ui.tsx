@@ -20,9 +20,10 @@ import type { ActiveElement } from '@src/models';
 interface ToolbarProps {
   activeElement: ActiveElement;
   onActiveElement: (element: ActiveElement) => void;
+  onExport: (format: string) => void;
 }
 
-const Toolbar = ({ activeElement, onActiveElement }: ToolbarProps) => {
+const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => {
   const isActive = (value: string | Array<any>) =>
     (activeElement && activeElement.value === value) ||
     (Array.isArray(value) && value.some(val => val?.value === activeElement?.value));
@@ -118,7 +119,7 @@ const Toolbar = ({ activeElement, onActiveElement }: ToolbarProps) => {
         )}
       </div>
 
-      <ExportImage />
+      <ExportImage onExport={onExport} />
     </div>
   );
 };
