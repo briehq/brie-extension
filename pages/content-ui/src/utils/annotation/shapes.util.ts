@@ -159,6 +159,7 @@ export const createBlur = (canvas: Canvas, pointer: PointerEvent): Rect => {
     objectId: uuidv4(),
     data: 'blur-window',
     shapeType: 'blur',
+    blurRadius: 0.1,
     selectable: true,
     absolutePositioned: true,
   });

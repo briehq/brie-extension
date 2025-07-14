@@ -1,5 +1,5 @@
-import type { FabricObject } from 'fabric';
-import { Canvas, util as FabricUtil, FabricImage } from 'fabric';
+import type { FabricObject, Rect } from 'fabric';
+import { Canvas, util as FabricUtil, FabricImage, filters as FabricFilters } from 'fabric';
 
 import type { Screenshot } from '@extension/shared';
 
@@ -13,8 +13,8 @@ import type { Screenshot } from '@extension/shared';
 export const mergeScreenshot = async ({
   screenshot,
   objects,
-  parentHeight,
   parentWidth,
+  parentHeight,
 }: {
   screenshot: Screenshot;
   objects: FabricObject[];
@@ -22,27 +22,37 @@ export const mergeScreenshot = async ({
   parentHeight: number;
 }): Promise<File> => {
   const bg = await FabricImage.fromURL(screenshot.src, { crossOrigin: 'anonymous' });
-
   const scale = Math.min(parentWidth / bg.width!, parentHeight / bg.height!, 1);
-
   const canvasEl = document.createElement('canvas');
   const canvas = new Canvas(canvasEl, { renderOnAddRemove: false });
 
-  canvas.setDimensions({
-    width: Math.round(bg.width! * scale),
-    height: Math.round(bg.height! * scale),
-  });
+  canvas.setDimensions({ width: Math.round(bg.width! * scale), height: Math.round(bg.height! * scale) });
   canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
   canvas.backgroundImage = bg;
-  canvas.requestRenderAll();
 
-  const enlivened = await FabricUtil.enlivenObjects(objects);
+  const blurRects = objects.filter(o => o.shapeType === 'blur');
+  const normals = objects.filter(o => o.shapeType !== 'blur');
+  const enlivened = await FabricUtil.enlivenObjects(normals);
+
   enlivened.forEach((obj: any) => canvas.add(obj));
+
+  for (const snap of blurRects) {
+    const [rect] = (await FabricUtil.enlivenObjects([snap])) as [Rect];
+    rect.absolutePositioned = true;
+
+    const patch = bg.cloneAsImage({});
+    patch.filters = [new FabricFilters.Blur({ blur: snap.blurRadius ?? 12 })];
+    patch.applyFilters();
+    patch.clipPath = rect;
+
+    canvas.add(patch);
+  }
+
   canvas.requestRenderAll();
 
-  const dataUrl = canvas.toDataURL();
-  const blob = await (await fetch(dataUrl)).blob();
+  const blob: any = await canvas.toBlob();
 
   canvas.dispose();
-  return new File([blob], `${screenshot.name}.png`, { type: 'image/png' });
+
+  return new File([blob], `${screenshot.name}`);
 };
