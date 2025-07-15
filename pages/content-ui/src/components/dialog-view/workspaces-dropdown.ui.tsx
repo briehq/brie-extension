@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { API_BASE_URL, APP_BASE_URL } from '@extension/env';
 import { getInitials } from '@extension/shared';
@@ -21,19 +21,24 @@ import {
 } from '@extension/ui';
 
 interface Props {
-  value?: string;
   onChange?: (workspaceId: string) => void;
 }
 
-export const WorkspacesDropdown = ({ value, onChange }: Props) => {
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(value);
-
+export const WorkspacesDropdown = ({ onChange }: Props) => {
   const { isLoading, isError, data: workspaces } = useGetWorkspacesQuery({ limit: 1, take: 10 });
 
-  const defaultWorkspace = useMemo(
-    () => workspaces?.items?.find(workspace => workspace.isDefault),
-    [workspaces?.items],
-  );
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState('');
+
+  useEffect(() => {
+    const defaultWorkspace = workspaces?.items?.find(workspace => workspace.isDefault);
+
+    if (defaultWorkspace?.id) {
+      setActiveWorkspaceId(defaultWorkspace.id);
+      if (onChange) {
+        onChange(defaultWorkspace.id);
+      }
+    }
+  }, [workspaces?.items]);
 
   const activeWorkspace = useMemo(
     () => workspaces?.items?.find(workspace => workspace.id === activeWorkspaceId),
@@ -58,13 +63,11 @@ export const WorkspacesDropdown = ({ value, onChange }: Props) => {
         <Button variant="secondary" className="h-[35px] gap-x-2 px-[10px] hover:bg-[#EDECE8]">
           <Avatar className="size-[25px] border-[0.5px] border-slate-400">
             <AvatarImage
-              src={`${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId || defaultWorkspace?.avatarId}`}
+              src={`${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId}`}
               crossOrigin="anonymous"
             />
             <AvatarFallback>
-              <span className="text-[9px] font-medium">
-                {getInitials(activeWorkspace?.name || defaultWorkspace?.name || '')}
-              </span>
+              <span className="text-[9px] font-medium">{getInitials(activeWorkspace?.name || '')}</span>
             </AvatarFallback>
           </Avatar>
 
@@ -78,7 +81,7 @@ export const WorkspacesDropdown = ({ value, onChange }: Props) => {
         <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
 
         <DropdownMenuRadioGroup
-          value={activeWorkspaceId || defaultWorkspace?.id}
+          value={activeWorkspaceId}
           onValueChange={value => {
             setActiveWorkspaceId(value);
 
@@ -89,7 +92,7 @@ export const WorkspacesDropdown = ({ value, onChange }: Props) => {
               key={workspace.id}
               value={workspace.id}
               className={cn('gap-x-2 capitalize', {
-                'text-muted-foreground': (activeWorkspaceId || defaultWorkspace?.id) !== workspace.id,
+                'text-muted-foreground': activeWorkspaceId !== workspace.id,
               })}>
               <Avatar className="hover:bg-primary h-8 w-8">
                 <AvatarImage src={`${API_BASE_URL}/uploads/workspaces/${workspace.avatarId}`} crossOrigin="anonymous" />

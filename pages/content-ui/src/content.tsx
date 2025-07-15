@@ -277,6 +277,7 @@ const Content = ({
 
           <RightSidebar
             defaultOpen
+            workspaceId={workspaceId}
             canvasHeight={canvasHeight}
             open={isRightSidebarOpen}
             onOpenChange={setRightSidebarOpen}

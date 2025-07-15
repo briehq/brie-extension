@@ -6,3 +6,4 @@ export { HoverImage } from './hover-image.ui';
 export { ExportImage } from './export-image.ui';
 export { ColorPalette } from './color-palette.ui';
 export { MinimizedPreview } from './minimized-preview.ui';
+export { AddToSpace } from './add-to-space.ui';

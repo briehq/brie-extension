@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { t } from '@extension/i18n';
 import { SlicePriority } from '@extension/shared';
+import { useGetSpacesQuery } from '@extension/store';
 import type { TagType } from '@extension/ui';
 import {
   Button,
@@ -24,13 +25,15 @@ import {
   TooltipContent,
   TooltipTrigger,
   useForm,
+  Controller,
 } from '@extension/ui';
 
-import { GenerateDropdown } from '@src/components/dialog-view';
+import { AddToSpace, GenerateDropdown } from '@src/components/dialog-view';
 import { useElementSize } from '@src/hooks';
 
 interface RightSidebarProps {
   open?: boolean;
+  workspaceId: string;
   className?: string;
   canvasHeight: number;
   defaultOpen?: boolean;
@@ -47,6 +50,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   onOpenChange,
   canvasHeight = 500,
   className,
+  workspaceId,
 }) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const isControlled = open !== undefined;
@@ -198,27 +202,52 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
             <div className="mt-6 flex w-full items-center justify-between gap-x-2">
               <div className="flex gap-x-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" size="icon" variant="ghost" onClick={() => {}}>
-                      <Icon name="Paperclip" size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" align="center" sideOffset={14}>
-                    {t('attachFile')}
-                  </TooltipContent>
-                </Tooltip>
+                <Controller
+                  name="attachments"
+                  control={control}
+                  defaultValue={undefined as unknown as FileList}
+                  render={({ field: { onChange, value, ref } }) => {
+                    const count = value?.length ?? 0;
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" size="icon" variant="ghost" onClick={() => {}}>
-                      <Icon name="Folder" size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" align="center" sideOffset={14}>
-                    {t('addFolder')}
-                  </TooltipContent>
-                </Tooltip>
+                    return (
+                      <div className="relative">
+                        <input
+                          id="file-input"
+                          type="file"
+                          multiple
+                          ref={ref}
+                          onChange={e => onChange(e.target.files as FileList)}
+                          className="sr-only"
+                        />
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <label
+                              htmlFor="file-input"
+                              className={cn(
+                                'hover:bg-muted flex size-[35px] cursor-pointer items-center justify-center rounded-md transition',
+                                'text-muted-foreground text-primary relative bg-transparent dark:text-white',
+                                { 'border-[0.5px]': count > 0 },
+                              )}>
+                              <Icon name="Paperclip" size={16} />
+
+                              {count > 0 && (
+                                <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+                                  {count}
+                                </span>
+                              )}
+                            </label>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" align="center" sideOffset={14}>
+                            {t('attachFile')}
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    );
+                  }}
+                />
+
+                <AddToSpace workspaceId={workspaceId} onChange={value => {}} />
               </div>
 
               <GenerateDropdown />
