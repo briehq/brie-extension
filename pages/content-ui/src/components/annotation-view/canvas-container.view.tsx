@@ -158,6 +158,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         fit: { height, width },
       },
     } = meta as BackgroundFitMeta;
+    console.log(' height, width ', { height, width });
 
     if (!width) return;
 
@@ -677,7 +678,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     };
   }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
 
-  useFitCanvasToParent(fabricRef.current, screenshot?.src, gridCellRef.current);
+  useFitCanvasToParent(fabricRef.current, screenshot, gridCellRef.current);
 
   // Warn the user when they try to close or refresh the tab
   useEffect(() => {
