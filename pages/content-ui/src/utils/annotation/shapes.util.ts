@@ -335,7 +335,7 @@ export const setCanvasBackground = async ({
   canvas.backgroundImage = img;
   await canvas.requestRenderAll();
 
-  return { width: naturalWidth, height: naturalHeight, scale };
+  return { width: fitWidth, height: fitHeight, scale };
 };
 
 export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string, color: string) => {

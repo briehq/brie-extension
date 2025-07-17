@@ -1,4 +1,4 @@
-import type { Canvas, FabricObject, PencilBrush } from 'fabric';
+import type { Canvas, FabricImage, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -34,7 +34,6 @@ import {
   setCanvasBackground,
   saveHistory,
   modifyShape,
-  getCanvasScale,
   mergeScreenshot,
 } from '../../utils/annotation';
 
@@ -153,15 +152,15 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * undo and redo mutations.
    */
   const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
-    if (snapshot?.objects) canvas.loadFromJSON({ objects: snapshot.objects });
-
     const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
 
     if (!meta?.width) return;
 
+    if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
+
     await setCanvasBackground({
       file: screenshot.src,
-      canvas: fabricRef.current!,
+      canvas,
       parentWidth: meta?.width,
       parentHeight: meta?.height,
     });
@@ -176,6 +175,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       await restoreObjects(fabricRef.current, history.prevState);
 
       const canvasObjects = fabricRef.current.toJSON();
+
       await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
@@ -189,6 +189,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       await restoreObjects(fabricRef.current, history.restoredState);
 
       const canvasObjects = fabricRef.current.toJSON();
+
       await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
@@ -216,6 +217,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
       if (fabricRef.current) {
         const canvasObjects = fabricRef.current.toJSON();
+
         await saveHistory(
           screenshot.id!,
           { objects: canvasObjects.objects },
@@ -278,14 +280,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         objects = [...objects, shape];
       }
 
-      const scale = fabricRef.current.viewportTransform?.[0] ?? 1;
-      const metadata = meta ?? {
-        width: Math.round(fabricRef.current.getWidth() / scale),
-        height: Math.round(fabricRef.current.getHeight() / scale),
-        scale,
-      };
-
-      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [], meta: metadata };
+      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [], meta };
 
       await annotationsStorage.setAnnotations(screenshot.id!, shapeSnapshot);
 
@@ -293,7 +288,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         const canvasObjects = fabricRef.current.toJSON();
         await saveHistory(
           screenshot.id!,
-          { objects: canvasObjects.objects ?? [], meta },
+          { objects: canvasObjects.objects ?? [] },
           { clearRedo: isProgrammaticChange.current },
         );
       }
@@ -308,9 +303,11 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * @param elem
    */
   const handleActiveElement = (elem: ActiveElement) => {
-    setActiveElement(elem);
+    if (elem?.value !== 'color-palette') {
+      setActiveElement(elem);
 
-    onElement(elem);
+      onElement(elem);
+    }
 
     switch (elem?.value) {
       case 'undo':
@@ -341,8 +338,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
       case 'color-palette':
         currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
-
-        // stoke or fill based on active selection?
 
         if (fabricRef.current?.isDrawingMode) {
           (fabricRef.current.freeDrawingBrush as PencilBrush).color = elem?.payload?.color || elementAttributes.stroke;
@@ -392,7 +387,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
           }
         }
 
-        // set the selected shape to the selected element
         selectedShapeRef.current = elem?.value as string;
 
         break;
@@ -433,6 +427,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
 
       if (annotations?.objects?.length) {
+        console.log('hellooo in initall');
+
         await restoreObjects(canvas, annotations);
       } else {
         const meta = await setCanvasBackground({
