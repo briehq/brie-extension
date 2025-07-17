@@ -10,7 +10,7 @@ import { Button, Icon, toast } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
 import { useFitCanvasToParent } from '@src/hooks';
-import type { ActiveElement, Attributes, ShapeSnapshot } from '@src/models';
+import type { ActiveElement, Attributes, BackgroundFitMeta, ShapeSnapshot } from '@src/models';
 import { base64ToFile } from '@src/utils';
 import { applyBrush, DRAWING_TOOLS } from '@src/utils/annotation/canvas.util';
 
@@ -153,16 +153,21 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    */
   const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
     const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+    const {
+      sizes: {
+        fit: { height, width },
+      },
+    } = meta as BackgroundFitMeta;
 
-    if (!meta?.width) return;
+    if (!width) return;
 
     if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
 
     await setCanvasBackground({
       file: screenshot.src,
       canvas,
-      parentWidth: meta?.width,
-      parentHeight: meta?.height,
+      parentWidth: width,
+      parentHeight: height,
     });
   };
 
@@ -270,7 +275,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       // eslint-disable-next-line prefer-const
       let { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
         objects: [],
-        meta: null,
+        meta: {} as BackgroundFitMeta,
       };
 
       const foundIndex = objects.findIndex((x: any) => x.objectId === shape.objectId);
@@ -427,8 +432,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
 
       if (annotations?.objects?.length) {
-        console.log('hellooo in initall');
-
         await restoreObjects(canvas, annotations);
       } else {
         const meta = await setCanvasBackground({
@@ -730,15 +733,24 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
   const handleOnExportScreenshot = async (format: string) => {
     const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
-    console.log('objects', objects);
+    const {
+      sizes: {
+        natural: { height, width },
+      },
+    } = meta as BackgroundFitMeta;
 
     const fileName = `${screenshot.name}.${format}`;
     let file = null;
 
-    if (!meta?.height || !objects?.length) {
+    if (!height || !objects?.length) {
       file = await base64ToFile(screenshot.src, fileName);
     } else {
-      file = await mergeScreenshot({ screenshot, objects, parentHeight: meta.height, parentWidth: meta.width });
+      file = await mergeScreenshot({
+        screenshot,
+        objects,
+        parentHeight: height,
+        parentWidth: width,
+      });
     }
 
     saveAs(file, fileName);

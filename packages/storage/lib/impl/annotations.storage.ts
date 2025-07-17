@@ -2,6 +2,10 @@ import { createStorage } from '../base/base.js';
 import { StorageEnum } from '../base/enums.js';
 import type { BaseStorage } from '../base/types.js';
 
+interface Size {
+  width: number;
+  height: number;
+}
 type AnnotationMap = Record<string, Annotations>;
 type AnnotationsStorage = BaseStorage<AnnotationMap> & {
   setAnnotations: (id: string, annotations: Annotations) => Promise<void>;
@@ -56,5 +60,11 @@ export const annotationsStorage: AnnotationsStorage = {
 
 export interface Annotations {
   objects: any[];
-  meta?: { width: number; height: number; scale: number };
+  meta?: {
+    sizes: {
+      natural: Size;
+      fit: Size;
+    };
+    scale: number;
+  };
 }

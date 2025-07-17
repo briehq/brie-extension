@@ -1,6 +1,11 @@
 import type { FabricObject, Canvas, Path, Gradient, Pattern } from 'fabric';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 
+interface Size {
+  width: number;
+  height: number;
+}
+
 export enum CursorMode {
   Hidden,
   Chat,
@@ -14,8 +19,10 @@ export interface SaveOptions {
 }
 
 export interface BackgroundFitMeta {
-  width: number;
-  height: number;
+  sizes: {
+    natural: Size;
+    fit: Size;
+  };
   scale: number;
 }
 

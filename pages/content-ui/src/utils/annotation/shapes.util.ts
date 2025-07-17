@@ -298,7 +298,7 @@ export const handleImageUpload = ({ file, canvas, shapeRef, syncShapeInStorage }
  * @param canvas       Fabric canvas (already created)
  * @param parentWidth  available width  (e.g. grid column)
  * @param parentHeight available height (e.g. grid row)
- * @returns            { w, h, scale } meta to store with annotations
+ * @returns            { BackgroundFitMeta } meta to store with annotations
  */
 export const setCanvasBackground = async ({
   file,
@@ -335,7 +335,13 @@ export const setCanvasBackground = async ({
   canvas.backgroundImage = img;
   await canvas.requestRenderAll();
 
-  return { width: fitWidth, height: fitHeight, scale };
+  return {
+    sizes: {
+      natural: { width: naturalWidth, height: naturalHeight },
+      fit: { width: fitWidth, height: fitHeight },
+    },
+    scale,
+  };
 };
 
 export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string, color: string) => {
