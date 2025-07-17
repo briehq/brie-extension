@@ -85,9 +85,7 @@ export default function App() {
 
   const handleOnMinimize = () => setMinimized(true);
   const handleOnEdit = () => {
-    if (!activeScreenshotId) {
-      setActiveScreenshotId(screenshots?.[0]?.id);
-    }
+    setActiveScreenshotId(screenshots?.[0]?.id);
 
     setMinimized(false);
   };

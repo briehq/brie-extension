@@ -432,6 +432,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     const getSavedAnnotations = async () => {
       const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
 
+      console.log('getSavedAnnotations', screenshot?.id);
+
       if (annotations?.objects?.length) {
         await restoreObjects(canvas, annotations);
       } else {
