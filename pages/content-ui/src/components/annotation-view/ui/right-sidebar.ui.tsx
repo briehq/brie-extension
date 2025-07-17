@@ -1,8 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { t } from '@extension/i18n';
 import { SlicePriority } from '@extension/shared';
-import { useGetSpacesQuery } from '@extension/store';
 import type { TagType } from '@extension/ui';
 import {
   Button,
@@ -29,7 +28,7 @@ import {
 } from '@extension/ui';
 
 import { AddToSpace, GenerateDropdown } from '@src/components/dialog-view';
-import { useElementSize } from '@src/hooks';
+import { useElementSize, useTypewriter } from '@src/hooks';
 
 interface RightSidebarProps {
   open?: boolean;
@@ -56,10 +55,43 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open! : internalOpen;
   const [labels, setLabels] = useState<TagType[]>([]);
+  const descRef = useRef<HTMLTextAreaElement | null>(null);
+  const suggestionRef = useRef<HTMLDivElement>(null);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const typedSuggestion = useTypewriter(suggestion ?? '', {
+    enabled: !!suggestion,
+    speed: 20,
+  });
 
   const { ref: detailsViewRef, height: detailsViewHeight } = useElementSize<HTMLDivElement>();
   const formMethods = useForm({ mode: 'onChange' });
   const { setValue, handleSubmit, control } = formMethods;
+
+  const suggestionDone = suggestion != null && typedSuggestion.length === suggestion.length;
+
+  useEffect(() => {
+    const syncHeight = () => {
+      if (descRef.current && suggestionRef.current) {
+        suggestionRef.current.style.maxHeight = descRef.current.clientHeight + 'px';
+      }
+    };
+
+    syncHeight();
+
+    descRef.current?.addEventListener('input', syncHeight);
+    window.addEventListener('resize', syncHeight);
+
+    return () => {
+      descRef.current?.removeEventListener('input', syncHeight);
+      window.removeEventListener('resize', syncHeight);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (suggestionRef.current) {
+      suggestionRef.current.scrollTop = suggestionRef.current.scrollHeight;
+    }
+  }, [typedSuggestion]);
 
   const toggle = useCallback(() => {
     const next = !isOpen;
@@ -67,6 +99,32 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
     onOpenChange(next);
   }, [isControlled, isOpen, onOpenChange]);
+
+  const acceptSuggestion = useCallback(
+    (fieldOnChange: (v: string) => void) => {
+      if (!suggestion) return;
+      fieldOnChange(suggestion);
+      setSuggestion(null);
+
+      requestAnimationFrame(() => descRef.current?.focus());
+    },
+    [suggestion],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (['ArrowRight', 'Tab'].includes(e.key) && suggestion) {
+        e.preventDefault();
+        setValue('description', suggestion);
+        setSuggestion(null);
+
+        requestAnimationFrame(() => descRef.current?.focus());
+      }
+    };
+    window.addEventListener('keydown', onKey);
+
+    return () => window.removeEventListener('keydown', onKey);
+  }, [suggestion]);
 
   return (
     <>
@@ -110,23 +168,80 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           <form onSubmit={handleSubmit(onCreate)} className="w-full space-y-2" id="details-form">
             <FormField
               control={control}
+              name="description"
               rules={{
                 maxLength: {
                   message: 'Keep it short and sweet, 10 - 1000 characters max!',
                   value: 1000,
                 },
               }}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs">Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Write a description here..." rows={7} {...field} className="resize-none" />
-                  </FormControl>
+              render={({ field }) => {
+                const showSuggestion = !!(suggestion && !field.value);
 
-                  <FormMessage />
-                </FormItem>
-              )}
+                return (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground text-xs">Description</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Textarea
+                          {...field}
+                          ref={node => {
+                            descRef.current = node;
+                            if (typeof field.ref === 'function') field.ref(node);
+                            else (field as any).ref = node;
+                          }}
+                          placeholder={!suggestion?.length ? 'Write a description here...' : ''}
+                          rows={7}
+                          className="resize-none overflow-y-auto"
+                          onWheelCapture={e => e.stopPropagation()}
+                          onKeyDown={e => {
+                            if (!field.value && suggestion && ['ArrowRight', 'Tab'].includes(e.key)) {
+                              e.preventDefault();
+                              acceptSuggestion(field.onChange);
+                            }
+                          }}
+                          onChange={e => {
+                            if (suggestion && e.target.value.length > 0) setSuggestion(null);
+                            field.onChange(e);
+                          }}
+                        />
+
+                        <div
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          ref={suggestionRef}
+                          onClick={() => descRef.current?.focus()}
+                          onWheelCapture={e => {
+                            if (showSuggestion) e.stopPropagation();
+                          }}
+                          onMouseDown={e => {
+                            if (showSuggestion) {
+                              e.preventDefault();
+                              descRef.current?.focus();
+                            }
+                          }}
+                          className={cn(
+                            'text-muted-foreground pointer-events-auto absolute inset-0 select-none overflow-y-auto whitespace-pre-wrap break-words px-3 py-2 text-sm leading-[inherit] caret-transparent',
+                            showSuggestion ? 'pointer-events-auto' : 'pointer-events-none',
+                          )}>
+                          {typedSuggestion}
+
+                          {suggestion && !field.value && (
+                            <>
+                              {suggestionDone ? (
+                                <kbd className="ml-1 rounded border px-1 py-0.5 text-[10px] opacity-70">Tab</kbd>
+                              ) : (
+                                <span className="ml-1 animate-pulse opacity-70">▍</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -247,10 +362,23 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   }}
                 />
 
-                <AddToSpace workspaceId={workspaceId} onChange={value => {}} />
+                <Controller
+                  name="spaceId"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <AddToSpace workspaceId={workspaceId} onChange={field.onChange} />
+                    </FormItem>
+                  )}
+                />
               </div>
 
-              <GenerateDropdown />
+              <GenerateDropdown
+                onGenerate={text => {
+                  setSuggestion(text);
+                  requestAnimationFrame(() => descRef.current?.focus());
+                }}
+              />
             </div>
           </form>
         </Form>

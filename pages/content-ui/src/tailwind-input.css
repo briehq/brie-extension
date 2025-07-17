@@ -3,3 +3,19 @@
 .bg-gradient-overlay {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), #27241d;
 }
+
+@keyframes typewriter {
+  from {
+    max-width: 0;
+  }
+  to {
+    max-width: calc(var(--chars) * 1ch);
+  }
+}
+
+.animate-type {
+  display: inline-block;
+  white-space: pre-wrap; /* keep line‑breaks */
+  overflow: hidden;
+  animation: typewriter 10.3s steps(var(--chars)) forwards;
+}
