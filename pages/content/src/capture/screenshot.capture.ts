@@ -293,7 +293,12 @@ const onMouseUp = async (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple'
 
   await waitForRepaint();
 
-  await captureScreenshots({ x: minX, y: minY, width, height, mode });
+  const isSmall = width < 1 && height < 1;
+  const area = isSmall
+    ? { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
+    : { x: minX, y: minY, width, height };
+
+  await captureScreenshots({ ...area, mode });
   // hideLoadingMessage();
 };
 
@@ -323,7 +328,12 @@ const onTouchEnd = async (e: TouchEvent, mode: 'single' | 'multiple') => {
 
   await waitForRepaint();
 
-  await captureScreenshots({ x: startX, y: startY, width, height, mode });
+  const isSmall = width < 1 && height < 1;
+  const area = isSmall
+    ? { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
+    : { x: startX, y: startY, width, height };
+
+  await captureScreenshots({ ...area, mode });
   hideLoadingMessage();
 };
 
@@ -333,6 +343,19 @@ const onTouchMove = (e: TouchEvent) => {
   lastPointerX = clientX;
   lastPointerY = clientY;
   positionInstructionsMessage(lastPointerX, lastPointerY);
+};
+
+const toggleMinimizedPreview = () => {
+  const shadowHost = getShadowHost();
+  const wasHidden = shadowHost?.hidden ?? false;
+
+  if (!shadowHost) return;
+
+  if (!wasHidden) {
+    shadowHost.hidden = true;
+  } else {
+    shadowHost.hidden = false;
+  }
 };
 
 // Show instructions message
@@ -362,12 +385,7 @@ const showInstructions = () => {
 
 const captureTab = (): Promise<string> =>
   new Promise((resolve, reject) => {
-    const shadowHost = getShadowHost();
-    const wasHidden = shadowHost?.hidden ?? false;
-
-    if (shadowHost && !wasHidden) {
-      shadowHost.hidden = true;
-    }
+    toggleMinimizedPreview();
 
     chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, response => {
       if (chrome.runtime.lastError) {
@@ -384,9 +402,7 @@ const captureTab = (): Promise<string> =>
         resolve(response.dataUrl);
       }
 
-      if (shadowHost) {
-        shadowHost.hidden = wasHidden;
-      }
+      toggleMinimizedPreview();
     });
   });
 
@@ -463,6 +479,8 @@ const captureScreenshots = async ({
     }
   } catch (error) {
     console.error('Error during screenshot capture:', error);
+  } finally {
+    toggleMinimizedPreview();
   }
 };
 
@@ -608,6 +626,7 @@ export const startScreenshotCapture = async ({
 
   createOverlay();
   showInstructions();
+  toggleMinimizedPreview();
 
   overlay.addEventListener('keydown', onKeyDown); // Listen for ESC key press
   overlay.addEventListener('mousedown', e => onMouseDown(e, mode));

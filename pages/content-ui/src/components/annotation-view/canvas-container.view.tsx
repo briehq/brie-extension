@@ -418,7 +418,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
   useEffect(() => {
     if (!screenshot?.id) {
-      toast.error('No screenshots available. Please try capturing again!');
       return;
     }
 

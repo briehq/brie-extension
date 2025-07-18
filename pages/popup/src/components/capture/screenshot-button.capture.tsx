@@ -255,6 +255,7 @@ export const CaptureScreenshotGroup = () => {
   return (
     <>
       <RadioGroup
+        // disabled={captureState === 'capturing'}
         className={cn('border-muted grid w-full gap-4 rounded-xl border bg-slate-100/20 p-2', {
           'grid-cols-3': !showExitCapture,
         })}>
