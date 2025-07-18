@@ -158,7 +158,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         fit: { height, width },
       },
     } = meta as BackgroundFitMeta;
-    console.log(' height, width ', { height, width });
 
     if (!width) return;
 
@@ -279,7 +278,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         meta: {} as BackgroundFitMeta,
       };
 
-      const foundIndex = objects.findIndex((x: any) => x.objectId === shape.objectId);
+      const foundIndex = objects?.findIndex((x: any) => x.objectId === shape.objectId);
       if (foundIndex !== -1) {
         objects[foundIndex] = shape;
       } else {
@@ -431,8 +430,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
     const getSavedAnnotations = async () => {
       const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
-
-      console.log('getSavedAnnotations', screenshot?.id);
 
       if (annotations?.objects?.length) {
         await restoreObjects(canvas, annotations);
@@ -724,12 +721,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     if (!options?.selected) {
       return;
     }
-
-    const selectedElement: any = options?.selected[0] as FabricObject;
-
-    selectedElement.set({
-      padding: 10,
-    });
 
     setActionMenuVisible(true);
   }, []);
