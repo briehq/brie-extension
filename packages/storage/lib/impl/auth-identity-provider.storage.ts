@@ -1,4 +1,3 @@
-// storage/authFlow.ts
 import { createStorage } from '../base/base.js';
 import { StorageEnum } from '../base/enums.js';
 import type { BaseStorage } from '../base/types.js';

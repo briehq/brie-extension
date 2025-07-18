@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
@@ -6,16 +6,18 @@ import {
   annotationHistoryStorage,
   annotationsRedoStorage,
   annotationsStorage,
+  captureNotifyStorage,
   captureStateStorage,
   themeStorage,
 } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
-import { cn, ToasterProvider, TooltipProvider } from '@extension/ui';
+import { cn, toast, ToasterProvider, TooltipProvider } from '@extension/ui';
 
 import { MinimizedPreview } from './components/dialog-view';
 import Content from './content';
 
 export default function App() {
+  const captureNotifyState = useStorage(captureNotifyStorage);
   const captureState = useStorage(captureStateStorage);
   const theme = useStorage(themeStorage);
   const [minimized, setMinimized] = useState(true);
@@ -36,7 +38,20 @@ export default function App() {
 
   const handleOnStoreScreenshot = async (event: any) => {
     handleOnMinimize();
-    setScreenshots(screenshots => [...(screenshots?.length ? screenshots : []), ...event.detail.screenshots]);
+    setScreenshots(screenshots => [...(screenshots ?? []), ...event.detail.screenshots]);
+
+    if (!captureNotifyState?.notified) {
+      setTimeout(
+        () =>
+          toast.message('Screenshot captured', {
+            duration: Infinity,
+            closeButton: true,
+            description: 'Capture more shots or jump straight into editing.',
+          }),
+        1000,
+      );
+      await captureNotifyStorage.set({ notified: true });
+    }
   };
 
   const handleOnDisplay = async (event: any) => {
@@ -95,35 +110,35 @@ export default function App() {
     await captureStateStorage.setCaptureState('unsaved');
   };
 
-  if (!screenshots?.length) return null;
-
   const capturing = captureState === 'capturing';
 
   return (
     <div id="brie-content" className={cn('light', 'relative')}>
-      <ReduxProvider store={store}>
-        <TooltipProvider>
-          {minimized ? (
-            <MinimizedPreview
-              screenshots={screenshots}
-              onEdit={handleOnEdit}
-              unsaved={capturing}
-              onDiscard={handleOnClose}
-            />
-          ) : (
-            <Content
-              activeScreenshotId={activeScreenshotId || ''}
-              screenshots={screenshots}
-              onClose={handleOnClose}
-              onMinimize={handleOnMinimize}
-              onDeleteScreenshot={handleOnDeleteScreenshot}
-              onSelectScreenshot={handleOnSelectScreenshot}
-            />
-          )}
+      <ToasterProvider theme={theme} />
 
-          <ToasterProvider theme={theme} />
-        </TooltipProvider>
-      </ReduxProvider>
+      {!!screenshots?.length && (
+        <ReduxProvider store={store}>
+          <TooltipProvider>
+            {minimized ? (
+              <MinimizedPreview
+                screenshots={screenshots}
+                onEdit={handleOnEdit}
+                unsaved={capturing}
+                onDiscard={handleOnClose}
+              />
+            ) : (
+              <Content
+                activeScreenshotId={activeScreenshotId || ''}
+                screenshots={screenshots}
+                onClose={handleOnClose}
+                onMinimize={handleOnMinimize}
+                onDeleteScreenshot={handleOnDeleteScreenshot}
+                onSelectScreenshot={handleOnSelectScreenshot}
+              />
+            )}
+          </TooltipProvider>
+        </ReduxProvider>
+      )}
     </div>
   );
 }

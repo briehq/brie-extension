@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+
 import type { FC } from 'react';
 
 import type { Screenshot } from '@extension/shared';
