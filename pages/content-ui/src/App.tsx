@@ -83,16 +83,21 @@ export default function App() {
     [activeScreenshotId],
   );
 
-  const handleOnMinimize = () => setMinimized(true);
-  const handleOnEdit = () => {
+  const handleOnMinimize = async () => {
+    await captureStateStorage.setCaptureState('capturing');
+    setMinimized(true);
+  };
+  const handleOnEdit = async () => {
     setActiveScreenshotId(screenshots?.[0]?.id);
 
     setMinimized(false);
+
+    await captureStateStorage.setCaptureState('unsaved');
   };
 
   if (!screenshots?.length) return null;
 
-  const unsaved = captureState === 'capturing';
+  const capturing = captureState === 'capturing';
 
   return (
     <div id="brie-content" className={cn('light', 'relative')}>
@@ -102,7 +107,7 @@ export default function App() {
             <MinimizedPreview
               screenshots={screenshots}
               onEdit={handleOnEdit}
-              unsaved={unsaved}
+              unsaved={capturing}
               onDiscard={handleOnClose}
             />
           ) : (

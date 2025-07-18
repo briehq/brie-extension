@@ -239,6 +239,19 @@ export const CaptureScreenshotGroup = () => {
     );
   }
 
+  if (captureState === 'unsaved' && currentActiveTab === activeTab.id) {
+    return (
+      <div className="border-muted grid w-full gap-4 rounded-xl border bg-slate-100/20 p-2">
+        <button
+          className="hover:bg-accent flex w-full items-center justify-center rounded-md border border-transparent py-4"
+          onClick={() => activeTab?.id && handleOnDiscard(activeTab.id)}>
+          <Icon name="X" size={20} strokeWidth={1.5} className="mr-1" />
+          <span>{t('exitCaptureScreenshot')}</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
       <RadioGroup
@@ -277,7 +290,6 @@ export const CaptureScreenshotGroup = () => {
           </>
         )}
       </RadioGroup>
-
       {/* {isCaptureScreenshotDisabled && (
         <p>
           You’ve reached the issue limit for your plan. <a href="/pricing">Upgrade your plan</a> for unlimited issues.
