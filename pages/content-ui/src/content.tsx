@@ -29,6 +29,8 @@ interface ContentProps {
   onSelectScreenshot(id: string): void;
 }
 
+const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
+
 const Content = ({
   screenshots = [],
   activeScreenshotId,
@@ -40,6 +42,8 @@ const Content = ({
   const dispatch = useAppDispatch();
   const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
+  const { isLoading, isError, data: user } = useGetUserDetailsQuery();
+  const [createSlice] = useCreateSliceMutation();
 
   const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
   const [showRightSection, setShowRightSection] = useState(true);
@@ -49,8 +53,14 @@ const Content = ({
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
   const [createType, setCreateType] = useState();
 
-  const { isLoading, isError, data: user } = useGetUserDetailsQuery();
-  const [createSlice] = useCreateSliceMutation();
+  const isLg = canvasWidth >= LG_BREAKPOINT;
+  const isMd = canvasWidth >= MD_BREAKPOINT;
+  const isSm = canvasWidth <= SM_BREAKPOINT;
+  const hasShots = screenshots.length > 1;
+  const isDialogOpen = !!screenshots.length;
+
+  const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
+  const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
 
   const activeScreenshot = useMemo(
     () => screenshots.find(s => s.id === activeScreenshotId),
@@ -70,6 +80,12 @@ const Content = ({
     return showRightSection;
   }, [showRightSection, user?.authMethod]);
 
+  useEffect(() => {
+    setLeftSidebarOpen(hasShots && isLg);
+
+    setRightSidebarOpen(isMd || isLg);
+  }, [isLg, hasShots, isMd]);
+
   const handleToggleRightSection = () => setShowRightSection(value => !value);
 
   const handleOnElement = (element: ActiveElement) => setActiveElement(element);
@@ -82,12 +98,7 @@ const Content = ({
           return reject(new Error(chrome.runtime.lastError.message));
         }
 
-        // if (response?.records?.length) {
         resolve(response.records);
-        // }
-        // else {
-        //   reject(new Error('No records captured.'));
-        // }
       });
     });
   };
@@ -96,7 +107,6 @@ const Content = ({
     console.log('createType', createType);
     console.log('payload', payload);
     if (createType !== 'link') return;
-    // return; // remove this
 
     setIsCreateLoading(true);
 
@@ -149,23 +159,25 @@ const Content = ({
          * see: createAnnotationsJsonFile
          */
         for (const screenshot of screenshots) {
-          const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+          const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {
+            objects: [],
+            meta: {},
+          };
 
           let file = null;
 
-          if (!meta?.height || !objects?.length) {
+          if (!meta?.sizes?.natural?.height || !objects?.length) {
             file = await base64ToFile(screenshot.src, `${screenshot.name}.png`);
           } else {
-            file = await mergeScreenshot({ screenshot, objects, parentHeight: meta.height, parentWidth: meta.width });
+            file = await mergeScreenshot({
+              screenshot,
+              objects,
+              parentHeight: meta.sizes.natural.height,
+              parentWidth: meta.sizes.natural.width,
+            });
           }
 
           formData.append('screenshots', file);
-          const previewUrl = URL.createObjectURL(file);
-
-          const img = new Image();
-          img.src = previewUrl;
-          img.style.cssText = 'position:fixed;bottom:1rem;left:1rem;max-width:30%;border:2px solid lime;';
-          document.body.appendChild(img);
         }
 
         const { data } = await createSlice(formData);
@@ -194,20 +206,15 @@ const Content = ({
     }
   };
 
-  const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
-  const isDialogOpen = !!screenshots.length;
-  const isLg = canvasWidth >= LG_BREAKPOINT;
-  const isMd = canvasWidth >= MD_BREAKPOINT;
-  const hasShots = screenshots.length > 1;
+  const handleOnOpenSidebar = (side: 'left' | 'right') => (open: boolean) => {
+    if (isSm && open) {
+      if (side === 'left') setRightSidebarOpen(false);
+      else setLeftSidebarOpen(false);
+    }
 
-  const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
-  const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
-
-  useEffect(() => {
-    setLeftSidebarOpen(hasShots && isLg);
-
-    setRightSidebarOpen(isMd || isLg);
-  }, [isLg, hasShots, isMd]);
+    if (side === 'left') setLeftSidebarOpen(open);
+    else setRightSidebarOpen(open);
+  };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={onClose} modal>
@@ -263,7 +270,7 @@ const Content = ({
             activeScreenshotId={activeScreenshotId!}
             canvasHeight={canvasHeight}
             open={isLeftSidebarOpen}
-            onOpenChange={setLeftSidebarOpen}
+            onOpenChange={handleOnOpenSidebar('left')}
             screenshots={screenshots}
             onDelete={onDeleteScreenshot}
             onSelect={onSelectScreenshot}
@@ -280,7 +287,7 @@ const Content = ({
             workspaceId={workspaceId}
             canvasHeight={canvasHeight}
             open={isRightSidebarOpen}
-            onOpenChange={setRightSidebarOpen}
+            onOpenChange={handleOnOpenSidebar('right')}
             onCreate={handleOnCreate}
           />
         </main>

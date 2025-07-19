@@ -18,7 +18,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="hidden items-center space-x-2 sm:flex">
       <Button
         disabled={false}
         onClick={() => onExport(selectedFormat)}

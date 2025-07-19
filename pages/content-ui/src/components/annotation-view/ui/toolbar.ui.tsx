@@ -114,7 +114,7 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
               </Tooltip>
             )
           ) : (
-            <div key={idx} className="h-[20px] w-[1px] bg-slate-300"></div>
+            <div key={idx} className="hidden h-[20px] w-[1px] bg-slate-300 sm:flex" />
           ),
         )}
       </div>

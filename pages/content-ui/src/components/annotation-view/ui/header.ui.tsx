@@ -71,7 +71,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
   return (
     <header
       className={cn(
-        'grid grid-cols-3 items-center rounded-t-[18px] border-b border-[#EDECE8] bg-white p-4',
+        'grid grid-cols-2 items-center rounded-t-[18px] border-b border-[#EDECE8] bg-white p-4 sm:grid-cols-3',
         className,
       )}>
       <div className="flex items-center gap-[14px]">
@@ -114,7 +114,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 size="icon"
                 variant="ghost"
                 onClick={onToggleFullScreen}
-                className="dark:bg-primary size-[35px] dark:text-white"
+                className="dark:bg-primary hidden size-[35px] sm:flex dark:text-white"
                 aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}>
                 <Icon name={isFullScreen ? 'MinimizeIcon' : 'MaximizeIcon'} size={14} />
               </Button>
@@ -128,7 +128,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
         <EditableTitle value={title} onChange={onTitleChange} />
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="hidden items-center justify-center gap-2 sm:flex">
         <div className="flex items-center">
           <Tooltip>
             <TooltipTrigger asChild>
