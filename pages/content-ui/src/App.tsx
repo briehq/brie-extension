@@ -44,7 +44,7 @@ export default function App() {
       setTimeout(
         () =>
           toast.message('Screenshot captured', {
-            duration: Infinity,
+            duration: 60000,
             closeButton: true,
             description: 'Capture more shots or jump straight into editing.',
           }),

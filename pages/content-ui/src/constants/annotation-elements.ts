@@ -170,9 +170,9 @@ export const alignmentOptions = [
 
 export const shortcuts = [
   {
-    value: 'save',
-    name: 'Save As...',
-    shortcut: '⌘ + S',
+    value: 'export',
+    name: 'Export',
+    // shortcut: '⌘ + E',
   },
   {
     value: 'undo',
@@ -187,6 +187,6 @@ export const shortcuts = [
   {
     value: 'start_over',
     name: 'Start Over',
-    shortcut: '⌘ + D',
+    // shortcut: '⌘ + D',
   },
 ];

@@ -3,6 +3,8 @@
 import type { RefObject } from 'react';
 import { useCallback } from 'react';
 
+import { useStorage } from '@extension/shared';
+import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,28 +16,28 @@ import {
 import { shortcuts } from '@src/constants';
 
 type Props = {
+  id: string;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   onUndo: () => void;
   onRedo: () => void;
   onStartOver: () => void;
+  onExport: () => void;
 };
 
-export const CanvasWrapper = ({ canvasRef, onUndo, onRedo, onStartOver }: Props) => {
-  // trigger respective actions when the user clicks on the right menu
+export const CanvasWrapper = ({ id, canvasRef, onUndo, onRedo, onStartOver, onExport }: Props) => {
+  const historyAnnotations = useStorage(annotationHistoryStorage);
+  const redoAnnotations = useStorage(annotationsRedoStorage);
+  const annotations = useStorage(annotationsStorage);
+
+  const canUndo = historyAnnotations[id]?.objects?.length;
+  const canRedo = redoAnnotations[id]?.objects?.length;
+  const canStartOver = annotations[id]?.objects?.length || canRedo || canUndo;
+
   const handleContextMenuClick = useCallback(
     (value: string) => {
       switch (value) {
-        // case "Chat":
-        //   setCursorState({
-        //     mode: CursorMode.Chat,
-        //     previousMessage: null,
-        //     message: "",
-        //   });
-        //   break;
-
-        case 'save':
-          // @todo
-          // exportToPng('image-issue');
+        case 'export':
+          onExport();
           break;
 
         case 'undo':
@@ -54,8 +56,22 @@ export const CanvasWrapper = ({ canvasRef, onUndo, onRedo, onStartOver }: Props)
           break;
       }
     },
-    [onRedo, onStartOver, onUndo],
+    [onExport, onRedo, onStartOver, onUndo],
   );
+
+  const isMenuDisabled = (key: string) => {
+    switch (key) {
+      case 'undo':
+        return !canUndo;
+      case 'redo':
+        return !canRedo;
+      case 'start_over':
+        return !canStartOver;
+
+      default:
+        return false;
+    }
+  };
 
   return (
     <ContextMenu>
@@ -70,6 +86,7 @@ export const CanvasWrapper = ({ canvasRef, onUndo, onRedo, onStartOver }: Props)
         {shortcuts.map(item => (
           <ContextMenuItem
             key={item.value}
+            disabled={isMenuDisabled(item.value)}
             onClick={() => handleContextMenuClick(item.value)}
             className="right-menu-item cursor-pointer text-xs">
             {item.name}

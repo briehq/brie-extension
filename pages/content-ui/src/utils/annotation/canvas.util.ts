@@ -93,17 +93,15 @@ export const initializeFabric = ({
   return canvas;
 };
 
-export const applyBrush = (tool: 'freeform' | 'highlighter', canvas: Canvas, currentColorRef) => {
+export const applyBrush = (tool: 'freeform' | 'highlighter', canvas: Canvas, currentColorRef: any) => {
   const brush = new PencilBrush(canvas);
 
   if (tool === 'freeform') {
     brush.width = 3;
     brush.color = currentColorRef.current;
-    brush.globalCompositeOperation = 'source-over';
   } else {
     brush.width = 18;
     brush.color = hexToRgba(currentColorRef.current, 0.45);
-    brush.globalCompositeOperation = 'multiply';
   }
 
   canvas.freeDrawingBrush = brush;
@@ -279,18 +277,17 @@ export const handleCanvasObjectModified = ({ options, syncShapeInStorage }: Canv
 
 // update shape in storage when path is created when in freeform mode
 export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCreated) => {
-  // get path object
   const path = options.path;
   if (!path) {
     return;
   }
 
-  // set unique id to path object
   path.set({
     objectId: uuid4(),
+    padding: 10,
+    globalCompositeOperation: 'source-over',
   });
 
-  // sync shape in storage
   syncShapeInStorage(path);
 };
 

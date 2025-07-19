@@ -13,6 +13,15 @@ export enum CursorMode {
   Reaction,
 }
 
+export interface HandleKeyDownDeps {
+  e: KeyboardEvent;
+  canvas: Canvas;
+  undo: () => void;
+  redo: () => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
+  deleteShapeFromStorage: (id: string) => void;
+}
+
 export interface SaveOptions {
   clearRedo?: boolean;
   max?: number;

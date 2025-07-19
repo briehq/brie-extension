@@ -6,20 +6,23 @@ import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifySha
 
 import { DRAWING_TOOLS } from './canvas.util';
 
+const DEFAULT_SHAPE_OPTIONS = {
+  width: 100,
+  height: 100,
+  strokeWidth: 3,
+  cornerSize: 8,
+  padding: 10,
+  selectable: true,
+  fill: 'transparent',
+};
 export const createRectangle = (pointer: PointerEvent, stroke: string) => {
   const rect = new Rect({
+    stroke,
     left: pointer.x,
     top: pointer.y,
-    width: 100,
-    height: 100,
-    stroke,
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'rectangle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Rect> | any);
 
   return rect;
@@ -27,72 +30,56 @@ export const createRectangle = (pointer: PointerEvent, stroke: string) => {
 
 export const createTriangle = (pointer: PointerEvent, stroke: string) => {
   return new Triangle({
+    stroke,
     left: pointer.x,
     top: pointer.y,
-    width: 100,
-    height: 100,
-    stroke,
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'triangle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Triangle> | any);
 };
 
 export const createCircle = (pointer: PointerEvent, stroke: string) => {
   return new Circle({
+    stroke,
     left: pointer.x,
     top: pointer.y,
     radius: 100,
-    stroke,
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'circle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as any);
 };
 
 export const createLine = (pointer: PointerEvent, stroke: string) => {
   return new Line([pointer.x, pointer.y, pointer.x + 100, pointer.y + 100], {
     stroke,
-    strokeWidth: 3,
     objectId: uuidv4(),
-    cornerSize: 8,
     shapeType: 'line',
-    padding: 5,
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Line> | any);
 };
 
 export const createArrow = (pointer: PointerEvent, stroke: string) => {
-  // Create the line (shaft of the arrow)
   const line = new Line([0, 0, 100, 0], {
     stroke,
     strokeWidth: 3,
-    selectable: false, // Ensure only the group is selectable, not individual parts
-    originX: 'center', // Center the line in the group
+    selectable: false,
+    originX: 'center',
     originY: 'center',
   });
 
-  // Create the triangle (arrowhead)
   const triangle = new Triangle({
     width: 12,
     height: 18,
     fill: line.stroke,
     originX: 'center',
     originY: 'center',
-    angle: 90, // Ensure the arrowhead points correctly
-    left: 100, // Position the triangle at the end of the line
-    selectable: false, // Ensure the triangle itself is not selectable
+    angle: 90,
+    left: 100,
+    selectable: false,
   });
 
-  // Group the line and triangle into an arrow
   const arrowGroup = new Group([line, triangle], {
     left: pointer.x,
     top: pointer.y,
@@ -101,17 +88,15 @@ export const createArrow = (pointer: PointerEvent, stroke: string) => {
     objectId: uuidv4(),
     originX: 'center',
     originY: 'center',
-    width: 100 + triangle.width, // Set group width to account for both line and triangle
-    height: Math.max(line.strokeWidth, triangle.height), // Set group height based on the largest part
+    width: 100 + triangle.width,
+    height: Math.max(line.strokeWidth, triangle.height),
     shapeType: 'arrow',
     padding: 10,
     selectable: true,
   } as CustomFabricObject<Line> | any);
 
-  // Set the correct coordinates and bounding box
   arrowGroup.setCoords();
 
-  // Ensure correct bounding box on canvas interactions (dragging, resizing, etc.)
   arrowGroup.on('scaling', () => arrowGroup.setCoords());
   arrowGroup.on('rotating', () => arrowGroup.setCoords());
   arrowGroup.on('moving', () => arrowGroup.setCoords());
@@ -127,7 +112,9 @@ export const createArrow = (pointer: PointerEvent, stroke: string) => {
  * @param pointer  result of canvas.getScenePoint(e)
  * @returns        the rectangle (interactive object)
  */
-export const createBlur = (canvas: Canvas, pointer: PointerEvent): Rect => {
+export const createBlur = (canvas: Canvas | undefined, pointer: PointerEvent): Rect => {
+  if (!canvas) return {} as Rect;
+
   let blurred = {} as FabricImage;
 
   const bg = canvas.backgroundImage as FabricImage | undefined;
@@ -148,19 +135,16 @@ export const createBlur = (canvas: Canvas, pointer: PointerEvent): Rect => {
   canvas.sendObjectToBack(blurred);
 
   const win = new Rect({
+    ...DEFAULT_SHAPE_OPTIONS,
     left: pointer.x,
     top: pointer.y,
-    width: 100,
-    height: 100,
     fill: 'rgba(0,0,0,0)',
-    cornerSize: 8,
     transparentCorners: false,
     objectCaching: false,
     objectId: uuidv4(),
     data: 'blur-window',
     shapeType: 'blur',
     blurRadius: 0.1,
-    selectable: true,
     absolutePositioned: true,
   });
 
@@ -170,44 +154,41 @@ export const createBlur = (canvas: Canvas, pointer: PointerEvent): Rect => {
 };
 
 export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, className, score }: any) => {
-  // Create lines for the bounding box (without the top line)
   const leftLine = new Line([boxLeft, boxTop, boxLeft, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
   const rightLine = new Line([boxLeft + boxWidth, boxTop, boxLeft + boxWidth, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
   const bottomLine = new Line([boxLeft, boxTop + boxHeight, boxLeft + boxWidth, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
-  // Create a label background (semi-transparent yellow box)
   const labelBackground = new Rect({
     left: boxLeft,
-    top: boxTop - 20, // Place label above the box
+    top: boxTop - 20,
     width: boxWidth,
     height: 20,
     fill: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     selectable: false,
     hasControls: false,
   });
 
-  // Create a label with the class name and score
   const labelText = new FabricText(`${className} (${(score * 100).toFixed(2)}%)`, {
-    left: boxLeft + 5, // Padding from the left edge of the box
-    top: boxTop - 18, // Align text within label background
+    left: boxLeft + 5,
+    top: boxTop - 18,
     fontSize: 14,
     fontWeight: 500,
     fill: 'black',
@@ -215,10 +196,9 @@ export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, clas
     hasControls: false,
   });
 
-  // Group the bounding box and label elements together
   return new Group([leftLine, rightLine, bottomLine, labelBackground, labelText], {
     selectable: true,
-    hasControls: false, // No controls around the group
+    hasControls: false,
     padding: 10,
     shapeType: 'suggestion',
     objectId: uuidv4(),
@@ -236,7 +216,7 @@ export const createText = (pointer: PointerEvent, fill: string, text: string) =>
     objectId: uuidv4(),
     cornerSize: 10,
     shapeType: 'text',
-    padding: 5,
+    padding: 10,
     selectable: true,
   });
 };
@@ -262,7 +242,7 @@ export const createSpecificShape = (shapeType: string, pointer: PointerEvent, co
       return createText(pointer, color, 'Tap to Type');
 
     case 'blur':
-      return createBlur(canvas, pointer, color);
+      return createBlur(canvas, pointer);
 
     default:
       return null;

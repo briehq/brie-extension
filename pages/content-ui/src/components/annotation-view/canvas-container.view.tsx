@@ -1,18 +1,24 @@
-import type { Canvas, FabricImage, FabricObject, PencilBrush } from 'fabric';
+import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
-import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import {
+  annotationHistoryStorage,
+  annotationsRedoStorage,
+  annotationsStorage,
+  captureStateStorage,
+} from '@extension/storage';
 import type { RootState } from '@extension/store';
 import { clearCanvasState, useAppDispatch, useAppSelector } from '@extension/store';
-import { Button, Icon, toast } from '@extension/ui';
+import { Button, Icon } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
 import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes, BackgroundFitMeta, ShapeSnapshot } from '@src/models';
 import { base64ToFile } from '@src/utils';
-import { applyBrush, DRAWING_TOOLS } from '@src/utils/annotation/canvas.util';
+import { applyBrush, DRAWING_TOOLS, getShadowHostElement } from '@src/utils/annotation/canvas.util';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
 import { Toolbar } from './ui';
@@ -35,6 +41,7 @@ import {
   saveHistory,
   modifyShape,
   mergeScreenshot,
+  hexToRgba,
 } from '../../utils/annotation';
 
 interface CanvasContainerProps {
@@ -43,6 +50,7 @@ interface CanvasContainerProps {
 }
 
 const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
+  const captureState = useStorage(captureStateStorage);
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
 
@@ -308,11 +316,33 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * @param elem
    */
   const handleActiveElement = (elem: ActiveElement) => {
-    if (elem?.value !== 'color-palette') {
-      setActiveElement(elem);
+    if (elem?.value === 'color-palette') {
+      const highlighterColor = hexToRgba(elem?.payload?.color || elementAttributes.stroke, 0.45);
 
-      onElement(elem);
+      currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
+
+      if (fabricRef.current?.isDrawingMode) {
+        (fabricRef.current.freeDrawingBrush as PencilBrush).color = highlighterColor;
+      }
+
+      setElementAttributes(prevAttributes => ({
+        ...prevAttributes,
+        stroke: highlighterColor,
+      }));
+
+      modifyShape({
+        canvas: fabricRef.current!,
+        property: 'stroke',
+        value: highlighterColor,
+        activeObjectRef,
+        syncShapeInStorage,
+      });
+
+      return;
     }
+
+    setActiveElement(elem);
+    onElement(elem);
 
     switch (elem?.value) {
       case 'undo':
@@ -339,27 +369,6 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         handleDelete(fabricRef.current as any, deleteShapeFromStorage);
         // set "select" as the active element
         setActiveElement(defaultNavElement);
-        break;
-
-      case 'color-palette':
-        currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
-
-        if (fabricRef.current?.isDrawingMode) {
-          (fabricRef.current.freeDrawingBrush as PencilBrush).color = elem?.payload?.color || elementAttributes.stroke;
-        }
-
-        setElementAttributes(prevAttributes => ({
-          ...prevAttributes,
-          stroke: elem?.payload?.color || elementAttributes.stroke,
-        }));
-
-        modifyShape({
-          canvas: fabricRef.current!,
-          property: 'stroke',
-          value: elem?.payload?.color || elementAttributes.stroke,
-          activeObjectRef,
-          syncShapeInStorage,
-        });
         break;
 
       // upload an image to the canvas
@@ -628,21 +637,26 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     });
 
     /**
-     * listen to the key down event on the window which is fired when the
+     * listen to the key down event on the shadow dom which is fired when the
      * user presses a key on the keyboard.
      *
      * We're using this to perform some actions like delete, copy, paste, etc when the user presses the respective keys on the keyboard.
      */
-    window.addEventListener('keydown', e =>
-      handleKeyDown({
-        e,
-        canvas: fabricRef.current,
-        undo,
-        redo,
-        syncShapeInStorage,
-        deleteShapeFromStorage,
-      }),
-    );
+    const shadowHost = getShadowHostElement();
+    const shadow = shadowHost?.shadowRoot;
+
+    if (shadow) {
+      shadow.addEventListener('keydown', e =>
+        handleKeyDown({
+          e,
+          canvas: fabricRef.current,
+          undo,
+          redo,
+          syncShapeInStorage,
+          deleteShapeFromStorage,
+        }),
+      );
+    }
 
     // dispose the canvas and remove the event listeners when the component unmounts
     return () => {
@@ -663,16 +677,18 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
         });
       });
 
-      window.removeEventListener('keydown', e =>
-        handleKeyDown({
-          e,
-          canvas: fabricRef.current,
-          undo,
-          redo,
-          syncShapeInStorage,
-          deleteShapeFromStorage,
-        }),
-      );
+      if (shadow) {
+        shadow.removeEventListener('keydown', e =>
+          handleKeyDown({
+            e,
+            canvas: fabricRef.current,
+            undo,
+            redo,
+            syncShapeInStorage,
+            deleteShapeFromStorage,
+          }),
+        );
+      }
     };
   }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
 
@@ -681,24 +697,32 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   // Warn the user when they try to close or refresh the tab
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (captureState !== 'unsaved') return;
+
       e.preventDefault();
       e.returnValue = '';
     };
 
-    const handleUnload = () => {
+    const clearAnnotations = () => {
       annotationsStorage.clearAll();
       annotationsRedoStorage.clearAll();
       annotationHistoryStorage.clearAll();
     };
 
+    const handlePageHide = (e: PageTransitionEvent) => {
+      if (!e.persisted) {
+        clearAnnotations();
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('unload', handleUnload);
+    window.addEventListener('pagehide', handlePageHide);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('unload', handleUnload);
+      window.removeEventListener('pagehide', handlePageHide);
     };
-  }, []);
+  }, [captureState]);
 
   const updateMenuPosition = (options: any) => {
     const obj = options.selected ? options.selected[0] : fabricRef.current.getActiveObject();
@@ -724,20 +748,17 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     setActionMenuVisible(true);
   }, []);
 
-  const handleOnExportScreenshot = async (format: string) => {
-    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
-    const {
-      sizes: {
-        natural: { height, width },
-      },
-    } = meta as BackgroundFitMeta;
+  const handleOnExportScreenshot = async (format: string = 'png') => {
+    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? { objects: [], meta: {} };
 
     const fileName = `${screenshot.name}.${format}`;
     let file = null;
 
-    if (!height || !objects?.length) {
+    if (!objects?.length) {
       file = await base64ToFile(screenshot.src, fileName);
     } else {
+      const { width, height } = meta!.sizes!.natural;
+
       file = await mergeScreenshot({
         screenshot,
         objects,
@@ -758,7 +779,14 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       <div ref={gridCellRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
-        <CanvasWrapper canvasRef={canvasRef} onUndo={undo} onRedo={redo} onStartOver={deleteAllShapes} />
+        <CanvasWrapper
+          id={screenshot?.id || ''}
+          canvasRef={canvasRef}
+          onUndo={undo}
+          onRedo={redo}
+          onStartOver={deleteAllShapes}
+          onExport={handleOnExportScreenshot}
+        />
       </div>
 
       {actionMenuVisible && (
