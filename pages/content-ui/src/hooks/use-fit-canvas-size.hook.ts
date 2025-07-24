@@ -23,7 +23,7 @@ export const useFitCanvasToParent = (
     if (!fabricCanvas || !screenshot?.id || !screenshot?.src || !parentElt) return;
 
     const fit = async () => {
-      const meta = setCanvasBackground({
+      const meta = await setCanvasBackground({
         file: screenshot.src,
         canvas: fabricCanvas,
         parentWidth: parentElt.clientWidth,

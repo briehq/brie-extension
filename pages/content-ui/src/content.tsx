@@ -2,11 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
-import type { Screenshot, Workspace } from '@extension/shared';
-import { AuthMethod } from '@extension/shared';
+import type { Screenshot, Workspace, SlicePriority, LabelItem } from '@extension/shared';
+import { AuthMethod, SliceState } from '@extension/shared';
 import { annotationsStorage } from '@extension/storage';
-import { triggerCanvasAction, useAppDispatch, useCreateSliceMutation, useGetUserDetailsQuery } from '@extension/store';
-import { Dialog, DialogContent, cn, toast } from '@extension/ui';
+import {
+  triggerCanvasAction,
+  useAppDispatch,
+  useCreateSliceMutation,
+  useGetUserDetailsQuery,
+  useUpdateSliceStateMutation,
+} from '@extension/store';
+import { Dialog, DialogContent, Progress, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
@@ -15,12 +21,14 @@ import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
 import { mergeScreenshot } from './utils/annotation';
+import { runSliceCreationFlow } from './utils/slice';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
 const LG_BREAKPOINT = 1024;
 
 interface ContentProps {
+  idempotencyKey: string;
   activeScreenshotId: string;
   screenshots: Screenshot[];
   onClose: () => void;
@@ -32,6 +40,7 @@ interface ContentProps {
 const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
 
 const Content = ({
+  idempotencyKey,
   screenshots = [],
   activeScreenshotId,
   onClose,
@@ -44,7 +53,9 @@ const Content = ({
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [createSlice] = useCreateSliceMutation();
+  const [updateSliceState] = useUpdateSliceStateMutation();
 
+  const [progress, setProgress] = useState(0);
   const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
@@ -103,102 +114,123 @@ const Content = ({
     });
   };
 
-  const handleOnCreate = async (payload: any) => {
-    console.log('createType', createType);
-    console.log('payload', payload);
-    if (createType !== 'link') return;
+  const handleOnCreate = async ({
+    labels,
+    priority,
+    attachments,
+    description,
+    spaceId,
+  }: {
+    labels?: LabelItem[];
+    priority: SlicePriority;
+    attachments?: File[];
+    description?: string;
+    spaceId?: string;
+  }) => {
+    if (createType !== 'link' || isCreateLoading) return;
 
     setIsCreateLoading(true);
 
     try {
       const records: any = await getRecords();
+      const recordsFile = createJsonFile(records.flat(), 'records.json');
 
-      if (records?.length) {
-        const jsonFile = createJsonFile(records.flat(), 'records.json');
+      if (!recordsFile) {
+        toast.error(t('failedToCreateRecords'));
+        return;
+      }
 
-        if (!jsonFile) {
-          toast.error(t('failedToCreateRecords'));
-          return;
+      /**
+       * @todo
+       * use annotations store to sent them to BE and allow user to edit annotations
+       * packs each screenshot annotation into one file annotations.json
+       * add to a File object and drop into a FormData
+       *
+       * Idea: use BullMQ, RabbitMQ, etc.
+       * Worker does heavy stuff (merge annotations, generate image, etc).
+       *
+       * see: createAnnotationsJsonFile
+       */
+      const shots: File[] = [];
+      for (const screenshot of screenshots) {
+        const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {
+          objects: [],
+          meta: {},
+        };
+
+        let file = null;
+
+        if (!meta?.sizes?.natural?.height || !objects?.length) {
+          file = await base64ToFile(screenshot.src, `${screenshot.name}.png`);
+        } else {
+          file = await mergeScreenshot({
+            screenshot,
+            objects,
+            parentHeight: meta.sizes.natural.height,
+            parentWidth: meta.sizes.natural.width,
+          });
         }
 
-        const formData = new FormData();
-        formData.append('records', jsonFile);
+        shots.push(file);
+      }
 
-        if (workspaceId || workspace?.id) {
-          formData.append('workspaceId', workspaceId ?? workspace?.id);
-        }
+      const attachedFiles = Array.isArray(attachments) ? attachments : Array.from(attachments ?? []);
 
-        if (title) {
-          formData.append('title', title);
-        }
+      const { draft: slice, uploaded } = await runSliceCreationFlow({
+        dispatch,
+        onProgress: setProgress,
+        idempotencyKey,
+        payload: {
+          priority,
+          ...(title && { summary: title }),
+          ...(description && { description }),
+          ...(labels?.length && { labels }),
+          ...(workspaceId && { workspaceId }),
+          ...(spaceId && { spaceId }),
+          screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
+          attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
+          includeRecords: true,
+          includeAnnotations: false,
+        },
+        files: {
+          screenshots: shots,
+          attachments: attachedFiles,
+          records: recordsFile,
+        },
+      });
 
-        Object.keys(payload).forEach((key: any) => {
-          if ((payload as any)[key]) {
-            if (key === 'attachments') {
-              if ((payload as any)[key].length >= 1) {
-                for (let i = 0; i < (payload as any)[key].length; i++) {
-                  if (!(payload as any)[key][i]['id']) {
-                    formData.append(key, (payload as any)[key][i]);
-                  }
-                }
-              }
-            } else if (key === 'labels') {
-              formData.append(key, JSON.stringify((payload as any)[key]));
-            } else {
-              formData.append(key, (payload as any)[key]);
-            }
-          }
-        });
+      if (slice?.externalId) {
+        toast(t('openReport'));
 
         /**
          * @todo
-         * use annotations store to sent them to BE and allow user to edit annotations
-         * packs each screenshot annotation into one file annotations.json
-         * add to a File object and drop into a FormData
-         *
-         * see: createAnnotationsJsonFile
+         * update to READY slice?
          */
-        for (const screenshot of screenshots) {
-          const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {
-            objects: [],
-            meta: {},
-          };
 
-          let file = null;
+        const path = isGuest ? `s/${slice?.externalId}` : `slices/${slice?.id}`;
 
-          if (!meta?.sizes?.natural?.height || !objects?.length) {
-            file = await base64ToFile(screenshot.src, `${screenshot.name}.png`);
-          } else {
-            file = await mergeScreenshot({
-              screenshot,
-              objects,
-              parentHeight: meta.sizes.natural.height,
-              parentWidth: meta.sizes.natural.width,
-            });
-          }
+        const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
+        newWindow?.focus();
 
-          formData.append('screenshots', file);
+        if (uploaded) {
+          await updateSliceState({ id: slice.id, state: SliceState.READY });
         }
 
-        const { data } = await createSlice(formData);
-
-        if (data?.externalId) {
-          toast(t('openReport'));
-
-          const path = isGuest ? `s/${data?.externalId}` : `slices/${data?.id}`;
-
-          const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
-          newWindow?.focus();
-
-          onClose();
-        } else {
-          // GUEST_DAILY_LIMIT and other errors
-          toast.error(t(data?.message) || t('failedToCreateSlice'));
-        }
+        onClose();
+        setProgress(0);
       } else {
-        toast.error(t('noRecordsCaptured'));
+        // GUEST_DAILY_LIMIT and other errors
+        toast.error(t(slice?.message) || t('failedToCreateSlice'));
+
+        if (slice?.id) {
+          await updateSliceState({ id: slice.id, state: SliceState.CANCELED });
+        }
       }
     } catch (error) {
+      /**
+       * @todo
+       * update to cancel slice?
+       */
       console.error('[OnCreate Error]:', error);
       toast.error(t('unexpectedError'));
     } finally {
@@ -219,17 +251,22 @@ const Content = ({
   return (
     <Dialog open={isDialogOpen} onOpenChange={onClose} modal>
       <DialogContent
-        aria-describedby="Annotation Modal"
+        aria-describedby="Annotation View"
         onEscapeKeyDown={e => e.preventDefault()}
         onPointerDownOutside={e => e.preventDefault()}
-        className={cn('grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 bg-[#FAF9F7] bg-repeat p-0', {
-          'size-full !rounded-none': isFullScreen,
-          'h-[80vh] w-[90vw] !rounded-[18px]': !isFullScreen,
-        })}
+        className={cn(
+          'grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 border-none bg-[#FAF9F7] bg-repeat p-0',
+          {
+            'size-full !rounded-none': isFullScreen,
+            'h-[80vh] w-[90vw] overflow-hidden !rounded-[18px]': !isFullScreen,
+          },
+        )}
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: 10,
         }}>
+        {progress > 0 && <Progress className="absolute left-0 top-0 h-1.5 w-full" value={progress} />}
+
         <Header
           id={activeScreenshotId || ''}
           onClose={onClose}

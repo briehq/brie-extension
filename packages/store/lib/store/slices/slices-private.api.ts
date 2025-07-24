@@ -1,7 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { API_BASE_URL } from '@extension/env';
-import type { Slice, Pagination } from '@extension/shared';
+import type {
+  Slice,
+  Pagination,
+  InitSliceResponse,
+  InitSliceRequest,
+  AssetUploadResponse,
+  UpdateSliceState,
+} from '@extension/shared';
 
 import { baseQueryWithReauth } from '../../services/index.js';
 
@@ -67,6 +74,49 @@ export const slicesPrivateAPI = createApi({
       query: externalId => ({
         url: `/slices/${externalId}`,
         method: 'DELETE',
+      }),
+    }),
+
+    initSlice: build.mutation<
+      InitSliceResponse,
+      {
+        body: InitSliceRequest;
+        headers: { 'Idempotency-Key': string };
+      }
+    >({
+      invalidatesTags: ['SLICES'],
+      query: ({ body, headers }) => {
+        console.log('headers', headers);
+
+        return {
+          url: '/slices/init',
+          method: 'POST',
+          headers,
+          body,
+        };
+      },
+    }),
+
+    uploadAsset: build.mutation<AssetUploadResponse, { sliceId: string; assetId: string; file: File }>({
+      invalidatesTags: ['SLICE'],
+      query: ({ sliceId, assetId, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return {
+          url: `/slices/${sliceId}/assets/${assetId}`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+    }),
+
+    updateSliceState: build.mutation<UpdateSliceState, UpdateSliceState>({
+      invalidatesTags: ['SLICE'],
+      query: ({ id, state }) => ({
+        url: `/slices/${id}/state`,
+        method: 'PATCH',
+        body: { state },
       }),
     }),
   }),

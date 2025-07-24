@@ -1,4 +1,4 @@
-export { SlicePriority, SliceStatus, SliceType } from './slices/index.js';
+export { SlicePriority, SliceStatus, SliceType, SliceState } from './slices/index.js';
 
 export { AuthMethod } from './auth-method.enum.js';
 export { Plan } from './plan.enum.js';

@@ -29,8 +29,8 @@ export const annotationHistoryStorage: AnnotationHistoryStorage = {
 
     map[id] = {
       ...previous,
-      ...(annotations.objects && { objects: annotations.objects }),
-      ...(annotations.meta && { meta: annotations.meta }),
+      ...(annotations?.objects && { objects: annotations.objects }),
+      ...(annotations?.meta && { meta: annotations.meta }),
     };
 
     await storage.set(map);

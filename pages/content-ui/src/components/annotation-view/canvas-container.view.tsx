@@ -161,13 +161,14 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    */
   const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
     const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+
+    if (!meta?.sizes?.fit) return;
+
     const {
       sizes: {
         fit: { height, width },
       },
     } = meta as BackgroundFitMeta;
-
-    if (!width) return;
 
     if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
 
@@ -280,30 +281,25 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const shapeData = object.toJSON();
       const shape = { ...shapeData, objectId, shapeType, ...(blurRadius ? { blurRadius } : {}) };
 
-      // eslint-disable-next-line prefer-const
-      let { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
+      let { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
         objects: [],
         meta: {} as BackgroundFitMeta,
       };
 
       const foundIndex = objects?.findIndex((x: any) => x.objectId === shape.objectId);
+
       if (foundIndex !== -1) {
         objects[foundIndex] = shape;
       } else {
         objects = [...objects, shape];
       }
 
-      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [], meta };
+      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [] };
 
       await annotationsStorage.setAnnotations(screenshot.id!, shapeSnapshot);
 
       if (fabricRef.current) {
-        const canvasObjects = fabricRef.current.toJSON();
-        await saveHistory(
-          screenshot.id!,
-          { objects: canvasObjects.objects ?? [] },
-          { clearRedo: isProgrammaticChange.current },
-        );
+        await saveHistory(screenshot.id!, shapeSnapshot, { clearRedo: isProgrammaticChange.current });
       }
     },
     [screenshot?.id],

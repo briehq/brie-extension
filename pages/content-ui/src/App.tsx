@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 
 import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
@@ -23,6 +24,7 @@ export default function App() {
   const [minimized, setMinimized] = useState(true);
   const [screenshots, setScreenshots] = useState<Screenshot[]>();
   const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
 
   useEffect(() => {
     window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
@@ -61,6 +63,7 @@ export default function App() {
   };
 
   const handleOnClose = useCallback(async () => {
+    setIdempotencyKey(uuid());
     setScreenshots([]);
     setMinimized(false);
 
@@ -128,6 +131,7 @@ export default function App() {
               />
             ) : (
               <Content
+                idempotencyKey={idempotencyKey}
                 activeScreenshotId={activeScreenshotId || ''}
                 screenshots={screenshots}
                 onClose={handleOnClose}

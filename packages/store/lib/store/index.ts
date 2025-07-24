@@ -69,8 +69,15 @@ export const { useGetSubscriptionByIdQuery, useLazyGetSubscriptionByIdQuery } = 
 export const { useCreateSpacesMutation, useGetSpacesQuery, useLazyGetSpacesQuery } = spacesAPI;
 export const { useGetWorkspacesQuery, useCreateWorkspaceMutation, useGetWorkspaceByIdQuery } = workspacesPrivateAPI;
 export const { useGetWorkspacePublicByIdQuery } = workspacesPublicAPI;
-export const { useGetSlicesQuery, useLazyGetSlicesQuery, useDeleteSliceByIdMutation, useCreateSliceMutation } =
-  slicesPrivateAPI;
+export const {
+  useGetSlicesQuery,
+  useLazyGetSlicesQuery,
+  useDeleteSliceByIdMutation,
+  useCreateSliceMutation,
+  useInitSliceMutation,
+  useUploadAssetMutation,
+  useUpdateSliceStateMutation,
+} = slicesPrivateAPI;
 export const { useGetPublicSliceByIdQuery } = slicesPublicAPI;
 export const { useGetOverviewQuery, useLazyGetOverviewQuery } = overviewAPI;
 export const { useLoginGuestMutation } = authPublicAPI;
