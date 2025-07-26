@@ -8,7 +8,6 @@ import { annotationsStorage } from '@extension/storage';
 import {
   triggerCanvasAction,
   useAppDispatch,
-  useCreateSliceMutation,
   useGetUserDetailsQuery,
   useUpdateSliceStateMutation,
 } from '@extension/store';
@@ -52,7 +51,6 @@ const Content = ({
   const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
-  const [createSlice] = useCreateSliceMutation();
   const [updateSliceState] = useUpdateSliceStateMutation();
 
   const [progress, setProgress] = useState(0);
@@ -161,7 +159,7 @@ const Content = ({
         let file = null;
 
         if (!meta?.sizes?.natural?.height || !objects?.length) {
-          file = await base64ToFile(screenshot.src, `${screenshot.name}.png`);
+          file = await base64ToFile(screenshot.src, `${screenshot.name}`);
         } else {
           file = await mergeScreenshot({
             screenshot,
@@ -170,6 +168,7 @@ const Content = ({
             parentWidth: meta.sizes.natural.width,
           });
         }
+        console.log('file', file);
 
         shots.push(file);
       }

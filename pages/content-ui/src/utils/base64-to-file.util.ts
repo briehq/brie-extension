@@ -8,5 +8,5 @@ export const base64ToFile = (base64: string, fileName: string) => {
     uintArray[i] = byteString.charCodeAt(i);
   }
 
-  return new File([arrayBuffer], fileName, { type: mimeType });
+  return new File([arrayBuffer], `${fileName}.${mimeType?.replace('image/', '')}`, { type: mimeType });
 };

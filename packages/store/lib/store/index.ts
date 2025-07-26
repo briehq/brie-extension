@@ -74,8 +74,8 @@ export const {
   useLazyGetSlicesQuery,
   useDeleteSliceByIdMutation,
   useCreateSliceMutation,
-  useInitSliceMutation,
-  useUploadAssetMutation,
+  useCreateDraftSliceMutation,
+  useUploadAssetBySliceIdMutation,
   useUpdateSliceStateMutation,
 } = slicesPrivateAPI;
 export const { useGetPublicSliceByIdQuery } = slicesPublicAPI;

@@ -77,7 +77,7 @@ export const slicesPrivateAPI = createApi({
       }),
     }),
 
-    initSlice: build.mutation<
+    createDraftSlice: build.mutation<
       InitSliceResponse,
       {
         body: InitSliceRequest;
@@ -89,7 +89,7 @@ export const slicesPrivateAPI = createApi({
         console.log('headers', headers);
 
         return {
-          url: '/slices/init',
+          url: '/slices/draft',
           method: 'POST',
           headers,
           body,
@@ -97,7 +97,7 @@ export const slicesPrivateAPI = createApi({
       },
     }),
 
-    uploadAsset: build.mutation<AssetUploadResponse, { sliceId: string; assetId: string; file: File }>({
+    uploadAssetBySliceId: build.mutation<AssetUploadResponse, { sliceId: string; assetId: string; file: File }>({
       invalidatesTags: ['SLICE'],
       query: ({ sliceId, assetId, file }) => {
         const formData = new FormData();

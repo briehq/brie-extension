@@ -54,5 +54,5 @@ export const mergeScreenshot = async ({
 
   canvas.dispose();
 
-  return new File([blob], `${screenshot.name}`);
+  return new File([blob], `${screenshot.name}.jpeg`, { type: 'image/jpeg' });
 };

@@ -27,7 +27,10 @@ export const runSliceCreationFlow = async ({
   concurrency = 4,
 }: RunSliceFlowParams): Promise<{ draft: InitSliceResponse; uploaded: boolean }> => {
   const draft = await dispatch(
-    slicesPrivateAPI.endpoints.initSlice.initiate({ body: payload, headers: { 'Idempotency-Key': idempotencyKey } }),
+    slicesPrivateAPI.endpoints.createDraftSlice.initiate({
+      body: payload,
+      headers: { 'Idempotency-Key': idempotencyKey },
+    }),
   ).unwrap();
 
   const uploadItems: UploadItem[] = [];
@@ -50,7 +53,7 @@ export const runSliceCreationFlow = async ({
 
   const uploadWorker = async (item: UploadItem) => {
     await dispatch(
-      slicesPrivateAPI.endpoints.uploadAsset.initiate({
+      slicesPrivateAPI.endpoints.uploadAssetBySliceId.initiate({
         sliceId: item.sliceId,
         assetId: item.assetId,
         file: item.file,
