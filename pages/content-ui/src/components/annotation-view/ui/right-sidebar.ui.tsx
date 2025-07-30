@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { t } from '@extension/i18n';
-import { SlicePriority } from '@extension/shared';
+import { AiGenerateType, SlicePriority } from '@extension/shared';
+import { useGenerateWithAIMutation } from '@extension/store';
 import type { TagType } from '@extension/ui';
 import {
   Button,
@@ -25,10 +26,12 @@ import {
   TooltipTrigger,
   useForm,
   Controller,
+  toast,
 } from '@extension/ui';
 
 import { AddToSpace, GenerateDropdown } from '@src/components/dialog-view';
 import { useElementSize, useTypewriter } from '@src/hooks';
+import { getRecords, prepareBundle, reportToText } from '@src/utils/slice';
 
 interface RightSidebarProps {
   open?: boolean;
@@ -51,6 +54,8 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   className,
   workspaceId,
 }) => {
+  const [generateWithAI, { data, isLoading, error }] = useGenerateWithAIMutation();
+
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open! : internalOpen;
@@ -125,6 +130,52 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
     return () => window.removeEventListener('keydown', onKey);
   }, [suggestion]);
+
+  const handleOnGenerate = async (type: AiGenerateType) => {
+    try {
+      const records = await getRecords();
+      const bundle = prepareBundle(records, { range: [400, 599] });
+
+      if (!bundle.actions.length) {
+        toast.error(t('noCaptureData'));
+        return;
+      }
+
+      const options = { maxSteps: 15, ...(type === AiGenerateType.FULL_REPORT && { maxEvidence: 8 }) };
+
+      const response = await generateWithAI({ type, bundle, options }).unwrap();
+
+      let text = '';
+
+      if (type === AiGenerateType.STEPS) {
+        const steps = (response as any)?.steps ?? [];
+
+        if (!steps.length) {
+          throw new Error('EMPTY_STEPS');
+        }
+
+        text = ['Steps to reproduce', ...steps].map((s, i) => (i === 0 ? s : `- ${s}`)).join('\n');
+      } else {
+        text = reportToText(response as any);
+      }
+
+      setSuggestion(text || t('emptyResultFallback'));
+      requestAnimationFrame(() => descRef.current?.focus());
+    } catch (err: any) {
+      const serverMsg = err?.data?.message;
+      const code = err?.data?.code;
+
+      let msg = serverMsg ?? (err?.message === 'EMPTY_STEPS' ? t('noStepsFound') : undefined) ?? t('unexpectedError');
+
+      if (code === 'OUTPUT_TRUNCATED') {
+        msg = t('outputTruncated'); // "The generated text was cut off. Try with fewer steps."
+      } else if (code === 'NO_CAPTURE_DATA') {
+        msg = t('noCaptureData');
+      }
+
+      toast.error(msg);
+    }
+  };
 
   return (
     <>
@@ -373,12 +424,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 />
               </div>
 
-              <GenerateDropdown
-                onGenerate={text => {
-                  setSuggestion(text);
-                  requestAnimationFrame(() => descRef.current?.focus());
-                }}
-              />
+              <GenerateDropdown isLoading={isLoading} onGenerate={handleOnGenerate} />
             </div>
           </form>
         </Form>

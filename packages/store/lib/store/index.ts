@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
+import { aiAPI } from './ai/ai.api.js';
 import { authReducer, authPublicAPI } from './auth/index.js';
 import { organizationAPI } from './organization/index.js';
 import { overviewAPI } from './overview/index.js';
@@ -37,6 +38,8 @@ const rootReducer = combineReducers({
 
   [screenshotAPI.reducerPath]: screenshotAPI.reducer,
 
+  [aiAPI.reducerPath]: aiAPI.reducer,
+
   canvasReducer,
 });
 
@@ -55,7 +58,8 @@ const setupStore = () =>
         .concat(spacesAPI.middleware)
         .concat(subscriptionsAPI.middleware)
         .concat(organizationAPI.middleware)
-        .concat(screenshotAPI.middleware),
+        .concat(screenshotAPI.middleware)
+        .concat(aiAPI.middleware),
   });
 
 export const store = setupStore();
@@ -83,6 +87,7 @@ export const { useGetOverviewQuery, useLazyGetOverviewQuery } = overviewAPI;
 export const { useLoginGuestMutation } = authPublicAPI;
 export const { useGetOrganizationByIdQuery } = organizationAPI;
 export const { useLazyGetFullScreenshotQuery } = screenshotAPI;
+export const { useGenerateWithAIMutation, useGetTranscriptionMutation } = aiAPI;
 
 // export const { setFilters, clearFilters } = slicesSlice.actions;
 // export const { setFilters, clearFilters } = workspacesSlice.actions;

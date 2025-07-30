@@ -20,7 +20,7 @@ import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
 import { mergeScreenshot } from './utils/annotation';
-import { runSliceCreationFlow } from './utils/slice';
+import { getRecords, runSliceCreationFlow } from './utils/slice';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
@@ -99,18 +99,6 @@ const Content = ({
 
   const handleOnElement = (element: ActiveElement) => setActiveElement(element);
   const handleOnCreateType = (type: string) => setCreateType(type);
-
-  const getRecords = () => {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'GET_RECORDS' }, response => {
-        if (chrome.runtime.lastError) {
-          return reject(new Error(chrome.runtime.lastError.message));
-        }
-
-        resolve(response.records);
-      });
-    });
-  };
 
   const handleOnCreate = async ({
     labels,
