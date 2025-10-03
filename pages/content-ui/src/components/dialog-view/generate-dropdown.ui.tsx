@@ -23,7 +23,12 @@ export const GenerateDropdown = ({ isLoading, onGenerate }: GenerateDropdownProp
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" className="h-[35px] gap-x-2 px-[10px]" disabled={isLoading} loading={isLoading}>
+        <Button
+          variant="secondary"
+          className="h-[35px] gap-x-2 px-[10px]"
+          disabled
+          //  disabled={isLoading}
+          loading={isLoading}>
           <Icon name="SparklesIcon" size={16} strokeWidth={1.5} />
 
           <span className="font-normal">Generate</span>

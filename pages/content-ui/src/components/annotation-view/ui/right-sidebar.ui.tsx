@@ -424,7 +424,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 />
               </div>
 
-              <GenerateDropdown isLoading={isLoading} onGenerate={handleOnGenerate} />
+              {/* <GenerateDropdown isLoading={isLoading} onGenerate={handleOnGenerate} /> */}
             </div>
           </form>
         </Form>
