@@ -1,10 +1,10 @@
 import { cva } from 'class-variance-authority';
 import { X } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-
 import type { TagInputProps, TagType } from './tag-input';
 import { Button } from '../button';
+
+import { cn } from '@/lib/utils';
 
 export const tagVariants = cva('transition-all border inline-flex items-center text-sm pl-2 rounded-md', {
   variants: {
@@ -99,6 +99,7 @@ export const Tag: React.FC<TagProps> = ({
   textStyle,
 }) => {
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <span
       key={tagObj.id}
       draggable={draggable}

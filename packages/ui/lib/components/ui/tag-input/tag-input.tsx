@@ -11,56 +11,7 @@ import { Button } from '../button';
 import { CommandInput } from '../command';
 import { Input } from '../input';
 
-export enum Delimiter {
-  Comma = ',',
-  Enter = 'Enter',
-  Space = ' ',
-}
-
 type OmittedInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'value'>;
-
-export type TagType = {
-  id: string;
-  text: string;
-};
-
-export interface TagInputProps extends OmittedInputProps, VariantProps<typeof tagVariants> {
-  placeholder?: string;
-  tags: TagType[];
-  setTags: React.Dispatch<React.SetStateAction<TagType[]>>;
-  enableAutocomplete?: boolean;
-  autocompleteOptions?: TagType[];
-  maxTags?: number;
-  minTags?: number;
-  readOnly?: boolean;
-  disabled?: boolean;
-  onTagAdd?: (tag: string) => void;
-  onTagRemove?: (tag: string) => void;
-  allowDuplicates?: boolean;
-  validateTag?: (tag: string) => boolean;
-  delimiter?: Delimiter;
-  showCount?: boolean;
-  placeholderWhenFull?: string;
-  sortTags?: boolean;
-  delimiterList?: string[];
-  truncate?: number;
-  minLength?: number;
-  maxLength?: number;
-  usePopoverForTags?: boolean;
-  value?: string | number | readonly string[] | { id: string; text: string }[];
-  autocompleteFilter?: (option: string) => boolean;
-  direction?: 'row' | 'column';
-  onInputChange?: (value: string) => void;
-  customTagRenderer?: (tag: TagType) => React.ReactNode;
-  onFocus?: React.FocusEventHandler<HTMLInputElement>;
-  onBlur?: React.FocusEventHandler<HTMLInputElement>;
-  onTagClick?: (tag: TagType) => void;
-  draggable?: boolean;
-  inputFieldPosition?: 'bottom' | 'top' | 'inline';
-  clearAll?: boolean;
-  onClearAll?: () => void;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
-}
 
 const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, _) => {
   const {
@@ -370,3 +321,52 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, _) => {
 TagInput.displayName = 'TagInput';
 
 export { TagInput };
+
+export enum Delimiter {
+  Comma = ',',
+  Enter = 'Enter',
+  Space = ' ',
+}
+
+export type TagType = {
+  id: string;
+  text: string;
+};
+
+export interface TagInputProps extends OmittedInputProps, VariantProps<typeof tagVariants> {
+  placeholder?: string;
+  tags: TagType[];
+  setTags: React.Dispatch<React.SetStateAction<TagType[]>>;
+  enableAutocomplete?: boolean;
+  autocompleteOptions?: TagType[];
+  maxTags?: number;
+  minTags?: number;
+  readOnly?: boolean;
+  disabled?: boolean;
+  onTagAdd?: (tag: string) => void;
+  onTagRemove?: (tag: string) => void;
+  allowDuplicates?: boolean;
+  validateTag?: (tag: string) => boolean;
+  delimiter?: Delimiter;
+  showCount?: boolean;
+  placeholderWhenFull?: string;
+  sortTags?: boolean;
+  delimiterList?: string[];
+  truncate?: number;
+  minLength?: number;
+  maxLength?: number;
+  usePopoverForTags?: boolean;
+  value?: string | number | readonly string[] | { id: string; text: string }[];
+  autocompleteFilter?: (option: string) => boolean;
+  direction?: 'row' | 'column';
+  onInputChange?: (value: string) => void;
+  customTagRenderer?: (tag: TagType) => React.ReactNode;
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onTagClick?: (tag: TagType) => void;
+  draggable?: boolean;
+  inputFieldPosition?: 'bottom' | 'top' | 'inline';
+  clearAll?: boolean;
+  onClearAll?: () => void;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+}
