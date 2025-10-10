@@ -1,15 +1,18 @@
+import type { Annotations } from './annotations.storage.js';
 import { createStorage } from '../base/base.js';
 import { StorageEnum } from '../base/enums.js';
 import type { BaseStorage } from '../base/types.js';
 
-type AnnotationsRedoStorage = BaseStorage<any> & {
-  setAnnotations: (state: any) => Promise<void>;
-  getAnnotations: () => Promise<any>;
+type RedoMap = Record<string, Annotations>;
+type AnnotationsRedoStorage = BaseStorage<RedoMap> & {
+  setAnnotations: (id: string, annotations: Annotations) => Promise<void>;
+  getAnnotations: (id: string) => Promise<Annotations | null>;
+  deleteAnnotations: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
 };
-
-const storage = createStorage<any>(
+const storage = createStorage<RedoMap>(
   'annotations-redo-storage-key',
-  [], // Default state is idle
+  {},
   {
     storageEnum: StorageEnum.Local,
     liveUpdate: true,
@@ -19,11 +22,34 @@ const storage = createStorage<any>(
 export const annotationsRedoStorage: AnnotationsRedoStorage = {
   ...storage,
 
-  setAnnotations: async (state: any) => {
-    await storage.set(state);
+  async setAnnotations(id, annotations) {
+    const map = await storage.get();
+    const previous = map[id] ?? {};
+
+    map[id] = {
+      ...previous,
+      ...(annotations?.objects && { objects: annotations.objects }),
+      ...(annotations?.meta && { meta: annotations.meta }),
+    };
+
+    await storage.set(map);
   },
 
-  getAnnotations: async () => {
-    return await storage.get();
+  async getAnnotations(id) {
+    const map = await storage.get();
+    return map[id] ?? null;
+  },
+
+  async deleteAnnotations(id) {
+    const map = await storage.get();
+
+    if (id in map) {
+      delete map[id];
+      await storage.set(map);
+    }
+  },
+
+  async clearAll() {
+    await storage.set({});
   },
 };

@@ -1,48 +1,57 @@
-import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import { safeStructuredClone } from '@extension/shared';
+import { annotationHistoryStorage, annotationsRedoStorage } from '@extension/storage';
 
-export const saveHistory = async (canvasJson: any, shouldClearRedo: boolean) => {
-  const history = (await annotationHistoryStorage.getHistory()) || [];
-  history.push(canvasJson);
-  await annotationHistoryStorage.setHistory(history);
-  if (shouldClearRedo) {
-    await annotationsRedoStorage.setAnnotations([]);
-  }
+import type { SaveOptions, ShapeSnapshot } from '@src/models';
+
+export const saveHistory = async (
+  id: string,
+  snapshot: ShapeSnapshot,
+  { clearRedo = true, max = 100 }: SaveOptions = {},
+) => {
+  const annotations = await annotationHistoryStorage.getAnnotations(id);
+  const history = annotations?.objects ?? [];
+
+  history.push({ objects: safeStructuredClone(snapshot.objects) });
+
+  if (history.length > max) history.shift();
+
+  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  if (clearRedo) await annotationsRedoStorage.deleteAnnotations(id);
 };
 
-export const undoAnnotation = async () => {
-  const history = (await annotationHistoryStorage.getHistory()) || [];
+export const undoAnnotation = async (id: string) => {
+  const annotations = await annotationHistoryStorage.getAnnotations(id);
+  const history = annotations?.objects ?? [];
 
-  if (history.length > 1) {
-    const redoStack = (await annotationsRedoStorage.getAnnotations()) || [];
+  if (!history.length) return null;
 
-    const currentState = history.pop();
-    redoStack.push(currentState);
+  const redoAnnotations = await annotationsRedoStorage.getAnnotations(id);
+  const redoStack = redoAnnotations?.objects ?? [];
 
-    const prevState = history[history.length - 1];
+  const currentState = history.pop()!;
+  redoStack.push(currentState);
 
-    await annotationHistoryStorage.setHistory(history);
-    await annotationsRedoStorage.setAnnotations(redoStack);
+  const prevState = history.length ? history[history.length - 1] : { objects: [] };
 
-    return { prevState, fromhistory: true }; // This is full canvas state
-  }
+  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  await annotationsRedoStorage.setAnnotations(id, { objects: redoStack });
 
-  return null;
+  return prevState ? { prevState, fromHistory: true } : null;
 };
 
-export const redoAnnotation = async () => {
-  const redoStack = (await annotationsRedoStorage.getAnnotations()) || [];
-  const history = (await annotationHistoryStorage.getHistory()) || [];
+export const redoAnnotation = async (id: string) => {
+  const annotations = await annotationsRedoStorage.getAnnotations(id);
+  const redoStack = annotations?.objects ?? [];
+  if (!redoStack.length) return null;
 
-  if (redoStack.length > 0) {
-    const restoredState = redoStack.pop();
+  const historyAnnotations = await annotationHistoryStorage.getAnnotations(id);
+  const history = historyAnnotations?.objects ?? [];
 
-    history.push(restoredState);
+  const restoredState = redoStack.pop()!;
+  history.push(restoredState);
 
-    await annotationHistoryStorage.setHistory(history);
-    await annotationsRedoStorage.setAnnotations(redoStack);
+  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  await annotationsRedoStorage.setAnnotations(id, { objects: redoStack });
 
-    return { restoredState, fromhistory: true }; // This is full canvas state
-  }
-
-  return null;
+  return { restoredState, fromHistory: true };
 };

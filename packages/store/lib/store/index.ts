@@ -1,10 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
+import { aiAPI } from './ai/ai.api.js';
 import { authReducer, authPublicAPI } from './auth/index.js';
 import { organizationAPI } from './organization/index.js';
 import { overviewAPI } from './overview/index.js';
 import { screenshotAPI } from './screenshot/index.js';
+import { canvasSlice } from './shared/canvas.reducer.js';
+import { canvasReducer } from './shared/index.js';
 import { slicesPrivateAPI, slicesPublicAPI, slicesReducer } from './slices/index.js';
 import { spacesAPI } from './spaces/index.js';
 import { subscriptionsAPI } from './subscriptions/index.js';
@@ -34,6 +37,10 @@ const rootReducer = combineReducers({
   [organizationAPI.reducerPath]: organizationAPI.reducer,
 
   [screenshotAPI.reducerPath]: screenshotAPI.reducer,
+
+  [aiAPI.reducerPath]: aiAPI.reducer,
+
+  canvasReducer,
 });
 
 const setupStore = () =>
@@ -51,7 +58,8 @@ const setupStore = () =>
         .concat(spacesAPI.middleware)
         .concat(subscriptionsAPI.middleware)
         .concat(organizationAPI.middleware)
-        .concat(screenshotAPI.middleware),
+        .concat(screenshotAPI.middleware)
+        .concat(aiAPI.middleware),
   });
 
 export const store = setupStore();
@@ -65,13 +73,22 @@ export const { useGetSubscriptionByIdQuery, useLazyGetSubscriptionByIdQuery } = 
 export const { useCreateSpacesMutation, useGetSpacesQuery, useLazyGetSpacesQuery } = spacesAPI;
 export const { useGetWorkspacesQuery, useCreateWorkspaceMutation, useGetWorkspaceByIdQuery } = workspacesPrivateAPI;
 export const { useGetWorkspacePublicByIdQuery } = workspacesPublicAPI;
-export const { useGetSlicesQuery, useLazyGetSlicesQuery, useDeleteSliceByIdMutation, useCreateSliceMutation } =
-  slicesPrivateAPI;
+export const {
+  useGetSlicesQuery,
+  useLazyGetSlicesQuery,
+  useDeleteSliceByIdMutation,
+  useCreateSliceMutation,
+  useCreateDraftSliceMutation,
+  useUploadAssetBySliceIdMutation,
+  useUpdateSliceStateMutation,
+} = slicesPrivateAPI;
 export const { useGetPublicSliceByIdQuery } = slicesPublicAPI;
 export const { useGetOverviewQuery, useLazyGetOverviewQuery } = overviewAPI;
 export const { useLoginGuestMutation } = authPublicAPI;
 export const { useGetOrganizationByIdQuery } = organizationAPI;
 export const { useLazyGetFullScreenshotQuery } = screenshotAPI;
+export const { useGenerateWithAIMutation, useGetTranscriptionMutation } = aiAPI;
 
 // export const { setFilters, clearFilters } = slicesSlice.actions;
 // export const { setFilters, clearFilters } = workspacesSlice.actions;
+export const { triggerCanvasAction, clearCanvasState } = canvasSlice.actions;

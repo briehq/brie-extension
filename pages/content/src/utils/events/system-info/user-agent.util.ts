@@ -79,7 +79,6 @@ export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSIn
   }
 
   // now for mobile devices  based browsers like
-
   if (/iphone|ipad|ipod/.test(userAgent)) {
     osName = 'iOS';
     osVersion = userAgent.match(/OS ([\d_]+)/i)?.[1]?.replace(/_/g, '.') || 'Unknown';
@@ -92,13 +91,31 @@ export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSIn
 
   // WHEN OS is windows need to configure the OSVERSION
   // this is applied  for Chromium
+  // Chromium-based browsers (Chrome, Edge, Brave, Opera)
   if (browserName === 'Unknown' && browserVersion === 'Unknown') {
-    const brands = uaData.brands;
-    browserName = brands[0].brand;
-    browserVersion = brands[0].version;
-    osName = uaData.platform;
+    const brands = uaData.brands || [];
+    const brandInfo =
+      brands.find(b => /chrome|chromium|edge|opera|brave/i.test(b.brand)) ||
+      brands.find(b => b.brand !== 'Not)A;Brand'); // fallback
+
+    browserName = brandInfo?.brand || 'Chromium';
+    browserVersion = brandInfo?.version || '';
+
+    osName = uaData.platform || osName || 'Unknown';
     osVersion = await getWindowsVersion();
+
+    if (!browserName || browserName === 'Unknown') {
+      if (/edg/i.test(userAgent)) browserName = 'Edge';
+      else if (/opr\//i.test(userAgent)) browserName = 'Opera';
+      else if (/brave/i.test(userAgent)) browserName = 'Brave';
+      else if (/chrome/i.test(userAgent)) browserName = 'Chrome';
+    }
+
+    if (!browserVersion || browserVersion === 'Unknown') {
+      browserVersion = userAgent.match(/(?:chrome|chromium)\/([\d.]+)/)?.[1] || '';
+    }
   }
+
   return {
     browser: {
       name: browserName,

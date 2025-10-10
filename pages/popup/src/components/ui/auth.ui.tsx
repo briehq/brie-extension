@@ -1,7 +1,7 @@
 import { t } from '@extension/i18n';
 import { userUUIDStorage } from '@extension/storage';
 import { useLoginGuestMutation } from '@extension/store';
-import { Alert, AlertDescription, Button } from '@extension/ui';
+import { Alert, AlertDescription, Button, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 import { useAuthIdentityProvider } from '@src/hooks';
 
@@ -29,9 +29,9 @@ export const AuthView = () => {
           <h1 className="text-lg font-semibold tracking-tight">Report bugs in seconds</h1>
 
           <p className="text-muted-foreground text-sm">
-            Get full access with your email,
+            Get full access with your email.
             <br />
-            or a quick peek as a guest.
+            {/* or a quick peek as a guest. */}
           </p>
         </div>
 
@@ -44,7 +44,8 @@ export const AuthView = () => {
             Continue with email
           </Button>
 
-          <Button
+          {/* <Button
+            title="Temporarily disabled for security reasons."
             type="button"
             variant="link"
             loading={loginGuestIsLoading}
@@ -52,7 +53,7 @@ export const AuthView = () => {
             className="text-muted-foreground text-[13px]"
             onClick={handleOnLoginGuest}>
             Continue as a guest
-          </Button>
+          </Button> */}
         </div>
 
         {error && (

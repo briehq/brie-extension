@@ -1,16 +1,27 @@
-import type { Canvas, FabricObject } from 'fabric';
-import { PencilBrush } from 'fabric';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import type { Canvas, FabricObject, PencilBrush } from 'fabric';
+import { saveAs } from 'file-saver';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { annotationsRedoStorage, annotationsStorage } from '@extension/storage';
-import { Button, Icon, toast } from '@extension/ui';
+import { useStorage } from '@extension/shared';
+import type { Screenshot } from '@extension/shared';
+import {
+  annotationHistoryStorage,
+  annotationsRedoStorage,
+  annotationsStorage,
+  captureStateStorage,
+} from '@extension/storage';
+import type { RootState } from '@extension/store';
+import { clearCanvasState, useAppDispatch, useAppSelector } from '@extension/store';
+import { Button, Icon } from '@extension/ui';
 
 import { defaultNavElement } from '@src/constants';
-import type { ActiveElement, Attributes } from '@src/models';
+import { useFitCanvasToParent } from '@src/hooks';
+import type { ActiveElement, Attributes, BackgroundFitMeta, ShapeSnapshot } from '@src/models';
+import { base64ToFile } from '@src/utils';
+import { applyBrush, DRAWING_TOOLS, getShadowHostElement } from '@src/utils/annotation/canvas.util';
 
-import { AnnotationSection } from './annotation-section.feature';
-import AnnotationSidebarFeature from './annotation-sidebar.feature';
+import { CanvasWrapper } from './canvas-wrapper.view';
+import { Toolbar } from './ui';
 import {
   handleCanvasMouseMove,
   handleCanvasMouseDown,
@@ -26,31 +37,27 @@ import {
   initializeFabric,
   redoAnnotation,
   undoAnnotation,
-  getCanvasElement,
-  renderCanvas,
   setCanvasBackground,
-  getShadowHostElement,
   saveHistory,
+  modifyShape,
+  mergeScreenshot,
+  hexToRgba,
 } from '../../utils/annotation';
 
-// import { useCreateIssueMutation } from '@/store/issues';
+interface CanvasContainerProps {
+  screenshot: Screenshot;
+  onElement: (elem: ActiveElement) => void;
+}
 
-const AnnotationContainer = ({ attachments }: { attachments: { name: string; image: string }[] }) => {
-  /**
-   * @todo
-   * use client workspace id
-   */
-  const { id: workspaceId } = { id: uuidv4() };
+const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
+  const captureState = useStorage(captureStateStorage);
+  const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
+  const dispatch = useAppDispatch();
+
+  const gridCellRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticChange = useRef(true);
-  const [nextIsLoading, setNextIsLoading] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ left: 0, top: 0 });
-  const [activeUpdateAction, setActiveUpdateAction] = useState('');
-  const [selectedImage, setSelectedImage] = useState<{
-    name: string;
-    image: string;
-  }>();
-  // const [createIssue, { isLoading: isCreating }] = useCreateIssueMutation();
 
   /**
    * useStorage is a hook provided by local store that allows you to store
@@ -129,7 +136,6 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
 
   /**
-   * @todo
    * elementAttributes is an object that contains the attributes of the selected
    * element in the canvas.
    *
@@ -137,46 +143,68 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * is editing the width, height, color etc properties/attributes of the
    * object.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [elementAttributes, setElementAttributes] = useState<Attributes>({
     width: '',
     height: '',
     fontSize: '',
     fontFamily: '',
     fontWeight: '',
-    fill: '#aabbcc',
-    stroke: '#aabbcc',
+    fill: '',
+    stroke: '#ef4444',
   });
+  const currentColorRef = useRef<string>('#ef4444');
 
   /**
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
+  const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
+    const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+
+    if (!meta?.sizes?.fit) return;
+
+    const {
+      sizes: {
+        fit: { height, width },
+      },
+    } = meta as BackgroundFitMeta;
+
+    if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
+
+    await setCanvasBackground({
+      file: screenshot.src,
+      canvas,
+      parentWidth: width,
+      parentHeight: height,
+    });
+  };
+
   const undo = async () => {
-    const result = await undoAnnotation();
+    const history = await undoAnnotation(screenshot.id!);
 
-    if (result?.prevState && fabricRef.current) {
-      isProgrammaticChange.current = result.fromhistory;
+    if (history?.prevState && fabricRef.current) {
+      isProgrammaticChange.current = history.fromHistory;
 
-      fabricRef.current.loadFromJSON(result.prevState, async () => {
-        fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON();
-        await annotationsStorage.setAnnotations(json?.objects || []);
-      });
+      await restoreObjects(fabricRef.current, history.prevState);
+
+      const canvasObjects = fabricRef.current.toJSON();
+
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
 
   const redo = async () => {
-    const result = await redoAnnotation();
+    const history = await redoAnnotation(screenshot.id!);
 
-    if (result?.restoredState && fabricRef.current) {
-      isProgrammaticChange.current = result.fromhistory;
+    if (history?.restoredState && fabricRef.current) {
+      isProgrammaticChange.current = history.fromHistory;
 
-      fabricRef.current.loadFromJSON(result.restoredState, async () => {
-        fabricRef.current?.renderAll();
-        const json = fabricRef.current?.toJSON();
-        await annotationsStorage.setAnnotations(json?.objects || []);
-      });
+      await restoreObjects(fabricRef.current, history.restoredState);
+
+      const canvasObjects = fabricRef.current.toJSON();
+
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
   };
 
@@ -189,41 +217,52 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * We're using this mutation to delete a shape from the key-value store when
    * the user deletes a shape from the canvas.
    */
-  const deleteShapeFromStorage = useCallback(async (shapeId: string) => {
-    /**
-     * canvasObjects is a Map that contains all the shapes in the key-value.
-     * Like a store. We can create multiple stores in local store.
-     */
+  const deleteShapeFromStorage = useCallback(
+    async (shapeId: string) => {
+      /**
+       * canvasObjects is a Map that contains all the shapes in the key-value.
+       * Like a store. We can create multiple stores in local store.
+       */
+      const { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+      if (!objects) return;
 
-    const annotations = await annotationsStorage.getAnnotations();
-    if (!annotations) return;
+      const updatedAnnotations = objects.filter((a: any) => a.objectId !== shapeId);
+      await annotationsStorage.setAnnotations(screenshot.id!, { objects: updatedAnnotations });
 
-    const updatedAnnotations = annotations.filter((a: any) => a.objectId !== shapeId);
-    await annotationsStorage.setAnnotations(updatedAnnotations);
+      if (fabricRef.current) {
+        const canvasObjects = fabricRef.current.toJSON();
 
-    if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
-    }
-  }, []);
+        await saveHistory(
+          screenshot.id!,
+          { objects: canvasObjects.objects },
+          { clearRedo: isProgrammaticChange.current },
+        );
+      }
+    },
+    [screenshot?.id],
+  );
 
   /**
    * deleteAllShapes is a mutation that deletes all the shapes from the
    * key-value store of local store.
    *
-   * We're using this mutation to delete all the shapes from the key-value store when the user clicks on the reset button.
+   * We're using this mutation to delete all the shapes from the key-value store
+   * when the user clicks on the reset button.
    */
   const deleteAllShapes = useCallback(async () => {
-    // get the canvasObjects store
-    const annotations = await annotationsStorage.getAnnotations();
-    if (!annotations || annotations.length === 0) return true;
-    await annotationsStorage.setAnnotations([]);
     if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
+      const bg = fabricRef.current.backgroundImage;
+      fabricRef.current.clear();
+      fabricRef.current.backgroundImage = bg;
+      fabricRef.current.renderAll();
     }
-    return true;
-  }, []);
+
+    await Promise.all([
+      annotationsStorage.deleteAnnotations(screenshot.id!),
+      annotationsRedoStorage.deleteAnnotations(screenshot.id!),
+      annotationHistoryStorage.deleteAnnotations(screenshot.id!),
+    ]);
+  }, [screenshot?.id]);
 
   /**
    * syncShapeInStorage is a mutation that syncs the shape in the key-value
@@ -233,30 +272,38 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * whenever user performs any action on the canvas such as drawing, moving
    * editing, deleting etc.
    */
-  const syncShapeInStorage = useCallback(async (object: any) => {
-    // if the passed object is null, return
-    if (!object) return;
+  const syncShapeInStorage = useCallback(
+    async (object: any) => {
+      if (!object || !fabricRef.current) return;
 
-    const { objectId } = object;
-    const shapeData = object.toJSON();
-    const shape = { ...shapeData, objectId };
+      const { objectId, shapeType, blurRadius } = object;
 
-    let annotations = (await annotationsStorage.getAnnotations()) || [];
-    const foundIndex = annotations.findIndex((x: any) => x.objectId === shape.objectId);
-    if (foundIndex !== -1) {
-      annotations[foundIndex] = shape;
-    } else {
-      annotations = [...annotations, shape];
-    }
+      const shapeData = object.toJSON();
+      const shape = { ...shapeData, objectId, shapeType, ...(blurRadius ? { blurRadius } : {}) };
 
-    await annotationsStorage.setAnnotations(annotations);
+      let { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
+        objects: [],
+        meta: {} as BackgroundFitMeta,
+      };
 
-    if (fabricRef.current) {
-      const json = fabricRef.current.toJSON();
-      await saveHistory(json, isProgrammaticChange.current);
-    }
-    // setActiveUpdateAction(uuidv4());
-  }, []);
+      const foundIndex = objects?.findIndex((x: any) => x.objectId === shape.objectId);
+
+      if (foundIndex !== -1) {
+        objects[foundIndex] = shape;
+      } else {
+        objects = [...objects, shape];
+      }
+
+      const shapeSnapshot: ShapeSnapshot = { objects: objects ?? [] };
+
+      await annotationsStorage.setAnnotations(screenshot.id!, shapeSnapshot);
+
+      if (fabricRef.current) {
+        await saveHistory(screenshot.id!, shapeSnapshot, { clearRedo: isProgrammaticChange.current });
+      }
+    },
+    [screenshot?.id],
+  );
 
   /**
    * Set the active element in the navbar and perform the action based
@@ -265,7 +312,33 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
    * @param elem
    */
   const handleActiveElement = (elem: ActiveElement) => {
+    if (elem?.value === 'color-palette') {
+      const highlighterColor = hexToRgba(elem?.payload?.color || elementAttributes.stroke, 0.45);
+
+      currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
+
+      if (fabricRef.current?.isDrawingMode) {
+        (fabricRef.current.freeDrawingBrush as PencilBrush).color = highlighterColor;
+      }
+
+      setElementAttributes(prevAttributes => ({
+        ...prevAttributes,
+        stroke: highlighterColor,
+      }));
+
+      modifyShape({
+        canvas: fabricRef.current!,
+        property: 'stroke',
+        value: highlighterColor,
+        activeObjectRef,
+        syncShapeInStorage,
+      });
+
+      return;
+    }
+
     setActiveElement(elem);
+    onElement(elem);
 
     switch (elem?.value) {
       case 'undo':
@@ -277,7 +350,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         break;
 
       // delete all the shapes from the canvas
-      case 'reset':
+      case 'start_over':
         // clear the storage
         deleteAllShapes();
         // clear the canvas
@@ -313,20 +386,17 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
 
       default:
         if (fabricRef.current) {
-          if (elem?.value === 'freeform') {
+          if (DRAWING_TOOLS.includes(elem?.value || '')) {
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
-            const brush = new PencilBrush(fabricRef.current);
-            brush.color = '#dc2626';
-            brush.width = 3;
-            fabricRef.current.freeDrawingBrush = brush;
+
+            applyBrush(elem.value, fabricRef.current, currentColorRef);
           } else {
             isDrawing.current = false;
             fabricRef.current.isDrawingMode = false;
           }
         }
 
-        // set the selected shape to the selected element
         selectedShapeRef.current = elem?.value as string;
 
         break;
@@ -334,38 +404,52 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
   };
 
   useEffect(() => {
-    // initialize the fabric canvas
+    if (!lastAction) return;
 
-    if (!attachments?.length) {
-      // Close annotation modal
-      toast.error('No screenshots available. Please try capturing again!');
+    switch (lastAction) {
+      case 'UNDO':
+        undo();
+        break;
+      case 'REDO':
+        redo();
+        break;
+      case 'START_OVER':
+        deleteAllShapes();
+        break;
+    }
+
+    dispatch(clearCanvasState());
+  }, [tick]);
+
+  useEffect(() => {
+    if (!screenshot?.id) {
       return;
     }
 
-    const backgroundImage = attachments?.length ? attachments[0].image : null;
     const canvas = initializeFabric({
       canvasRef,
       fabricRef,
-      backgroundImage,
+      backgroundImage: screenshot?.src,
     });
 
-    setSelectedImage(attachments[0] || null);
+    const getSavedAnnotations = async () => {
+      const annotations = await annotationsStorage.getAnnotations(screenshot.id!);
 
-    // window.addEventListener('click', e => {
-    //   const { target } = e;
+      if (annotations?.objects?.length) {
+        await restoreObjects(canvas, annotations);
+      } else {
+        const meta = await setCanvasBackground({
+          file: screenshot.src,
+          canvas,
+          parentWidth: canvas.getWidth(),
+          parentHeight: canvas.getHeight(),
+        });
 
-    //   // Get the shadow host (the element that hosts the shadow DOM)
-    //   const shadowHost = getCanvasElement();
+        await annotationsStorage.setAnnotations(screenshot.id!, { objects: [], meta });
+      }
+    };
 
-    //   console.log('target', target);
-
-    //   // Check if the clicked target is outside the canvas (with id #canvas) and not inside the shadow DOM
-    //   if (target instanceof HTMLElement && !target.contains(shadowHost) && target.id !== 'canvas') {
-    //     // Deselect the object if clicked outside
-    //     canvas.discardActiveObject();
-    //     canvas.renderAll();
-    //   }
-    // });
+    getSavedAnnotations();
 
     /**
      * listen to the mouse down event on the canvas which is fired when the
@@ -381,6 +465,7 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         selectedShapeRef,
         isDrawing,
         shapeRef,
+        currentColorRef,
       });
 
       if (!options.target) {
@@ -467,6 +552,8 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
       handleCanvasObjectMoving({
         options,
       });
+
+      updateMenuPosition(options);
     });
 
     /**
@@ -484,12 +571,19 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
       });
 
       onChangeSelection(options);
+
+      updateMenuPosition(options);
     });
 
     canvas.on('selection:updated', options => {
       onChangeSelection(options);
+
+      updateMenuPosition(options);
     });
 
+    canvas.on('selection:cleared', options => {
+      setActionMenuVisible(false);
+    });
     /**
      * listen to the scaling event on the canvas which is fired when the
      * user scales an object on the canvas.
@@ -502,6 +596,12 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         options,
         setElementAttributes,
       });
+
+      updateMenuPosition(options);
+    });
+
+    canvas.on('object:rotating', options => {
+      updateMenuPosition(options);
     });
 
     /**
@@ -528,25 +628,31 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
     window.addEventListener('resize', () => {
       handleResize({
         canvas: fabricRef.current,
+        backgroundImage: screenshot?.src ?? null,
       });
     });
 
     /**
-     * listen to the key down event on the window which is fired when the
+     * listen to the key down event on the shadow dom which is fired when the
      * user presses a key on the keyboard.
      *
      * We're using this to perform some actions like delete, copy, paste, etc when the user presses the respective keys on the keyboard.
      */
-    window.addEventListener('keydown', e =>
-      handleKeyDown({
-        e,
-        canvas: fabricRef.current,
-        undo,
-        redo,
-        syncShapeInStorage,
-        deleteShapeFromStorage,
-      }),
-    );
+    const shadowHost = getShadowHostElement();
+    const shadow = shadowHost?.shadowRoot;
+
+    if (shadow) {
+      shadow.addEventListener('keydown', e =>
+        handleKeyDown({
+          e,
+          canvas: fabricRef.current,
+          undo,
+          redo,
+          syncShapeInStorage,
+          deleteShapeFromStorage,
+        }),
+      );
+    }
 
     // dispose the canvas and remove the event listeners when the component unmounts
     return () => {
@@ -563,121 +669,102 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
       window.removeEventListener('resize', () => {
         handleResize({
           canvas: null,
+          backgroundImage: null,
         });
       });
 
-      window.removeEventListener('keydown', e =>
-        handleKeyDown({
-          e,
-          canvas: fabricRef.current,
-          undo,
-          redo,
-          syncShapeInStorage,
-          deleteShapeFromStorage,
-        }),
-      );
-    };
-  }, [canvasRef]); // run this effect only once when the component mounts and the canvasRef changes
-
-  // render the canvas when the canvasObjects from live storage changes
-  useEffect(() => {
-    const render = async () => {
-      const annotations = await annotationsStorage.getAnnotations();
-
-      renderCanvas({
-        fabricRef,
-        canvasObjects: annotations,
-        activeObjectRef,
-      });
-
-      const maxWidth = canvasRef.current?.clientWidth;
-      let imageWidth: number | undefined = undefined;
-
-      if (attachments[0]?.image) {
-        const img = new window.Image();
-        img.onload = () => {
-          imageWidth = img.naturalWidth;
-        };
-        img.src = attachments[0].image;
+      if (shadow) {
+        shadow.removeEventListener('keydown', e =>
+          handleKeyDown({
+            e,
+            canvas: fabricRef.current,
+            undo,
+            redo,
+            syncShapeInStorage,
+            deleteShapeFromStorage,
+          }),
+        );
       }
-
-      setCanvasBackground({
-        file: attachments[0]?.image,
-        canvas: fabricRef?.current,
-        minHeight: 500,
-        maxWidth: imageWidth ?? maxWidth ?? 500,
-      });
     };
+  }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
 
-    render();
-  }, [activeUpdateAction]);
+  useFitCanvasToParent(fabricRef.current, screenshot, gridCellRef.current);
 
+  // Warn the user when they try to close or refresh the tab
   useEffect(() => {
-    const handleOnBeforeUnload = event => {
-      event.preventDefault();
-      event.returnValue = '';
-      return '';
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (captureState !== 'unsaved') return;
+
+      e.preventDefault();
+      e.returnValue = '';
     };
 
-    const handleOnUnload = () => {
-      annotationsStorage.setAnnotations([]);
-      annotationsRedoStorage.setAnnotations([]);
+    const clearAnnotations = () => {
+      annotationsStorage.clearAll();
+      annotationsRedoStorage.clearAll();
+      annotationHistoryStorage.clearAll();
     };
 
-    window.addEventListener('unload', handleOnUnload);
-    window.addEventListener('beforeunload', handleOnBeforeUnload);
+    const handlePageHide = (e: PageTransitionEvent) => {
+      if (!e.persisted) {
+        clearAnnotations();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handlePageHide);
+
     return () => {
-      window.removeEventListener('beforeunload', handleOnBeforeUnload);
-      window.removeEventListener('beforeunload', handleOnUnload);
-      handleOnUnload();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handlePageHide);
     };
-  }, []);
+  }, [captureState]);
+
+  const updateMenuPosition = (options: any) => {
+    const obj = options.selected ? options.selected[0] : fabricRef.current.getActiveObject();
+    if (!obj) return;
+
+    const { left, top, width, height } = obj.getBoundingRect(false, true);
+
+    const vpt = fabricRef.current.viewportTransform!;
+    const vx = vpt[0] * (left + width / 2) + vpt[4];
+    const vy = vpt[3] * (top + height) + vpt[5];
+
+    setMenuPosition({
+      left: vx + 100,
+      top: vy + 40,
+    });
+  };
 
   const onChangeSelection = useCallback((options: any) => {
-    // if no element is selected, return
     if (!options?.selected) {
       return;
     }
 
-    // Get the selected element
-    const selectedElement: any = options?.selected[0] as FabricObject;
-
-    const updateMenuPosition = () => {
-      const { left, top, width, height } = selectedElement.getBoundingRect();
-
-      const menuWidth = 28; // Default to 64 if undefined
-
-      // Dynamically set the position of the action menu
-      setMenuPosition({
-        left: left + (width - menuWidth) + 41, // Center horizontally
-        top: top + height + 40, // Align vertically below the shape
-      });
-    };
-
-    selectedElement.set({
-      padding: 10,
-    });
-
-    // Update menu position initially when the selection changes
-    updateMenuPosition();
-
-    // Attach an event listener to track movement of the selected shape
-    selectedElement.on('moving', () => {
-      updateMenuPosition();
-    });
-
-    // Attach an event listener to track resizing of the selected shape
-    selectedElement.on('scaling', () => {
-      updateMenuPosition();
-    });
-
-    // Attach an event listener to track rotation of the selected shape
-    selectedElement.on('rotating', () => {
-      updateMenuPosition();
-    });
-
     setActionMenuVisible(true);
   }, []);
+
+  const handleOnExportScreenshot = async (format: string = 'png') => {
+    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? { objects: [], meta: {} };
+
+    const fileName = `${screenshot.name}.${format}`;
+    let file = null;
+
+    if (!objects?.length) {
+      file = await base64ToFile(screenshot.src, fileName);
+    } else {
+      const { width, height } = meta!.sizes!.natural;
+
+      file = await mergeScreenshot({
+        screenshot,
+        objects,
+        parentHeight: height,
+        parentWidth: width,
+      });
+    }
+
+    saveAs(file, fileName);
+  };
 
   const handleOnRemove = () => {
     handleActiveElement({ value: 'delete' } as any);
@@ -686,21 +773,20 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
   };
 
   return (
-    <div className="sm:px-4 lg:px-8">
-      {/* 
-        @todo: 
-         - add download image button w/ annotations
-         - add blur tool
-      */}
-      <AnnotationSection canvasRef={canvasRef} undo={undo} redo={redo} />
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      <div ref={gridCellRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
+        <CanvasWrapper
+          id={screenshot?.id || ''}
+          canvasRef={canvasRef}
+          onUndo={undo}
+          onRedo={redo}
+          onStartOver={deleteAllShapes}
+          onExport={handleOnExportScreenshot}
+        />
+      </div>
+
       {actionMenuVisible && (
-        <div
-          id="actions-menu"
-          className="absolute"
-          style={{
-            left: menuPosition.left,
-            top: menuPosition.top,
-          }}>
+        <div id="actions-menu" className="absolute" style={{ left: menuPosition.left, top: menuPosition.top }}>
           <Button
             type="button"
             size="icon"
@@ -712,12 +798,13 @@ const AnnotationContainer = ({ attachments }: { attachments: { name: string; ima
         </div>
       )}
 
-      <AnnotationSidebarFeature activeElement={activeElement} onActiveElement={handleActiveElement} />
+      <Toolbar
+        activeElement={activeElement}
+        onActiveElement={handleActiveElement}
+        onExport={handleOnExportScreenshot}
+      />
     </div>
   );
 };
 
-const arePropsEqual = (prevProps, nextProps) =>
-  JSON.stringify(prevProps.attachments) === JSON.stringify(nextProps.attachments);
-
-export default memo(AnnotationContainer, arePropsEqual);
+export default CanvasContainerView;

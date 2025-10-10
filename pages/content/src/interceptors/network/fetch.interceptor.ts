@@ -29,11 +29,12 @@ export const interceptFetch = (): void => {
   window.fetch = async function (...args: [RequestInfo | URL, FetchOptions?]): Promise<Response> {
     const [url, options] = args;
     const startTime = new Date().toISOString();
+    const pageUrl = typeof url === 'string' ? url : (url as any)?.url;
 
     try {
       const method = options?.method || 'GET';
       const requestHeaders = options?.headers || {};
-      const queryParams = extractQueryParams(url.toString());
+      const queryParams = extractQueryParams(pageUrl);
       const requestBody = options?.body || null;
 
       // Initiate the fetch request
@@ -85,7 +86,7 @@ export const interceptFetch = (): void => {
           const timestamp = Date.now();
           const payload = {
             method,
-            url: url.toString(),
+            ...(typeof url === 'string' ? { url } : url),
             queryParams,
             requestHeaders,
             requestBody,
@@ -110,7 +111,7 @@ export const interceptFetch = (): void => {
               recordType: 'console',
               source: 'client',
               method: 'error',
-              args: [`[Fetch] ${method} ${url} responded with status ${responseClone.status}`, payload],
+              args: [`[Fetch] ${method} ${pageUrl} responded with status ${responseClone.status}`, payload],
               stackTrace: {
                 parsed: 'interceptFetch',
                 raw: '',

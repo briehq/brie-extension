@@ -1,6 +1,8 @@
 import html2canvas from 'html2canvas';
+import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
+import type { Screenshot } from '@extension/shared';
 
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -14,6 +16,7 @@ let message: HTMLDivElement | null = null;
 let loadingMessage: HTMLDivElement | null = null;
 
 const waitForRepaint = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+const getShadowHost = () => document.getElementById('brie-root');
 
 // Helper Functions
 const addBoundaryBox = (
@@ -216,7 +219,7 @@ const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
 };
 
 // Start the selection process
-const onMouseDown = (e: MouseEvent | TouchEvent) => {
+const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
   if ('button' in e && e.button !== 0) return; // Only respond to left-click
 
   isSelecting = true;
@@ -235,9 +238,9 @@ const onMouseDown = (e: MouseEvent | TouchEvent) => {
 
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('mousemove', updateSelectionBox, { passive: false });
-  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mouseup', e => onMouseUp(e, mode));
   document.addEventListener('touchmove', updateSelectionBox, { passive: false });
-  document.addEventListener('touchend', onTouchEnd);
+  document.addEventListener('touchend', e => onTouchEnd(e, mode));
 
   message?.remove();
   message = null;
@@ -265,7 +268,7 @@ const onTouchStart = (e: TouchEvent) => {
 };
 
 // Finish the selection and capture the screenshot
-const onMouseUp = async (e: MouseEvent | TouchEvent) => {
+const onMouseUp = async (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
   if (!isSelecting) return;
 
   isSelecting = false;
@@ -290,7 +293,12 @@ const onMouseUp = async (e: MouseEvent | TouchEvent) => {
 
   await waitForRepaint();
 
-  await captureScreenshots(minX, minY, width, height);
+  const isSmall = width < 1 && height < 1;
+  const area = isSmall
+    ? { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
+    : { x: minX, y: minY, width, height };
+
+  await captureScreenshots({ ...area, mode });
   // hideLoadingMessage();
 };
 
@@ -304,7 +312,7 @@ const onMouseMove = (e: MouseEvent) => {
 };
 
 // Finish the selection for touch and capture the screenshot
-const onTouchEnd = async (e: TouchEvent) => {
+const onTouchEnd = async (e: TouchEvent, mode: 'single' | 'multiple') => {
   if (!isSelecting) return;
 
   isSelecting = false;
@@ -320,7 +328,12 @@ const onTouchEnd = async (e: TouchEvent) => {
 
   await waitForRepaint();
 
-  await captureScreenshots(startX, startY, width, height);
+  const isSmall = width < 1 && height < 1;
+  const area = isSmall
+    ? { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
+    : { x: startX, y: startY, width, height };
+
+  await captureScreenshots({ ...area, mode });
   hideLoadingMessage();
 };
 
@@ -330,6 +343,19 @@ const onTouchMove = (e: TouchEvent) => {
   lastPointerX = clientX;
   lastPointerY = clientY;
   positionInstructionsMessage(lastPointerX, lastPointerY);
+};
+
+const toggleMinimizedPreview = () => {
+  const shadowHost = getShadowHost();
+  const wasHidden = shadowHost?.hidden ?? false;
+
+  if (!shadowHost) return;
+
+  if (!wasHidden) {
+    shadowHost.hidden = true;
+  } else {
+    shadowHost.hidden = false;
+  }
 };
 
 // Show instructions message
@@ -359,6 +385,8 @@ const showInstructions = () => {
 
 const captureTab = (): Promise<string> =>
   new Promise((resolve, reject) => {
+    toggleMinimizedPreview();
+
     chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, response => {
       if (chrome.runtime.lastError) {
         // Error from Chrome's runtime
@@ -373,6 +401,8 @@ const captureTab = (): Promise<string> =>
         // Successfully received data URL
         resolve(response.dataUrl);
       }
+
+      toggleMinimizedPreview();
     });
   });
 
@@ -384,7 +414,19 @@ const checkIfNativeCaptureAvailable = () =>
   });
 
 // Screenshot Capturing
-const captureScreenshots = async (x: number, y: number, width: number, height: number) => {
+const captureScreenshots = async ({
+  x,
+  y,
+  width,
+  height,
+  mode,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  mode: 'single' | 'multiple';
+}) => {
   try {
     const scaleFactor = window.devicePixelRatio || 2;
 
@@ -400,7 +442,7 @@ const captureScreenshots = async (x: number, y: number, width: number, height: n
       // if (loadingMessage) loadingMessage.hidden = false;
 
       // Process the screenshot from the Native Capture API
-      return processScreenshot(dataUrl, x, y, width, height, scaleFactor);
+      return processScreenshot({ dataUrl, x, y, width, height, scaleFactor, mode });
     } else {
       // Fallback to html2canvas logic
       const fullCanvas = await html2canvas(document.body, {
@@ -425,22 +467,41 @@ const captureScreenshots = async (x: number, y: number, width: number, height: n
         },
       });
 
-      return processScreenshot(fullCanvas.toDataURL('image/png', 1.0), x, y, width, height, scaleFactor);
+      return processScreenshot({
+        dataUrl: fullCanvas.toDataURL('image/png', 1.0),
+        x,
+        y,
+        width,
+        height,
+        scaleFactor,
+        mode,
+      });
     }
   } catch (error) {
     console.error('Error during screenshot capture:', error);
+  } finally {
+    toggleMinimizedPreview();
   }
 };
 
 // Helper: Process the screenshot
-const processScreenshot = async (
-  dataUrl: string,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  scaleFactor: number,
-) => {
+const processScreenshot = async ({
+  dataUrl,
+  x,
+  y,
+  width,
+  height,
+  scaleFactor,
+  mode,
+}: {
+  dataUrl: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scaleFactor: number;
+  mode: 'single' | 'multiple';
+}) => {
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.src = dataUrl;
@@ -464,7 +525,13 @@ const processScreenshot = async (
   let croppedScreenshotImage =
     croppedCanvas.width && croppedCanvas.height ? croppedCanvas.toDataURL('image/jpeg', 1) : null;
 
-  saveAndNotify({ primary: croppedScreenshotImage, secondary: fullScreenshotImage });
+  saveAndNotify({
+    screenshots: [
+      { src: croppedScreenshotImage || '', isPrimary: true },
+      ...(mode === 'single' ? [{ src: fullScreenshotImage }] : []),
+    ],
+    mode,
+  });
 
   // Cleanup
   fullScreenshotImage = null;
@@ -474,8 +541,9 @@ const processScreenshot = async (
 };
 
 // Save and notify with screenshots
-const saveAndNotify = ({ secondary, primary }: { secondary: string; primary: string | null }) => {
+const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode: 'single' | 'multiple' }) => {
   const timestamp = Date.now();
+  const screenshotName: string = `${location.host}-${timestamp}`.replaceAll('.', '-');
 
   /**
    * @todo use safePostMessage
@@ -496,16 +564,33 @@ const saveAndNotify = ({ secondary, primary }: { secondary: string; primary: str
     '*',
   );
 
-  const event = new CustomEvent('DISPLAY_MODAL', {
+  const eventName = mode === 'single' ? 'DISPLAY_MODAL' : 'STORE_SCREENSHOT';
+
+  const event = new CustomEvent(eventName, {
     detail: {
-      screenshots: [...(primary ? [{ name: 'primary', image: primary }] : []), { name: 'secondary', image: secondary }],
+      screenshots: screenshots.map(screenshot => ({
+        ...screenshot,
+        name: screenshotName,
+        id: uuidv4(),
+      })),
     },
   });
+
   window.dispatchEvent(event);
 };
 
 // Initialization
-export const startScreenshotCapture = async ({ type }: { type: 'full-page' | 'viewport' | 'area' }) => {
+export const startScreenshotCapture = async ({
+  type,
+  /**
+   * @todo
+   * add a toggle to choose the mode 'single' | 'multiple'
+   */
+  mode = 'multiple',
+}: {
+  type: 'full-page' | 'viewport' | 'area';
+  mode: 'single' | 'multiple';
+}) => {
   if (type === 'full-page') {
     const scaleFactor = window.devicePixelRatio || 2;
     const fullCanvas = await html2canvas(document.body, {
@@ -516,26 +601,36 @@ export const startScreenshotCapture = async ({ type }: { type: 'full-page' | 'vi
       scale: scaleFactor,
       width: document.documentElement.scrollWidth,
       height: document.documentElement.scrollHeight,
+      ignoreElements: (element: Element) => {
+        return [
+          'brie-minimized-preview',
+          'screenshot-overlay',
+          'selection-box',
+          'dimension-label',
+          'screenshot-loading-message',
+        ].includes(element.id);
+      },
     });
 
-    saveAndNotify({ primary: null, secondary: fullCanvas.toDataURL('image/png', 1.0) });
+    saveAndNotify({ screenshots: [{ src: fullCanvas.toDataURL('image/png', 1.0) }], mode });
     return;
   }
 
   if (type === 'viewport') {
     const viewport = await captureTab();
 
-    saveAndNotify({ primary: null, secondary: viewport });
+    saveAndNotify({ screenshots: [{ src: viewport }], mode });
 
     return;
   }
 
   createOverlay();
   showInstructions();
+  toggleMinimizedPreview();
 
   overlay.addEventListener('keydown', onKeyDown); // Listen for ESC key press
-  overlay.addEventListener('mousedown', onMouseDown);
-  overlay.addEventListener('touchstart', onMouseDown);
+  overlay.addEventListener('mousedown', e => onMouseDown(e, mode));
+  overlay.addEventListener('touchstart', e => onMouseDown(e, mode));
 };
 
 // Clean up all temporary elements
@@ -558,6 +653,6 @@ export const cleanup = (): void => {
   document.removeEventListener('mousemove', updateSelectionBox);
   // document.removeEventListener('mouseup', onMouseUp);
   document.removeEventListener('touchmove', updateSelectionBox);
-  document.removeEventListener('touchend', onTouchEnd);
+  document.removeEventListener('touchend', () => onTouchEnd({} as TouchEvent, 'single'));
   document.removeEventListener('scroll', onScroll);
 };
