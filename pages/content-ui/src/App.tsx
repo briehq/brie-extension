@@ -1,59 +1,148 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 
+import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
-import { annotationsRedoStorage, annotationsStorage, captureStateStorage, themeStorage } from '@extension/storage';
+import {
+  annotationHistoryStorage,
+  annotationsRedoStorage,
+  annotationsStorage,
+  captureNotifyStorage,
+  captureStateStorage,
+  themeStorage,
+} from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
-import { cn, ToasterProvider, TooltipProvider } from '@extension/ui';
+import { cn, toast, ToasterProvider, TooltipProvider } from '@extension/ui';
 
+import { MinimizedPreview } from './components/dialog-view';
 import Content from './content';
 
 export default function App() {
+  const captureNotifyState = useStorage(captureNotifyStorage);
+  const captureState = useStorage(captureStateStorage);
   const theme = useStorage(themeStorage);
-  const [screenshots, setScreenshots] = useState<{ name: string; image: string }[]>();
+  const [minimized, setMinimized] = useState(true);
+  const [screenshots, setScreenshots] = useState<Screenshot[]>();
+  const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
 
   useEffect(() => {
-    const handleDisplayModal = async event => {
-      setScreenshots(event.detail.screenshots); // Extract data from the event
-      await captureStateStorage.setCaptureState('unsaved');
-    };
+    window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
+    window.addEventListener('CLOSE_MODAL', handleOnClose);
+    window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
 
-    // Attach event listener
-    window.addEventListener('DISPLAY_MODAL', handleDisplayModal);
-    window.addEventListener('CLOSE_MODAL', handleOnCloseModal);
-
-    // Cleanup event listener on unmount
     return () => {
-      window.removeEventListener('DISPLAY_MODAL', handleDisplayModal);
-      window.removeEventListener('CLOSE_MODAL', handleOnCloseModal);
+      window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
+      window.removeEventListener('CLOSE_MODAL', handleOnClose);
+      window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
     };
   }, []);
 
-  const handleOnCloseModal = async () => {
-    setScreenshots(null);
+  const handleOnStoreScreenshot = async (event: any) => {
+    handleOnMinimize();
+    setScreenshots(screenshots => [...(screenshots ?? []), ...event.detail.screenshots]);
 
-    await captureStateStorage.setCaptureState('idle');
-
-    annotationsStorage.setAnnotations([]);
-    annotationsRedoStorage.setAnnotations([]);
+    if (!captureNotifyState?.notified) {
+      setTimeout(
+        () =>
+          toast.message('Screenshot captured', {
+            duration: 60000,
+            closeButton: true,
+            description: 'Capture more shots or jump straight into editing.',
+          }),
+        1000,
+      );
+      await captureNotifyStorage.set({ notified: true });
+    }
   };
 
-  // if (!screenshots?.length) return null;
+  const handleOnDisplay = async (event: any) => {
+    setScreenshots(event.detail.screenshots);
+    setMinimized(false);
+    await captureStateStorage.setCaptureState('unsaved');
+  };
+
+  const handleOnClose = useCallback(async () => {
+    setIdempotencyKey(uuid());
+    setScreenshots([]);
+    setMinimized(false);
+
+    await Promise.all([
+      captureStateStorage.setCaptureState('idle'),
+      annotationsStorage.clearAll(),
+      annotationsRedoStorage.clearAll(),
+      annotationHistoryStorage.clearAll(),
+    ]);
+  }, []);
+
+  const handleOnSelectScreenshot = useCallback(
+    (id: string) => {
+      if (id !== activeScreenshotId) setActiveScreenshotId(id);
+    },
+    [activeScreenshotId],
+  );
+
+  const handleOnDeleteScreenshot = useCallback(
+    async (id: string) => {
+      setScreenshots(prev => {
+        const next = prev?.filter(s => s.id !== id);
+
+        if (activeScreenshotId === id) setActiveScreenshotId(next?.[0]?.id ?? null);
+
+        return next;
+      });
+
+      await Promise.all([
+        annotationsStorage.deleteAnnotations(id),
+        annotationsRedoStorage.deleteAnnotations(id),
+        annotationHistoryStorage.deleteAnnotations(id),
+      ]);
+    },
+    [activeScreenshotId],
+  );
+
+  const handleOnMinimize = async () => {
+    await captureStateStorage.setCaptureState('capturing');
+    setMinimized(true);
+  };
+  const handleOnEdit = async () => {
+    setActiveScreenshotId(screenshots?.[0]?.id);
+
+    setMinimized(false);
+
+    await captureStateStorage.setCaptureState('unsaved');
+  };
+
+  const capturing = captureState === 'capturing';
 
   return (
-    <ReduxProvider store={store}>
-      <TooltipProvider>
-        <div className={cn(theme, 'relative')}>
-          {screenshots?.length && (
-            <main className="flex-1 md:container md:max-w-screen-xl">
-              <div className="flex items-center justify-between gap-2 rounded bg-white">
-                <Content onClose={handleOnCloseModal} screenshots={screenshots} />
-              </div>
-            </main>
-          )}
+    <div id="brie-content" className={cn('light', 'relative')}>
+      <ToasterProvider theme={theme} />
 
-          <ToasterProvider richColors theme={theme} />
-        </div>
-      </TooltipProvider>
-    </ReduxProvider>
+      {!!screenshots?.length && (
+        <ReduxProvider store={store}>
+          <TooltipProvider>
+            {minimized ? (
+              <MinimizedPreview
+                screenshots={screenshots}
+                onEdit={handleOnEdit}
+                unsaved={capturing}
+                onDiscard={handleOnClose}
+              />
+            ) : (
+              <Content
+                idempotencyKey={idempotencyKey}
+                activeScreenshotId={activeScreenshotId || ''}
+                screenshots={screenshots}
+                onClose={handleOnClose}
+                onMinimize={handleOnMinimize}
+                onDeleteScreenshot={handleOnDeleteScreenshot}
+                onSelectScreenshot={handleOnSelectScreenshot}
+              />
+            )}
+          </TooltipProvider>
+        </ReduxProvider>
+      )}
+    </div>
   );
 }

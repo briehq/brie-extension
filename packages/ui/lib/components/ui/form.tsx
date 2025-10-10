@@ -66,7 +66,7 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     return (
       <FormItemContext.Provider value={{ id }}>
-        <div ref={ref} className={cn('space-y-2', className)} {...props} />
+        <div ref={ref} className={cn('space-y-1', className)} {...props} />
       </FormItemContext.Provider>
     );
   },
@@ -133,4 +133,4 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 );
 FormMessage.displayName = 'FormMessage';
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField, Controller };

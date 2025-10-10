@@ -8,7 +8,7 @@ export const cn = (...inputs: ClassValue[]) => {
 
 export const getShadowRoot = () => {
   const shadowHost = document.querySelector('#brie-root');
-  const shadowRoot = shadowHost?.shadowRoot;
+  const shadowRoot = shadowHost?.shadowRoot?.getElementById('brie-content');
 
   if (!shadowRoot) console.log('No Shadow Root');
 

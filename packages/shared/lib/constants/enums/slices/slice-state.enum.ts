@@ -1,0 +1,8 @@
+export enum SliceState {
+  DRAFT = 'DRAFT',
+  UPLOADING = 'UPLOADING',
+  PROCESSING = 'PROCESSING',
+  READY = 'READY',
+  FAILED = 'FAILED',
+  CANCELED = 'CANCELED',
+}

@@ -14,10 +14,12 @@ import type {
   RenderCanvas,
 } from '@src/models';
 
-import { createDefaultControls } from './controls';
+import { getCanvasScale } from './canvas-scale.utils';
+import { createDefaultControls } from './controls.util';
+import { hexToRgba } from './hex-to-rgba.util';
 import { createSpecificShape, setCanvasBackground } from './shapes.util';
 
-const rotateSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>`;
+export const DRAWING_TOOLS = ['freeform', 'highlighter'];
 
 export const getShadowHostElement = () => document.querySelector('#brie-root');
 
@@ -50,28 +52,20 @@ export const initializeFabric = ({
   canvasRef: RefObject<HTMLCanvasElement | null>;
   backgroundImage: string;
 }) => {
-  // get canvas element
-  const canvasElement = getCanvasElement();
+  if (!canvasRef?.current) throw new Error('Canvas ref is not available');
 
-  // Get the parent container dimensions
-  const maxWidth = canvasElement?.clientWidth || 500;
-  const maxHeight = 500; // Maximum height constraint
+  const parent = canvasRef.current.parentElement!;
+  const { width, height } = parent.getBoundingClientRect();
 
-  // Check if canvas ref is available
-  if (!canvasRef.current) {
-    throw new Error('Canvas ref is not available');
-  }
-
-  // Create the Fabric.js canvas
   const canvas = new Canvas(canvasRef.current, {
-    width: maxWidth,
-    height: maxHeight, // Temporary height until background image is loaded
+    width,
+    height,
   });
 
   if (backgroundImage) {
     try {
       // Set the background image and adjust canvas dimensions
-      setCanvasBackground({ file: backgroundImage, canvas, maxHeight, maxWidth });
+      setCanvasBackground({ file: backgroundImage, canvas, parentHeight: height, parentWidth: width });
     } catch (error) {
       console.error('Failed to set the background image:', error);
     }
@@ -99,8 +93,29 @@ export const initializeFabric = ({
   return canvas;
 };
 
+export const applyBrush = (tool: 'freeform' | 'highlighter', canvas: Canvas, currentColorRef: any) => {
+  const brush = new PencilBrush(canvas);
+
+  if (tool === 'freeform') {
+    brush.width = 3;
+    brush.color = currentColorRef.current;
+  } else {
+    brush.width = 18;
+    brush.color = hexToRgba(currentColorRef.current, 0.45);
+  }
+
+  canvas.freeDrawingBrush = brush;
+};
+
 // instantiate creation of custom fabric object/shape and add it to canvas
-export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDrawing, shapeRef }: CanvasMouseDown) => {
+export const handleCanvasMouseDown = ({
+  options,
+  canvas,
+  selectedShapeRef,
+  isDrawing,
+  shapeRef,
+  currentColorRef,
+}: CanvasMouseDown) => {
   // get pointer coordinates
   const pointer = canvas.getScenePoint(options.e);
 
@@ -116,13 +131,12 @@ export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDra
   canvas.isDrawingMode = false;
 
   // if selected shape is freeform, set drawing mode to true and return
-  if (selectedShapeRef.current === 'freeform') {
-    const brush = new PencilBrush(canvas);
-    canvas.freeDrawingBrush = brush;
-    isDrawing.current = true;
+
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current!)) {
+    applyBrush(selectedShapeRef.current, canvas, currentColorRef);
+
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 3;
-    canvas.freeDrawingBrush.color = '#dc2626';
+    isDrawing.current = true;
     return;
   }
 
@@ -144,7 +158,7 @@ export const handleCanvasMouseDown = ({ options, canvas, selectedShapeRef, isDra
     isDrawing.current = true;
 
     // create custom fabric object/shape and set it to shapeRef
-    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any);
+    shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any, currentColorRef?.current, canvas);
 
     // if shapeRef is not null, add it to canvas
     if (shapeRef.current) {
@@ -167,19 +181,23 @@ export const handleCanvasMouseMove = ({
   if (!isDrawing.current) {
     return;
   }
-  if (selectedShapeRef.current === 'freeform') {
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current)) {
     return;
   }
 
   canvas.isDrawingMode = false;
 
   // get pointer coordinates
-  const pointer = canvas.getPointer(options.e);
+  const pointer = canvas.getScenePoint(options.e);
 
   // depending on the selected shape, set the dimensions of the shape stored in shapeRef in previous step of handelCanvasMouseDown
   // calculate shape dimensions based on pointer coordinates
   switch (selectedShapeRef?.current) {
     case 'rectangle':
+    case 'triangle':
+    case 'arrow':
+    case 'blur':
+    case 'image':
       shapeRef.current?.set({
         width: pointer.x - (shapeRef.current?.left || 0),
         height: pointer.y - (shapeRef.current?.top || 0),
@@ -192,31 +210,10 @@ export const handleCanvasMouseMove = ({
       });
       break;
 
-    case 'triangle':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
-      });
-      break;
-
     case 'line':
       shapeRef.current?.set({
         x2: pointer.x,
         y2: pointer.y,
-      });
-      break;
-
-    case 'arrow':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
-      });
-      break;
-
-    case 'image':
-      shapeRef.current?.set({
-        width: pointer.x - (shapeRef.current?.left || 0),
-        height: pointer.y - (shapeRef.current?.top || 0),
       });
       break;
 
@@ -244,7 +241,7 @@ export const handleCanvasMouseUp = ({
   setActiveElement,
 }: CanvasMouseUp) => {
   isDrawing.current = false;
-  if (selectedShapeRef.current === 'freeform') {
+  if (DRAWING_TOOLS.includes(selectedShapeRef.current)) {
     return;
   }
 
@@ -280,47 +277,42 @@ export const handleCanvasObjectModified = ({ options, syncShapeInStorage }: Canv
 
 // update shape in storage when path is created when in freeform mode
 export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCreated) => {
-  // get path object
   const path = options.path;
   if (!path) {
     return;
   }
 
-  // set unique id to path object
   path.set({
     objectId: uuid4(),
+    padding: 10,
+    globalCompositeOperation: 'source-over',
   });
 
-  // sync shape in storage
   syncShapeInStorage(path);
 };
 
 // check how object is moving on canvas and restrict it to canvas boundaries
+/** Keep object fully inside the canvas, whatever the zoom. */
 export const handleCanvasObjectMoving = ({ options }: { options: any }) => {
-  // get target object which is moving
   const target = options.target as FabricObject;
+  if (!target) return;
 
-  // target.canvas is the canvas on which the object is moving
   const canvas = target.canvas as Canvas;
+  if (!canvas) return;
 
-  // set coordinates of target object
+  const scale = getCanvasScale(canvas);
+  const sceneWidth = (canvas.width ?? 0) / scale;
+  const sceneHeight = (canvas.height ?? 0) / scale;
+
+  const objW = (target.width ?? 0) * (target.scaleX ?? 1);
+  const objH = (target.height ?? 0) * (target.scaleY ?? 1);
+
+  target.set({
+    left: Math.min(Math.max(0, target.left ?? 0), sceneWidth - objW),
+    top: Math.min(Math.max(0, target.top ?? 0), sceneHeight - objH),
+  });
+
   target.setCoords();
-
-  // restrict object to canvas boundaries (horizontal)
-  if (target && target.left) {
-    target.left = Math.max(
-      0,
-      Math.min(target.left, (canvas.width || 0) - (target.getScaledWidth() || target.width || 0)),
-    );
-  }
-
-  // restrict object to canvas boundaries (vertical)
-  if (target && target.top) {
-    target.top = Math.max(
-      0,
-      Math.min(target.top, (canvas.height || 0) - (target.getScaledHeight() || target.height || 0)),
-    );
-  }
 };
 
 // set element attributes when element is selected
@@ -426,20 +418,23 @@ export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }:
   fabricRef.current?.renderAll();
 };
 
-// resize canvas dimensions on window resize
-export const handleResize = ({ canvas }: { canvas: Canvas | null }) => {
-  const canvasElement = getCanvasElement();
-  if (!canvasElement) {
-    return;
-  }
+export const handleResize = ({
+  canvas,
+  backgroundImage,
+}: {
+  canvas: Canvas | null;
+  backgroundImage: string | null;
+}) => {
+  if (!canvas || !backgroundImage) return;
 
-  if (!canvas) {
-    return;
-  }
+  const wrapper = getCanvasElement();
+  if (!wrapper) return;
 
-  canvas.setDimensions({
-    width: canvasElement.clientWidth,
-    height: canvasElement.clientHeight,
+  setCanvasBackground({
+    file: backgroundImage,
+    canvas,
+    parentWidth: wrapper.clientWidth,
+    parentHeight: wrapper.clientHeight,
   });
 };
 

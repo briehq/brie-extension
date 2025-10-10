@@ -1,11 +1,43 @@
 import type { FabricObject, Canvas, Path, Gradient, Pattern } from 'fabric';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 
+interface Size {
+  width: number;
+  height: number;
+}
+
 export enum CursorMode {
   Hidden,
   Chat,
   ReactionSelector,
   Reaction,
+}
+
+export interface HandleKeyDownDeps {
+  e: KeyboardEvent;
+  canvas: Canvas;
+  undo: () => void;
+  redo: () => void;
+  syncShapeInStorage: (shape: FabricObject) => void;
+  deleteShapeFromStorage: (id: string) => void;
+}
+
+export interface SaveOptions {
+  clearRedo?: boolean;
+  max?: number;
+}
+
+export interface BackgroundFitMeta {
+  sizes: {
+    natural: Size;
+    fit: Size;
+  };
+  scale: number;
+}
+
+export interface ShapeSnapshot {
+  objects: FabricObject[];
+  meta: BackgroundFitMeta;
 }
 
 export type CursorState =
@@ -63,6 +95,7 @@ export type ActiveElement = {
   name: string;
   value: string;
   icon: string;
+  payload?: { color?: string };
 } | null;
 
 export interface CustomFabricObject<T extends FabricObject> extends FabricObject {
@@ -123,6 +156,7 @@ export type CanvasMouseDown = {
   selectedShapeRef: any;
   isDrawing: RefObject<boolean>;
   shapeRef: RefObject<FabricObject | null>;
+  currentColorRef: RefObject<string>;
 };
 
 export type CanvasMouseMove = {

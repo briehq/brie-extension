@@ -16,38 +16,46 @@ export const shapeElements = [
     name: 'Line',
     value: 'line',
   },
-  //   {
-  //     icon: "TextCursorIcon",
-  //     name: "Measurement",
-  //     value: "measurement",
-  //   },
   {
     icon: 'CircleIcon',
     name: 'Circle',
     value: 'circle',
   },
-
-  //   {
-  //     icon: "/assets/image.svg",
-  //     name: "Image",
-  //     value: "image",
-  //   },
 ];
 
 export const defaultNavElement = {
   // icon: 'MousePointer2Icon',
   icon: 'HandIcon',
-  name: 'Select',
+  name: 'Move',
   value: 'select',
 };
 
 export const navElements = [
   defaultNavElement,
-  ...shapeElements,
+  {
+    icon: 'ColorPalette',
+    name: 'Color Palette',
+    value: 'color-palette',
+  },
+  {
+    icon: 'SquareIcon',
+    name: 'Rectangle',
+    value: shapeElements,
+  },
   {
     icon: 'PencilIcon',
     name: 'Pencil',
     value: 'freeform',
+  },
+  {
+    icon: 'HighlighterIcon',
+    name: 'Highlighter',
+    value: 'highlighter',
+  },
+  {
+    icon: 'BlurIcon',
+    name: 'Blur',
+    value: 'blur',
   },
   {
     icon: 'TypeIcon',
@@ -55,28 +63,6 @@ export const navElements = [
     value: 'text',
   },
   {},
-  //   {
-  //     icon: 'FilePenIcon',
-  //     name: 'Add Description',
-  //     value: 'description',
-  //   },
-  //   {},
-  {
-    icon: 'Undo2Icon',
-    value: 'undo',
-    name: 'Undo',
-  },
-  {
-    icon: 'Redo2Icon',
-    value: 'redo',
-    name: 'Redo',
-  },
-  //   {},
-  //   {
-  //     icon: 'SparklesIcon',
-  //     value: 'suggestions',
-  //     name: 'AI-powered Issue Detection',
-  //   },
 ];
 
 export const directionOptions = [
@@ -184,23 +170,23 @@ export const alignmentOptions = [
 
 export const shortcuts = [
   {
-    key: '1',
-    name: 'Save Image As...',
-    // shortcut: "/",
+    value: 'export',
+    name: 'Export',
+    // shortcut: '⌘ + E',
   },
   {
-    key: '2',
+    value: 'undo',
     name: 'Undo',
     shortcut: '⌘ + Z',
   },
   {
-    key: '3',
+    value: 'redo',
     name: 'Redo',
     shortcut: '⌘ + Y',
   },
-  // {
-  //   key: "4",
-  //   name: "Reactions",
-  //   shortcut: "E",
-  // },
+  {
+    value: 'start_over',
+    name: 'Start Over',
+    // shortcut: '⌘ + D',
+  },
 ];

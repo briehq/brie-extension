@@ -7,3 +7,5 @@ export type * from './space.interface.js';
 export type * from './organization.interface.js';
 export * from './query-filter.interface.js';
 export type * from './auth.interfaces.js';
+export type * from './screenshot.interface.js';
+export type * from './ai.interfaces.js';

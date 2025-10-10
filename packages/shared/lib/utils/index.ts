@@ -5,4 +5,6 @@ export { isValidJSON } from './is-valid-json.util.js';
 export { safePostMessage } from './safe-post-message.util.js';
 export { stripUnCloneable } from './strip-uncloneable.util.js';
 export { safeStructuredClone } from './structured-clone.util.js';
+export { capitalizeWord } from './capitalize.util.js';
+export { getInitials } from './get-initials.util.js';
 export { isExtensionElement } from './is-extension-element.util.js';

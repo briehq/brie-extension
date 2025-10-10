@@ -1,96 +1,85 @@
 import type { Canvas } from 'fabric';
-import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText } from 'fabric'; // check for Image
+import { Rect, Line, Triangle, Circle, Group, IText, FabricImage, FabricText, filters as FabricFilters } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
+import type { BackgroundFitMeta, CustomFabricObject, ElementDirection, ModifyShape } from '@src/models';
 
-export const createRectangle = (pointer: PointerEvent) => {
+import { DRAWING_TOOLS } from './canvas.util';
+
+const DEFAULT_SHAPE_OPTIONS = {
+  width: 100,
+  height: 100,
+  strokeWidth: 3,
+  cornerSize: 8,
+  padding: 10,
+  selectable: true,
+  fill: 'transparent',
+};
+export const createRectangle = (pointer: PointerEvent, stroke: string) => {
   const rect = new Rect({
+    stroke,
     left: pointer.x,
     top: pointer.y,
-    width: 100,
-    height: 100,
-    stroke: '#dc2626',
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'rectangle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Rect> | any);
 
   return rect;
 };
 
-export const createTriangle = (pointer: PointerEvent) => {
+export const createTriangle = (pointer: PointerEvent, stroke: string) => {
   return new Triangle({
+    stroke,
     left: pointer.x,
     top: pointer.y,
-    width: 100,
-    height: 100,
-    stroke: '#dc2626',
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'triangle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Triangle> | any);
 };
 
-export const createCircle = (pointer: PointerEvent) => {
+export const createCircle = (pointer: PointerEvent, stroke: string) => {
   return new Circle({
+    stroke,
     left: pointer.x,
     top: pointer.y,
     radius: 100,
-    stroke: '#dc2626',
-    strokeWidth: 3,
-    fill: 'transparent',
     objectId: uuidv4(),
-    cornerSize: 8,
-    padding: 5,
     shapeType: 'circle',
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as any);
 };
 
-export const createLine = (pointer: PointerEvent) => {
+export const createLine = (pointer: PointerEvent, stroke: string) => {
   return new Line([pointer.x, pointer.y, pointer.x + 100, pointer.y + 100], {
-    stroke: '#dc2626',
-    strokeWidth: 3,
+    stroke,
     objectId: uuidv4(),
-    cornerSize: 8,
     shapeType: 'line',
-    padding: 5,
-    selectable: true,
+    ...DEFAULT_SHAPE_OPTIONS,
   } as CustomFabricObject<Line> | any);
 };
 
-export const createArrow = (pointer: PointerEvent) => {
-  // Create the line (shaft of the arrow)
+export const createArrow = (pointer: PointerEvent, stroke: string) => {
   const line = new Line([0, 0, 100, 0], {
-    stroke: '#dc2626',
+    stroke,
     strokeWidth: 3,
-    selectable: false, // Ensure only the group is selectable, not individual parts
-    originX: 'center', // Center the line in the group
+    selectable: false,
+    originX: 'center',
     originY: 'center',
   });
 
-  // Create the triangle (arrowhead)
   const triangle = new Triangle({
     width: 12,
     height: 18,
-    fill: '#dc2626',
+    fill: line.stroke,
     originX: 'center',
     originY: 'center',
-    angle: 90, // Ensure the arrowhead points correctly
-    left: 100, // Position the triangle at the end of the line
-    selectable: false, // Ensure the triangle itself is not selectable
+    angle: 90,
+    left: 100,
+    selectable: false,
   });
 
-  // Group the line and triangle into an arrow
   const arrowGroup = new Group([line, triangle], {
     left: pointer.x,
     top: pointer.y,
@@ -99,17 +88,15 @@ export const createArrow = (pointer: PointerEvent) => {
     objectId: uuidv4(),
     originX: 'center',
     originY: 'center',
-    width: 100 + triangle.width, // Set group width to account for both line and triangle
-    height: Math.max(line.strokeWidth, triangle.height), // Set group height based on the largest part
+    width: 100 + triangle.width,
+    height: Math.max(line.strokeWidth, triangle.height),
     shapeType: 'arrow',
     padding: 10,
     selectable: true,
   } as CustomFabricObject<Line> | any);
 
-  // Set the correct coordinates and bounding box
   arrowGroup.setCoords();
 
-  // Ensure correct bounding box on canvas interactions (dragging, resizing, etc.)
   arrowGroup.on('scaling', () => arrowGroup.setCoords());
   arrowGroup.on('rotating', () => arrowGroup.setCoords());
   arrowGroup.on('moving', () => arrowGroup.setCoords());
@@ -117,45 +104,91 @@ export const createArrow = (pointer: PointerEvent) => {
   return arrowGroup;
 };
 
+/**
+ * Adds a blurred clone of the canvas background
+ * and clips it to a draggable / resizable rectangle.
+ *
+ * @param canvas   Fabric canvas (backgroundImage already set)
+ * @param pointer  result of canvas.getScenePoint(e)
+ * @returns        the rectangle (interactive object)
+ */
+export const createBlur = (canvas: Canvas | undefined, pointer: PointerEvent): Rect => {
+  if (!canvas) return {} as Rect;
+
+  let blurred = {} as FabricImage;
+
+  const bg = canvas.backgroundImage as FabricImage | undefined;
+  if (!bg) throw new Error('[Brie] Background image must be set before blur tool');
+
+  blurred = bg.cloneAsImage({});
+  blurred.filters = [new FabricFilters.Blur({ blur: 0.1 })];
+  blurred.applyFilters();
+
+  blurred.set({
+    selectable: false,
+    evented: false,
+    objectCaching: false,
+    data: 'blur-layer',
+  });
+
+  canvas.add(blurred);
+  canvas.sendObjectToBack(blurred);
+
+  const win = new Rect({
+    ...DEFAULT_SHAPE_OPTIONS,
+    left: pointer.x,
+    top: pointer.y,
+    fill: 'rgba(0,0,0,0)',
+    transparentCorners: false,
+    objectCaching: false,
+    objectId: uuidv4(),
+    data: 'blur-window',
+    shapeType: 'blur',
+    blurRadius: 0.1,
+    absolutePositioned: true,
+  });
+
+  blurred.clipPath = win;
+
+  return win;
+};
+
 export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, className, score }: any) => {
-  // Create lines for the bounding box (without the top line)
   const leftLine = new Line([boxLeft, boxTop, boxLeft, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
   const rightLine = new Line([boxLeft + boxWidth, boxTop, boxLeft + boxWidth, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
   const bottomLine = new Line([boxLeft, boxTop + boxHeight, boxLeft + boxWidth, boxTop + boxHeight], {
     stroke: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     strokeWidth: 1.5,
-    strokeDashArray: [10, 8], // Dashed stroke
+    strokeDashArray: [10, 8],
   });
 
-  // Create a label background (semi-transparent yellow box)
   const labelBackground = new Rect({
     left: boxLeft,
-    top: boxTop - 20, // Place label above the box
+    top: boxTop - 20,
     width: boxWidth,
     height: 20,
     fill: 'yellow',
-    opacity: 0.5, // 50% opacity
+    opacity: 0.5,
     selectable: false,
     hasControls: false,
   });
 
-  // Create a label with the class name and score
   const labelText = new FabricText(`${className} (${(score * 100).toFixed(2)}%)`, {
-    left: boxLeft + 5, // Padding from the left edge of the box
-    top: boxTop - 18, // Align text within label background
+    left: boxLeft + 5,
+    top: boxTop - 18,
     fontSize: 14,
     fontWeight: 500,
     fill: 'black',
@@ -163,51 +196,53 @@ export const createSuggestingBox = ({ boxLeft, boxWidth, boxTop, boxHeight, clas
     hasControls: false,
   });
 
-  // Group the bounding box and label elements together
   return new Group([leftLine, rightLine, bottomLine, labelBackground, labelText], {
     selectable: true,
-    hasControls: false, // No controls around the group
+    hasControls: false,
     padding: 10,
     shapeType: 'suggestion',
     objectId: uuidv4(),
   } as any);
 };
 
-export const createText = (pointer: PointerEvent, text: string) => {
+export const createText = (pointer: PointerEvent, fill: string, text: string) => {
   return new IText(text, {
     left: pointer.x,
     top: pointer.y,
-    fill: '#dc2626',
+    fill,
     fontFamily: 'Helvetica',
     fontSize: 24,
     fontWeight: '400',
     objectId: uuidv4(),
     cornerSize: 10,
     shapeType: 'text',
-    padding: 5,
+    padding: 10,
     selectable: true,
   });
 };
 
-export const createSpecificShape = (shapeType: string, pointer: PointerEvent) => {
+export const createSpecificShape = (shapeType: string, pointer: PointerEvent, color: string, canvas?: Canvas) => {
   switch (shapeType) {
     case 'rectangle':
-      return createRectangle(pointer);
+      return createRectangle(pointer, color);
 
     case 'triangle':
-      return createTriangle(pointer);
+      return createTriangle(pointer, color);
 
     case 'circle':
-      return createCircle(pointer);
+      return createCircle(pointer, color);
 
     case 'line':
-      return createLine(pointer);
+      return createLine(pointer, color);
 
     case 'arrow':
-      return createArrow(pointer);
+      return createArrow(pointer, color);
 
     case 'text':
-      return createText(pointer, 'Tap to Type');
+      return createText(pointer, color, 'Tap to Type');
+
+    case 'blur':
+      return createBlur(canvas, pointer);
 
     default:
       return null;
@@ -236,53 +271,66 @@ export const handleImageUpload = ({ file, canvas, shapeRef, syncShapeInStorage }
   reader.readAsDataURL(file);
 };
 
+/**
+ * Fit an image inside a parent frame *without* modifying object coordinates.
+ *
+ * @param file         URL or data:URL
+ * @param canvas       Fabric canvas (already created)
+ * @param parentWidth  available width  (e.g. grid column)
+ * @param parentHeight available height (e.g. grid row)
+ * @returns            { BackgroundFitMeta } meta to store with annotations
+ */
 export const setCanvasBackground = async ({
   file,
   canvas,
-  maxHeight = 500,
-  maxWidth,
+  parentWidth,
+  parentHeight,
 }: {
   file: string;
   canvas: Canvas;
-  maxHeight: number;
-  maxWidth: number;
-}) => {
-  FabricImage.fromURL(file, { crossOrigin: 'anonymous' }).then(img => {
-    const originalWidth = img.width || 1;
-    const originalHeight = img.height || 1;
+  parentWidth: number;
+  parentHeight: number;
+}): Promise<BackgroundFitMeta> => {
+  const img = await FabricImage.fromURL(file, { crossOrigin: 'anonymous' });
+  const naturalWidth = img.width ?? 1;
+  const naturalHeight = img.height ?? 1;
 
-    // Calculate scaling factor to fit within maxWidth and maxHeight while maintaining aspect ratio
-    const widthScale = maxWidth / originalWidth;
-    const heightScale = maxHeight / originalHeight;
-    const scaleFactor = Math.min(widthScale, heightScale, 1);
+  const scale = Math.min(parentWidth / naturalWidth, parentHeight / naturalHeight, 1);
+  const fitWidth = Math.round(naturalWidth * scale);
+  const fitHeight = Math.round(naturalHeight * scale);
 
-    const newWidth = originalWidth * scaleFactor;
-    const newHeight = originalHeight * scaleFactor;
+  canvas.setDimensions({ width: fitWidth, height: fitHeight });
 
-    // Resize canvas to fit the scaled image dimensions
-    canvas.setWidth(newWidth);
-    canvas.setHeight(newHeight);
+  canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
 
-    // Scale the image
-    img.scaleX = newWidth / originalWidth;
-    img.scaleY = newHeight / originalHeight;
-
-    // Associate the image with the canvas for correct rendering
-    img.canvas = canvas;
-
-    // Set as background image and render
-    canvas.backgroundImage = img;
-    canvas.renderAll();
+  img.set({
+    originX: 'left',
+    originY: 'top',
+    left: 0,
+    top: 0,
+    scaleX: 1,
+    scaleY: 1,
   });
+
+  canvas.backgroundImage = img;
+  await canvas.requestRenderAll();
+
+  return {
+    sizes: {
+      natural: { width: naturalWidth, height: naturalHeight },
+      fit: { width: fitWidth, height: fitHeight },
+    },
+    scale,
+  };
 };
 
-export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string) => {
-  if (shapeType === 'freeform') {
+export const createShape = (canvas: Canvas, pointer: PointerEvent, shapeType: string, color: string) => {
+  if (DRAWING_TOOLS.includes(shapeType)) {
     canvas.isDrawingMode = true;
     return null;
   }
 
-  return createSpecificShape(shapeType, pointer);
+  return createSpecificShape(shapeType, pointer, color, canvas);
 };
 
 export const modifyShape = ({ canvas, property, value, activeObjectRef, syncShapeInStorage }: ModifyShape) => {
@@ -307,6 +355,7 @@ export const modifyShape = ({ canvas, property, value, activeObjectRef, syncShap
   }
 
   // set selectedElement to activeObjectRef
+  canvas.requestRenderAll();
   activeObjectRef.current = selectedElement;
 
   syncShapeInStorage(selectedElement);

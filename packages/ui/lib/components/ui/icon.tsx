@@ -1,20 +1,30 @@
 import * as radix from '@radix-ui/react-icons';
 import * as lucide from 'lucide-react';
+import type { ComponentType, FC, SVGProps } from 'react';
 
-type IconName = keyof typeof lucide & keyof typeof radix;
+import { BlurIcon } from '../icons';
 
-type IconProps = {
+const customIcons = {
+  BlurIcon,
+} satisfies Record<string, ComponentType<SVGProps<SVGSVGElement>>>;
+
+type LucideName = keyof typeof lucide;
+type RadixName = keyof typeof radix;
+type CustomName = keyof typeof customIcons;
+
+export type IconName = LucideName | RadixName | CustomName;
+export type IconProps = {
   name: IconName;
 } & lucide.LucideProps;
 
-export const Icon: React.FC<IconProps> = ({ name, ...props }) => {
-  // eslint-disable-next-line import-x/namespace
-  const Icon = lucide[name] || radix[name];
+export const Icon: FC<IconProps> = ({ name, ...rest }) => {
+  const Component = (lucide as any)[name] ?? (radix as any)[name] ?? (customIcons as any)[name];
 
-  if (!Icon) {
-    console.error(`Icon "${name}" does not exist in lucide-react and radix-ui.`);
+  if (!Component) {
+    console.error(`Icon "${name}" does not exist.`);
+
     return null;
   }
 
-  return <Icon {...props} />;
+  return <Component {...rest} />;
 };

@@ -2,7 +2,18 @@ import type { FabricObject } from 'fabric';
 import { Canvas, util } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { CustomFabricObject } from '@src/models';
+import type { CustomFabricObject, HandleKeyDownDeps } from '@src/models';
+
+/**
+ * Is the event target a native form field or contentEditable node?
+ */
+const isDomEditor = (el: EventTarget | null): el is HTMLElement =>
+  !!el && (/^(INPUT|TEXTAREA|SELECT)$/i.test((el as HTMLElement).tagName) || (el as HTMLElement).isContentEditable);
+
+/**
+ * Returns `true` when a Fabric text object is currently being edited.
+ */
+const isFabricEditing = (canvas: Canvas): boolean => !!canvas.getActiveObject()?.isEditing;
 
 export const handleCopy = (canvas: Canvas) => {
   const activeObjects = canvas.getActiveObjects();
@@ -72,7 +83,22 @@ export const handleDelete = (canvas: Canvas, deleteShapeFromStorage: (id: string
   canvas.requestRenderAll();
 };
 
-// create a handleKeyDown function that listen to different keydown events
+/**
+ * Handles editor keyboard shortcuts (copy / paste / cut / delete / undo / redo).
+ *
+ * **Shortcuts**
+ * - ⌘/Ctrl + C : Copy selected object(s)
+ * - ⌘/Ctrl + V : Paste
+ * - ⌘/Ctrl + X : Cut (copy + delete)
+ * - ⌘/Ctrl + Z : Undo
+ * - ⌘/Ctrl + ⇧ + Z or ⌘/Ctrl + Y : Redo
+ * - Delete / Backspace : Delete selection
+ * - '/' (unshifted) : Prevent browser quick-find (optional)
+ *
+ * Skips handling when the focused element is a form field or contentEditable.
+ *
+ * @param {HandleKeyDownDeps} - Object containing the keyboard event, canvas, and action callbacks.
+ */
 export const handleKeyDown = ({
   e,
   canvas,
@@ -80,57 +106,60 @@ export const handleKeyDown = ({
   redo,
   syncShapeInStorage,
   deleteShapeFromStorage,
-}: {
-  e: KeyboardEvent;
-  canvas: Canvas | any;
-  undo: () => void;
-  redo: () => void;
-  syncShapeInStorage: (shape: FabricObject) => void;
-  deleteShapeFromStorage: (id: string) => void;
-}) => {
-  /**
-   * @todo
-   * refactor to use switch ond no deprecations
-   */
+}: HandleKeyDownDeps) => {
+  // Ignore when typing inside editable elements
+  if (isDomEditor(e.target) || isFabricEditing(canvas)) return;
 
-  // Check if the key pressed is ctrl/cmd + c (copy)
-  if ((e?.ctrlKey || e?.metaKey) && e.keyCode === 67) {
-    handleCopy(canvas);
-  }
-  // Check if the key pressed is ctrl/cmd + v (paste)
-  if ((e?.ctrlKey || e?.metaKey) && e.keyCode === 86) {
-    handlePaste(canvas, syncShapeInStorage);
-  }
+  const mod = e.metaKey || e.ctrlKey;
+  const { code, key, shiftKey } = e;
 
-  // Check if the key pressed is delete/backspace (delete)
-  // if (e.keyCode === 8 || e.keyCode === 46) {
-  //   handleDelete(canvas, deleteShapeFromStorage);
-  // }
+  const doCopy = () => handleCopy(canvas);
+  const doPaste = () => handlePaste(canvas, syncShapeInStorage);
+  const doDelete = () => handleDelete(canvas, deleteShapeFromStorage);
 
-  // check if the key pressed is ctrl/cmd + x (cut)
-  if ((e?.ctrlKey || e?.metaKey) && e.keyCode === 88) {
-    handleCopy(canvas);
-    handleDelete(canvas, deleteShapeFromStorage);
-  }
+  if (mod) {
+    switch (code) {
+      case 'KeyC':
+        e.preventDefault();
+        doCopy();
+        return;
 
-  if (e.metaKey || e.ctrlKey) {
-    switch (e.code) {
-      case 'KeyY': // redo, CMD+Y
-        redo();
-        break;
+      case 'KeyV':
+        e.preventDefault();
+        doPaste();
+        return;
+
+      case 'KeyX':
+        e.preventDefault();
+        doCopy();
+        doDelete();
+        return;
+
       case 'KeyZ':
-        if (e.shiftKey) {
-          // redo, CMD+SHIFT+Z
+        e.preventDefault();
+        if (shiftKey) {
           redo();
         } else {
-          // undo, CMD+Z
           undo();
         }
-        break;
+        return;
+
+      case 'KeyY':
+        e.preventDefault();
+        redo();
+        return;
     }
   }
 
-  if (e.keyCode === 191 && !e.shiftKey) {
-    e.preventDefault();
+  switch (key) {
+    case 'Delete':
+    case 'Backspace':
+      e.preventDefault();
+      doDelete();
+      return;
+
+    case '/':
+      if (!shiftKey) e.preventDefault();
+      return;
   }
 };

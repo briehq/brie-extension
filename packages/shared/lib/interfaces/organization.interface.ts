@@ -1,4 +1,5 @@
 import type { Subscription } from './subscription.interface.js';
+import type { Workspace } from './workspace.interface.js';
 import type { Plan } from '../constants/index.js';
 
 export interface Organization {
@@ -19,6 +20,7 @@ export interface Organization {
   plan: OrganizationPlan;
   planId: string;
   isBlocked: boolean;
+  workspaces: Workspace[];
 }
 
 export interface OrganizationPlan {

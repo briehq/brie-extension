@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Fragment, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
@@ -15,6 +15,7 @@ import { CardSkeleton } from './card-skeleton.slice-history';
 
 export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
   const user = useUser();
+  const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const filters = useAppSelector(state => state.slicesReducer.filters);
   const [pagination, setPagination] = useState<Pagination>({
@@ -25,7 +26,54 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
   const [deleteSliceByExternalId, { isLoading: isDeleteSliceLoading }] = useDeleteSliceByIdMutation();
   const { isLoading, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
 
-  const isGuest = user.fields?.authMethod === AuthMethod.GUEST;
+  const { screenshots, records, attachments } = useMemo(
+    slice => {
+      if (isLoading || !slice?.attachments) {
+        return {
+          screenshots: [],
+          records: [],
+          attachments: [],
+        };
+      }
+
+      const attachments: any[] = [];
+      const screenshots: any[] = [];
+      const records: any[] = [];
+
+      for (const attachment of slice.attachments) {
+        const { assetType, name } = attachment;
+
+        if (assetType) {
+          switch (assetType) {
+            case 'ATTACHMENT':
+              attachments.push(attachment);
+              break;
+
+            case 'SCREENSHOT':
+              screenshots.push(attachment);
+              break;
+
+            case 'RECORDS':
+              records.push(attachment);
+              break;
+          }
+        } else {
+          if (name?.toLowerCase().includes('records')) {
+            records.push(attachment);
+          } else {
+            screenshots.push(attachment);
+          }
+        }
+      }
+
+      return {
+        screenshots: screenshots.sort((a, b) => (a?.order ?? 0) - (b?.order ?? 0)),
+        records,
+        attachments,
+      };
+    },
+    [isLoading],
+  );
 
   const previewScreenshotUrl = (attachments: any) => attachments.find((a: any) => a?.name === 'primary')?.preview;
 
@@ -105,10 +153,11 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
                 <div className="flex-1">
                   <button
                     className="max-w-[240px] truncate text-sm font-medium text-slate-700 hover:underline dark:text-[#df8801]"
-                    /**
-                     * @todo move to env
-                     */
-                    onClick={() => navigateTo(`${APP_BASE_URL}/s/${item.externalId}`)}>
+                    onClick={() => {
+                      const path = isGuest ? `s/${item?.externalId}` : `slices/${item?.id}`;
+
+                      navigateTo(`${APP_BASE_URL}/${path}`);
+                    }}>
                     {item.externalId}
                   </button>
                   <p className="text-muted-foreground text-xs">{format(item.createdAt, 'LLL dd, y hh:mm a')}</p>

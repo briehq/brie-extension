@@ -117,5 +117,17 @@
   },
   "readyToGo": {
     "message": "will be ready to go!"
+  },
+  "LOW": {
+    "message": "Low"
+  },
+  "HIGH": {
+    "message": "High"
+  },
+  "HIGHEST": {
+    "message": "Critical"
+  },
+  "MEDIUM": {
+    "message": "Medium"
   }
 }
