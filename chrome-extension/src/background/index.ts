@@ -34,6 +34,13 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  /**
+   * On Refresh
+   */
+  if (changeInfo.status === 'loading' && !changeInfo?.url) {
+    deleteRecords(tabId);
+  }
+
   // If tab finished loading (refreshed), remove it from pending reload tabs
   if (changeInfo.status === 'complete') {
     const pendingTabIds = await pendingReloadTabsStorage.getAll();
@@ -84,6 +91,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.type === 'GET_RECORDS') {
       getRecords(sender.tab.id).then(records => sendResponse({ records }));
+    }
+
+    if (message.type === 'DELETE_RECORDS') {
+      deleteRecords(sender.tab.id).then(() => sendResponse({ status: 'success' }));
     }
   } else {
     console.log('[Background] - Add Records: No sender id');
@@ -215,7 +226,7 @@ chrome.webRequest.onCompleted.addListener(
           parsed: 'interceptFetch',
           raw: '',
         },
-        pageUrl: clonedRequest.url,
+        url: clonedRequest.url,
       });
     }
   },
