@@ -1,5 +1,6 @@
 import 'webextension-polyfill';
 
+import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import {
   annotationsRedoStorage,
@@ -9,7 +10,7 @@ import {
   pendingReloadTabsStorage,
 } from '@extension/storage';
 
-import { addOrMergeRecords, getRecords } from '@src/utils';
+import { addOrMergeRecords, getRecords, persistTokens } from '@src/utils';
 import { deleteRecords } from '@src/utils/manage-records.util';
 
 chrome.tabs.onRemoved.addListener(async tabId => {
@@ -34,6 +35,13 @@ chrome.tabs.onRemoved.addListener(async tabId => {
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  /**
+   * On Refresh
+   */
+  if (changeInfo.status === 'loading' && !changeInfo?.url) {
+    deleteRecords(tabId);
+  }
+
   // If tab finished loading (refreshed), remove it from pending reload tabs
   if (changeInfo.status === 'complete') {
     const pendingTabIds = await pendingReloadTabsStorage.getAll();
@@ -85,6 +93,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'GET_RECORDS') {
       getRecords(sender.tab.id).then(records => sendResponse({ records }));
     }
+
+    if (message.type === 'DELETE_RECORDS') {
+      deleteRecords(sender.tab.id).then(() => sendResponse({ status: 'success' }));
+    }
   } else {
     console.log('[Background] - Add Records: No sender id');
   }
@@ -107,6 +119,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       },
     );
+  }
+
+  if (message?.type === 'AUTH_START') {
+    const redirectUri = chrome.identity.getRedirectURL();
+    const url = `${APP_BASE_URL}/register?redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+    new Promise<string>((resolve, reject) => {
+      chrome.identity.launchWebAuthFlow({ url, interactive: true }, responseUrl => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else if (!responseUrl) {
+          reject(new Error('Empty response URL'));
+        } else {
+          resolve(responseUrl);
+        }
+      });
+    })
+      .then(async finalUrl => {
+        await persistTokens(finalUrl);
+        sendResponse({ ok: true });
+      })
+      .catch(err => {
+        if (err.message.includes('User cancelled')) {
+          sendResponse({ ok: false, error: 'USER_CANCELLED' });
+        } else {
+          sendResponse({ ok: false, error: err.message });
+        }
+      });
   }
 
   return true; // Keep the connection open for async handling
@@ -215,7 +255,7 @@ chrome.webRequest.onCompleted.addListener(
           parsed: 'interceptFetch',
           raw: '',
         },
-        pageUrl: clonedRequest.url,
+        url: clonedRequest.url,
       });
     }
   },

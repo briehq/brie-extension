@@ -115,7 +115,8 @@ export const interceptXHR = (): void => {
                   parsed: 'interceptXHR',
                   raw: '',
                 },
-                pageUrl: window.location.href,
+                href: window.location.href,
+                url: this._requestDetails.url,
               });
             }
           } else {

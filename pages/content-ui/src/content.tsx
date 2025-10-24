@@ -20,7 +20,7 @@ import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement } from './models';
 import { base64ToFile, createJsonFile } from './utils';
 import { mergeScreenshot } from './utils/annotation';
-import { getRecords, runSliceCreationFlow } from './utils/slice';
+import { deleteRecords, getRecords, runSliceCreationFlow } from './utils/slice';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
@@ -156,7 +156,6 @@ const Content = ({
             parentWidth: meta.sizes.natural.width,
           });
         }
-        console.log('file', file);
 
         shots.push(file);
       }
@@ -203,6 +202,7 @@ const Content = ({
           await updateSliceState({ id: slice.id, state: SliceState.READY });
         }
 
+        deleteRecords();
         onClose();
         setProgress(0);
       } else {

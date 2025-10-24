@@ -116,7 +116,8 @@ export const interceptFetch = (): void => {
                 parsed: 'interceptFetch',
                 raw: '',
               },
-              pageUrl: window.location.href,
+              url: pageUrl,
+              href: location.href,
             });
           }
         } else {

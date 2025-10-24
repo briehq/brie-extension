@@ -2,7 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
 
-const restricted = ['https://api.briehq.com', 'https://sandbox-api.briehq.com']; // 'extend.iife',  'kbmbnelnoppneadncmmkfikbcgmilbao'  Note: it blocks the logs
+const restricted = [
+  'https://api.briehq.com',
+  'https://sandbox-api.briehq.com',
+  'http://localhost:3006',
+  'fhfdkpfdkimboffigpggibbgggeimpfd', // brie's local uuid
+  'kbmbnelnoppneadncmmkfikbcgmilbao',
+];
 const invalidRecord = (entity: string) => restricted.some(word => entity.includes(word));
 
 const tabRecordsMap = new Map<number, Map<string, any>>();
@@ -34,7 +40,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
     return;
   }
 
-  if (invalidRecord(record?.url || '')) {
+  if (invalidRecord(record?.url || record?.pageUrl || '')) {
     console.log('[addOrMergeRecords] SKIPPED: Invalid URL');
     return;
   }

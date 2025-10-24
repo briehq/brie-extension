@@ -85,16 +85,12 @@ export const slicesPrivateAPI = createApi({
       }
     >({
       invalidatesTags: ['SLICES'],
-      query: ({ body, headers }) => {
-        console.log('headers', headers);
-
-        return {
-          url: '/slices/draft',
-          method: 'POST',
-          headers,
-          body,
-        };
-      },
+      query: ({ body, headers }) => ({
+        url: '/slices/draft',
+        method: 'POST',
+        headers,
+        body,
+      }),
     }),
 
     uploadAssetBySliceId: build.mutation<AssetUploadResponse, { sliceId: string; assetId: string; file: File }>({

@@ -1,0 +1,15 @@
+export enum AppEventType {
+  DOMContentLoaded = 'DOMContentLoaded',
+  PageLoaded = 'PageLoaded',
+  TabHidden = 'TabHidden',
+  TabVisible = 'TabVisible',
+  Resize = 'Resize',
+  KeyboardShortcut = 'KeyboardShortcut',
+  KeyActivation = 'KeyActivation',
+  MouseClick = 'MouseClick',
+  InputChange = 'InputChange',
+  SelectChange = 'SelectChange',
+  FormSubmit = 'FormSubmit',
+  Metadata = 'Metadata',
+  Navigate = 'Navigate',
+}
