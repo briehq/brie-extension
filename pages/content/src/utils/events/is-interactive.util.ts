@@ -1,4 +1,15 @@
-/** Visible, non-zero-size, and not pointer-events:none. */
+/**
+ * Determines whether an element is visible and interactable in layout.
+ *
+ * Checks:
+ * - Non-zero bounding box size
+ * - `visibility` not hidden
+ * - `display` not none
+ * - `pointer-events` not none
+ *
+ * @param el - The element to evaluate.
+ * @returns True if visible and interactable; otherwise false.
+ */
 const isVisibleBox = (el: Element): boolean => {
   const r = (el as HTMLElement).getBoundingClientRect?.();
   if (!r) return true; // be permissive if no layout info
@@ -7,7 +18,19 @@ const isVisibleBox = (el: Element): boolean => {
   return cs.visibility !== 'hidden' && cs.display !== 'none' && cs.pointerEvents !== 'none';
 };
 
-/** Heuristic: looks like a custom clickable (e.g., DIV) via cursor/tab/ARIA. */
+/**
+ * Determines whether an element is likely custom-interactive based on heuristics.
+ *
+ * Heuristics:
+ * - Cursor is pointer
+ * - Tabindex ≥ 0
+ * - Interactive ARIA roles (e.g., button, option, link)
+ * - ARIA interaction attributes (`aria-expanded`, `aria-pressed`, etc.)
+ * - Draggable elements
+ *
+ * @param el - HTMLElement to evaluate.
+ * @returns True if heuristically clickable; otherwise false.
+ */
 const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   const role = el.getAttribute('role')?.toLowerCase();
   const tabIndexAttr = el.getAttribute('tabindex');

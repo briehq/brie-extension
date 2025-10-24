@@ -6,3 +6,6 @@ export type { OSInfo } from './os-info.interface';
 export type { MemoryInfo } from './memory-info.interface';
 export type { LanguageInfo } from './language-info.interface';
 export type { SystemInfo } from './system-info.interface';
+export type { ElementDescriptor } from './element-descriptor.interface';
+export type { TrackedEvent } from './track-event.interface';
+export type { ResizeHandler } from './resize.interface';

@@ -1,4 +1,5 @@
-import { AppEventType, sendEvent } from './events.interceptor';
+import { AppEventType } from '@src/constants';
+import { sendEvent } from '@src/utils';
 
 // History API interception
 export const historyApiInterceptor = () => {

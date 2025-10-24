@@ -122,8 +122,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message?.type === 'AUTH_START') {
-    console.log('back');
-
     const redirectUri = chrome.identity.getRedirectURL();
     const url = `${APP_BASE_URL}/register?redirect_uri=${encodeURIComponent(redirectUri)}`;
 
@@ -139,8 +137,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     })
       .then(async finalUrl => {
-        console.log('back finalUrl', finalUrl);
-        // 🟢 Save tokens here — no need to return anything
         await persistTokens(finalUrl);
         sendResponse({ ok: true });
       })
@@ -151,8 +147,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ ok: false, error: err.message });
         }
       });
-
-    console.log(' back final line');
   }
 
   return true; // Keep the connection open for async handling
