@@ -33,7 +33,7 @@ export const interceptConsole = () => {
     try {
       const timestamp = Date.now();
       const stackTrace = getStackTrace();
-      const pageUrl = window.location.href;
+      const url = window.location.href;
 
       const sanitizedArgs = args.map(sanitizeArg);
 
@@ -45,7 +45,7 @@ export const interceptConsole = () => {
         timestamp,
         args: sanitizedArgs,
         stackTrace,
-        pageUrl,
+        url,
       };
 
       if (method === 'error' && args && args[0] instanceof Error) {

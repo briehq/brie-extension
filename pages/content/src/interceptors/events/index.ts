@@ -1,2 +1,2 @@
-export { interceptEvents, trackEvent } from './events.interceptor';
+export { interceptEvents } from './events.interceptor';
 export { historyApiInterceptor } from './history.interceptor';
