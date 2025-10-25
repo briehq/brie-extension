@@ -25,7 +25,12 @@ interface Props {
 }
 
 export const WorkspacesDropdown = ({ onChange }: Props) => {
-  const { isLoading, isError, data: workspaces } = useGetWorkspacesQuery({ limit: 1, take: 10 });
+  const {
+    isLoading,
+    isError,
+    data: workspaces,
+    refetch: refetchWorkspaces,
+  } = useGetWorkspacesQuery({ limit: 1, take: 10 }, { refetchOnMountOrArgChange: true, refetchOnReconnect: true });
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState('');
 
@@ -37,6 +42,15 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
       if (onChange) {
         onChange(defaultWorkspace.id);
       }
+    }
+
+    if (!workspaces) {
+      /**
+       * @todo
+       * Workaround. Improve.
+       * On Firefox first call is not happening.
+       */
+      refetchWorkspaces();
     }
   }, [workspaces?.items]);
 
