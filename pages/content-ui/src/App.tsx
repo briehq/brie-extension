@@ -119,10 +119,10 @@ export default function App() {
     <div id="brie-content" className={cn('light', 'relative')}>
       <ToasterProvider theme={theme} />
 
-      {!!screenshots?.length && (
-        <ReduxProvider store={store}>
-          <TooltipProvider>
-            {minimized ? (
+      <ReduxProvider store={store}>
+        <TooltipProvider>
+          {!!screenshots?.length &&
+            (minimized ? (
               <MinimizedPreview
                 screenshots={screenshots}
                 onEdit={handleOnEdit}
@@ -139,10 +139,9 @@ export default function App() {
                 onDeleteScreenshot={handleOnDeleteScreenshot}
                 onSelectScreenshot={handleOnSelectScreenshot}
               />
-            )}
-          </TooltipProvider>
-        </ReduxProvider>
-      )}
+            ))}
+        </TooltipProvider>
+      </ReduxProvider>
     </div>
   );
 }
