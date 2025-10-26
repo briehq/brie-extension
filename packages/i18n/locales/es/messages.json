@@ -117,5 +117,11 @@
   },
   "readyToGo": {
     "message": "¡estará lista para usarse!"
+  },
+  "authCompleted": {
+    "message": "¡Autenticación exitosa!"
+  },
+  "authFailed": {
+    "message": "¡Error de autenticación!"
   }
 }

@@ -2,6 +2,10 @@ import { cleanup, startScreenshotCapture } from '@src/capture';
 
 export const addRuntimeEventListeners = () => {
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.action === 'AUTH_STATUS') {
+      window.dispatchEvent(new CustomEvent('AUTH_STATUS', { detail: msg.payload }));
+    }
+
     if (msg.action === 'START_SCREENSHOT') {
       window.dispatchEvent(new CustomEvent('metadata'));
 

@@ -13,6 +13,26 @@ import {
 import { addOrMergeRecords, getRecords, persistTokens } from '@src/utils';
 import { deleteRecords } from '@src/utils/manage-records.util';
 
+const sendMessageToActiveTab = async (action: any, payload: any) => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+
+  chrome.tabs.sendMessage(
+    tab.id,
+    {
+      action,
+      payload,
+    },
+    response => {
+      if (chrome.runtime.lastError) {
+        console.error('[SendMessage|lastError]:', action, chrome.runtime.lastError.message);
+      } else {
+        console.log('SendMessage]:', action, response);
+      }
+    },
+  );
+};
+
 chrome.tabs.onRemoved.addListener(async tabId => {
   // Remove closed tab from pending reload tabs
   const pendingTabIds = await pendingReloadTabsStorage.getAll();
@@ -139,6 +159,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(async finalUrl => {
         await persistTokens(finalUrl);
         sendResponse({ ok: true });
+
+        sendMessageToActiveTab('AUTH_STATUS', { ok: true });
       })
       .catch(err => {
         if (err.message.includes('User cancelled')) {
@@ -146,6 +168,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } else {
           sendResponse({ ok: false, error: err.message });
         }
+
+        sendMessageToActiveTab('AUTH_STATUS', { ok: false, error: err.message });
       });
   }
 
@@ -203,22 +227,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   await captureStateStorage.setCaptureState('capturing');
   await captureTabStorage.setCaptureTabId(tab.id);
 
-  // Sends message to contentScript to start capture
+  // Sends message to content-script to start capture
   if (type) {
-    chrome.tabs.sendMessage(
-      tab.id,
-      {
-        action: 'START_SCREENSHOT',
-        payload: { type },
-      },
-      response => {
-        if (chrome.runtime.lastError) {
-          console.error('Error starting capture:', type, chrome.runtime.lastError.message);
-        } else {
-          console.log('Capture started:', type, response);
-        }
-      },
-    );
+    sendMessageToActiveTab('START_SCREENSHOT', { type });
   }
 });
 

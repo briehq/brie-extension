@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
+import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
 import {
@@ -30,13 +31,20 @@ export default function App() {
     window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
     window.addEventListener('CLOSE_MODAL', handleOnClose);
     window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
+    window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
 
     return () => {
       window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
       window.removeEventListener('CLOSE_MODAL', handleOnClose);
       window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
+      window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
     };
   }, []);
+
+  const handleOnAuthStatus = async (event: any) => {
+    if (event.detail.ok) toast.success(t('authCompleted'));
+    else toast.error(t('authFailed'));
+  };
 
   const handleOnStoreScreenshot = async (event: any) => {
     handleOnMinimize();
@@ -45,10 +53,10 @@ export default function App() {
     if (!captureNotifyState?.notified) {
       setTimeout(
         () =>
-          toast.message('Screenshot captured', {
-            duration: 6000,
+          toast.message(t('screenshotCaptured'), {
+            duration: 5000,
             closeButton: true,
-            description: 'Capture more shots or jump straight into editing.',
+            description: t('screenshotCapturedDescription'),
           }),
         1000,
       );

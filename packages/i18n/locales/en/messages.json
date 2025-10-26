@@ -129,5 +129,17 @@
   },
   "MEDIUM": {
     "message": "Medium"
+  },
+  "authCompleted": {
+    "message": "You're signed in successfully!"
+  },
+  "authFailed": {
+    "message": "Sign-in failed. Please try again."
+  },
+  "screenshotCaptured": {
+    "message": "Screenshot captured"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Capture more shots or jump straight into editing."
   }
 }

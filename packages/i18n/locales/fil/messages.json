@@ -117,5 +117,11 @@
   },
   "readyToGo": {
     "message": "ay magiging handa na!"
+  },
+  "authCompleted": {
+    "message": "Tunnistautuminen onnistui!"
+  },
+  "authFailed": {
+    "message": "Tunnistautuminen epäonnistui!"
   }
 }

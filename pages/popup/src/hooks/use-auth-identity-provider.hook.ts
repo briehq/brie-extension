@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import browser from 'webextension-polyfill';
+import { runtime } from 'webextension-polyfill';
 
 import { useStorage } from '@extension/shared';
 import { authIdentityProviderStorage } from '@extension/storage';
@@ -31,7 +31,7 @@ export const useAuthIdentityProvider = () => {
     setAuthFlow({ active: true });
 
     try {
-      await browser.runtime.sendMessage({ type: 'AUTH_START' });
+      await runtime.sendMessage({ type: 'AUTH_START' });
     } catch (e) {
       setError(e as Error);
       throw e;

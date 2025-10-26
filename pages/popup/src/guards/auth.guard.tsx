@@ -10,7 +10,7 @@ export const AuthGuard: React.FC<PropsWithChildren> = ({ children }) => {
   const tokens = useStorage(authTokensStorage);
   const user = useUser();
 
-  if (!tokens?.accessToken || user?.fields?.authMethod === AuthMethod.GUEST) return <AuthView />;
+  if (!user?.fields?.id || user?.fields?.authMethod === AuthMethod.GUEST || !tokens?.accessToken) return <AuthView />;
 
   return children;
 };

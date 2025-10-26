@@ -117,5 +117,11 @@
   },
   "readyToGo": {
     "message": "va fi gata de utilizare!"
+  },
+  "authCompleted": {
+    "message": "Autentificare reușită!"
+  },
+  "authFailed": {
+    "message": "Autentificare eșuată!"
   }
 }

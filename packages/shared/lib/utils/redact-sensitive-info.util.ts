@@ -64,7 +64,7 @@ const redactString = (value: string, ctxStrength: Strength): string => {
 const redactPossiblyJsonString = (
   input: string,
   shouldSkipRedaction: boolean,
-  ctx?: { strength?: Strength },
+  ctx?: { strength: Strength },
 ): string => {
   const trimmed = input.trim();
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
@@ -97,15 +97,11 @@ const shouldRedactByNameValueContext = (obj: any): boolean => {
  * @param shouldSkipRedaction - If true, redaction is bypassed entirely.
  * @param ctx - Optional context (derived from key/name/label/type).
  */
-const deepRedactInternal = (
-  input: any,
-  shouldSkipRedaction: boolean,
-  ctx?: { strength?: 'strong' | 'unknown' | 'allow' },
-): any => {
+const deepRedactInternal = (input: any, shouldSkipRedaction: boolean, ctx?: { strength: Strength }): any => {
   if (shouldSkipRedaction || input === null || input === undefined) return input;
 
   if (typeof input === 'string') {
-    return redactPossiblyJsonString(input, ctx);
+    return redactPossiblyJsonString(input, shouldSkipRedaction, ctx);
   }
 
   if (Array.isArray(input)) {
