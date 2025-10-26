@@ -19,7 +19,7 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
 
   const handleOnSave = async () => {
     try {
-      await saveBase64Image(lastImage.src, lastImage.src);
+      await saveBase64Image(lastImage.src, lastImage.name);
       toast.info('Preparing your image for download…');
     } catch (e) {
       toast.error('Preparing your image for download failed.');
