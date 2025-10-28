@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import {
   Button,
   cn,
@@ -14,10 +15,10 @@ import {
 } from '@extension/ui';
 
 const createActions = [
-  { icon: 'LinkIcon', name: 'Create a link', key: 'link', isDefault: true },
-  // { icon: 'BlocksIcon', name: 'Create in Linear', key: 'linear' },
-  // { icon: 'BlocksIcon', name: 'Create in Jira', key: 'jira' },
-  // { icon: 'BlocksIcon', name: 'Create in Azure', key: 'azure' },
+  { icon: 'LinkIcon', name: t('createLink'), key: 'link', isDefault: true },
+  // { icon: 'BlocksIcon', name: t('createLinear'), key: 'linear' },
+  // { icon: 'BlocksIcon', name: t('createJira'), key: 'jira' },
+  // { icon: 'BlocksIcon', name: t('createAzure'), key: 'azure' },
 ];
 
 export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; onChange: (key: string) => void }) => {
@@ -67,7 +68,7 @@ export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; on
           <DropdownMenuSeparator />
 
           <DropdownMenuLabel className="text-muted-foreground text-center text-[10px] font-normal">
-            More integration coming soon...
+            {t('moreIntegrationSoon')}
           </DropdownMenuLabel>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

@@ -141,5 +141,86 @@
   },
   "screenshotCapturedDescription": {
     "message": "Capture more shots or jump straight into editing."
+  },
+  "imagePreparing": {
+    "message": "Preparing your screenshot for download…"
+  },
+  "imagePreparingFailed": {
+    "message": "Failed to prepare your screenshot for download."
+  },
+  "imageCopied": {
+    "message": "Screenshot copied!"
+  },
+  "imageCopiedFailed": {
+    "message": "Failed to your screenshot."
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "save": {
+    "message": "Save..."
+  },
+  "addToSpace": {
+    "message": "Add to space"
+  },
+  "createSpace": {
+    "message": "Create space"
+  },
+  "noSpaces": {
+    "message": "No spaces yet"
+  },
+  "colorPalette": {
+    "message": "Color Palette"
+  },
+  "selectColor": {
+    "message": "Select color"
+  },
+  "toggle": {
+    "message": "Toggle"
+  },
+  "moreIntegrationSoon": {
+    "message": "More integration coming soon..."
+  },
+  "createLink": {
+    "message": "Create a link"
+  },
+  "createLinear": {
+    "message": "Create in Linear"
+  },
+  "createJira": {
+    "message": "Create in Jira"
+  },
+  "createAzure": {
+    "message": "Create in Azure"
+  },
+  "rename": {
+    "message": "Rename"
+  },
+  "export": {
+    "message": "Export"
+  },
+  "exportSettings": {
+    "message": "Export Settings"
+  },
+  "imageFormat": {
+    "message": "Image format"
+  },
+  "outputResolution": {
+    "message": "Output Resolution"
+  },
+  "edited": {
+    "message": "Edited"
+  },
+  "deleteScreenshot": {
+    "message": "Delete screenshot"
+  },
+  "workspaces": {
+    "message": "Workspaces"
+  },
+  "createWorkspace": {
+    "message": "Create Workspace"
   }
 }

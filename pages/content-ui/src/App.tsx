@@ -42,6 +42,8 @@ export default function App() {
   }, []);
 
   const handleOnAuthStatus = async (event: any) => {
+    console.log('event', event);
+
     if (event.detail.ok) toast.success(t('authCompleted'));
     else toast.error(t('authFailed'));
   };

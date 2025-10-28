@@ -2,6 +2,7 @@
 
 import type { FC } from 'react';
 
+import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
 import { Button, cn, Icon, toast } from '@extension/ui';
 
@@ -20,18 +21,18 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
   const handleOnSave = async () => {
     try {
       await saveBase64Image(lastImage.src, lastImage.name);
-      toast.info('Preparing your image for download…');
+      toast.info(t('imagePreparing'));
     } catch (e) {
-      toast.error('Preparing your image for download failed.');
+      toast.error(t('imagePreparingFailed'));
     }
   };
 
   const handleOnCopy = async () => {
     try {
       await copyBase64ImageToClipboard(lastImage.src);
-      toast.success('Screenshot copied!');
+      toast.success(t('imageCopied'));
     } catch (e) {
-      toast.error('Clipboard copy failed.');
+      toast.error(t('imageCopiedFailed'));
     }
   };
 
@@ -68,20 +69,20 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
             type="button"
             size="sm"
             variant="secondary"
-            aria-label="Edit"
+            aria-label={t('edit')}
             onClick={onEdit}
             className="dark:bg-primary w-[90px] space-x-2 bg-white/30 text-white backdrop-blur-sm hover:bg-white/10">
-            <Icon name="FilePenLineIcon" size={14} /> <span>Edit</span>
+            <Icon name="FilePenLineIcon" size={14} /> <span>{t('edit')}</span>
           </Button>
 
           <Button
             type="button"
             size="sm"
             variant="destructive"
-            aria-label="Discard"
+            aria-label={t('discard')}
             onClick={onDiscard}
             className="dark:bg-primary w-[90px] space-x-2 bg-white/30 text-white backdrop-blur-sm hover:bg-white/10">
-            <Icon name="Trash2Icon" size={14} /> <span>Discard</span>
+            <Icon name="Trash2Icon" size={14} /> <span>{t('discard')}</span>
           </Button>
         </div>
 
@@ -90,20 +91,20 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
             type="button"
             size="sm"
             variant="secondary"
-            aria-label="Save Image"
+            aria-label={t('save')}
             onClick={handleOnSave}
             className="dark:bg-primary w-[90px] space-x-2 bg-white/30 text-white backdrop-blur-sm hover:bg-white/10">
-            <Icon name="DownloadIcon" size={14} /> <span>Save...</span>
+            <Icon name="DownloadIcon" size={14} /> <span>{t('save')}</span>
           </Button>
 
           <Button
             type="button"
             size="sm"
             variant="secondary"
-            aria-label="Copy Image"
+            aria-label={t('copy')}
             onClick={handleOnCopy}
             className="dark:bg-primary w-[90px] space-x-2 bg-white/30 text-white backdrop-blur-sm hover:bg-white/10">
-            <Icon name="CopyIcon" size={14} /> <span>Copy</span>
+            <Icon name="CopyIcon" size={14} /> <span>{t('copy')}</span>
           </Button>
         </div>
       </div>
