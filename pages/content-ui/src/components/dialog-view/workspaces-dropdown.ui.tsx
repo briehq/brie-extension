@@ -78,7 +78,7 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
         <Button variant="secondary" className="h-[35px] gap-x-2 px-[10px] hover:bg-[#EDECE8]">
           <Avatar className="size-[25px] border-[0.5px] border-slate-400">
             <AvatarImage
-              src={`${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId}`}
+              src={activeWorkspace?.avatarId ? `${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId}` : ''}
               crossOrigin="anonymous"
             />
             <AvatarFallback>

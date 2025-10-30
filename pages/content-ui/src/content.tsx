@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
-import type { Screenshot, Workspace, SlicePriority, LabelItem } from '@extension/shared';
+import type { Screenshot, Workspace, SlicePriority, LabelItem, InitSliceRequest } from '@extension/shared';
 import { AuthMethod, SliceState } from '@extension/shared';
 import { annotationsStorage } from '@extension/storage';
 import {
@@ -17,10 +17,18 @@ import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
 import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
-import type { ActiveElement } from './models';
+import type { ActiveElement, HandleOnCreateArgs } from './models';
 import { base64ToFile, createJsonFile } from './utils';
 import { mergeScreenshot } from './utils/annotation';
-import { deleteRecords, getRecords, runSliceCreationFlow } from './utils/slice';
+import {
+  buildRecordsFile,
+  buildScreenshotsFiles,
+  deleteRecords,
+  getRecords,
+  runSliceCreationFlow,
+  safeOpenNewTab,
+  toArray,
+} from './utils/slice';
 
 const SM_BREAKPOINT = 640;
 const MD_BREAKPOINT = 768;
@@ -100,26 +108,39 @@ const Content = ({
   const handleOnElement = (element: ActiveElement) => setActiveElement(element);
   const handleOnCreateType = (type: string) => setCreateType(type);
 
-  const handleOnCreate = async ({
-    labels,
-    priority,
-    attachments,
-    description,
-    spaceId,
-  }: {
-    labels?: LabelItem[];
-    priority: SlicePriority;
-    attachments?: File[];
-    description?: string;
-    spaceId?: string;
-  }) => {
+  const finalizeCreation = async (sliceId?: string, uploaded?: boolean) => {
+    if (!sliceId) return;
+
+    try {
+      if (uploaded) {
+        await updateSliceState({ id: sliceId, state: SliceState.READY });
+      }
+    } catch (e) {
+      await updateSliceState({ id: sliceId, state: SliceState.FAILED });
+
+      console.warn('[create] finalize READY update failed:', e);
+    } finally {
+      try {
+        await deleteRecords();
+      } catch {
+        //
+      }
+      onClose?.();
+      setProgress(0);
+    }
+  };
+
+  const handleOnCreate = async ({ labels, priority, attachments, description, spaceId }: HandleOnCreateArgs) => {
     if (createType !== 'link' || isCreateLoading) return;
 
     setIsCreateLoading(true);
 
     try {
-      const records: any = await getRecords();
-      const recordsFile = createJsonFile(records.flat(), 'records.json');
+      const attachedFiles = toArray<File>(attachments);
+      const [recordsFile, screenshotsFiles] = await Promise.all([
+        buildRecordsFile(),
+        buildScreenshotsFiles(screenshots),
+      ]);
 
       if (!recordsFile) {
         toast.error(t('failedToCreateRecords'));
@@ -137,87 +158,51 @@ const Content = ({
        *
        * see: createAnnotationsJsonFile
        */
-      const shots: File[] = [];
-      for (const screenshot of screenshots) {
-        const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {
-          objects: [],
-          meta: {},
-        };
+      const payload = {
+        priority,
+        ...(title ? { summary: title } : {}),
+        ...(description ? { description } : {}),
+        ...(labels?.length ? { labels } : {}),
+        ...(workspaceId ? { workspaceId } : {}),
+        ...(spaceId ? { spaceId } : {}),
+        screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
+        attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
+        includeRecords: true,
+        includeAnnotations: false,
+      } as InitSliceRequest;
 
-        let file = null;
-
-        if (!meta?.sizes?.natural?.height || !objects?.length) {
-          file = await base64ToFile(screenshot.src, `${screenshot.name}`);
-        } else {
-          file = await mergeScreenshot({
-            screenshot,
-            objects,
-            parentHeight: meta.sizes.natural.height,
-            parentWidth: meta.sizes.natural.width,
-          });
-        }
-
-        shots.push(file);
-      }
-
-      const attachedFiles = Array.isArray(attachments) ? attachments : Array.from(attachments ?? []);
+      console.log('payload', payload);
 
       const { draft: slice, uploaded } = await runSliceCreationFlow({
         dispatch,
         onProgress: setProgress,
         idempotencyKey,
-        payload: {
-          priority,
-          ...(title && { summary: title }),
-          ...(description && { description }),
-          ...(labels?.length && { labels }),
-          ...(workspaceId && { workspaceId }),
-          ...(spaceId && { spaceId }),
-          screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
-          attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
-          includeRecords: true,
-          includeAnnotations: false,
-        },
+        payload,
         files: {
-          screenshots: shots,
+          screenshots: screenshotsFiles,
           attachments: attachedFiles,
           records: recordsFile,
         },
       });
 
-      if (slice?.externalId) {
+      if (slice?.externalId || slice?.id) {
         toast(t('openReport'));
+        const path = isGuest ? `s/${slice.externalId}` : `slices/${slice.id}`;
 
-        /**
-         * @todo
-         * update to READY slice?
-         */
+        safeOpenNewTab(`${APP_BASE_URL}/${path}`);
 
-        const path = isGuest ? `s/${slice?.externalId}` : `slices/${slice?.id}`;
+        await finalizeCreation(slice?.id, uploaded);
 
-        const newWindow = window?.open(`${APP_BASE_URL}/${path}`, '_blank');
-        newWindow?.focus();
-
-        if (uploaded) {
-          await updateSliceState({ id: slice.id, state: SliceState.READY });
-        }
-
-        deleteRecords();
-        onClose();
-        setProgress(0);
-      } else {
-        // GUEST_DAILY_LIMIT and other errors
-        toast.error(t(slice?.message) || t('failedToCreateSlice'));
-
-        if (slice?.id) {
-          await updateSliceState({ id: slice.id, state: SliceState.CANCELED });
-        }
+        return;
       }
-    } catch (error) {
-      /**
-       * @todo
-       * update to cancel slice?
-       */
+
+      // Server returned a draft with an error code (eg: GUEST_DAILY_LIMIT)
+      toast.error(t(slice?.message) || t('failedToCreateSlice'));
+
+      if (slice?.id) {
+        await updateSliceState({ id: slice.id, state: SliceState.CANCELED });
+      }
+    } catch (error: any) {
       console.error('[OnCreate Error]:', error);
       toast.error(t('unexpectedError'));
     } finally {
