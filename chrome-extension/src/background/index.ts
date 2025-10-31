@@ -1,4 +1,4 @@
-import { tabs, contextMenus, runtime, webRequest } from 'webextension-polyfill';
+import { tabs, contextMenus, runtime, webRequest, webNavigation } from 'webextension-polyfill';
 
 import {
   handleOnBeforeRequest,
@@ -9,6 +9,7 @@ import {
   handleOnMessage,
   handleOnTabRemoved,
   handleOnTabUpdated,
+  handleOnCommitted,
 } from '@src/services';
 
 tabs.onRemoved.addListener(handleOnTabRemoved);
@@ -27,3 +28,4 @@ contextMenus.onClicked.addListener(handleOnContextMenuClicked);
 webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, { urls: ['<all_urls>'] }, ['requestBody']);
 webRequest.onBeforeSendHeaders.addListener(handleOnBeforeSendHeaders, { urls: ['<all_urls>'] }, ['requestHeaders']);
 webRequest.onCompleted.addListener(handleOnCompleted, { urls: ['<all_urls>'] });
+webNavigation.onCommitted.addListener(handleOnCommitted);

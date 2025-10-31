@@ -1,4 +1,3 @@
-import type browser from 'webextension-polyfill';
 import type { Tabs } from 'webextension-polyfill';
 
 import {
@@ -19,6 +18,7 @@ export const handleOnTabRemoved = async (tabId: number) => {
     }
 
     await deleteRecords(tabId);
+    console.log('handleOnTabRemoved: records deleted ');
 
     const captureTabId = await captureTabStorage.getCaptureTabId();
     if (tabId === captureTabId) {
@@ -34,12 +34,8 @@ export const handleOnTabRemoved = async (tabId: number) => {
   }
 };
 
-export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType) => {
+export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tabs.Tab) => {
   try {
-    if (changeInfo.status === 'loading' && !changeInfo.url) {
-      await deleteRecords(tabId);
-    }
-
     if (changeInfo.status === 'complete') {
       const pendingTabIds = await pendingReloadTabsStorage.getAll();
 
