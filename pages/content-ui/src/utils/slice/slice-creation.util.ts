@@ -186,13 +186,12 @@ export const runSliceCreationFlow = async ({
   onProgress,
   concurrency = 4,
 }: RunSliceFlowParams): Promise<{ draft: InitSliceResponse; uploaded: boolean }> => {
-  console.log?.('CREATE_DRAFT:begin');
   const draft = await createDraftSlice(dispatch, payload, idempotencyKey);
-  console.log?.('CREATE_DRAFT:end', draft.id);
+
   const uploadItems = buildUploadQueue(draft, files);
-  console.log?.('UPLOADS:begin', uploadItems.length);
+
   const uploadedCount = await runUploads(dispatch, uploadItems, onProgress, concurrency);
-  console.log?.('UPLOADS:end', uploadedCount);
+
   const uploaded = uploadItems.length === 0 || uploadedCount === uploadItems.length;
 
   if (uploadItems.length > 0) onProgress?.(100);

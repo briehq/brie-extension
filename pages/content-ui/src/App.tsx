@@ -42,27 +42,24 @@ export default function App() {
   }, []);
 
   const handleOnAuthStatus = async (event: any) => {
-    console.log('event', event);
-
     if (event.detail.ok) toast.success(t('authCompleted'));
     else toast.error(t('authFailed'));
   };
 
-  const handleOnStoreScreenshot = async (event: any) => {
+  const handleOnStoreScreenshot = (event: any) => {
     handleOnMinimize();
     setScreenshots(screenshots => [...(screenshots ?? []), ...event.detail.screenshots]);
 
     if (!captureNotifyState?.notified) {
-      setTimeout(
-        () =>
-          toast.message(t('screenshotCaptured'), {
-            duration: 5000,
-            closeButton: true,
-            description: t('screenshotCapturedDescription'),
-          }),
-        1000,
-      );
-      await captureNotifyStorage.set({ notified: true });
+      setTimeout(async () => {
+        toast.message(t('screenshotCaptured'), {
+          duration: 5000,
+          closeButton: true,
+          description: t('screenshotCapturedDescription'),
+        });
+
+        await captureNotifyStorage.set({ notified: true });
+      }, 1000);
     }
   };
 

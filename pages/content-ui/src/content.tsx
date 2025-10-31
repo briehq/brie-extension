@@ -171,8 +171,6 @@ const Content = ({
         includeAnnotations: false,
       } as InitSliceRequest;
 
-      console.log('payload', payload);
-
       const { draft: slice, uploaded } = await runSliceCreationFlow({
         dispatch,
         onProgress: setProgress,
