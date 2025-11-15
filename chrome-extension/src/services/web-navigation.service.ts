@@ -12,7 +12,6 @@ export const handleOnCommitted = async (details: WebNavigation.OnCommittedDetail
 
   try {
     await deleteRecords(tabId);
-    console.log('refresh', details);
   } catch (err) {
     console.error('[webNavigation] deleteRecords error', err, details);
   }

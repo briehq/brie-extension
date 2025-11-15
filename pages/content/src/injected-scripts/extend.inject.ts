@@ -1,6 +1,6 @@
 export const injectExtendScript = (): void => {
   if (document.documentElement.hasAttribute('data-brie-extend')) return;
-  document.documentElement.setAttribute('data-brie-extend', '1');
+  document.documentElement.setAttribute('data-brie-extend', 'true');
 
   const script = document.createElement('script');
   script.src = chrome.runtime.getURL('content/extend.iife.js');

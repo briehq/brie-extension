@@ -13,6 +13,8 @@ export const buildRecordsFile = async (): Promise<File | undefined> => {
 
   if (flattened.length === 0) return undefined;
 
+  console.log('flattened', flattened);
+
   const f = createJsonFile(flattened, fileNameOr('records.json', 0));
 
   return f ?? undefined;
