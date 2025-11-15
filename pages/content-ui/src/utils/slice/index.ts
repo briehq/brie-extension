@@ -9,3 +9,4 @@ export { fileNameOr } from './file-name.util';
 export { buildRecordsFile } from './build-records-file.util';
 export { buildScreenshotFile } from './build-screenshot-file.util';
 export { buildScreenshotsFiles } from './build-screenshot-files.util';
+export { validateMaxFileSize } from './file-size.util';

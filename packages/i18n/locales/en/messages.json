@@ -222,5 +222,8 @@
   },
   "createWorkspace": {
     "message": "Create Workspace"
+  },
+  "fileTooLarge": {
+    "message": "“$1” is too large. Choose a file under 20 MB."
   }
 }

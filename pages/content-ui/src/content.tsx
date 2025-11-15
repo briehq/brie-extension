@@ -28,6 +28,7 @@ import {
   runSliceCreationFlow,
   safeOpenNewTab,
   toArray,
+  validateMaxFileSize,
 } from './utils/slice';
 
 const SM_BREAKPOINT = 640;
@@ -145,6 +146,20 @@ const Content = ({
       if (!recordsFile) {
         toast.error(t('failedToCreateRecords'));
         return;
+      }
+
+      for (const file of [...screenshotsFiles, ...attachedFiles, recordsFile]) {
+        const isOverSizeLimit = validateMaxFileSize(file);
+        console.log('isValidSize', isOverSizeLimit, {
+          name: file.name,
+          size: file.size,
+        });
+
+        if (isOverSizeLimit) {
+          toast.error(t('fileTooLarge', file.name));
+
+          return;
+        }
       }
 
       /**
