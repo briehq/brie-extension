@@ -4,18 +4,13 @@ import { createJsonFile } from '../create-json-file.util';
 
 /**
  * Builds a JSON file with recorded events.
+ * Always returns a file, even if empty.
  *
- * @returns Promise<File | undefined> - File if successful, otherwise undefined.
+ * @returns Promise<File> - JSON file containing [] or actual records.
  */
-export const buildRecordsFile = async (): Promise<File | undefined> => {
+export const buildRecordsFile = async (): Promise<File> => {
   const all = await getRecords().catch(() => []);
   const flattened = Array.isArray(all) ? all.flat() : [];
 
-  if (flattened.length === 0) return undefined;
-
-  console.log('flattened', flattened);
-
-  const f = createJsonFile(flattened, fileNameOr('records.json', 0));
-
-  return f ?? undefined;
+  return createJsonFile(flattened, fileNameOr('records.json', 0));
 };

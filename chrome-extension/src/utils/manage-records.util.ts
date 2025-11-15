@@ -61,7 +61,8 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
       return;
     }
 
-    const { url, ...rest } = record;
+    const { url, requestId, timeStamp, ...rest } = record;
+    const recordKey = requestId ?? uuid;
 
     if (!url) {
       console.warn('[addOrMergeRecords] Missing URL for network record.');
@@ -70,14 +71,20 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
 
     const redactedRest = deepRedactSensitiveInfo(rest, tabUrl);
 
-    if (!recordsMap.has(url)) {
-      recordsMap.set(url, { uuid, url, ...redactedRest });
+    if (!recordsMap.has(recordKey)) {
+      recordsMap.set(recordKey, {
+        uuid,
+        url,
+        requestId,
+        ...redactedRest,
+        ...(timeStamp ? { timestamp: timeStamp } : {}),
+      });
     }
 
-    const recordData = recordsMap.get(url);
+    const recordData = recordsMap.get(recordKey);
 
     if (!recordData) {
-      console.warn("[addOrMergeRecords] Record with this URL doesn't exist.");
+      console.warn("[addOrMergeRecords] Record with this UUID/URL doesn't exist.");
     }
 
     for (const [key, value] of Object.entries(redactedRest)) {
@@ -99,9 +106,10 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
         const decodedBody = decoder.decode(byteArray);
 
         try {
-          recordData[key].parsed = typeof decodedBody !== 'string' && deepRedactSensitiveInfo(decodedBody, tabUrl);
-        } catch (e) {
-          console.error('[addOrMergeRecords] Failed to parse JSON:', e);
+          const parsed = JSON.parse(decodedBody);
+          recordData[key].parsed = deepRedactSensitiveInfo(parsed, tabUrl);
+        } catch {
+          recordData[key].parsed = deepRedactSensitiveInfo(decodedBody, tabUrl);
         }
       }
     }
