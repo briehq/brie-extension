@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
+import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
 import {
-  annotationHistoryStorage,
+  annotationsHistoryStorage,
   annotationsRedoStorage,
   annotationsStorage,
   captureNotifyStorage,
@@ -30,29 +31,35 @@ export default function App() {
     window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
     window.addEventListener('CLOSE_MODAL', handleOnClose);
     window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
+    window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
 
     return () => {
       window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
       window.removeEventListener('CLOSE_MODAL', handleOnClose);
       window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
+      window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
     };
   }, []);
 
-  const handleOnStoreScreenshot = async (event: any) => {
+  const handleOnAuthStatus = async (event: any) => {
+    if (event.detail.ok) toast.success(t('authCompleted'));
+    else toast.error(t('authFailed'));
+  };
+
+  const handleOnStoreScreenshot = (event: any) => {
     handleOnMinimize();
     setScreenshots(screenshots => [...(screenshots ?? []), ...event.detail.screenshots]);
 
     if (!captureNotifyState?.notified) {
-      setTimeout(
-        () =>
-          toast.message('Screenshot captured', {
-            duration: 6000,
-            closeButton: true,
-            description: 'Capture more shots or jump straight into editing.',
-          }),
-        1000,
-      );
-      await captureNotifyStorage.set({ notified: true });
+      setTimeout(async () => {
+        toast.message(t('screenshotCaptured'), {
+          duration: 5000,
+          closeButton: true,
+          description: t('screenshotCapturedDescription'),
+        });
+
+        await captureNotifyStorage.set({ notified: true });
+      }, 1000);
     }
   };
 
@@ -71,7 +78,7 @@ export default function App() {
       captureStateStorage.setCaptureState('idle'),
       annotationsStorage.clearAll(),
       annotationsRedoStorage.clearAll(),
-      annotationHistoryStorage.clearAll(),
+      annotationsHistoryStorage.clearAll(),
     ]);
   }, []);
 
@@ -95,7 +102,7 @@ export default function App() {
       await Promise.all([
         annotationsStorage.deleteAnnotations(id),
         annotationsRedoStorage.deleteAnnotations(id),
-        annotationHistoryStorage.deleteAnnotations(id),
+        annotationsHistoryStorage.deleteAnnotations(id),
       ]);
     },
     [activeScreenshotId],

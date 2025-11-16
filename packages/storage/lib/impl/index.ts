@@ -1,11 +1,9 @@
+export { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from './annotations/index.js';
+export { authIdentityProviderStorage, authTokensStorage } from './auth/index.js';
+export { captureNotifyStorage, captureStateStorage, captureTabStorage } from './capture/index.js';
+export type { AuthTokensStorage } from './auth/index.js';
+export type { CaptureNotifyStorage } from './capture/index.js';
+
 export * from './theme.storage.js';
-export * from './capture-state.storage.js';
-export * from './capture-tab-state.storage.js';
-export * from './annotations.storage.js';
-export * from './annotations-redo.storage.js';
 export * from './user-uuid.storage.js';
-export * from './auth-tokens.storage.js';
 export * from './pending-reload-tabs.storage.js';
-export * from './auth-identity-provider.storage.js';
-export * from './annotations-history.storage.js';
-export * from './capture-notify.storage.js';

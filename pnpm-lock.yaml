@@ -54,6 +54,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.3
         version: 19.1.6(@types/react@19.1.6)
+      '@types/webextension-polyfill':
+        specifier: ^0.12.0
+        version: 0.12.4
       '@typescript-eslint/parser':
         specifier: ^8.28.0
         version: 8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
@@ -391,8 +394,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       lucide-react:
-        specifier: ^0.503.0
-        version: 0.503.0(react@19.1.0)
+        specifier: ^0.548.0
+        version: 0.548.0(react@19.1.0)
       react-hook-form:
         specifier: ^7.57.0
         version: 7.57.0(react@19.1.0)
@@ -2321,6 +2324,9 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
+
+  '@types/webextension-polyfill@0.12.4':
+    resolution: {integrity: sha512-wK8YdSI0pDiaehSLDIvtvonYmLwUUivg4Z6JCJO8rkyssMAG82cFJgwPK/V7NO61mJBLg/tXeoXQL8AFzpXZmQ==}
 
   '@types/which@2.0.2':
     resolution: {integrity: sha512-113D3mDkZDjo+EeUEHCFy0qniNc1ZpecGiAU7WSo7YDoSzolZIQKpYFHrPpjkB2nuyahcKfrmLXeQlh7gqJYdw==}
@@ -4468,8 +4474,8 @@ packages:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
 
-  lucide-react@0.503.0:
-    resolution: {integrity: sha512-HGGkdlPWQ0vTF8jJ5TdIqhQXZi6uh3LnNgfZ8MHiuxFfX3RZeA79r2MW2tHAZKlAVfoNE8esm3p+O6VkIvpj6w==}
+  lucide-react@0.548.0:
+    resolution: {integrity: sha512-63b16z63jM9yc1MwxajHeuu0FRZFsDtljtDjYm26Kd86UQ5HQzu9ksEtoUUw4RBuewodw/tGFmvipePvRsKeDA==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -7875,6 +7881,8 @@ snapshots:
 
   '@types/use-sync-external-store@0.0.6': {}
 
+  '@types/webextension-polyfill@0.12.4': {}
+
   '@types/which@2.0.2': {}
 
   '@types/wrap-ansi@3.0.0': {}
@@ -10597,7 +10605,7 @@ snapshots:
 
   lru-cache@7.18.3: {}
 
-  lucide-react@0.503.0(react@19.1.0):
+  lucide-react@0.548.0(react@19.1.0):
     dependencies:
       react: 19.1.0
 

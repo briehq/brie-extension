@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import browser from 'webextension-polyfill';
+import { runtime } from 'webextension-polyfill';
 
 import { useStorage } from '@extension/shared';
 import { authIdentityProviderStorage } from '@extension/storage';
@@ -18,12 +18,16 @@ export const useAuthIdentityProvider = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const authFlow = useStorage(authIdentityProviderStorage);
-  const setAuthFlow = (state: AuthFlowState) => authIdentityProviderStorage.set(state);
+  const setAuthFlow = useCallback((state: AuthFlowState | null) => authIdentityProviderStorage.set(state), []);
 
   useEffect(() => {
     setAuthFlow(null);
   }, []);
 
+  /**
+   * Launches the authentication flow via background message.
+   * Sets active state in storage and handles cleanup automatically.
+   */
   const register = useCallback(async () => {
     if (authFlow?.active) return;
 
@@ -31,10 +35,15 @@ export const useAuthIdentityProvider = () => {
     setAuthFlow({ active: true });
 
     try {
-      await browser.runtime.sendMessage({ type: 'AUTH_START' });
+      const response: any = await runtime.sendMessage({ type: 'AUTH_START' });
+
+      if (!response?.ok) {
+        throw new Error(response?.error || 'Auth flow failed');
+      }
     } catch (e) {
-      setError(e as Error);
-      throw e;
+      const err = e instanceof Error ? e : new Error(String(e));
+      setError(err);
+      throw err;
     } finally {
       setAuthFlow(null);
     }

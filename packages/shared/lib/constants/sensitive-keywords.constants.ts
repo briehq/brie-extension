@@ -1,4 +1,4 @@
-const sensitiveKeywords = [
+export const STRONG_KEYS = [
   'okta',
   'authorization',
   'oai-sc',
@@ -7,6 +7,8 @@ const sensitiveKeywords = [
   'secret',
   'password',
   'api_key',
+  'passcode',
+  'otp',
   'token',
   'auth_token',
   'id_token',
@@ -19,8 +21,6 @@ const sensitiveKeywords = [
   'sso_token',
   'encryption_key',
   'decryption_key',
-  'username',
-  'email',
   'user_id',
   'social_security_number',
   'ssn',
@@ -28,7 +28,6 @@ const sensitiveKeywords = [
   'cc_number',
   'credit_card',
   'cvv',
-  'expiration_date',
   'bank_account',
   'routing_number',
   'iban',
@@ -51,8 +50,23 @@ const sensitiveKeywords = [
   'gmail_at',
 ];
 
-// Compile regex patterns for case-insensitive matching of sensitive keywords
-export const sensitiveKeywordsPatterns = sensitiveKeywords.map(keyword => {
-  const pattern = new RegExp(`\\b${keyword.replace(/_/g, '[_-]?')}\\b`, 'i');
-  return { pattern };
-});
+// Explicitly DO NOT redact these by name
+export const EXEMPT_KEYS = ['username', 'user_name', 'email', 'e-mail', 'login', 'user', 'user_id', 'userid'];
+
+// Non-sensitive/date-ish by default
+export const NON_SENSITIVE_KEYS = [
+  'date',
+  'start_date',
+  'end_date',
+  'start-date',
+  'end-date',
+  'created_at',
+  'updated_at',
+  'dob',
+  'birthday',
+  'expiration_date',
+];
+
+// Compile case-insensitive boundary-aware matchers
+export const keyMatches = (k: string | undefined | null, list: string[]) =>
+  !!k && list.some(s => new RegExp(`(^|[^a-z0-9])${s.replace(/_/g, '[_-]?')}([^a-z0-9]|$)`, 'i').test(k));

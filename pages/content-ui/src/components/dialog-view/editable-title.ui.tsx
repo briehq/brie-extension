@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import { cn, Input, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 interface EditableTitleProps {
@@ -65,7 +66,7 @@ export const EditableTitle = ({ value, onChange, className }: EditableTitleProps
             </div>
           </TooltipTrigger>
           <TooltipContent side="top" align="center">
-            Rename
+            {t('rename')}
           </TooltipContent>
         </Tooltip>
       )}

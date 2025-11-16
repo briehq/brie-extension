@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { t } from '@extension/i18n';
 import { Button, cn, Popover, PopoverContent, PopoverTrigger, ToggleGroup, ToggleGroupItem } from '@extension/ui';
 
 const HEX_COLORS: Record<string, string> = {
@@ -34,11 +35,11 @@ export const ColorPalette = ({
       </PopoverTrigger>
       <PopoverContent side="top" align="start" sideOffset={18}>
         <div className="grid gap-3">
-          <h4 className="font-medium leading-none">Color Palette</h4>
+          <h4 className="font-medium leading-none">{t('colorPalette')}</h4>
 
           <div className="grid gap-3">
             <div className="space-y-1.5">
-              <p className="text-muted-foreground text-sm">Select color</p>
+              <p className="text-muted-foreground text-sm">{t('selectColor')}</p>
 
               <ToggleGroup
                 className="justify-start"
@@ -53,7 +54,7 @@ export const ColorPalette = ({
                   <ToggleGroupItem
                     key={color}
                     value={color}
-                    aria-label={`Toggle ${color}`}
+                    aria-label={`${t('toggle')} ${color}`}
                     disabled={color === selectedColor}>
                     <div
                       className={cn('group size-4 rounded-full', {

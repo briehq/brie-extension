@@ -117,5 +117,11 @@
   },
   "readyToGo": {
     "message": "तैयार हो जाएगी!"
+  },
+  "authCompleted": {
+    "message": "प्रमाणीकरण सफल रहा!"
+  },
+  "authFailed": {
+    "message": "प्रमाणीकरण विफल रहा!"
   }
 }

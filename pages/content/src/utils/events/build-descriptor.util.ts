@@ -19,16 +19,15 @@ export const buildDescriptor = (el?: Element | null): ElementDescriptor | null =
   const isTextarea = el instanceof HTMLTextAreaElement;
   const isSelect = el instanceof HTMLSelectElement;
 
-  const label = getAssociatedLabelText(el);
+  const type = pickAttr(el, ['type']);
+  const label = isInput && type === 'submit' ? ((el as HTMLInputElement).value ?? '') : getAssociatedLabelText(el);
 
   const textContent = (() => {
     const raw =
       el.getAttribute?.('aria-label') ||
       el.getAttribute?.('data-label') ||
       (el as HTMLButtonElement).innerText ||
-      !(isInput || isTextarea)
-        ? el.textContent
-        : '';
+      (!(isInput || isTextarea) ? el.textContent : '');
     const trimmed = raw.replace(/\s+/g, ' ').trim();
     return trimmed ? (trimmed.length > 120 ? trimmed.slice(0, 119) + '…' : trimmed) : null;
   })();
@@ -71,7 +70,7 @@ export const buildDescriptor = (el?: Element | null): ElementDescriptor | null =
     dataTestId: pickAttr(el, ['data-testid', 'dataTestid', 'data-test-id']),
     role: pickAttr(el, ['role']),
     name: pickAttr(el, ['name']),
-    type: pickAttr(el, ['type']),
+    type,
     src: pickAttr(el, ['src']),
     ariaLabel: pickAttr(el, ['aria-label']),
     ariaDescribedby: pickAttr(el, ['aria-describedby']),

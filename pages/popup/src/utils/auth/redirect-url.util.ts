@@ -1,9 +1,9 @@
-import browser from 'webextension-polyfill';
+import { identity, runtime } from 'webextension-polyfill';
 
 export const getRedirectURL = () => {
-  if (browser.identity?.getRedirectURL) {
-    return browser.identity.getRedirectURL();
+  if (identity?.getRedirectURL) {
+    return identity.getRedirectURL();
   }
 
-  return browser.runtime.getURL('auth-identity.html');
+  return runtime.getURL('auth-identity.html');
 };

@@ -24,6 +24,7 @@ export const Header = () => {
       </button>
       <div className="flex items-center">
         <Button
+          title="View the source code on GitHub"
           type="button"
           size="icon"
           variant="ghost"
@@ -33,6 +34,7 @@ export const Header = () => {
         </Button>
 
         <Button
+          title="Join the Discord community"
           type="button"
           size="icon"
           variant="ghost"
@@ -40,7 +42,9 @@ export const Header = () => {
           onClick={() => navigateTo('https://go.brie.io/discord?utm_source=extension')}>
           <Icon name="DiscordLogoIcon" size={20} className="size-4" />
         </Button>
+
         <Button
+          title="Visit the Brie homepage"
           type="button"
           size="icon"
           variant="ghost"

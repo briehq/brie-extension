@@ -1,15 +1,21 @@
-import { useMemo } from 'react';
-
 import type { User } from '@extension/shared';
 
 import { useGetUserDetailsQuery } from '../store/index.js';
 
 export const useUser = (): {
-  fields: User | undefined;
+  fields?: User;
   isLoading: boolean;
   isError: boolean;
+  isFetching: boolean;
+  isUninitialized: boolean;
 } => {
-  const { isLoading, isError, data } = useGetUserDetailsQuery();
+  const { isLoading, isFetching, isUninitialized, isError, data } = useGetUserDetailsQuery();
 
-  return useMemo(() => ({ isLoading, isError, fields: data }), [data]);
+  return {
+    fields: data,
+    isLoading,
+    isFetching,
+    isUninitialized,
+    isError,
+  };
 };

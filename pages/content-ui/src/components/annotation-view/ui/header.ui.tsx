@@ -1,6 +1,6 @@
 import { IS_DEV } from '@extension/env';
 import { useStorage } from '@extension/shared';
-import { annotationHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 import { CreateDropdown, EditableTitle, WorkspacesDropdown } from '@src/components/dialog-view';
@@ -60,7 +60,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
 
   className,
 }) => {
-  const historyAnnotations = useStorage(annotationHistoryStorage);
+  const historyAnnotations = useStorage(annotationsHistoryStorage);
   const redoAnnotations = useStorage(annotationsRedoStorage);
   const annotations = useStorage(annotationsStorage);
 

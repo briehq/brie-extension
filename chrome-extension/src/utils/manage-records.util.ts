@@ -1,40 +1,48 @@
 import { v4 as uuidv4 } from 'uuid';
+import { tabs } from 'webextension-polyfill';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
 
-const restricted = [
+import type { Record } from '@src/types';
+
+import { decodeRequestBody } from './decode-request-body.util';
+
+const RESTRICTED = [
   'https://api.briehq.com',
   'https://sandbox-api.briehq.com',
   'http://localhost:3006',
   'fhfdkpfdkimboffigpggibbgggeimpfd', // brie's local uuid
   'kbmbnelnoppneadncmmkfikbcgmilbao',
 ];
-const invalidRecord = (entity: string) => restricted.some(word => entity.includes(word));
+
+const invalidRecord = (entity: string) => RESTRICTED.some(word => entity.includes(word));
 
 const tabRecordsMap = new Map<number, Map<string, any>>();
+const tabUrlToRequestId = new Map<number, Map<string, string>>();
 
-export type RecordType = 'events' | 'network' | 'console' | 'cookies';
+const getOrCreateUrlMap = (tabId: number): Map<string, string> => {
+  let urlMap = tabUrlToRequestId.get(tabId);
 
-export interface Record {
-  recordType: RecordType;
-  url?: string;
-  requestBody?: {
-    raw: { bytes: ArrayBuffer }[];
-  };
-  [key: string]: any;
-}
+  if (!urlMap) {
+    urlMap = new Map<string, string>();
+    tabUrlToRequestId.set(tabId, urlMap);
+  }
+
+  return urlMap;
+};
 
 export const deleteRecords = async (tabId: number) => {
   if (!tabId && !tabRecordsMap.has(tabId)) return;
 
   tabRecordsMap.delete(tabId);
+  tabUrlToRequestId.delete(tabId);
 };
 
 export const getRecords = async (tabId: number): Promise<Record[]> => {
   return tabId && tabRecordsMap.has(tabId) ? Array.from(tabRecordsMap.get(tabId)!.values()) : [];
 };
 
-export const addOrMergeRecords = async (tabId: number, record: Record | any): Promise<void> => {
+export const addOrMergeRecords = async (tabId: number, record: Record): Promise<void> => {
   if (!tabId || tabId === -1) {
     console.log('[addOrMergeRecords] SKIPPED: Invalid TabId (null OR -1)');
     return;
@@ -45,7 +53,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
     return;
   }
 
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const [tab] = await tabs.query({ active: true, lastFocusedWindow: true });
   const tabUrl = tab?.url || record?.url;
 
   if (!tabRecordsMap.has(tabId)) {
@@ -61,51 +69,90 @@ export const addOrMergeRecords = async (tabId: number, record: Record | any): Pr
       return;
     }
 
-    const { url, ...rest } = record;
+    const { url, requestId, timeStamp, requestBody: rawRequestBody, type, domain, ...rest } = record;
 
     if (!url) {
       console.warn('[addOrMergeRecords] Missing URL for network record.');
       return;
     }
 
-    const redactedRest = deepRedactSensitiveInfo(rest, tabUrl);
+    const urlMap = getOrCreateUrlMap(tabId);
+    let finalRequestId = requestId;
 
-    if (!recordsMap.has(url)) {
-      recordsMap.set(url, { uuid, url, ...redactedRest });
+    if (type === 'xmlhttprequest' && requestId) {
+      urlMap.set(url, requestId);
     }
 
-    const recordData = recordsMap.get(url);
+    if (domain && ['fetch', 'xhr'].includes(domain) && !finalRequestId) {
+      const urlMapValue = urlMap.get(url);
+
+      if (urlMapValue) {
+        finalRequestId = urlMapValue;
+        urlMap.delete(url);
+      }
+    }
+
+    const recordKey = finalRequestId ?? uuid;
+    const decodedRequestBody = decodeRequestBody(rawRequestBody);
+    const baseRecord: Record = {
+      url,
+      requestId: finalRequestId,
+      type,
+      domain,
+      ...rest,
+    };
+
+    if (decodedRequestBody) {
+      baseRecord.requestBody = {
+        raw: rawRequestBody?.raw,
+        decoded: decodedRequestBody.decoded,
+        parsed: decodedRequestBody.parsed,
+      };
+    }
+    const { requestBody: baseRequestBody, ...restForRedaction } = baseRecord;
+
+    const redactedRest = deepRedactSensitiveInfo(restForRedaction, tabUrl);
+    let safeRequestBody: any = undefined;
+
+    if (baseRequestBody?.parsed || baseRequestBody?.decoded) {
+      safeRequestBody = {
+        ...(baseRequestBody?.raw ? { raw: baseRequestBody.raw } : {}),
+        parsed: deepRedactSensitiveInfo(baseRequestBody.parsed ?? baseRequestBody.decoded, tabUrl),
+      };
+    }
+
+    const redactedRecord = {
+      ...redactedRest,
+      ...(safeRequestBody ? { requestBody: safeRequestBody } : {}),
+      ...(timeStamp ? { timestamp: timeStamp } : {}),
+    };
+
+    if (!recordsMap.has(recordKey)) {
+      recordsMap.set(recordKey, { uuid, url, ...redactedRecord });
+      return;
+    }
+
+    const recordData = recordsMap.get(recordKey);
 
     if (!recordData) {
-      console.warn("[addOrMergeRecords] Record with this URL doesn't exist.");
+      console.warn("[addOrMergeRecords] Record with this key doesn't exist");
+      return;
     }
 
-    for (const [key, value] of Object.entries(redactedRest)) {
+    for (const [key, value] of Object.entries(redactedRecord)) {
+      if (!value) continue;
+
+      if (key === 'requestBody') {
+        const existing = recordData.requestBody || {};
+        recordData.requestBody = { ...existing, ...value };
+        continue;
+      }
+
       if (!recordData[key]) {
         recordData[key] = value;
       }
-
-      if (key === 'requestBody' && recordData[key]?.raw) {
-        const rawRequestBody = recordData[key].raw;
-
-        if (!rawRequestBody.length) {
-          recordData[key].parsed = null;
-          continue;
-        }
-
-        const rawBytes = rawRequestBody[0].bytes;
-        const byteArray = new Uint8Array(rawBytes);
-        const decoder = new TextDecoder('utf-8');
-        const decodedBody = decoder.decode(byteArray);
-
-        try {
-          recordData[key].parsed = typeof decodedBody !== 'string' && deepRedactSensitiveInfo(decodedBody, tabUrl);
-        } catch (e) {
-          console.error('[addOrMergeRecords] Failed to parse JSON:', e);
-        }
-      }
     }
   } catch (e) {
-    console.error('[addOrMergeRecords] Primary: Failed to parse JSON:', e);
+    console.error('[addOrMergeRecords] Primary: Failed to process network record:', e);
   }
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { t } from '@extension/i18n';
 import {
   Button,
   Icon,
@@ -25,7 +26,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
         className="bg-gradient-overlay flex h-[35px] gap-x-[6px] px-2.5">
         <Icon name="ArrowUpIcon" size={16} />
 
-        <span>Export</span>
+        <span>{t('export')}</span>
 
         <span className="text-muted-foreground text-xs">
           1x • <span className="uppercase">{selectedFormat}</span>
@@ -38,7 +39,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
             size="icon"
             variant="secondary"
             className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label="Export Image Settings">
+            aria-label={t('exportSettings')}>
             <Icon name="Settings2Icon" size={16} />
           </Button>
         </PopoverTrigger>
@@ -49,18 +50,18 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
           align="end"
           sideOffset={18}>
           <div className="grid gap-3">
-            <h4 className="font-medium leading-none">Export Settings</h4>
+            <h4 className="font-medium leading-none">{t('exportSettings')}</h4>
 
             <div className="grid gap-3">
               <div className="space-y-1.5">
-                <p className="text-muted-foreground text-sm">Image format</p>
+                <p className="text-muted-foreground text-sm">{t('imageFormat')}</p>
 
                 <Tabs
                   value={selectedFormat}
                   onClick={e => e.preventDefault()}
                   onValueChange={value => {
                     setSelectedFormat(value);
-                    onChangeFormat(value);
+                    // onChangeFormat(value);
                   }}
                   className="w-full">
                   <TabsList
@@ -80,7 +81,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
 
               <div className="grid grid-cols-3 items-center gap-4 rounded-lg border pl-2">
                 <Label htmlFor="width" className="text-muted-foreground col-span-2">
-                  Output Resolution
+                  {t('outputResolution')}
                 </Label>
                 <Input
                   disabled
