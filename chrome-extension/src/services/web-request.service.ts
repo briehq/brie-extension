@@ -21,30 +21,30 @@ export const handleOnBeforeSendHeaders = (request: WebRequest.OnBeforeSendHeader
 };
 
 export const handleOnCompleted = (request: WebRequest.OnCompletedDetailsType) => {
-  const clonedrequest = safeStructuredClone(request);
+  const clonedRequest = safeStructuredClone(request);
 
-  addOrMergeRecords(clonedrequest.tabId, {
+  addOrMergeRecords(clonedRequest.tabId, {
     recordType: 'network',
     source: 'background',
-    ...clonedrequest,
+    ...clonedRequest,
   });
 
-  if (clonedrequest.statusCode >= 400) {
-    addOrMergeRecords(clonedrequest.tabId, {
+  if (clonedRequest.statusCode >= 400) {
+    addOrMergeRecords(clonedRequest.tabId, {
       timestamp: Date.now(),
       type: 'log',
       recordType: 'console',
       source: 'background',
       method: 'error',
       args: [
-        `[${clonedrequest.type}] ${clonedrequest.method} ${clonedrequest.url} responded with status ${clonedrequest.statusCode}`,
-        clonedrequest,
+        `[${clonedRequest.type}] ${clonedRequest.method} ${clonedRequest.url} responded with status ${clonedRequest.statusCode}`,
+        clonedRequest,
       ],
       stackTrace: {
         parsed: 'interceptFetch',
         raw: '',
       },
-      url: clonedrequest.url,
+      url: clonedRequest.url,
     });
   }
 };

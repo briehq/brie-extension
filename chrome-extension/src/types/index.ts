@@ -16,3 +16,18 @@ export type BgResponse =
   | { success: boolean; dataUrl?: string; message?: string }
   | { ok: boolean; error?: string }
   | { isAvailable: boolean };
+
+export type RecordType = 'events' | 'network' | 'console' | 'cookies';
+export interface Record {
+  recordType: RecordType;
+  url: string;
+  requestId?: string;
+  requestBody?: {
+    raw?: { bytes: ArrayBuffer }[];
+    decoded?: any;
+    parsed?: any;
+  };
+  type: string;
+  domain?: string;
+  [key: string]: any;
+}

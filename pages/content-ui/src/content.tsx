@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
-import type { Screenshot, Workspace, SlicePriority, LabelItem, InitSliceRequest } from '@extension/shared';
+import type { Screenshot, Workspace, InitSliceRequest } from '@extension/shared';
 import { AuthMethod, SliceState } from '@extension/shared';
-import { annotationsStorage } from '@extension/storage';
 import {
   triggerCanvasAction,
   useAppDispatch,
@@ -18,13 +17,10 @@ import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotati
 import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement, HandleOnCreateArgs } from './models';
-import { base64ToFile, createJsonFile } from './utils';
-import { mergeScreenshot } from './utils/annotation';
 import {
   buildRecordsFile,
   buildScreenshotsFiles,
   deleteRecords,
-  getRecords,
   runSliceCreationFlow,
   safeOpenNewTab,
   toArray,
@@ -148,19 +144,15 @@ const Content = ({
         return;
       }
 
-      // for (const file of [...screenshotsFiles, ...attachedFiles]) {
-      //   const isOverSizeLimit = validateMaxFileSize(file);
-      //   console.log('isValidSize', isOverSizeLimit, {
-      //     name: file.name,
-      //     size: file.size,
-      //   });
+      for (const file of [...screenshotsFiles, ...attachedFiles]) {
+        const isOverSizeLimit = validateMaxFileSize(file);
 
-      //   if (isOverSizeLimit) {
-      //     toast.error(t('fileTooLarge', file.name));
+        if (isOverSizeLimit) {
+          toast.error(t('fileTooLarge', file.name));
 
-      //     return;
-      //   }
-      // }
+          return;
+        }
+      }
 
       /**
        * @todo
