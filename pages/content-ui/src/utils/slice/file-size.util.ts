@@ -5,4 +5,4 @@ import { MAX_FILE_SIZE } from '@src/constants';
  * @param files - array of File objects
  * @param limit - max allowed size in bytes
  */
-export const validateMaxFileSize = (file: File, limit: number = 1): boolean => file.size > limit;
+export const validateMaxFileSize = (file: File, limit: number = MAX_FILE_SIZE): boolean => file.size > limit;

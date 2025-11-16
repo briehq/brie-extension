@@ -148,19 +148,19 @@ const Content = ({
         return;
       }
 
-      for (const file of [...screenshotsFiles, ...attachedFiles, recordsFile]) {
-        const isOverSizeLimit = validateMaxFileSize(file);
-        console.log('isValidSize', isOverSizeLimit, {
-          name: file.name,
-          size: file.size,
-        });
+      // for (const file of [...screenshotsFiles, ...attachedFiles]) {
+      //   const isOverSizeLimit = validateMaxFileSize(file);
+      //   console.log('isValidSize', isOverSizeLimit, {
+      //     name: file.name,
+      //     size: file.size,
+      //   });
 
-        if (isOverSizeLimit) {
-          toast.error(t('fileTooLarge', file.name));
+      //   if (isOverSizeLimit) {
+      //     toast.error(t('fileTooLarge', file.name));
 
-          return;
-        }
-      }
+      //     return;
+      //   }
+      // }
 
       /**
        * @todo
