@@ -5,7 +5,7 @@ import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
 import { useStorage } from '@extension/shared';
 import {
-  annotationHistoryStorage,
+  annotationsHistoryStorage,
   annotationsRedoStorage,
   annotationsStorage,
   captureNotifyStorage,
@@ -78,7 +78,7 @@ export default function App() {
       captureStateStorage.setCaptureState('idle'),
       annotationsStorage.clearAll(),
       annotationsRedoStorage.clearAll(),
-      annotationHistoryStorage.clearAll(),
+      annotationsHistoryStorage.clearAll(),
     ]);
   }, []);
 
@@ -102,7 +102,7 @@ export default function App() {
       await Promise.all([
         annotationsStorage.deleteAnnotations(id),
         annotationsRedoStorage.deleteAnnotations(id),
-        annotationHistoryStorage.deleteAnnotations(id),
+        annotationsHistoryStorage.deleteAnnotations(id),
       ]);
     },
     [activeScreenshotId],

@@ -65,7 +65,7 @@ const Content = ({
   const [title, setTitle] = useState('Untitled report');
   const [workspaceId, setWorkspaceId] = useState('');
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
-  const [createType, setCreateType] = useState();
+  const [createType, setCreateType] = useState('');
 
   const isLg = canvasWidth >= LG_BREAKPOINT;
   const isMd = canvasWidth >= MD_BREAKPOINT;

@@ -42,7 +42,7 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
       id="brie-minimized-preview"
       className={cn(
         'group fixed bottom-4 right-4 z-[2000000] h-[180px] w-[230px]',
-        'overflow-hidden rounded-lg border border-[#EDECE8] shadow-lg hover:bg-black',
+        'overflow-hidden rounded-lg border border-[#EDECE8] shadow-2xl hover:bg-black',
         'transition-transform duration-200 focus-within:scale-105 hover:scale-105 focus:scale-105 focus-visible:scale-105',
         'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2',
       )}>

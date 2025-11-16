@@ -1,6 +1,6 @@
-import { createStorage } from '../base/base.js';
-import { StorageEnum } from '../base/enums.js';
-import type { BaseStorage } from '../base/types.js';
+import { createStorage } from '../../base/base.js';
+import { StorageEnum } from '../../base/enums.js';
+import type { BaseStorage } from '../../base/types.js';
 
 export type AuthIdentityProviderStorage = { active: boolean; tabId?: number | null } | null;
 

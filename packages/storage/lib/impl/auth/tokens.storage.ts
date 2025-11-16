@@ -1,6 +1,6 @@
-import { createStorage } from '../base/base.js';
-import { StorageEnum } from '../base/enums.js';
-import type { BaseStorage } from '../base/types.js';
+import { createStorage } from '../../base/base.js';
+import { StorageEnum } from '../../base/enums.js';
+import type { BaseStorage } from '../../base/types.js';
 
 const storage = createStorage<ITokens>('auth-tokens-storage-key', {} as ITokens, {
   storageEnum: StorageEnum.Local,
