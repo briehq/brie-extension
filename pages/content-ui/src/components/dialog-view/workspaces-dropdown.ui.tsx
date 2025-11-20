@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { API_BASE_URL, APP_BASE_URL } from '@extension/env';
+import { t } from '@extension/i18n';
 import { getInitials } from '@extension/shared';
 import { useGetWorkspacesQuery } from '@extension/store';
 import {
@@ -77,7 +78,7 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
         <Button variant="secondary" className="h-[35px] gap-x-2 px-[10px] hover:bg-[#EDECE8]">
           <Avatar className="size-[25px] border-[0.5px] border-slate-400">
             <AvatarImage
-              src={`${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId}`}
+              src={activeWorkspace?.avatarId ? `${API_BASE_URL}/uploads/workspaces/${activeWorkspace?.avatarId}` : ''}
               crossOrigin="anonymous"
             />
             <AvatarFallback>
@@ -92,7 +93,7 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-[250px]">
-        <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('workspaces')}</DropdownMenuLabel>
 
         <DropdownMenuRadioGroup
           value={activeWorkspaceId}
@@ -109,7 +110,10 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
                 'text-muted-foreground': activeWorkspaceId !== workspace.id,
               })}>
               <Avatar className="hover:bg-primary h-8 w-8">
-                <AvatarImage src={`${API_BASE_URL}/uploads/workspaces/${workspace.avatarId}`} crossOrigin="anonymous" />
+                <AvatarImage
+                  src={workspace.avatarId ? `${API_BASE_URL}/uploads/workspaces/${workspace.avatarId}` : ''}
+                  crossOrigin="anonymous"
+                />
                 <AvatarFallback>
                   <span className="text-xs font-medium text-[rgba(39,36,29,0.4)]">{getInitials(workspace.name)}</span>
                 </AvatarFallback>
@@ -127,7 +131,7 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
             <Icon name="PlusIcon" className="h-3.5 w-3.5" />
           </div>
 
-          <span>Create Workspace</span>
+          <span>{t('createWorkspace')}</span>
           {/* <DropdownMenuShortcut>⇧⌘W</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>

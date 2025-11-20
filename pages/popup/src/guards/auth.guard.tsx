@@ -1,16 +1,20 @@
 import type { PropsWithChildren } from 'react';
 
-import { AuthMethod, useStorage } from '@extension/shared';
-import { authTokensStorage } from '@extension/storage';
+import { AuthMethod } from '@extension/shared';
 import { useUser } from '@extension/store';
 
-import { AuthView } from '../components/ui';
+import { AuthView, Skeleton } from '../components/ui';
 
 export const AuthGuard: React.FC<PropsWithChildren> = ({ children }) => {
-  const tokens = useStorage(authTokensStorage);
-  const user = useUser();
+  const { fields, isLoading, isFetching, isUninitialized } = useUser();
 
-  if (!tokens?.accessToken || user?.fields?.authMethod === AuthMethod.GUEST) return <AuthView />;
+  if (isUninitialized || isLoading || isFetching) {
+    return <Skeleton />;
+  }
+
+  if (!fields?.id || fields.authMethod === AuthMethod.GUEST) {
+    return <AuthView />;
+  }
 
   return children;
 };

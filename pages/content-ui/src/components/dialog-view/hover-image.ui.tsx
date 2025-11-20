@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 
+import { t } from '@extension/i18n';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 type HoverImageProps = {
@@ -50,7 +51,7 @@ export const HoverImage: FC<HoverImageProps> = ({
           <div className="absolute left-2 top-2 flex size-3 items-center justify-center rounded-full bg-yellow-300/70" />
         </TooltipTrigger>
         <TooltipContent side="top" align="center">
-          Edited
+          {t('edited')}
         </TooltipContent>
       </Tooltip>
     )}
@@ -59,7 +60,7 @@ export const HoverImage: FC<HoverImageProps> = ({
       <Button
         size="icon"
         variant="destructive"
-        aria-label="Delete screenshot"
+        aria-label={t('deleteScreenshot')}
         onClick={e => {
           e.stopPropagation();
           onDelete();

@@ -99,8 +99,13 @@ const createOverlay = () => {
     left: '0',
     width: '100vw',
     height: '100vh',
-    zIndex: '9999999',
+    zIndex: '9999999999',
     cursor: 'crosshair',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
+    pointerEvents: 'auto',
   });
   overlay.id = 'screenshot-overlay';
   document.body.appendChild(overlay);
@@ -113,7 +118,7 @@ const createSelectionBox = () => {
     position: 'absolute',
     backgroundColor: 'rgba(252, 229, 25, 0.3)',
     pointerEvents: 'none',
-    zIndex: '10000000',
+    zIndex: '10000000000',
     border: '1px solid rgba(252, 229, 25, 0.7)',
   });
   selectionBox.id = 'selection-box';
@@ -132,7 +137,7 @@ const createDimensionLabel = () => {
     padding: '5px 10px',
     borderRadius: '4px',
     pointerEvents: 'none',
-    zIndex: '10000000',
+    zIndex: '10000000000',
   });
   dimensionLabel.id = 'dimension-label';
   document.body.appendChild(dimensionLabel);
@@ -152,7 +157,7 @@ const showLoadingMessage = () => {
     padding: '10px 25px',
     borderRadius: '8px',
     fontSize: '16px',
-    zIndex: '10000000',
+    zIndex: '10000000000',
     whiteSpace: 'nowrap',
   });
   loadingMessage.textContent = 'Preparing Screenshot...';
@@ -371,7 +376,7 @@ const showInstructions = () => {
     borderRadius: '5px',
     fontSize: '12px',
     fontWeight: '600',
-    zIndex: '10000000',
+    zIndex: '10000000000',
   });
   message.textContent = t('selectArea');
   document.body.appendChild(message);

@@ -1,5 +1,5 @@
 import { safeStructuredClone } from '@extension/shared';
-import { annotationHistoryStorage, annotationsRedoStorage } from '@extension/storage';
+import { annotationsHistoryStorage, annotationsRedoStorage } from '@extension/storage';
 
 import type { SaveOptions, ShapeSnapshot } from '@src/models';
 
@@ -8,19 +8,19 @@ export const saveHistory = async (
   snapshot: ShapeSnapshot,
   { clearRedo = true, max = 100 }: SaveOptions = {},
 ) => {
-  const annotations = await annotationHistoryStorage.getAnnotations(id);
+  const annotations = await annotationsHistoryStorage.getAnnotations(id);
   const history = annotations?.objects ?? [];
 
   history.push({ objects: safeStructuredClone(snapshot.objects) });
 
   if (history.length > max) history.shift();
 
-  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  await annotationsHistoryStorage.setAnnotations(id, { objects: history });
   if (clearRedo) await annotationsRedoStorage.deleteAnnotations(id);
 };
 
 export const undoAnnotation = async (id: string) => {
-  const annotations = await annotationHistoryStorage.getAnnotations(id);
+  const annotations = await annotationsHistoryStorage.getAnnotations(id);
   const history = annotations?.objects ?? [];
 
   if (!history.length) return null;
@@ -33,7 +33,7 @@ export const undoAnnotation = async (id: string) => {
 
   const prevState = history.length ? history[history.length - 1] : { objects: [] };
 
-  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  await annotationsHistoryStorage.setAnnotations(id, { objects: history });
   await annotationsRedoStorage.setAnnotations(id, { objects: redoStack });
 
   return prevState ? { prevState, fromHistory: true } : null;
@@ -44,13 +44,13 @@ export const redoAnnotation = async (id: string) => {
   const redoStack = annotations?.objects ?? [];
   if (!redoStack.length) return null;
 
-  const historyAnnotations = await annotationHistoryStorage.getAnnotations(id);
+  const historyAnnotations = await annotationsHistoryStorage.getAnnotations(id);
   const history = historyAnnotations?.objects ?? [];
 
   const restoredState = redoStack.pop()!;
   history.push(restoredState);
 
-  await annotationHistoryStorage.setAnnotations(id, { objects: history });
+  await annotationsHistoryStorage.setAnnotations(id, { objects: history });
   await annotationsRedoStorage.setAnnotations(id, { objects: redoStack });
 
   return { restoredState, fromHistory: true };

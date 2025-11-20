@@ -1,6 +1,6 @@
 {
   "name": "brie-extension",
-  "version": "0.5.4",
+  "version": "0.5.27",
   "description": "report bugs 10x faster",
   "license": "Apache-2.0",
   "contributors": [
@@ -58,6 +58,7 @@
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
+    "@types/webextension-polyfill": "^0.12.0",
     "@eslint/compat": "^1.2.5",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.20.0",

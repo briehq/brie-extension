@@ -222,8 +222,8 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               name="description"
               rules={{
                 maxLength: {
-                  message: 'Keep it short and sweet, 10 - 1000 characters max!',
-                  value: 1000,
+                  message: 'Keep it short and sweet, 10 - 512 characters max!',
+                  value: 512,
                 },
               }}
               render={({ field }) => {

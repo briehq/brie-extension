@@ -5,21 +5,21 @@
  *
  * @param timeout  How long to wait (ms) before giving up. Default 60 s.
  */
-import browser from 'webextension-polyfill';
+import { runtime } from 'webextension-polyfill';
 
 export const waitForUri = (timeout = 60_000): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      browser.runtime.onMessage.removeListener(listener);
+      runtime.onMessage.removeListener(listener);
       reject(new Error('Auth identity timed out'));
     }, timeout);
 
-    const listener = (url: string) => {
+    const listener: any = (url: string) => {
       clearTimeout(timer);
-      browser.runtime.onMessage.removeListener(listener);
+      runtime.onMessage.removeListener(listener);
       resolve(url);
     };
 
-    browser.runtime.onMessage.addListener(listener);
+    runtime.onMessage.addListener(listener);
   });
 };

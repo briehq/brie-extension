@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import {
-  annotationHistoryStorage,
+  annotationsHistoryStorage,
   annotationsRedoStorage,
   annotationsStorage,
   captureStateStorage,
@@ -260,7 +260,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     await Promise.all([
       annotationsStorage.deleteAnnotations(screenshot.id!),
       annotationsRedoStorage.deleteAnnotations(screenshot.id!),
-      annotationHistoryStorage.deleteAnnotations(screenshot.id!),
+      annotationsHistoryStorage.deleteAnnotations(screenshot.id!),
     ]);
   }, [screenshot?.id]);
 
@@ -702,7 +702,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     const clearAnnotations = () => {
       annotationsStorage.clearAll();
       annotationsRedoStorage.clearAll();
-      annotationHistoryStorage.clearAll();
+      annotationsHistoryStorage.clearAll();
     };
 
     const handlePageHide = (e: PageTransitionEvent) => {

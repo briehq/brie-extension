@@ -91,6 +91,7 @@ export const interceptXHR = (): void => {
               status: this.status,
               responseHeaders,
               responseBody,
+              domain: 'xhr',
             };
 
             safePostMessage('ADD_RECORD', {
@@ -107,6 +108,7 @@ export const interceptXHR = (): void => {
                 source: 'client',
                 method: 'error',
                 timestamp: Date.now(),
+                domain: 'xhr',
                 args: [
                   `[XHR] ${this._requestDetails.method} ${this._requestDetails.url} responded with status ${this.status}`,
                   payload,

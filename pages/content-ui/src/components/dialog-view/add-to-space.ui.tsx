@@ -52,7 +52,7 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-[250px]">
-        <DropdownMenuLabel>Add to space</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('addToSpace')}</DropdownMenuLabel>
 
         {!isLoading && spaces?.total > 0 ? (
           <DropdownMenuRadioGroup
@@ -74,7 +74,7 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
             ))}
           </DropdownMenuRadioGroup>
         ) : (
-          <span className="text-muted-foreground mx-2 my-4 text-xs">No Spaces Yet</span>
+          <span className="text-muted-foreground mx-2 my-4 text-xs">{t('noSpaces')}</span>
         )}
 
         <DropdownMenuSeparator />
@@ -84,7 +84,7 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
             <Icon name="PlusIcon" className="h-3.5 w-3.5" />
           </div>
 
-          <span>Create Space</span>
+          <span>{t('createSpace')}</span>
           {/* <DropdownMenuShortcut>⇧⌘W</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
