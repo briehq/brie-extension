@@ -1,11 +1,11 @@
-import type { ContextMenus, Menus, Tabs } from 'webextension-polyfill';
+import type { Menus, Tabs } from 'webextension-polyfill';
 import { contextMenus } from 'webextension-polyfill';
 
 import { t } from '@extension/i18n';
+import { sendMessageToTab } from '@extension/shared';
 import { captureStateStorage, captureTabStorage } from '@extension/storage';
 
 import type { CaptureType } from '@src/types';
-import { sendMessageToTab } from '@src/utils';
 
 export const addContextMenus = async (): Promise<void> => {
   try {
