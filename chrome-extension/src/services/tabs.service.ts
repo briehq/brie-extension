@@ -1,6 +1,7 @@
 import type { Tabs } from 'webextension-polyfill';
 
 import {
+  annotationsHistoryStorage,
   annotationsRedoStorage,
   annotationsStorage,
   captureStateStorage,
@@ -61,6 +62,7 @@ export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdat
         captureTabStorage.setCaptureTabId(null),
         annotationsStorage.clearAll(),
         annotationsRedoStorage.clearAll(),
+        annotationsHistoryStorage.clearAll(),
       ]);
     }
   } catch (err) {

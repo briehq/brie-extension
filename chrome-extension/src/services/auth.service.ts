@@ -1,9 +1,10 @@
 import { identity } from 'webextension-polyfill';
 
 import { APP_BASE_URL } from '@extension/env';
+import { sendMessageToActiveTab } from '@extension/shared';
 
 import type { BgResponse } from '@src/types';
-import { persistTokens, sendMessageToActiveTab } from '@src/utils';
+import { persistTokens } from '@src/utils';
 
 export const handleOnAuthStart = async (): Promise<BgResponse> => {
   try {
