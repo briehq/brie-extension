@@ -85,7 +85,8 @@ export const CaptureScreenshotGroup: React.FC = () => {
       }
     };
 
-    void initializeState();
+    initializeState();
+
     window.addEventListener('keydown', handleEscapeKey);
 
     return () => window.removeEventListener('keydown', handleEscapeKey);
