@@ -15,7 +15,7 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
     switch (message.type) {
       case 'EXIT_CAPTURE': {
         await Promise.all([
-          captureStateStorage.setCaptureState('idle'),
+          captureStateStorage.setScreenshotState('idle'),
           captureTabStorage.setCaptureTabId(null),
           annotationsStorage.clearAll(),
           annotationsRedoStorage.clearAll(),

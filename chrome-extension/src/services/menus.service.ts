@@ -50,7 +50,7 @@ export const handleOnContextMenuClicked = async (info: Menus.OnClickData, tab?: 
     const type = info.menuItemId as CaptureType;
     if (!['area', 'full-page', 'viewport'].includes(type)) return;
 
-    await captureStateStorage.setCaptureState('capturing');
+    await captureStateStorage.setScreenshotState('capturing');
     await captureTabStorage.setCaptureTabId(tabId);
 
     await sendMessageToTab(tabId, { action: 'START_SCREENSHOT', payload: { type } });
