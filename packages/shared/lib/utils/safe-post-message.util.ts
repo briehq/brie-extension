@@ -7,11 +7,11 @@ import { safeStructuredClone } from './structured-clone.util.js';
  * @param type - A string identifier for the message (e.g. 'ADD_RECORD')
  * @param payload - The data to send. Should be plain and serializable.
  */
-export const safePostMessage = (type: string, payload: Record<string, any>) => {
+export const safePostMessage = (type: string, payload: Record<string, any> = {}) => {
   try {
     const message = {
       type,
-      payload: safeStructuredClone(payload),
+      ...(payload ? { payload: safeStructuredClone(payload) } : {}),
     };
 
     window.postMessage(message, '*');

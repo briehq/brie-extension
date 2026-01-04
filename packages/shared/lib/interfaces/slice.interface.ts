@@ -90,6 +90,7 @@ export interface InitSliceResponse {
     attachments?: AssetOption[];
     records: AssetOption;
     annotations?: AssetOption;
+    video?: AssetOption;
   };
 }
 

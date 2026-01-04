@@ -9,3 +9,5 @@ export * from './query-filter.interface.js';
 export type * from './auth.interfaces.js';
 export type * from './screenshot.interface.js';
 export type * from './ai.interfaces.js';
+export type * from './recording.interface.js';
+export type * from './records.interface.js';
