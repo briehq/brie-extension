@@ -2,32 +2,63 @@ import { createStorage } from '../../base/base.js';
 import { StorageEnum } from '../../base/enums.js';
 import type { BaseStorage } from '../../base/types.js';
 
-type CaptureState = 'idle' | 'capturing' | 'unsaved';
+type CaptureStateValue = ScreenshotCaptureState | VideoRecordingState;
 
 type CaptureStateStorage = BaseStorage<CaptureState> & {
-  setCaptureState: (state: CaptureState) => Promise<void>;
-  getCaptureState: () => Promise<CaptureState>;
+  setModeAndState: (mode: CaptureMode, state: CaptureStateValue) => Promise<void>;
+  getModeAndState: () => Promise<CaptureState>;
+
+  setScreenshotState: (state: ScreenshotCaptureState) => Promise<void>;
+  setVideoState: (state: VideoRecordingState) => Promise<void>;
+
+  getMode: () => Promise<CaptureMode>;
+  getState: () => Promise<CaptureStateValue>;
 };
 
-const storage = createStorage<CaptureState>(
-  'capture-state-storage-key',
-  'idle', // Default state is idle
-  {
-    storageEnum: StorageEnum.Local,
-    liveUpdate: true,
-  },
-);
+const defaultState: CaptureState = {
+  mode: 'screenshot',
+  state: 'idle',
+};
+
+const storage = createStorage<CaptureState>('capture-state-storage-key', defaultState, {
+  storageEnum: StorageEnum.Local,
+  liveUpdate: true,
+});
 
 export const captureStateStorage: CaptureStateStorage = {
   ...storage,
 
-  // Set the capture state (idle, capturing, unsaved)
-  setCaptureState: async (state: CaptureState) => {
-    await storage.set(state);
+  setModeAndState: async (mode: CaptureMode, state: CaptureStateValue) => {
+    await storage.set({ mode, state });
   },
 
-  // Get the current capture state
-  getCaptureState: async () => {
+  getModeAndState: async () => {
     return await storage.get();
   },
+
+  setScreenshotState: async (state: ScreenshotCaptureState) => {
+    await storage.set({ mode: 'screenshot', state });
+  },
+
+  setVideoState: async (state: VideoRecordingState) => {
+    await storage.set({ mode: 'video', state });
+  },
+
+  getMode: async () => {
+    const current = await storage.get();
+    return current.mode;
+  },
+
+  getState: async () => {
+    const current = await storage.get();
+    return current.state;
+  },
 };
+
+export type CaptureMode = 'screenshot' | 'video';
+export type ScreenshotCaptureState = 'idle' | 'capturing' | 'unsaved';
+export type VideoRecordingState = 'idle' | 'preparing' | 'recording' | 'paused' | 'error';
+export interface CaptureState {
+  mode: CaptureMode;
+  state: CaptureStateValue;
+}
