@@ -1,4 +1,4 @@
-import type { ExtensionContext } from '@src/interfaces/events';
+import type { ExtensionContext } from '@src/interfaces';
 
 import packageJsonFile from '../../../../package.json';
 

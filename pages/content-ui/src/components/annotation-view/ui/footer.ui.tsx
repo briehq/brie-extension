@@ -1,14 +1,19 @@
+import { formatDurationMs } from '@extension/shared';
 import { Button, cn, Icon } from '@extension/ui';
+
+import type { TrimRange } from '@src/models';
 
 interface FooterProps {
   className?: string;
   tool?: string;
   zoom?: number;
   file?: string;
+  duration?: number;
+  trim?: TrimRange;
   onZoomChange?: (newZoom: number) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZoomChange }) => {
+export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, duration, trim, onZoomChange }) => {
   const incZoom = () => onZoomChange?.((zoom ?? 100) + 10);
   const decZoom = () => onZoomChange?.((zoom ?? 100) - 10);
 
@@ -46,6 +51,22 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, onZ
             </Button> */}
           </div>
         </div>
+
+        {duration !== null && (
+          <div className="flex items-center gap-x-1">
+            <span className="text-muted-foreground">Duration:</span>
+            <span className="text-primary tabular-nums">{formatDurationMs(duration * 1000)}</span>
+          </div>
+        )}
+
+        {!!trim && (
+          <div className="flex items-center gap-x-1">
+            <span className="text-muted-foreground">Trim:</span>
+            <span className="text-primary tabular-nums">
+              {formatDurationMs(trim.start * 1000)} - {formatDurationMs(trim.end * 1000)}
+            </span>
+          </div>
+        )}
 
         {file && (
           <div className="flex items-center gap-x-1">

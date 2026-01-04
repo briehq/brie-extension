@@ -28,6 +28,8 @@
     "@extension/storage": "workspace:*",
     "@extension/store": "workspace:*",
     "@extension/ui": "workspace:*",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "fabric": "6.6.7",
     "file-saver": "^2.0.5",
     "moment": "^2.30.1",

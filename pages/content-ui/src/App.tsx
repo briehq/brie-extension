@@ -16,13 +16,16 @@ import { store, ReduxProvider } from '@extension/store';
 import { cn, toast, ToasterProvider, TooltipProvider } from '@extension/ui';
 
 import { MinimizedPreview } from './components/dialog-view';
+import { RecordingOverlay } from './components/recording-view';
 import Content from './content';
+import type { VideoSource } from './models';
 
 export default function App() {
   const captureNotifyState = useStorage(captureNotifyStorage);
-  const captureState = useStorage(captureStateStorage);
+  const { state: captureState, mode } = useStorage(captureStateStorage);
   const theme = useStorage(themeStorage);
   const [minimized, setMinimized] = useState(true);
+  const [video, setVideo] = useState<VideoSource>();
   const [screenshots, setScreenshots] = useState<Screenshot[]>();
   const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
   const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
@@ -32,6 +35,7 @@ export default function App() {
     window.addEventListener('CLOSE_MODAL', handleOnClose);
     window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
     window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
+    window.addEventListener('VIDEO_CAPTURED', handleOnVideoCaptured);
 
     return () => {
       window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
@@ -40,6 +44,12 @@ export default function App() {
       window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
     };
   }, []);
+
+  const handleOnVideoCaptured = (event: any) => {
+    setVideo(event.detail);
+
+    setMinimized(false);
+  };
 
   const handleOnAuthStatus = async (event: any) => {
     if (event.detail.ok) toast.success(t('authCompleted'));
@@ -66,16 +76,17 @@ export default function App() {
   const handleOnDisplay = async (event: any) => {
     setScreenshots(event.detail.screenshots);
     setMinimized(false);
-    await captureStateStorage.setCaptureState('unsaved');
+    await captureStateStorage.setScreenshotState('unsaved');
   };
 
   const handleOnClose = useCallback(async () => {
     setIdempotencyKey(uuid());
     setScreenshots([]);
+    setVideo({} as any);
     setMinimized(false);
 
     await Promise.all([
-      captureStateStorage.setCaptureState('idle'),
+      captureStateStorage.setScreenshotState('idle'),
       annotationsStorage.clearAll(),
       annotationsRedoStorage.clearAll(),
       annotationsHistoryStorage.clearAll(),
@@ -109,29 +120,33 @@ export default function App() {
   );
 
   const handleOnMinimize = async () => {
-    await captureStateStorage.setCaptureState('capturing');
+    await captureStateStorage.setScreenshotState('capturing');
     setMinimized(true);
   };
+
   const handleOnEdit = async () => {
     setActiveScreenshotId(screenshots?.[0]?.id);
 
     setMinimized(false);
 
-    await captureStateStorage.setCaptureState('unsaved');
+    await captureStateStorage.setScreenshotState('unsaved');
   };
 
-  const capturing = captureState === 'capturing';
+  const capturing = captureState === 'capturing' && mode === 'screenshot';
+  const isDialogOpen = !!screenshots?.length || !!video?.blob;
 
   return (
     <div id="brie-content" className={cn('light', 'relative')}>
-      <ToasterProvider theme={theme} />
+      <TooltipProvider>
+        <RecordingOverlay />
 
-      <ReduxProvider store={store}>
-        <TooltipProvider>
-          {!!screenshots?.length &&
+        <ToasterProvider theme={theme} />
+
+        <ReduxProvider store={store}>
+          {isDialogOpen &&
             (minimized ? (
               <MinimizedPreview
-                screenshots={screenshots}
+                screenshots={screenshots || []}
                 onEdit={handleOnEdit}
                 unsaved={capturing}
                 onDiscard={handleOnClose}
@@ -140,15 +155,16 @@ export default function App() {
               <Content
                 idempotencyKey={idempotencyKey}
                 activeScreenshotId={activeScreenshotId || ''}
-                screenshots={screenshots}
+                screenshots={screenshots || []}
+                video={video}
                 onClose={handleOnClose}
                 onMinimize={handleOnMinimize}
                 onDeleteScreenshot={handleOnDeleteScreenshot}
                 onSelectScreenshot={handleOnSelectScreenshot}
               />
             ))}
-        </TooltipProvider>
-      </ReduxProvider>
+        </ReduxProvider>
+      </TooltipProvider>
     </div>
   );
 }

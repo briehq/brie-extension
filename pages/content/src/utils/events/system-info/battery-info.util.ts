@@ -1,4 +1,4 @@
-import type { BatteryInfo } from '@src/interfaces/events';
+import type { BatteryInfo } from '@src/interfaces';
 
 /** Retrieves battery charging status and level. */
 export const getBatteryInfo = async (): Promise<BatteryInfo> => {

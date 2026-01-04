@@ -1,4 +1,4 @@
-import type { NetworkInfo } from '@src/interfaces/events';
+import type { NetworkInfo } from '@src/interfaces';
 
 /** Returns connection quality details if available. */
 export const getNetworkInfo = (): NetworkInfo | null => {

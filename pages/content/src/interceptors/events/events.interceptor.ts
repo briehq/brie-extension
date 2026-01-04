@@ -1,5 +1,5 @@
 import { AppEventType } from '@src/constants';
-import type { ResizeHandler } from '@src/interfaces/events';
+import type { ResizeHandler } from '@src/interfaces';
 import {
   buildChord,
   closestForm,

@@ -6,7 +6,7 @@ export { safeOpenNewTab } from './open-new-tab.util';
 export { toArray } from './to-array.util';
 export { limitConcurrency } from './limit-concurrency.util';
 export { fileNameOr } from './file-name.util';
-export { buildRecordsFile } from './build-records-file.util';
+export { buildRecordsFile, getNormalizedRecords } from './build-records-file.util';
 export { buildScreenshotFile } from './build-screenshot-file.util';
 export { buildScreenshotsFiles } from './build-screenshot-files.util';
 export { validateMaxFileSize } from './file-size.util';

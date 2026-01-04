@@ -11,7 +11,7 @@ interface EditorHeaderProps {
 
   /** window controls */
   onClose: () => void;
-  onMinimize: () => void;
+  onMinimize?: () => void;
   onToggleFullScreen: () => void;
   isFullScreen?: boolean;
 
@@ -92,21 +92,23 @@ export const Header: React.FC<EditorHeaderProps> = ({
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={onMinimize}
-                className="dark:bg-primary size-[35px] dark:text-white"
-                aria-label="Minimize">
-                <Icon name="MinusIcon" size={16} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="center">
-              Minimize
-            </TooltipContent>
-          </Tooltip>
+          {onMinimize && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={onMinimize}
+                  className="dark:bg-primary size-[35px] dark:text-white"
+                  aria-label="Minimize">
+                  <Icon name="MinusIcon" size={16} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="center">
+                Minimize
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>

@@ -1,3 +1,4 @@
+import { saveAs } from 'file-saver';
 import { useEffect, useMemo, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
@@ -14,9 +15,11 @@ import { Dialog, DialogContent, Progress, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
+import { VideoPlayer } from './components/recording-view/ui/video-player.ui';
 import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
-import type { ActiveElement, HandleOnCreateArgs } from './models';
+import type { ActiveElement, HandleOnCreateArgs, TrimRange, VideoFormat, VideoSource } from './models';
+import { exportRecordingVideo } from './utils/recording';
 import {
   buildRecordsFile,
   buildScreenshotsFiles,
@@ -35,6 +38,7 @@ interface ContentProps {
   idempotencyKey: string;
   activeScreenshotId: string;
   screenshots: Screenshot[];
+  video?: VideoSource;
   onClose: () => void;
   onMinimize: () => void;
   onDeleteScreenshot: (id: string) => void;
@@ -47,6 +51,7 @@ const Content = ({
   idempotencyKey,
   screenshots = [],
   activeScreenshotId,
+  video,
   onClose,
   onMinimize,
   onDeleteScreenshot,
@@ -62,19 +67,25 @@ const Content = ({
   const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
   const [showRightSection, setShowRightSection] = useState(true);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [isVideoExporting, setIsVideoExporting] = useState(false);
   const [title, setTitle] = useState('Untitled report');
   const [workspaceId, setWorkspaceId] = useState('');
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
   const [createType, setCreateType] = useState('');
+  const [trimDuration, setTrimDuration] = useState(0);
+  const [trim, setTrim] = useState<TrimRange>();
 
   const isLg = canvasWidth >= LG_BREAKPOINT;
   const isMd = canvasWidth >= MD_BREAKPOINT;
   const isSm = canvasWidth <= SM_BREAKPOINT;
   const hasShots = screenshots.length > 1;
-  const isDialogOpen = !!screenshots.length;
+  const isDialogOpen = !!screenshots.length || !!video?.blob;
 
   const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
   const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
+
+  const leftVisible = activeScreenshotId && isLeftSidebarOpen;
+  const rightVisible = isRightSidebarOpen;
 
   const activeScreenshot = useMemo(
     () => screenshots.find(s => s.id === activeScreenshotId),
@@ -93,6 +104,26 @@ const Content = ({
 
     return showRightSection;
   }, [showRightSection, user?.authMethod]);
+
+  const gridCols = useMemo(() => {
+    if (!activeScreenshotId) {
+      return rightVisible ? 'grid-cols-[minmax(0,1fr)_260px]' : 'grid-cols-[minmax(0,1fr)]';
+    }
+
+    if (leftVisible && rightVisible) {
+      return 'grid-cols-[260px_minmax(0,1fr)_260px]';
+    }
+
+    if (leftVisible) {
+      return 'grid-cols-[260px_minmax(0,1fr)_1px]';
+    }
+
+    if (rightVisible) {
+      return 'grid-cols-[1px_minmax(0,1fr)_260px]';
+    }
+
+    return 'grid-cols-[minmax(0,1fr)]';
+  }, [activeScreenshotId, leftVisible, rightVisible]);
 
   useEffect(() => {
     setLeftSidebarOpen(hasShots && isLg);
@@ -132,7 +163,14 @@ const Content = ({
 
     setIsCreateLoading(true);
 
+    let recordedVideoFile = undefined;
     try {
+      if (video?.blob) {
+        const { file } = await prepareRecordedVideo({ video, format: 'webm', trim });
+
+        recordedVideoFile = file;
+      }
+
       const attachedFiles = toArray<File>(attachments);
       const [recordsFile, screenshotsFiles] = await Promise.all([
         buildRecordsFile(),
@@ -175,6 +213,7 @@ const Content = ({
         screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
         attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
         includeRecords: true,
+        includeVideo: true,
         includeAnnotations: false,
       } as InitSliceRequest;
 
@@ -187,6 +226,7 @@ const Content = ({
           screenshots: screenshotsFiles,
           attachments: attachedFiles,
           records: recordsFile,
+          video: recordedVideoFile,
         },
       });
 
@@ -225,6 +265,49 @@ const Content = ({
     else setRightSidebarOpen(open);
   };
 
+  const prepareRecordedVideo = async ({
+    video,
+    format,
+    trim,
+  }: {
+    video: VideoSource;
+    format: VideoFormat;
+    trim: TrimRange;
+  }) => {
+    if (!video?.blob || !video?.durationMs || !trim) {
+      throw new Error('Video duration is not ready yet.');
+    }
+
+    return await exportRecordingVideo(video.blob, video.durationMs, {
+      format,
+      trim,
+    });
+  };
+
+  const handleOnVideoExport = async (format: VideoFormat = 'webm', trim: TrimRange) => {
+    if (!video?.blob) return;
+
+    setIsVideoExporting(true);
+    const url = window.location.hostname.replace(/[:.]/g, '-');
+    const now = Date.now();
+    const outName = `${url}-${now}.${format}`;
+
+    try {
+      const { blob } = await prepareRecordedVideo({ video, format, trim });
+
+      saveAs(blob, outName);
+    } catch (e) {
+      console.log('[ffmpeg] Failed to export video');
+    } finally {
+      setIsVideoExporting(false);
+    }
+  };
+
+  const handleOnTrimUpdate = (trim: TrimRange, trimDuration: number) => {
+    setTrim(trim);
+    setTrimDuration(trimDuration);
+  };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={onClose} modal>
       <DialogContent
@@ -247,7 +330,7 @@ const Content = ({
         <Header
           id={activeScreenshotId || ''}
           onClose={onClose}
-          onMinimize={onMinimize}
+          onMinimize={activeScreenshotId ? onMinimize : undefined}
           onToggleFullScreen={() => setFullScreen(flag => !flag)}
           isFullScreen={isFullScreen}
           title={title}
@@ -270,31 +353,33 @@ const Content = ({
 
         <main
           ref={canvasRef}
-          className={cn(
-            'grid h-full min-h-0 gap-4 p-4 transition-[grid-template-columns] duration-300',
-            isLeftSidebarOpen && isRightSidebarOpen
-              ? 'grid-cols-[260px_minmax(0,1fr)_260px]'
-              : isLeftSidebarOpen
-                ? 'grid-cols-[260px_minmax(0,1fr)_1px]'
-                : isRightSidebarOpen
-                  ? 'grid-cols-[1px_minmax(0,1fr)_260px]'
-                  : 'grid-cols-[1px_minmax(0,1fr)_1px]',
-          )}>
-          <LeftSidebar
-            activeScreenshotId={activeScreenshotId!}
-            canvasHeight={canvasHeight}
-            open={isLeftSidebarOpen}
-            onOpenChange={handleOnOpenSidebar('left')}
-            screenshots={screenshots}
-            onDelete={onDeleteScreenshot}
-            onSelect={onSelectScreenshot}
-          />
+          className={cn('grid h-full min-h-0 gap-4 p-4 transition-[grid-template-columns] duration-300', gridCols)}>
+          {activeScreenshotId && (
+            <LeftSidebar
+              activeScreenshotId={activeScreenshotId}
+              canvasHeight={canvasHeight}
+              open={isLeftSidebarOpen}
+              onOpenChange={handleOnOpenSidebar('left')}
+              screenshots={screenshots}
+              onDelete={onDeleteScreenshot}
+              onSelect={onSelectScreenshot}
+            />
+          )}
 
-          <CanvasContainerView
-            key={activeScreenshotId ?? 'empty'}
-            screenshot={activeScreenshot!}
-            onElement={handleOnElement}
-          />
+          {video?.blob ? (
+            <VideoPlayer
+              video={video}
+              disableExport={isVideoExporting}
+              onExport={handleOnVideoExport}
+              onTrimUpdate={handleOnTrimUpdate}
+            />
+          ) : (
+            <CanvasContainerView
+              key={activeScreenshotId ?? 'empty'}
+              screenshot={activeScreenshot!}
+              onElement={handleOnElement}
+            />
+          )}
 
           <RightSidebar
             defaultOpen
@@ -307,9 +392,11 @@ const Content = ({
         </main>
 
         <Footer
-          tool={activeElement?.name}
+          tool={video?.blob ? 'Trim' : activeElement?.name}
           zoom={100}
           file={title}
+          duration={trimDuration}
+          trim={trim}
           onZoomChange={zoom => {
             /**
              * @todo

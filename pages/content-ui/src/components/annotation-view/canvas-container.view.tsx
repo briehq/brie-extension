@@ -50,7 +50,7 @@ interface CanvasContainerProps {
 }
 
 const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
-  const captureState = useStorage(captureStateStorage);
+  const { state: captureState } = useStorage(captureStateStorage);
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
 

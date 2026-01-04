@@ -225,5 +225,44 @@
   },
   "fileTooLarge": {
     "message": "“$1” is too large. Choose a file under 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "Recording is in progress on this tab."
+  },
+  "pauseRecording": {
+    "message": "Pause"
+  },
+  "stopRecording": {
+    "message": "Stop"
+  },
+  "recordingPaused": {
+    "message": "Recording is paused on this tab."
+  },
+  "resumeRecording": {
+    "message": "Resume"
+  },
+  "preparingRecording": {
+    "message": "Preparing to record this tab…"
+  },
+  "videoRecordingDescription": {
+    "message": "Capture a video of this tab with a draggable toolbar and annotations."
+  },
+  "startRecording": {
+    "message": "Record this tab"
+  },
+  "tab": {
+    "message": "Current Tab"
+  },
+  "desktop": {
+    "message": "Desktop"
+  },
+  "micPermissionDenied": {
+    "message": "Microphone blocked in browser"
+  },
+  "enableMic": {
+    "message": "Enable microphone"
+  },
+  "disableMic": {
+    "message": "Mute microphone"
   }
 }

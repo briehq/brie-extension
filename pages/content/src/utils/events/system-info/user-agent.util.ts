@@ -1,4 +1,4 @@
-import type { BrowserInfo, OSInfo } from '@src/interfaces/events';
+import type { BrowserInfo, OSInfo } from '@src/interfaces';
 
 import { isDevToolsOpen, isLikelyEmulated } from './detect-emulation.util';
 import { getBrowserZoomLevel } from './zoom-level.util';

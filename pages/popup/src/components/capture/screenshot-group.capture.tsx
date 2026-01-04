@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
 import { AuthMethod, getActiveTab, sendMessageToTab, updateTab, reloadTab, useStorage } from '@extension/shared';
-import type { BaseStorage } from '@extension/storage';
+import type { BaseStorage, CaptureState, ScreenshotCaptureState } from '@extension/storage';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
 import { useUser } from '@extension/store';
 import { Button } from '@extension/ui';
@@ -21,7 +21,6 @@ import {
 
 type CaptureType = 'area' | 'viewport' | 'full-page';
 type CaptureMode = 'single' | 'multiple';
-type CaptureState = 'idle' | 'capturing' | 'unsaved';
 
 interface ActiveTab {
   id: number | null;
@@ -34,7 +33,7 @@ export const CaptureScreenshotGroup: React.FC = () => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const user = useUser();
 
-  const captureState = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
+  const { state: captureState } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
   const captureTabId = useStorage<BaseStorage<number | null>>(captureTabStorage);
   const pendingReloadTabIds = useStorage<BaseStorage<number[]>>(pendingReloadTabsStorage) ?? [];
 
@@ -42,23 +41,20 @@ export const CaptureScreenshotGroup: React.FC = () => {
   const [currentActiveTab, setCurrentActiveTab] = useState<number | undefined>();
   const [mode] = useState<CaptureMode>(DEFAULT_MODE);
 
-  const isCaptureActive = useMemo(
-    () => ['capturing', 'unsaved'].includes(captureState as CaptureState),
-    [captureState],
-  );
+  const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(captureState), [captureState]);
 
   const isCaptureScreenshotDisabled = useMemo(() => {
     const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
 
-    // Dev / non-guest: no limit
+    // Dev or non-guest: no limit
     if (IS_DEV || !isGuest) return false;
 
-    // Guests: block after daily limit, but only if we know the active tab
+    // Guests: block after daily limit
     return isGuest && totalSlicesCreatedToday > 10 && !!activeTab.id;
   }, [totalSlicesCreatedToday, user?.fields?.authMethod, activeTab.id]);
 
-  const updateCaptureState = useCallback(async (state: CaptureState) => {
-    await captureStateStorage.setCaptureState(state);
+  const updateCaptureState = useCallback(async (state: ScreenshotCaptureState) => {
+    await captureStateStorage.setScreenshotState(state);
   }, []);
 
   const updateActiveTab = useCallback(async (tabId: number | null) => {
@@ -68,7 +64,6 @@ export const CaptureScreenshotGroup: React.FC = () => {
 
   useEffect(() => {
     const initializeState = async () => {
-      // Sync capture tab ID
       setActiveTab(prev => ({ ...prev, id: captureTabId ?? null }));
 
       const tab = await getActiveTab();
@@ -123,12 +118,10 @@ export const CaptureScreenshotGroup: React.FC = () => {
 
   const handleOnDiscard = useCallback(
     async (activeTabId: number | null) => {
-      if (!activeTabId) return;
-
       await updateCaptureState('idle');
       await updateActiveTab(null);
 
-      sendMessageToTab(activeTabId, { action: 'CLOSE_MODAL' });
+      if (activeTabId) sendMessageToTab(activeTabId, { action: 'CLOSE_MODAL' });
     },
     [updateActiveTab, updateCaptureState],
   );

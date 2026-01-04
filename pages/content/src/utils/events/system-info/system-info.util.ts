@@ -1,4 +1,4 @@
-import type { SystemInfo } from '@src/interfaces/events';
+import type { SystemInfo } from '@src/interfaces';
 
 import { getBatteryInfo } from './battery-info.util';
 import { getExtensionContext } from './extension-context.util';

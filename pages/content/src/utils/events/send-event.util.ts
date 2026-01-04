@@ -1,7 +1,7 @@
 import { safePostMessage } from '@extension/shared';
 
 import { AppEventType } from '@src/constants';
-import type { TrackedEvent } from '@src/interfaces/events';
+import type { TrackedEvent } from '@src/interfaces';
 
 import { buildDescriptor } from './build-descriptor.util';
 import { pickDefined } from './pick-defined.util';

@@ -1,4 +1,4 @@
-import type { MemoryInfo } from '@src/interfaces/events';
+import type { MemoryInfo } from '@src/interfaces';
 
 /** Returns memory usage info (if supported). */
 export const getMemoryInfo = (): MemoryInfo | null => {

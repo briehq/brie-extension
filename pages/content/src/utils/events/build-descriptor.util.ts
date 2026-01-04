@@ -1,4 +1,4 @@
-import type { ElementDescriptor } from '@src/interfaces/events';
+import type { ElementDescriptor } from '@src/interfaces';
 
 import { getAssociatedLabelText } from './get-associated-label.util';
 import { pickAttr } from './pick-attr.util';
