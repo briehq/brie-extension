@@ -278,6 +278,14 @@ const handleOnMetadata = async () => {
 };
 
 /**
+ * Collects video metadata and emits a video metadata event.
+ * @returns Promise that resolves after metadata is sent.
+ */
+const handleOnVideoMetadata = async (event: any) => {
+  sendEvent(AppEventType.VideoMetadata, null, pickDefined(event.detail));
+};
+
+/**
  * Creates a visibilitychange handler that tracks hidden/visible and time away of opened tabs.
  * @returns A function to call on each visibilitychange.
  */
@@ -398,6 +406,9 @@ export const interceptEvents = () => {
 
   // Custom metadata event
   window.addEventListener('metadata', handleOnMetadata as EventListener, { capture: true });
+
+  // Custom video metadata event
+  window.addEventListener('VIDEO:METADATA', handleOnVideoMetadata as EventListener, { capture: true });
 
   // History
   historyApiInterceptor();

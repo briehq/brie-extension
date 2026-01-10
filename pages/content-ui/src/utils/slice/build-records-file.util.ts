@@ -16,6 +16,7 @@ const estimateJsonSizeBytes = (data: unknown): number => {
 
 export const getNormalizedRecords = async () => {
   const records: any = await getRecords().catch(() => []);
+
   return Array.isArray(records) ? records.flat() : [];
 };
 

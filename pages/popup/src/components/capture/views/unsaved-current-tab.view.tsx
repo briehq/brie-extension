@@ -12,7 +12,7 @@ export const UnsavedCurrentTabView: React.FC<UnsavedCurrentTabProps> = ({ onDisc
       className="hover:bg-accent flex w-full items-center justify-center rounded-md border border-transparent py-4"
       onClick={onDiscard}>
       <Icon name="X" size={20} strokeWidth={1.5} className="mr-1" />
-      <span>{t('exitCaptureScreenshot')}</span>
+      <span>{t('exitEditMode')}</span>
     </button>
   </div>
 );

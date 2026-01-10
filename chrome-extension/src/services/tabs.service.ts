@@ -19,7 +19,6 @@ export const handleOnTabRemoved = async (tabId: number) => {
     }
 
     await deleteRecords(tabId);
-    console.log('handleOnTabRemoved: records deleted ');
 
     const captureTabId = await captureTabStorage.getCaptureTabId();
     if (tabId === captureTabId) {
@@ -56,7 +55,7 @@ export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdat
       await captureStateStorage.setScreenshotState('idle');
     }
 
-    if (tabId === capturedTabId) {
+    if (tabId === capturedTabId && state !== 'capturing') {
       await Promise.all([
         captureStateStorage.setScreenshotState('idle'),
         captureTabStorage.setCaptureTabId(null),

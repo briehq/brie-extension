@@ -45,10 +45,7 @@ export const addRuntimeEventListeners = () => {
        * Video capture flow
        */
       case 'START_RECORDING':
-        console.log('helo recording case');
-
         beginPreparingRecording(payload);
-
         startCaptureNow();
         break;
 

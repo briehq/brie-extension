@@ -21,7 +21,7 @@ const sumSegmentsMs = (segments: Segment[]) => segments.reduce((acc, s) => acc +
 const getRecordedMs = () => {
   const recordedMs = sumSegmentsMs(segments);
 
-  if (recordingState === 'recording' && activeSegmentStartAt != null) {
+  if (recordingState === 'capturing' && activeSegmentStartAt != null) {
     return recordedMs + Math.max(0, Date.now() - activeSegmentStartAt);
   }
 
@@ -94,7 +94,9 @@ const pickMimeType = (): MediaRecorderOptions => {
 };
 
 export const beginPreparingRecording = (options?: CaptureOptions) => {
-  if (!['idle', 'error'].includes(recordingState)) return;
+  if (!['idle', 'error', 'unsaved'].includes(recordingState)) return;
+
+  window.dispatchEvent(new CustomEvent('metadata'));
 
   pendingOptions = options ?? { audio: false };
   chunks = [];
@@ -119,6 +121,16 @@ export const startCaptureNow = async () => {
     const constraints = buildDisplayMediaConstraints(options);
     const mimeOptions = pickMimeType();
 
+    window.dispatchEvent(
+      new CustomEvent('VIDEO:METADATA', {
+        detail: {
+          action: 'START',
+          startedAt: segments[0]?.startAt ?? Date.now(),
+          options: options ?? {},
+        },
+      }),
+    );
+
     stream = await navigator.mediaDevices.getDisplayMedia(constraints);
     audioTrack = stream.getAudioTracks()[0] ?? null;
 
@@ -140,24 +152,28 @@ export const startCaptureNow = async () => {
         const durationMs = getRecordedMs();
 
         const blob = new Blob(chunks, { type: recorder?.mimeType ?? 'video/webm' });
-
+        const videoMetadata = { durationMs, startedAt, endedAt, segments: segments.slice(), options: options ?? {} };
         const event = new CustomEvent('VIDEO_CAPTURED', {
           detail: {
             blob,
-            durationMs,
-            startedAt,
-            endedAt,
-            segments: segments.slice(),
-            options: options ?? {},
+            ...videoMetadata,
           },
         });
 
         window.dispatchEvent(event);
+        window.dispatchEvent(
+          new CustomEvent('VIDEO:METADATA', {
+            detail: {
+              action: 'STOP',
+              ...videoMetadata,
+            },
+          }),
+        );
       } catch (err) {
         console.error('[brie | Recording] Blob creation failed:', err);
       } finally {
         cleanup();
-        setState('idle');
+        setState('unsaved');
       }
     };
 
@@ -172,7 +188,7 @@ export const startCaptureNow = async () => {
     openSegment();
 
     recorder.start(1000);
-    setState('recording');
+    setState('capturing');
 
     startAutoStop();
   } catch (e) {
@@ -183,12 +199,21 @@ export const startCaptureNow = async () => {
 };
 
 export const pauseRecording = () => {
-  if (recordingState !== 'recording' || !recorder) return;
+  if (recordingState !== 'capturing' || !recorder) return;
 
   try {
     recorder.pause();
     closeSegment();
     setState('paused');
+
+    window.dispatchEvent(
+      new CustomEvent('VIDEO:METADATA', {
+        detail: {
+          action: 'PAUSE',
+        },
+      }),
+    );
+
     /**
      * @todo
      * keep autoStop interval running or not? pause shouldn't consume budget anyway,
@@ -207,7 +232,15 @@ export const resumeRecording = () => {
   try {
     recorder.resume();
     openSegment();
-    setState('recording');
+    setState('capturing');
+
+    window.dispatchEvent(
+      new CustomEvent('VIDEO:METADATA', {
+        detail: {
+          action: 'RESUME',
+        },
+      }),
+    );
   } catch (e) {
     console.error('[brie | Recording] resume failed:', e);
     cleanup();
@@ -216,6 +249,7 @@ export const resumeRecording = () => {
 };
 
 export const stopRecording = () => {
+  setState('unsaved');
   if (!recorder) return;
 
   try {

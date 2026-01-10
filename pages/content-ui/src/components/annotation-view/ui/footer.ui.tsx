@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, dur
           </div>
         </div>
 
-        {duration !== null && (
+        {!!trim && duration !== undefined && (
           <div className="flex items-center gap-x-1">
             <span className="text-muted-foreground">Duration:</span>
             <span className="text-primary tabular-nums">{formatDurationMs(duration * 1000)}</span>

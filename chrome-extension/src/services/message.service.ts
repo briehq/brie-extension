@@ -40,6 +40,7 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
       case 'DELETE_RECORDS': {
         const tabId = sender.tab?.id;
+
         if (typeof tabId === 'number') await deleteRecords(tabId);
 
         return { status: 'success' };
@@ -47,6 +48,10 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
       case 'AUTH_START':
         return handleOnAuthStart();
+
+      case 'GET_ACTIVE_TAB': {
+        return { tab: sender.tab };
+      }
     }
 
     if ('action' in message) {

@@ -44,10 +44,10 @@
     "message": "Area"
   },
   "viewport": {
-    "message": "Visible Window"
+    "message": "Window"
   },
   "fullPage": {
-    "message": "Full Page"
+    "message": "Fullscreen"
   },
   "navigateToWebsite": {
     "message": "Navigate to any website to start capturing bugs."
@@ -264,5 +264,8 @@
   },
   "disableMic": {
     "message": "Mute microphone"
+  },
+  "exitEditMode": {
+    "message": "Exit Edit Mode"
   }
 }

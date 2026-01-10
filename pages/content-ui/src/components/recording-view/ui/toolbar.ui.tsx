@@ -24,7 +24,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
 
   const micEnabled = mic.enabled ?? false;
   const isPaused = state === 'paused';
-  const isVisible = ['paused', 'recording'].includes(state);
+  const isVisible = ['paused', 'capturing'].includes(state);
   const isHighlighter = tool === 'highlighter';
   const isBlur = tool === 'blur';
 

@@ -5,14 +5,16 @@ import { useEffect } from 'react';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { themeStorage } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
+import { Separator } from '@extension/ui';
 
-import { Skeleton } from './components/ui';
+import { BetaNotifier, Header, Skeleton } from './components/ui';
 import { AuthGuard } from './guards';
 import { PopupContent } from './popup-content';
 import { ApiHealthProvider } from './providers';
 
 const Popup = () => {
-  const theme = useStorage(themeStorage);
+  // const theme = useStorage(themeStorage);
+  const theme = 'light';
 
   useEffect(() => {
     document.body.classList.add(theme);
@@ -25,7 +27,13 @@ const Popup = () => {
       <ApiHealthProvider>
         <ReduxProvider store={store}>
           <AuthGuard>
-            <PopupContent />
+            <div className="flex flex-col gap-y-4">
+              <Header />
+              <Separator className="bg-border/60" />
+              <PopupContent />
+              <Separator className="bg-border/60" />
+              <BetaNotifier />
+            </div>
           </AuthGuard>
         </ReduxProvider>
       </ApiHealthProvider>

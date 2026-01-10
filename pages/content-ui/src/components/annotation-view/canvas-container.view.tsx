@@ -281,7 +281,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const shapeData = object.toJSON();
       const shape = { ...shapeData, objectId, shapeType, ...(blurRadius ? { blurRadius } : {}) };
 
-      let { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
+      let { objects = [] } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
         objects: [],
         meta: {} as BackgroundFitMeta,
       };

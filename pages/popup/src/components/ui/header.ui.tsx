@@ -10,47 +10,49 @@ export const Header = () => {
   const plan = userOrg.fields?.plan?.name;
 
   return (
-    <header className="mb-4 flex items-center justify-between">
+    <header className="flex items-center justify-between">
       <button
         onClick={() => navigateTo('https://go.brie.io/lp?utm_source=extension')}
         className="flex items-center gap-x-2">
-        <img src={logo} className="size-10" alt="Brie" />
+        <img src={logo} className="size-8" alt="Brie" />
 
         {IS_DEV && (
-          <h1 className="-ml-1.5 text-xl font-semibold text-[#df8801]">
+          <h1 className="-ml-1.5 text-lg font-semibold text-[#df8801]">
             {NAME} - {plan}
           </h1>
         )}
       </button>
       <div className="flex items-center">
         <Button
-          title="View the source code on GitHub"
-          type="button"
-          size="icon"
-          variant="ghost"
-          className="hover:bg-slate-50 dark:hover:text-black"
-          onClick={() => navigateTo('https://go.brie.io/github?utm_source=extension')}>
-          <Icon name="GitHubLogoIcon" size={20} className="size-4" />
-        </Button>
-
-        <Button
           title="Join the Discord community"
           type="button"
           size="icon"
           variant="ghost"
-          className="hover:bg-slate-50 dark:hover:text-black"
+          className="size-8 hover:bg-slate-50 dark:hover:text-black"
           onClick={() => navigateTo('https://go.brie.io/discord?utm_source=extension')}>
-          <Icon name="DiscordLogoIcon" size={20} className="size-4" />
+          <Icon name="DiscordLogoIcon" size={20} className="hover:text-primary size-4 text-[#88827f]" />
         </Button>
+
+        <Button
+          title="View the source code on GitHub"
+          type="button"
+          size="icon"
+          variant="ghost"
+          className="size-8 hover:bg-slate-50 dark:hover:text-black"
+          onClick={() => navigateTo('https://go.brie.io/github?utm_source=extension')}>
+          <Icon name="GitHubLogoIcon" size={20} className="hover:text-primary size-4 text-[#88827f]" />
+        </Button>
+
+        <div className="bg-border/60 mx-2 h-[20px] w-[1px]" />
 
         <Button
           title="Visit the Brie homepage"
           type="button"
           size="icon"
           variant="ghost"
-          className="hover:bg-slate-50 dark:hover:text-black"
+          className="size-8 hover:bg-slate-50 dark:hover:text-black"
           onClick={() => navigateTo('https://go.brie.io/lp?utm_source=extension')}>
-          <Icon name="House" size={20} className="size-4" strokeWidth={1.5} />
+          <Icon name="House" size={20} className="hover:text-primary size-4 text-[#88827f]" strokeWidth={1.5} />
         </Button>
       </div>
     </header>

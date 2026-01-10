@@ -54,8 +54,8 @@ export const useRecordingTimer = (state: VideoRecordingState, options?: UseRecor
     const prev = prevStateRef.current;
     prevStateRef.current = state;
 
-    if (state === 'recording') {
-      if (prev !== 'recording') {
+    if (state === 'capturing') {
+      if (prev !== 'capturing') {
         segmentStartedAtRef.current = nowMs();
       }
 

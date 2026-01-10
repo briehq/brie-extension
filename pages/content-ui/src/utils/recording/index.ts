@@ -6,3 +6,4 @@ export { getRectCoords } from './get-rect-coords.util';
 export { createBlurTarget } from './create-blur.util';
 export { trimBlobWithFfmpeg } from './video-trim.util';
 export { exportRecordingVideo } from './export-video.util';
+export { requestActiveTab } from './get-active-tab.util';

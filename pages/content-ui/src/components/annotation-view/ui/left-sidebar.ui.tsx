@@ -54,7 +54,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   return (
     <>
-      {!isOpen && screenshots.length && (
+      {!isOpen && !!screenshots.length && (
         <Button
           size="icon"
           variant="secondary"

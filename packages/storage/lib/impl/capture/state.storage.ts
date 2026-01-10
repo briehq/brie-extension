@@ -56,8 +56,8 @@ export const captureStateStorage: CaptureStateStorage = {
 };
 
 export type CaptureMode = 'screenshot' | 'video';
-export type ScreenshotCaptureState = 'idle' | 'capturing' | 'unsaved';
-export type VideoRecordingState = 'idle' | 'preparing' | 'recording' | 'paused' | 'error';
+export type ScreenshotCaptureState = 'idle' | 'preparing' | 'capturing' | 'error' | 'unsaved';
+export type VideoRecordingState = 'idle' | 'preparing' | 'capturing' | 'paused' | 'error' | 'unsaved';
 export interface CaptureState {
   mode: CaptureMode;
   state: CaptureStateValue;

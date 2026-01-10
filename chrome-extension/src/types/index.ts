@@ -15,7 +15,8 @@ export type BgResponse =
   | { records: unknown[] }
   | { success: boolean; dataUrl?: string; message?: string }
   | { ok: boolean; error?: string }
-  | { isAvailable: boolean };
+  | { isAvailable: boolean }
+  | { tab: any };
 
 export type RecordType = 'events' | 'network' | 'console' | 'cookies';
 export interface Record {

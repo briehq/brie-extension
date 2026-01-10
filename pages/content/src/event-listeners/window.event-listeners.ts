@@ -49,6 +49,9 @@ export const addWindowEventListeners = () => {
         break;
       }
 
+      /**
+       * Video capture flow
+       */
       case 'PAUSE_RECORDING':
         pauseRecording();
         break;

@@ -45,9 +45,8 @@ export default function App() {
     };
   }, []);
 
-  const handleOnVideoCaptured = (event: any) => {
+  const handleOnVideoCaptured = async (event: any) => {
     setVideo(event.detail);
-
     setMinimized(false);
   };
 
