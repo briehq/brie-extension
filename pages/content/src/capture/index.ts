@@ -7,3 +7,4 @@ export {
   toggleMic,
   startCaptureNow,
 } from './video.capture';
+export { applyEnabledState, startRewindCapture, stopRewindCapture } from './rewind.capture';

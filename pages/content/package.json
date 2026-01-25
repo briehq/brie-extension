@@ -20,10 +20,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@extension/env": "workspace:*",
+    "@extension/i18n": "workspace:*",
     "@extension/shared": "workspace:*",
     "@extension/storage": "workspace:*",
-    "@extension/env": "workspace:*",
-    "@extension/i18n": "workspace:*"
+    "rrweb": "2.0.0-alpha.4"
   },
   "devDependencies": {
     "@extension/hmr": "workspace:*",

@@ -7,12 +7,15 @@ export type {
   CaptureState,
   RecordingSettings,
   RecordingSettingsStorage,
+  RewindSettings,
+  RewindSettingsStorage,
 } from './capture/index.js';
 export {
   captureNotifyStorage,
   captureStateStorage,
   captureTabStorage,
   recordingSettingsStorage,
+  rewindSettingsStorage,
 } from './capture/index.js';
 export type { AuthTokensStorage, AuthIdentityProviderStorage } from './auth/index.js';
 export type { CaptureNotifyStorage } from './capture/index.js';

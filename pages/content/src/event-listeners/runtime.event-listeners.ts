@@ -1,3 +1,5 @@
+import { runtime } from 'webextension-polyfill';
+
 import {
   cleanup,
   startScreenshotCapture,
@@ -7,10 +9,12 @@ import {
   toggleMic,
   beginPreparingRecording,
   startCaptureNow,
+  applyEnabledState,
 } from '@src/capture';
+import { restartRewindCapture } from '@src/capture/rewind.capture';
 
 export const addRuntimeEventListeners = () => {
-  chrome.runtime.onMessage.addListener((rawMessage: any) => {
+  runtime.onMessage.addListener((rawMessage: any) => {
     if (!rawMessage || typeof rawMessage !== 'object') return;
 
     const { action, payload } = rawMessage;
@@ -63,6 +67,24 @@ export const addRuntimeEventListeners = () => {
 
       case 'TOGGLE_MIC':
         toggleMic();
+        break;
+
+      /**
+       * Rewind capture flow
+       */
+      case 'REWIND/SET_ENABLED':
+        console.log('runtime: SET_ENABLED', rawMessage);
+
+        applyEnabledState(rawMessage.payload.enabled);
+        break;
+
+      case 'REWIND/OPEN_REVIEW':
+        window.dispatchEvent(new CustomEvent('REWIND/OPEN_REVIEW', { detail: payload }));
+        window.dispatchEvent(new CustomEvent('metadata'));
+        break;
+
+      case 'REWIND/RESTART_CAPTURE':
+        restartRewindCapture();
         break;
 
       default:
