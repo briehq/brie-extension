@@ -9,3 +9,4 @@ export { capitalizeWord } from './capitalize.util.js';
 export { getInitials } from './get-initials.util.js';
 export { isExtensionElement } from './is-extension-element.util.js';
 export { formatDurationMs } from './format-duration.util.js';
+export { isRewindBlocked } from './rewind/index.js';

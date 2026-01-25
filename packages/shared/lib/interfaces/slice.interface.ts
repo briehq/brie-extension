@@ -73,6 +73,7 @@ export interface InitSliceRequest {
   screenshots: Option[];
   attachments: Option[];
   includeRecords: boolean;
+  includeEvents?: boolean;
   includeAnnotations?: boolean;
 }
 
@@ -91,6 +92,7 @@ export interface InitSliceResponse {
     records: AssetOption;
     annotations?: AssetOption;
     video?: AssetOption;
+    events?: AssetOption;
   };
 }
 

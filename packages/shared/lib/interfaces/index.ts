@@ -12,3 +12,4 @@ export type * from './ai.interfaces.js';
 export type * from './recording.interface.js';
 export type * from './records.interface.js';
 export type * from './popup.interfaces.js';
+export type * from './rewind/index.js';

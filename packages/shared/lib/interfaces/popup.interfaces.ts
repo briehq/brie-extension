@@ -6,7 +6,6 @@ export interface PopupState {
   recordArea: RecordArea;
   micEnabled: boolean;
   systemAudioEnabled: boolean;
-  rewindEnabled: boolean;
   captureOpen: boolean;
   recordOpen: boolean;
 }
