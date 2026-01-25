@@ -1,3 +1,4 @@
+import type { Tabs } from 'webextension-polyfill';
 import { runtime } from 'webextension-polyfill';
 
 /**
@@ -5,9 +6,9 @@ import { runtime } from 'webextension-polyfill';
  *
  * @returns Promise<Tabs> - The tab details.
  */
-export const requestActiveTab = async (): Promise<any> => {
+export const requestActiveTab = async (): Promise<Tabs.Tab> => {
   try {
-    const response: { tab: any } = await runtime.sendMessage({ type: 'GET_ACTIVE_TAB' });
+    const response: { tab: Tabs.Tab } = await runtime.sendMessage({ type: 'GET_ACTIVE_TAB' });
 
     return response?.tab ?? {};
   } catch (err: any) {

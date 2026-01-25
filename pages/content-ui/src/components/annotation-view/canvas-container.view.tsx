@@ -2,7 +2,7 @@ import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useStorage } from '@extension/shared';
+import { sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import {
   annotationsHistoryStorage,
@@ -19,6 +19,7 @@ import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes, BackgroundFitMeta, ShapeSnapshot } from '@src/models';
 import { base64ToFile } from '@src/utils';
 import { applyBrush, DRAWING_TOOLS, getShadowHostElement } from '@src/utils/annotation/canvas.util';
+import { requestActiveTab } from '@src/utils/recording';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
 import { Toolbar } from './ui';
@@ -699,10 +700,18 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       e.returnValue = '';
     };
 
-    const clearAnnotations = () => {
-      annotationsStorage.clearAll();
-      annotationsRedoStorage.clearAll();
-      annotationsHistoryStorage.clearAll();
+    const clearAnnotations = async () => {
+      const tab = await requestActiveTab();
+
+      if (tab?.id) {
+        await sendRuntimeMessageToActiveTab({ type: 'REWIND/RESET_TAB', tabId: tab.id });
+      }
+
+      await Promise.all([
+        annotationsStorage.clearAll(),
+        annotationsRedoStorage.clearAll(),
+        annotationsHistoryStorage.clearAll(),
+      ]);
     };
 
     const handlePageHide = (e: PageTransitionEvent) => {

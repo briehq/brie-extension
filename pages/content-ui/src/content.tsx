@@ -1,3 +1,4 @@
+import type { eventWithTime } from '@rrweb/types';
 import { saveAs } from 'file-saver';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -16,10 +17,11 @@ import { Dialog, DialogContent, Progress, cn, toast } from '@extension/ui';
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
 import { VideoPlayer } from './components/recording-view/ui/video-player.ui';
+import { RewindPlayer } from './components/recording-view/views/rewind-player.view';
 import { defaultNavElement } from './constants';
 import { useElementSize, useViewportSize } from './hooks';
 import type { ActiveElement, HandleOnCreateArgs, TrimRange, VideoFormat, VideoSource } from './models';
-import { exportRecordingVideo } from './utils/recording';
+import { buildEventsFile, exportRecordingVideo } from './utils/recording';
 import {
   buildRecordsFile,
   buildScreenshotsFiles,
@@ -39,6 +41,7 @@ interface ContentProps {
   activeScreenshotId: string;
   screenshots: Screenshot[];
   video?: VideoSource;
+  events?: eventWithTime[] | null;
   onClose: () => void;
   onMinimize: () => void;
   onDeleteScreenshot: (id: string) => void;
@@ -52,6 +55,7 @@ const Content = ({
   screenshots = [],
   activeScreenshotId,
   video,
+  events,
   onClose,
   onMinimize,
   onDeleteScreenshot,
@@ -74,12 +78,13 @@ const Content = ({
   const [createType, setCreateType] = useState('');
   const [trimDuration, setTrimDuration] = useState(0);
   const [trim, setTrim] = useState<TrimRange>();
+  const [rrwebTrim, setRrwebTrim] = useState<TrimRange | null>(null);
 
   const isLg = canvasWidth >= LG_BREAKPOINT;
   const isMd = canvasWidth >= MD_BREAKPOINT;
   const isSm = canvasWidth <= SM_BREAKPOINT;
   const hasShots = screenshots.length > 1;
-  const isDialogOpen = !!screenshots.length || !!video?.blob;
+  const isDialogOpen = !!screenshots.length || !!video?.blob || !!events?.length;
 
   const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(() => hasShots && isLg);
   const [isRightSidebarOpen, setRightSidebarOpen] = useState(() => isMd || isLg);
@@ -163,12 +168,19 @@ const Content = ({
 
     setIsCreateLoading(true);
 
-    let recordedVideoFile = undefined;
+    let recordedVideoFile = null;
+    let eventsFile = null;
     try {
-      if (video?.blob) {
+      if (video?.blob && trim) {
         const { file } = await prepareRecordedVideo({ video, format: 'webm', trim });
 
         recordedVideoFile = file;
+      }
+
+      if (events?.length) {
+        eventsFile = await buildEventsFile({ events, range: rrwebTrim });
+
+        console.log('events---', events);
       }
 
       const attachedFiles = toArray<File>(attachments);
@@ -213,7 +225,8 @@ const Content = ({
         screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
         attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
         includeRecords: true,
-        includeVideo: true,
+        includeVideo: !!recordedVideoFile,
+        includeEvents: !!eventsFile,
         includeAnnotations: false,
       } as InitSliceRequest;
 
@@ -226,7 +239,8 @@ const Content = ({
           screenshots: screenshotsFiles,
           attachments: attachedFiles,
           records: recordsFile,
-          video: recordedVideoFile,
+          ...(recordedVideoFile ? { video: recordedVideoFile } : {}),
+          ...(eventsFile ? { events: eventsFile } : {}),
         },
       });
 
@@ -373,6 +387,8 @@ const Content = ({
               onExport={handleOnVideoExport}
               onTrimUpdate={handleOnTrimUpdate}
             />
+          ) : events?.length ? (
+            <RewindPlayer events={events} enableTrim onTrimChange={setRrwebTrim} />
           ) : (
             <CanvasContainerView
               key={activeScreenshotId ?? 'empty'}

@@ -1,9 +1,10 @@
+import type { eventWithTime } from '@rrweb/types';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
-import { useStorage } from '@extension/shared';
+import { sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -19,6 +20,7 @@ import { MinimizedPreview } from './components/dialog-view';
 import { RecordingOverlay } from './components/recording-view';
 import Content from './content';
 import type { VideoSource } from './models';
+import { requestActiveTab } from './utils/recording';
 
 export default function App() {
   const captureNotifyState = useStorage(captureNotifyStorage);
@@ -29,6 +31,7 @@ export default function App() {
   const [screenshots, setScreenshots] = useState<Screenshot[]>();
   const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
   const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
+  const [events, setEvents] = useState<unknown[] | null>(null);
 
   useEffect(() => {
     window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
@@ -36,12 +39,14 @@ export default function App() {
     window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
     window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
     window.addEventListener('VIDEO_CAPTURED', handleOnVideoCaptured);
+    window.addEventListener('REWIND/OPEN_REVIEW', handleOnRewindCapture);
 
     return () => {
       window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
       window.removeEventListener('CLOSE_MODAL', handleOnClose);
       window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
       window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
+      window.removeEventListener('REWIND/OPEN_REVIEW', handleOnRewindCapture);
     };
   }, []);
 
@@ -78,11 +83,51 @@ export default function App() {
     await captureStateStorage.setScreenshotState('unsaved');
   };
 
+  const handleOnRewindCapture = useCallback(async () => {
+    try {
+      const tab = await requestActiveTab();
+      const tabId = tab?.id;
+
+      if (!tabId) {
+        toast.error('No active tab for rewind');
+        return;
+      }
+
+      const rewindResponse: {
+        events: eventWithTime[];
+        fromTimestamp: number;
+        missingAnchor: boolean;
+        toTimestamp: number;
+      } = await sendRuntimeMessageToActiveTab({
+        type: 'REWIND/GET_FROZEN',
+        tabId,
+      });
+
+      if (rewindResponse?.missingAnchor) {
+        toast.message('No user actions captured yet');
+        return;
+      }
+
+      setEvents(rewindResponse?.events || []);
+      setMinimized(false);
+    } catch (error) {
+      console.error('[brie|rewind] failed to load frozen snapshot', error);
+      toast.error('Failed to load rewind replay');
+    }
+  }, []);
+
   const handleOnClose = useCallback(async () => {
     setIdempotencyKey(uuid());
     setScreenshots([]);
     setVideo({} as any);
+    setEvents([]);
     setMinimized(false);
+
+    const tab = await requestActiveTab();
+
+    if (tab?.id) {
+      await sendRuntimeMessageToActiveTab({ type: 'REWIND/RESET_TAB', tabId: tab.id });
+    }
 
     await Promise.all([
       captureStateStorage.setScreenshotState('idle'),
@@ -132,7 +177,7 @@ export default function App() {
   };
 
   const capturing = captureState === 'capturing' && mode === 'screenshot';
-  const isDialogOpen = !!screenshots?.length || !!video?.blob;
+  const isDialogOpen = !!screenshots?.length || !!video?.blob || !!events?.length;
 
   return (
     <div id="brie-content" className={cn('light', 'relative')}>
@@ -156,6 +201,7 @@ export default function App() {
                 activeScreenshotId={activeScreenshotId || ''}
                 screenshots={screenshots || []}
                 video={video}
+                events={events}
                 onClose={handleOnClose}
                 onMinimize={handleOnMinimize}
                 onDeleteScreenshot={handleOnDeleteScreenshot}

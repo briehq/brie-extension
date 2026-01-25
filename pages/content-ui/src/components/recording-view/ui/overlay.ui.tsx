@@ -20,13 +20,10 @@ export const RecordingOverlay: FC = () => {
   const [showToolbar, setShowToolbar] = useState(false);
 
   useEffect(() => {
-    console.log(' state, mode ', { state, mode });
-
     if (state !== 'capturing' && mode !== 'video') return;
 
     const requestTab = async () => {
       const tab = await requestActiveTab();
-      console.log('captureTabId === tab.id', captureTabId, tab.id, captureTabId === tab.id);
 
       setShowToolbar(!!(tab?.id && captureTabId === tab.id));
     };
