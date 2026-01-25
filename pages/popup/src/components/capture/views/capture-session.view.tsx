@@ -24,7 +24,7 @@ export const CaptureSessionView = ({ enabled, onToggle, onOpen }: CaptureSession
             })}>
             <div className="flex w-full items-center gap-2 text-[14px] font-medium">
               <Icon name="RewindIcon" className="h-4 w-4" />
-              <span>Rewind</span>
+              <span>Replay</span>
             </div>
 
             <div className="text-muted-foreground text-xs font-normal">Capture last minute before bug happened</div>

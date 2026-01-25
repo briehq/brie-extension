@@ -1,21 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getActiveTab, sendMessageToActiveTab, sendMessageToTab, useStorage } from '@extension/shared';
+import {
+  getActiveTab,
+  isRewindBlocked,
+  sendMessageToActiveTab,
+  sendMessageToTab,
+  sendRuntimeMessageToActiveTab,
+  useStorage,
+} from '@extension/shared';
 import type { CaptureMode, PopupState, RecordArea } from '@extension/shared';
-import type { BaseStorage, CaptureState, ScreenshotCaptureState } from '@extension/storage';
-import { captureStateStorage, captureTabStorage } from '@extension/storage';
+import type { BaseStorage, CaptureState, RewindSettings, ScreenshotCaptureState } from '@extension/storage';
+import { captureStateStorage, captureTabStorage, rewindSettingsStorage } from '@extension/storage';
 
 import { CaptureScreenshotView, CaptureSessionView, RecordVideoView } from './views';
 
 export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (id: number | null) => void }) => {
   const { state, mode } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
+  const { rewind } = useStorage<BaseStorage<RewindSettings>>(rewindSettingsStorage);
 
   const [popupState, setPopupState] = useState<PopupState>({
     captureMode: 'area',
     recordArea: 'tab',
     micEnabled: false,
     systemAudioEnabled: false,
-    rewindEnabled: false,
     captureOpen: false,
     recordOpen: false,
   });
@@ -85,16 +92,52 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     });
   }, []);
 
-  const onRecord = useCallback(() => {}, []);
-  const onOpenRewind = useCallback(() => {}, []);
-  const setRewindEnabled = useCallback((next: boolean) => {
+  const onShareRewind = async () => {
+    try {
+      const tab = await getActiveTab();
+
+      if (!tab?.id || !tab?.url) {
+        // TODO: show toast "No active tab"
+        return;
+      }
+
+      const { id: tabId, url: tabUrl } = tab;
+
+      if (tabUrl.startsWith('chrome://') || tabUrl.startsWith('edge://') || tabUrl.startsWith('about:')) return {};
+
+      const { blocked: rewindBlocked, reason } = isRewindBlocked(tabUrl);
+
+      if (rewindBlocked) {
+        // TODO: show toast "Rewind disabled on this site (reason: ...)"
+        return;
+      }
+
+      const freeze = await sendRuntimeMessageToActiveTab({ type: 'REWIND/FREEZE', tabId });
+      if (freeze?.status !== 'success') {
+        // TODO: show toast with freezeResp.error
+        return;
+      }
+
+      sendMessageToTab(tabId, { action: 'REWIND/OPEN_REVIEW', payload: { tabId } });
+      window.close();
+    } catch (err) {
+      console.error('[brie|popup] onOpenRewind failed', err);
+      // TODO: show toast "Failed to open rewind"
+    }
+  };
+
+  const onRewindEnabled = useCallback(async (next: boolean) => {
     setPopupState(s => ({ ...s, rewindEnabled: next }));
+
+    await rewindSettingsStorage.setRewindEnabled(next);
+
+    await sendMessageToActiveTab('REWIND/SET_ENABLED', { enabled: next });
   }, []);
 
   const sendRecordingCommand = useCallback(
     (type: 'START_RECORDING' | 'STOP_RECORDING' | 'PAUSE_RECORDING' | 'RESUME_RECORDING', captureType?: RecordArea) => {
       sendMessageToActiveTab(type, { captureType });
-      //   window.close();
+      window.close();
     },
     [],
   );
@@ -105,11 +148,11 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
 
     await updateActiveTab(tab.id);
 
-    sendRecordingCommand('START_RECORDING', popupState.recordArea);
+    await sendRecordingCommand('START_RECORDING', popupState.recordArea);
   }, [popupState.recordArea]);
 
-  const handleOnStopVideoRecording = useCallback(() => {
-    sendRecordingCommand('STOP_RECORDING');
+  const handleOnStopVideoRecording = useCallback(async () => {
+    await sendRecordingCommand('STOP_RECORDING');
   }, [sendRecordingCommand]);
 
   return (
@@ -142,7 +185,7 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
         onToggleMic={onToggleMic}
       />
 
-      {/* <CaptureSessionView enabled={popupState.rewindEnabled} onToggle={setRewindEnabled} onOpen={onOpenRewind} /> */}
+      <CaptureSessionView enabled={rewind.enabled} onToggle={onRewindEnabled} onOpen={onShareRewind} />
     </div>
   );
 };

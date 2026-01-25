@@ -57,7 +57,6 @@ export const PopupContent = () => {
   }, [captureTabId]);
 
   const updateCaptureState = useCallback(async (state: ScreenshotCaptureState) => {
-    console.log('POPUP: set screenshot state', state);
     await captureStateStorage.setScreenshotState(state);
   }, []);
 
