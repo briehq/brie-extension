@@ -1,5 +1,6 @@
 import type { Tabs } from 'webextension-polyfill';
 
+import { sendRuntimeMessageToActiveTab } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -9,7 +10,7 @@ import {
   pendingReloadTabsStorage,
 } from '@extension/storage';
 
-import { deleteRecords } from '@src/utils';
+import { deleteRecords, rewindService } from '@src/utils';
 
 export const handleOnTabRemoved = async (tabId: number) => {
   try {
@@ -18,7 +19,7 @@ export const handleOnTabRemoved = async (tabId: number) => {
       await pendingReloadTabsStorage.remove(tabId);
     }
 
-    await deleteRecords(tabId);
+    await Promise.all([deleteRecords(tabId), rewindService.deleteTab(tabId)]);
 
     const captureTabId = await captureTabStorage.getCaptureTabId();
     if (tabId === captureTabId) {
@@ -62,6 +63,7 @@ export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdat
         annotationsStorage.clearAll(),
         annotationsRedoStorage.clearAll(),
         annotationsHistoryStorage.clearAll(),
+        // rewindService.deleteTab(tabId),
       ]);
     }
   } catch (err) {

@@ -4,7 +4,7 @@ import { tabs } from 'webextension-polyfill';
 import { annotationsRedoStorage, annotationsStorage, captureStateStorage, captureTabStorage } from '@extension/storage';
 
 import type { BgResponse } from '@src/types';
-import { addOrMergeRecords, deleteRecords, getRecords } from '@src/utils';
+import { addOrMergeRecords, deleteRecords, getRecords, rewindService } from '@src/utils';
 
 import { handleOnAuthStart } from './auth.service';
 
@@ -51,6 +51,49 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
       case 'GET_ACTIVE_TAB': {
         return { tab: sender.tab };
+      }
+
+      case 'REWIND/EVENT_BATCH': {
+        const events = Array.isArray(message.events) ? (message.events as unknown[]) : [];
+
+        await rewindService.ingestBatch(events, sender);
+        return { status: 'success' };
+      }
+
+      case 'REWIND/FREEZE': {
+        const tabId = message?.tabId;
+
+        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+
+        const frozen = await rewindService.freeze(tabId);
+
+        return { status: 'success', ...frozen };
+      }
+
+      case 'REWIND/GET_FROZEN': {
+        const tabId = sender.tab?.id;
+
+        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+
+        return rewindService.getFrozenOrFreeze(tabId);
+      }
+
+      case 'REWIND/RESET_TAB': {
+        const tabId = message?.tabId;
+
+        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+
+        await rewindService.resetTab(tabId);
+        return { status: 'success' };
+      }
+
+      case 'REWIND/DELETE_TAB': {
+        const tabId = sender.tab?.id;
+
+        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+
+        await rewindService.deleteTab(tabId);
+        return { status: 'success' };
       }
     }
 

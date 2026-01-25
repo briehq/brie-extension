@@ -69,6 +69,7 @@ const manifest = {
         '*.png',
         'content/extend.iife.js',
         'auth-identity.html',
+        'content-ui/rrweb/*',
         'content-ui/ffmpeg/*',
         'content-ui/ffmpeg/*.wasm',
       ],
