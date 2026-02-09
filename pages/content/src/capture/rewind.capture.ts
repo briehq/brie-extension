@@ -156,7 +156,7 @@ export const startRewindCapture = (): void => {
     emit: enqueueEvent,
     maskAllInputs: false,
     recordCanvas: false,
-    inlineStylesheet: false,
+    inlineStylesheet: true,
     collectFonts: true,
     checkoutEveryNms: 30 * 1000,
     sampling: { mousemove: 50, scroll: 150 },

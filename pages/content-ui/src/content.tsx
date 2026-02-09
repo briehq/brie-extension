@@ -19,7 +19,7 @@ import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotati
 import { VideoPlayer } from './components/recording-view/ui/video-player.ui';
 import { RewindPlayer } from './components/recording-view/views/rewind-player.view';
 import { defaultNavElement } from './constants';
-import { useElementSize, useViewportSize } from './hooks';
+import { useElementSize, useErrorEvents, useViewportSize } from './hooks';
 import type { ActiveElement, HandleOnCreateArgs, TrimRange, VideoFormat, VideoSource } from './models';
 import { buildEventsFile, exportRecordingVideo } from './utils/recording';
 import {
@@ -66,6 +66,7 @@ const Content = ({
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [updateSliceState] = useUpdateSliceStateMutation();
+  const { events: errorEvents } = useErrorEvents();
 
   const [progress, setProgress] = useState(0);
   const [isFullScreen, setFullScreen] = useState(viewportWidth < SM_BREAKPOINT);
@@ -388,7 +389,13 @@ const Content = ({
               onTrimUpdate={handleOnTrimUpdate}
             />
           ) : events?.length ? (
-            <RewindPlayer events={events} enableTrim onTrimChange={setRrwebTrim} />
+            <RewindPlayer
+              events={events}
+              errorEvents={errorEvents}
+              onTrimChange={setRrwebTrim}
+              enableTrim
+              showEventsMenu
+            />
           ) : (
             <CanvasContainerView
               key={activeScreenshotId ?? 'empty'}

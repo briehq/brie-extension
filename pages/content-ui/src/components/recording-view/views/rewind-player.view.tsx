@@ -3,19 +3,29 @@ import type { eventWithTime } from '@rrweb/types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import rrwebPlayer from 'rrweb-player';
 
+import type { NetworkRecord, RecordLike } from '@extension/shared';
 import { cn, Button, Icon, Switch, Popover, PopoverContent, PopoverTrigger } from '@extension/ui';
 
 import type { TrimRange } from '@src/models';
+import { getNetworkStatus, severityFromConsole, severityFromHttpStatus } from '@src/utils';
+
+import { EventsDropdown } from '../ui/events-dropdown.ui';
 
 type RewindPlayerProps = {
+  errorEvents?: RecordLike[];
   events: unknown[] | null;
   className?: string;
-
   defaultSkipInactivity?: boolean;
   defaultSpeed?: number;
-
+  showEventsMenu?: boolean;
   enableTrim?: boolean;
   onTrimChange?: (range: TrimRange) => void;
+};
+
+type VisibleEvent = RecordLike & {
+  uuid: string;
+  recordType: string;
+  absTs: number;
 };
 
 type PlayerInstance = any;
@@ -24,6 +34,30 @@ type RrwebEvent = eventWithTime & { type: number; timestamp: number };
 
 const RRWEB_META_EVENT_TYPE = 4;
 const RRWEB_FULL_SNAPSHOT_EVENT_TYPE = 2;
+
+const getRecordAbsTs = (record: RecordLike): number | null => {
+  const anyRec = record as any;
+
+  // pick one that exists in your data; keep this strict
+  const ts =
+    (typeof anyRec.timestamp === 'number' && anyRec.timestamp) ||
+    (typeof anyRec.time === 'number' && anyRec.time) ||
+    (typeof anyRec.ts === 'number' && anyRec.ts) ||
+    null;
+
+  return typeof ts === 'number' && Number.isFinite(ts) ? ts : null;
+};
+
+const getRecordUuid = (record: RecordLike, fallback: string): string => {
+  const anyRec = record as any;
+  const id = anyRec.uuid ?? anyRec.id ?? anyRec._id;
+  return typeof id === 'string' && id.length ? id : fallback;
+};
+
+const getRecordType = (record: RecordLike): string => {
+  const anyRec = record as any;
+  return String(anyRec.recordType ?? anyRec.type ?? 'event');
+};
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -107,10 +141,12 @@ const msFromPointerEvent = (strip: HTMLDivElement, event: PointerEvent, total: n
 
 export const RewindPlayer = ({
   events,
+  errorEvents = [],
   className,
   defaultSkipInactivity = true,
   defaultSpeed = 1,
-  enableTrim = true,
+  enableTrim = false,
+  showEventsMenu = false,
   onTrimChange,
 }: RewindPlayerProps) => {
   const viewportRef = useRef<HTMLDivElement | null>(null);
@@ -149,6 +185,7 @@ export const RewindPlayer = ({
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsBadgeCount = 0;
+  const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
 
   // Refs to avoid stale closure bugs during pointermove
   const boundsRef = useRef<{ first: number; last: number } | null>(null);
@@ -202,6 +239,37 @@ export const RewindPlayer = ({
 
   const effectiveTrimStartTs = trimStartTs ?? bounds?.first ?? 0;
   const effectiveTrimEndTs = trimEndTs ?? bounds?.last ?? 0;
+
+  const visibleEvents = useMemo<VisibleEvent[]>(() => {
+    if (!bounds) return [];
+    if (!errorEvents?.length) return [];
+
+    const fromTs = Math.min(effectiveTrimStartTs, effectiveTrimEndTs);
+    const toTs = Math.max(effectiveTrimStartTs, effectiveTrimEndTs);
+
+    const out: VisibleEvent[] = [];
+
+    for (let i = 0; i < errorEvents.length; i++) {
+      const r = errorEvents[i]!;
+      const absTs = getRecordAbsTs(r);
+      if (absTs == null) continue;
+
+      // Only show markers that fall inside current trim window
+      if (absTs < fromTs || absTs > toTs) continue;
+
+      out.push({
+        ...(r as any),
+        absTs,
+        uuid: getRecordUuid(r, `${getRecordType(r)}-${absTs}-${i}`),
+        recordType: getRecordType(r),
+      });
+    }
+
+    // Keep markers stable left-to-right
+    out.sort((a, b) => a.absTs - b.absTs);
+
+    return out;
+  }, [bounds, errorEvents, effectiveTrimStartTs, effectiveTrimEndTs]);
 
   useEffect(() => {
     trimStartRef.current = effectiveTrimStartTs;
@@ -714,6 +782,36 @@ export const RewindPlayer = ({
                   <span>{fullDurationLabel}</span>
                 </div>
 
+                {visibleEvents.map(event => {
+                  const leftPercentage = bounds ? ratioFromMs(event.absTs - bounds.first, stripTotalMs) : 0;
+
+                  const isHighlighted = event.uuid === highlightedEventId;
+
+                  const status = getNetworkStatus(event as unknown as NetworkRecord);
+                  const severity =
+                    event.recordType === 'network' ? severityFromHttpStatus(status) : severityFromConsole(event);
+
+                  return (
+                    <div
+                      key={event.uuid}
+                      className={cn(
+                        'absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full transition',
+                        'ring-1 ring-black/5',
+                        {
+                          'z-20 scale-150 ring-2 ring-green-400': isHighlighted,
+                          'bg-destructive z-10': severity === 'error',
+                          'z-10 bg-amber-600': severity === 'warn',
+                          'z-10 bg-slate-400': severity !== 'error' && severity !== 'warn',
+                        },
+                      )}
+                      style={{ left: `${leftPercentage}%` }}
+                      title={event.recordType}
+                      onMouseEnter={() => setHighlightedEventId(event.uuid)}
+                      onMouseLeave={() => setHighlightedEventId(null)}
+                    />
+                  );
+                })}
+
                 {inactivityGaps.map((g, idx) => {
                   const startMs = bounds ? g.startAbsTs - bounds.first : 0;
                   const endMs = bounds ? g.endAbsTs - bounds.first : 0;
@@ -872,6 +970,10 @@ export const RewindPlayer = ({
               </PopoverContent>
             </Popover>
           </div>
+
+          {showEventsMenu && !!visibleEvents.length && (
+            <EventsDropdown events={visibleEvents} onEventHover={setHighlightedEventId} />
+          )}
         </div>
       </div>
     </div>
