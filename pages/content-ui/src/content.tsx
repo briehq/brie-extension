@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Screenshot, Workspace, InitSliceRequest } from '@extension/shared';
-import { AuthMethod, SliceState } from '@extension/shared';
+import { AuthMethod, SliceState, useStorage } from '@extension/shared';
+import { themeStorage } from '@extension/storage';
 import {
   triggerCanvasAction,
   useAppDispatch,
@@ -48,7 +49,8 @@ interface ContentProps {
   onSelectScreenshot(id: string): void;
 }
 
-const bg = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
+const bgLight = chrome.runtime.getURL('content-ui/annotation-bg-light.png');
+const bgDark = chrome.runtime.getURL('content-ui/annotation-bg.png');
 
 const Content = ({
   idempotencyKey,
@@ -61,6 +63,7 @@ const Content = ({
   onDeleteScreenshot,
   onSelectScreenshot,
 }: ContentProps) => {
+  const theme = useStorage(themeStorage);
   const dispatch = useAppDispatch();
   const { width: viewportWidth } = useViewportSize();
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
@@ -330,14 +333,14 @@ const Content = ({
         onEscapeKeyDown={e => e.preventDefault()}
         onPointerDownOutside={e => e.preventDefault()}
         className={cn(
-          'grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 border-none bg-[#FAF9F7] bg-repeat p-0',
+          'dark:bg-primary-foreground border-border grid max-w-none grid-rows-[auto_minmax(0,1fr)_auto] !gap-0 bg-[#FAF9F7] bg-repeat p-0',
           {
             'size-full !rounded-none': isFullScreen,
             'h-[80vh] w-[90vw] overflow-hidden !rounded-[18px]': !isFullScreen,
           },
         )}
         style={{
-          backgroundImage: `url(${bg})`,
+          backgroundImage: `url(${bgLight})`,
           backgroundSize: 10,
         }}>
         {progress > 0 && <Progress className="absolute left-0 top-0 h-1.5 w-full" value={progress} />}

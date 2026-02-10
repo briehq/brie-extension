@@ -186,7 +186,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           aria-label="Open details"
           type="button"
           onClick={toggle}
-          className="group absolute right-4 top-[5.2rem] z-10 border border-[#EDECE8] bg-white transition-colors dark:text-white">
+          className="border-border bg-background group absolute right-4 top-[5.2rem] z-10 border transition-colors">
           <Icon
             name="PanelRightOpenIcon"
             strokeWidth={1.5}
@@ -199,7 +199,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       <aside
         ref={detailsViewRef}
         className={cn(
-          'relative flex h-fit flex-col space-y-2.5 overflow-hidden rounded-lg border border-[#EDECE8] bg-white p-4',
+          'border-border bg-background relative flex h-fit flex-col space-y-2.5 overflow-hidden rounded-lg border p-4',
           isOpen ? 'opacity-100' : `pointer-events-none size-0 opacity-0`,
           className,
         )}>
@@ -211,7 +211,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
             strokeWidth={1.5}
             onClick={toggle}
             name="PanelRightCloseIcon"
-            className="dark:bg-primary text-muted-foreground hover:text-primary hover:cursor-pointer dark:text-white"
+            className="text-muted-foreground hover:text-primary hover:cursor-pointer"
           />
         </div>
 
@@ -392,13 +392,13 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                               htmlFor="file-input"
                               className={cn(
                                 'hover:bg-muted flex size-[35px] cursor-pointer items-center justify-center rounded-md transition',
-                                'text-muted-foreground text-primary relative bg-transparent dark:text-white',
+                                'text-muted-foreground relative bg-transparent',
                                 { 'border-[0.5px]': count > 0 },
                               )}>
                               <Icon name="Paperclip" size={16} />
 
                               {count > 0 && (
-                                <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+                                <span className="bg-primary text-primary-foreground absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                                   {count}
                                 </span>
                               )}

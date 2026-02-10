@@ -41,7 +41,7 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
   };
 
   return (
-    <div className="dark:bg-primary absolutes mx-auto mt-4 flex w-fit gap-4 rounded-2xl border border-[#EDECE8] bg-white p-2 shadow-sm">
+    <div className="absolutes border-border bg-background mx-auto mt-4 flex w-fit gap-4 rounded-2xl border p-2 shadow-sm">
       <div className="flex items-center space-x-2">
         {navElements.map((item: any, idx: number) =>
           item?.value ? (
@@ -53,7 +53,9 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
                     size="icon"
                     className={cn(
                       'px-6 shadow-none',
-                      isActive(item.value) ? 'bg-gradient-overlay !text-white hover:bg-black disabled:opacity-100' : '',
+                      isActive(item.value)
+                        ? 'bg-gradient-overlay hover:bg-primary dark:bg-primary !text-white disabled:opacity-100 dark:text-black'
+                        : '',
                     )}
                     variant="ghost"
                     //   loading={isUpdating}
@@ -97,9 +99,9 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
                       size="icon"
                       disabled={isActive(item.value)}
                       className={cn(
-                        'shadow-none disabled:cursor-not-allowed dark:hover:bg-black',
+                        'hover:bg-accent shadow-none disabled:cursor-not-allowed',
                         isActive(item.value)
-                          ? 'bg-gradient-overlay text-white disabled:opacity-100 dark:hover:bg-black'
+                          ? 'bg-gradient-overlay hover:bg-accent dark:bg-primary text-white disabled:opacity-100 dark:text-black'
                           : '',
                       )}
                       variant="ghost"
@@ -114,7 +116,7 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
               </Tooltip>
             )
           ) : (
-            <div key={idx} className="hidden h-[20px] w-[1px] bg-slate-300 sm:flex" />
+            <div key={idx} className="bg-border hidden h-[20px] w-[1px] sm:flex" />
           ),
         )}
       </div>

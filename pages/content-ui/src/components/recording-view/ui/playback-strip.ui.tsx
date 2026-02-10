@@ -284,7 +284,7 @@ export const PlaybackStrip = ({
   const playheadLabel = useMemo(() => formatDurationMs(currentTime * 1000), [currentTime]);
 
   return (
-    <div className="dark:bg-primary mx-auto mt-4 flex w-full gap-4 rounded-2xl border border-[#EDECE8] bg-white p-2 shadow-sm">
+    <div className="border-border bg-background mx-auto mt-4 flex w-full gap-4 rounded-2xl border p-2 shadow-sm">
       <div className="flex w-full items-center gap-3">
         <Button type="button" size="icon" variant="ghost" onClick={toggle}>
           <Icon name={isPlaying ? 'Pause' : 'Play'} className="h-4 w-4" />
@@ -388,7 +388,7 @@ export const PlaybackStrip = ({
           <EventsDropdown events={visibleEvents} onEventHover={setHighlightedEventId} />
         )}
 
-        <div className="hidden h-[20px] w-[1px] bg-slate-300 sm:flex" />
+        <div className="bg-border hidden h-[20px] w-[1px] sm:flex" />
 
         <ExportVideoButton disabled={disableExport} onClick={() => onExport('webm')} />
       </div>

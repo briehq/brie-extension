@@ -13,8 +13,7 @@ import { PopupContent } from './popup-content';
 import { ApiHealthProvider } from './providers';
 
 const Popup = () => {
-  // const theme = useStorage(themeStorage);
-  const theme = 'light';
+  const theme = useStorage(themeStorage);
 
   useEffect(() => {
     document.body.classList.add(theme);

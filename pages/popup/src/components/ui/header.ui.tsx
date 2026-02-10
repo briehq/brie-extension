@@ -28,9 +28,9 @@ export const Header = () => {
           type="button"
           size="icon"
           variant="ghost"
-          className="size-8 hover:bg-slate-50 dark:hover:text-black"
+          className="hover:bg-accent size-8"
           onClick={() => navigateTo('https://go.brie.io/discord?utm_source=extension')}>
-          <Icon name="DiscordLogoIcon" size={20} className="hover:text-primary size-4 text-[#88827f]" />
+          <Icon name="DiscordLogoIcon" size={20} className="hover:text-primary text-muted-foreground size-4" />
         </Button>
 
         <Button
@@ -38,9 +38,9 @@ export const Header = () => {
           type="button"
           size="icon"
           variant="ghost"
-          className="size-8 hover:bg-slate-50 dark:hover:text-black"
+          className="hover:bg-accent size-8"
           onClick={() => navigateTo('https://go.brie.io/github?utm_source=extension')}>
-          <Icon name="GitHubLogoIcon" size={20} className="hover:text-primary size-4 text-[#88827f]" />
+          <Icon name="GitHubLogoIcon" size={20} className="hover:text-primary text-muted-foreground size-4" />
         </Button>
 
         <div className="bg-border/60 mx-2 h-[20px] w-[1px]" />
@@ -50,9 +50,9 @@ export const Header = () => {
           type="button"
           size="icon"
           variant="ghost"
-          className="size-8 hover:bg-slate-50 dark:hover:text-black"
+          className="hover:bg-accent size-8"
           onClick={() => navigateTo('https://go.brie.io/lp?utm_source=extension')}>
-          <Icon name="House" size={20} className="hover:text-primary size-4 text-[#88827f]" strokeWidth={1.5} />
+          <Icon name="House" size={20} className="hover:text-primary text-muted-foreground size-4" strokeWidth={1.5} />
         </Button>
       </div>
     </header>

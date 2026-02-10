@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ className, tool, zoom, file, dur
   const decZoom = () => onZoomChange?.((zoom ?? 100) - 10);
 
   return (
-    <footer className={cn('rounded-b-[18px] border-t border-[#EDECE8] bg-white text-xs', className)}>
+    <footer className={cn('border-border bg-background rounded-b-[18px] border-t text-xs', className)}>
       <div className="flex items-center gap-x-4 px-6 py-1.5">
         {tool && (
           <div className="flex items-center gap-x-1">

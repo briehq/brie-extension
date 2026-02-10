@@ -46,12 +46,12 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
     <div style={wrapperStyle} data-brie-toolbar="true">
       <div
         ref={containerRef}
-        className="dark:bg-primary pointer-events-auto mx-auto mt-4 flex w-fit rounded-2xl border border-[#EDECE8] bg-white p-2 shadow-sm">
+        className="border-border bg-background pointer-events-auto mx-auto mt-4 flex w-fit rounded-2xl border p-2 shadow-sm">
         <div className="flex items-center space-x-4">
           <button
             type="button"
             onPointerDown={onDragAndDrop}
-            className="text-muted-foreground bg-accent mr-1 flex h-7 w-5 cursor-grab items-center justify-center rounded-lg hover:bg-[#EDECE8] active:cursor-grabbing">
+            className="text-muted-foreground bg-accent hover:bg-accent mr-1 flex h-7 w-5 cursor-grab items-center justify-center rounded-lg active:cursor-grabbing">
             <Icon name="GripVertical" className="h-3 w-3" />
           </button>
 
@@ -60,7 +60,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
             <RecordingTimer state={state} />
           </div>
 
-          <Separator orientation="vertical" className="h-[20px] bg-slate-300" />
+          <Separator orientation="vertical" className="bg-border h-[20px]" />
 
           <div className="flex items-center gap-1.5">
             <Tooltip>
@@ -69,7 +69,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="cursor-pointer shadow-none disabled:cursor-not-allowed dark:hover:bg-black"
+                  className="cursor-pointer shadow-none disabled:cursor-not-allowed"
                   onClick={() => {
                     handleOnToggleTool('none');
                     safePostMessage(isPaused ? 'RESUME_RECORDING' : 'PAUSE_RECORDING');
@@ -110,7 +110,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="cursor-pointer shadow-none disabled:cursor-not-allowed dark:hover:bg-black"
+                  className="cursor-pointer shadow-none disabled:cursor-not-allowed"
                   onClick={() => {
                     handleOnToggleTool('none');
                     safePostMessage('STOP_RECORDING');
@@ -122,7 +122,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
             </Tooltip>
           </div>
 
-          <Separator orientation="vertical" className="h-[20px] bg-slate-300" />
+          <Separator orientation="vertical" className="bg-border h-[20px]" />
 
           <div className="flex items-center gap-1.5">
             <Tooltip>
@@ -131,8 +131,8 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   type="button"
                   size="icon"
                   variant="destructive"
-                  className={cn('cursor-pointer shadow-none disabled:cursor-not-allowed dark:hover:bg-black', {
-                    'bg-[#FFE2E2] disabled:opacity-100': isHighlighter,
+                  className={cn('cursor-pointer shadow-none disabled:cursor-not-allowed', {
+                    'bg-destructive/10 disabled:opacity-100': isHighlighter,
                   })}
                   onClick={() => handleOnToggleTool('highlighter')}>
                   <Icon
@@ -152,8 +152,8 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   type="button"
                   size="icon"
                   variant="destructive"
-                  className={cn('cursor-pointer shadow-none disabled:cursor-not-allowed dark:hover:bg-black', {
-                    'bg-[#FFE2E2] disabled:opacity-100': isBlur,
+                  className={cn('cursor-pointer shadow-none disabled:cursor-not-allowed', {
+                    'bg-destructive/10 disabled:opacity-100': isBlur,
                   })}
                   onClick={() => handleOnToggleTool('blur')}>
                   <Icon

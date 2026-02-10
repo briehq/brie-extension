@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Brie is a Chrome/Firefox browser extension for capturing screenshots, console errors, network issues, and user actions for bug reporting. It includes session recording (rrweb), video capture (FFmpeg WASM), and screenshot annotation (fabric.js).
+Brie is a Chrome/Firefox/Edge/Safari browser extension for capturing screenshots, console errors, network issues, and user actions for bug reporting. It includes session recording (rrweb), video capture (FFmpeg WASM), and screenshot annotation (fabric.js).
 
 ## Commands
 
@@ -49,30 +49,30 @@ This is a **pnpm monorepo** orchestrated by **Turborepo** with **Vite** as the b
 
 ### Extension entry points (5 separate builds)
 
-| Entry | Location | Purpose |
-|-------|----------|---------|
-| **Background** | `chrome-extension/src/background/` | Service worker: tab events, web request interception, context menus, message routing |
-| **Content** | `pages/content/` | Injected at `document_start`: rrweb session recording, early DOM access |
-| **Content UI** | `pages/content-ui/` | React app injected into pages: annotation editor, rrweb player, FFmpeg video encoding |
-| **Content Runtime** | `pages/content-runtime/` | Dynamically injected scripts from popup |
-| **Popup** | `pages/popup/` | React app: user auth, capture controls, settings |
+| Entry               | Location                           | Purpose                                                                               |
+| ------------------- | ---------------------------------- | ------------------------------------------------------------------------------------- |
+| **Background**      | `chrome-extension/src/background/` | Service worker: tab events, web request interception, context menus, message routing  |
+| **Content**         | `pages/content/`                   | Injected at `document_start`: rrweb session recording, early DOM access               |
+| **Content UI**      | `pages/content-ui/`                | React app injected into pages: annotation editor, rrweb player, FFmpeg video encoding |
+| **Content Runtime** | `pages/content-runtime/`           | Dynamically injected scripts from popup                                               |
+| **Popup**           | `pages/popup/`                     | React app: user auth, capture controls, settings                                      |
 
 ### Shared packages (`packages/`)
 
-| Package | Purpose |
-|---------|---------|
-| `shared` | Types, hooks, constants shared across all entry points |
-| `storage` | Chrome Storage API helpers with reactive state |
-| `store` | Redux store (`@reduxjs/toolkit`), hooks for user/org/subscription data |
-| `env` | Environment variable management (dotenvx-based) |
-| `i18n` | Type-safe internationalization (14+ languages) |
-| `ui` | Radix UI + TailwindCSS component library |
-| `tailwindcss-config` | Shared Tailwind configuration |
-| `tsconfig` | Shared TypeScript configs |
-| `vite-config` | Shared Vite build helpers |
-| `hmr` | Custom HMR plugin for extension development |
-| `dev-utils` | Manifest parser, logger |
-| `zipper` | Extension packaging to zip |
+| Package              | Purpose                                                                |
+| -------------------- | ---------------------------------------------------------------------- |
+| `shared`             | Types, hooks, constants shared across all entry points                 |
+| `storage`            | Chrome Storage API helpers with reactive state                         |
+| `store`              | Redux store (`@reduxjs/toolkit`), hooks for user/org/subscription data |
+| `env`                | Environment variable management (dotenvx-based)                        |
+| `i18n`               | Type-safe internationalization (14+ languages)                         |
+| `ui`                 | Radix UI + TailwindCSS component library                               |
+| `tailwindcss-config` | Shared Tailwind configuration                                          |
+| `tsconfig`           | Shared TypeScript configs                                              |
+| `vite-config`        | Shared Vite build helpers                                              |
+| `hmr`                | Custom HMR plugin for extension development                            |
+| `dev-utils`          | Manifest parser, logger                                                |
+| `zipper`             | Extension packaging to zip                                             |
 
 ### Key communication pattern
 

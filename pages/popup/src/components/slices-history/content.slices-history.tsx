@@ -112,7 +112,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
         <div className="mb-2 flex items-center justify-between">
           <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
 
-          <p className="text-muted-foreground text-sm font-medium text-red-500">
+          <p className="text-destructive text-sm font-medium">
             {totalSlicesCreatedToday}/10 {t('slicesLimitLabel')}
           </p>
         </div>

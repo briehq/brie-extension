@@ -61,7 +61,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
           aria-label="Open screenshots"
           type="button"
           onClick={toggle}
-          className="group absolute left-4 top-[5.2rem] z-10 border border-[#EDECE8] bg-white transition-colors dark:text-white">
+          className="border-border bg-background group absolute left-4 top-[5.2rem] z-10 border transition-colors">
           <Icon
             strokeWidth={1.5}
             name="PanelLeftOpenIcon"
@@ -73,7 +73,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
       <aside
         className={cn(
-          'relative flex flex-col space-y-2.5 rounded-lg border border-[#EDECE8] bg-white p-4',
+          'border-border bg-background relative flex flex-col space-y-2.5 rounded-lg border p-4',
           isOpen ? 'opacity-100' : 'pointer-events-none size-0 opacity-0',
           isScrollEnabled ? 'min-h-0' : 'self-start',
           className,
@@ -85,7 +85,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             name="PanelLeftCloseIcon"
             size={16}
             onClick={toggle}
-            className="text-muted-foreground hover:text-primary cursor-pointer dark:text-white"
+            className="text-muted-foreground hover:text-primary cursor-pointer"
           />
         </div>
 

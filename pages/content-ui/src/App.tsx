@@ -180,7 +180,7 @@ export default function App() {
   const isDialogOpen = !!screenshots?.length || !!video?.blob || !!events?.length;
 
   return (
-    <div id="brie-content" className={cn('light', 'relative')}>
+    <div id="brie-content" className={cn(theme, 'relative')}>
       <TooltipProvider>
         <RecordingOverlay />
 

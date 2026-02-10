@@ -185,7 +185,12 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
         onToggleMic={onToggleMic}
       />
 
-      <CaptureSessionView enabled={rewind.enabled} onToggle={onRewindEnabled} onOpen={onShareRewind} />
+      <CaptureSessionView
+        isDisabled={isCaptureScreenshotActive || isVideoRecordingActive}
+        enabled={rewind.enabled}
+        onToggle={onRewindEnabled}
+        onOpen={onShareRewind}
+      />
     </div>
   );
 };

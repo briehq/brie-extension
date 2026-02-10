@@ -65,7 +65,7 @@ export const HoverImage: FC<HoverImageProps> = ({
           e.stopPropagation();
           onDelete();
         }}
-        className="dark:bg-primary absolute right-2 top-2 size-[35px] bg-[rgba(255,255,255,0.16)] text-white opacity-0 transition-opacity group-hover:opacity-100">
+        className="absolute right-2 top-2 size-[35px] bg-[rgba(255,255,255,0.16)] text-white opacity-0 transition-opacity group-hover:opacity-100">
         <Icon name="Trash2Icon" size={16} />
       </Button>
     )}

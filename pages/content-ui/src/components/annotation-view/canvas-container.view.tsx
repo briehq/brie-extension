@@ -799,7 +799,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
           <Button
             type="button"
             size="icon"
-            className="size-7 hover:bg-slate-200"
+            className="hover:bg-accent size-7"
             variant="secondary"
             onClick={handleOnRemove}>
             <Icon name="TrashIcon" className="size-4" />
