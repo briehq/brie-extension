@@ -32,13 +32,13 @@ export const EventsDropdown = ({
           <div
             className={cn(
               'hover:bg-muted flex size-[35px] cursor-pointer items-center justify-center rounded-md transition',
-              'text-muted-foreground text-primary relative bg-transparent dark:text-white',
+              'text-muted-foreground relative bg-transparent',
               { 'border-[0.5px]': events.length > 0 },
             )}>
             <Icon name="Siren" className="h-4 w-4" />
 
             {events.length > 0 && (
-              <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+              <span className="bg-primary text-primary-foreground absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                 {events.length}
               </span>
             )}

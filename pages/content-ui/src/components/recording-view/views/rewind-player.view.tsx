@@ -760,7 +760,7 @@ export const RewindPlayer = ({
         )}
       </div>
 
-      <div className="dark:bg-primary mx-auto mt-4 flex w-full gap-4 rounded-2xl border border-[#EDECE8] bg-white p-2 shadow-sm">
+      <div className="border-border bg-background mx-auto mt-4 flex w-full gap-4 rounded-2xl border p-2 shadow-sm">
         <div className="flex w-full items-center gap-3">
           <Button type="button" size="icon" variant="ghost" onClick={togglePlayPause} disabled={!isPlayable}>
             <Icon name={isPlaying ? 'Pause' : 'Play'} className="h-4 w-4" />
@@ -852,7 +852,7 @@ export const RewindPlayer = ({
 
                 {showPlayheadTip && (
                   <div
-                    className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                    className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                     style={{ left: `${playheadPercentage}%` }}>
                     {playheadLabel}
                   </div>
@@ -874,7 +874,7 @@ export const RewindPlayer = ({
                     />
                     {showTrimStartTip && (
                       <div
-                        className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                        className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                         style={{ left: `${trimStartPercentage}%` }}>
                         {bounds ? msToLabel(effectiveTrimStartTs - bounds.first) : '0:00'}
                       </div>
@@ -894,7 +894,7 @@ export const RewindPlayer = ({
                     />
                     {showTrimEndTip && (
                       <div
-                        className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                        className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                         style={{ left: `${trimEndPercentage}%` }}>
                         {bounds ? msToLabel(effectiveTrimEndTs - bounds.first) : '0:00'}
                       </div>
@@ -905,7 +905,7 @@ export const RewindPlayer = ({
             </div>
           </div>
 
-          <div className="hidden h-[20px] w-[1px] bg-slate-300 sm:flex" />
+          <div className="bg-border hidden h-[20px] w-[1px] sm:flex" />
 
           <div className="hidden items-center space-x-2 sm:flex">
             <Popover onOpenChange={setSettingsOpen} open={settingsOpen}>
@@ -913,13 +913,13 @@ export const RewindPlayer = ({
                 <div
                   className={cn(
                     'hover:bg-muted flex size-[35px] cursor-pointer items-center justify-center rounded-md transition',
-                    'text-muted-foreground text-primary relative bg-transparent dark:text-white',
+                    'text-muted-foreground relative bg-transparent',
                     { 'border-[0.5px]': (events?.length ?? 0) > 0 },
                   )}>
                   <Icon name="Settings" className="h-4 w-4" />
 
                   {settingsBadgeCount > 0 && (
-                    <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+                    <span className="bg-primary text-primary-foreground absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                       {settingsBadgeCount}
                     </span>
                   )}
@@ -954,7 +954,7 @@ export const RewindPlayer = ({
                         <span className="text-muted-foreground text-xs">Playback rate.</span>
                       </div>
                       <select
-                        className="h-9 rounded-lg border bg-white px-2 text-sm"
+                        className="bg-background h-9 rounded-lg border px-2 text-sm"
                         value={String(speed)}
                         onChange={e => setSpeed(normalizeSpeed(Number(e.target.value)))}
                         aria-label="Playback speed">

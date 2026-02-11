@@ -11,7 +11,7 @@ export const ExportVideoButton = ({ className, ...props }: ExportVideoButtonProp
 
     <span>{t('export')}</span>
 
-    <span className="text-muted-foreground text-xs">
+    <span className="text-primary-foreground text-xs">
       <span className="uppercase">webm</span>
     </span>
   </Button>

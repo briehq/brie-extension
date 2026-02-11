@@ -316,7 +316,7 @@ export const PlaybackStrip = ({
 
               {showPlayheadTip && (
                 <div
-                  className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                  className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                   style={{ left: `${playheadPercentage}%` }}>
                   {playheadLabel}
                 </div>
@@ -333,7 +333,7 @@ export const PlaybackStrip = ({
                   />
                   {showTrimStartTip && (
                     <div
-                      className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                      className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                       style={{ left: `${trimStartPercentage}%` }}>
                       {trimStartLabel}
                     </div>
@@ -348,7 +348,7 @@ export const PlaybackStrip = ({
                   />
                   {showTrimEndTip && (
                     <div
-                      className="bg-background absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
+                      className="bg-background text-foreground absolute -top-2 -translate-x-1/2 -translate-y-full rounded-lg border px-2 py-1 text-[11px] tabular-nums shadow-sm"
                       style={{ left: `${trimEndPercentage}%` }}>
                       {trimEndLabel}
                     </div>
