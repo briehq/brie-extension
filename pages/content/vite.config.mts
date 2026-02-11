@@ -41,7 +41,7 @@ const selfContainedEntriesPlugin = (): Plugin => {
           const importMatch = code.match(importRe);
           if (!importMatch) continue;
 
-          // Parse import bindings, e.g. "R as RECORD_MSG, U as UI_MSG"
+          // Parse import bindings, e.g. "R as RECORD, U as UI"
           const importBindings = importMatch[1].split(',').map(s => {
             const [imported, local] = s.trim().split(/\s+as\s+/);
             return { imported: imported.trim(), local: (local || imported).trim() };

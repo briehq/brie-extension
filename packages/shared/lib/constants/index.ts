@@ -1,4 +1,5 @@
 export * from './enums/index.js';
+export * from './messages/index.js';
 export * from './rewind/index.js';
 
 export { ITEMS_PER_PAGE } from './pagination.constant.js';

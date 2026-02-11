@@ -1,14 +1,6 @@
+import { RECORD, RECORDING } from '@extension/shared';
+
 import { pauseRecording, resumeRecording, startCaptureNow, stopRecording, toggleMic } from '@src/capture';
-
-type UIInboundMessage =
-  | { type: 'COUNTDOWN_FINISHED' }
-  | { type: 'ADD_RECORD'; payload: any }
-  | { type: 'PAUSE_RECORDING'; payload: any }
-  | { type: 'RESUME_RECORDING'; payload: any }
-  | { type: 'STOP_RECORDING'; payload: any }
-  | { type: 'TOGGLE_MIC'; payload: any };
-
-const ALLOWED_MESSAGE_TYPES = new Set(['COUNTDOWN_FINISHED', 'ADD_RECORD']);
 
 export const addWindowEventListeners = () => {
   /**
@@ -16,7 +8,7 @@ export const addWindowEventListeners = () => {
    * The injected script does not have access to Chrome extension APIs (like chrome.runtime.sendMessage).
    * To communicate, inject the script and use window.postMessage to send data back to the content script.
    */
-  window.addEventListener('message', (event: MessageEvent<UIInboundMessage>) => {
+  window.addEventListener('message', (event: MessageEvent) => {
     /**
      * @todo
      * - Must be namespaced to avoid page scripts spoofing controller commands
@@ -33,16 +25,16 @@ export const addWindowEventListeners = () => {
     const { type } = event.data;
 
     switch (type) {
-      case 'ADD_RECORD': {
+      case RECORD.ADD: {
         const payload = event.data.payload;
         if (!payload) {
-          console.warn('[ADD_RECORD] Missing payload');
+          console.warn('[RECORD:ADD] Missing payload');
           return;
         }
 
-        chrome.runtime.sendMessage({ type: 'ADD_RECORD', data: payload }, () => {
+        chrome.runtime.sendMessage({ type: RECORD.ADD, data: payload }, () => {
           if (chrome.runtime.lastError) {
-            console.error('[ADD_RECORD error]', chrome.runtime.lastError);
+            console.error('[RECORD:ADD error]', chrome.runtime.lastError);
           }
         });
 
@@ -52,19 +44,19 @@ export const addWindowEventListeners = () => {
       /**
        * Video capture flow
        */
-      case 'PAUSE_RECORDING':
+      case RECORDING.PAUSE:
         pauseRecording();
         break;
 
-      case 'RESUME_RECORDING':
+      case RECORDING.RESUME:
         resumeRecording();
         break;
 
-      case 'STOP_RECORDING':
+      case RECORDING.STOP:
         stopRecording();
         break;
 
-      case 'TOGGLE_MIC':
+      case RECORDING.TOGGLE_MIC:
         toggleMic();
         break;
 

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useCallback } from 'react';
 
-import { safePostMessage, useStorage } from '@extension/shared';
+import { RECORDING, safePostMessage, useStorage } from '@extension/shared';
 import { recordingSettingsStorage } from '@extension/storage';
 import type { BaseStorage, RecordingSettings, VideoRecordingState } from '@extension/storage';
 import { Button, Tooltip, TooltipContent, TooltipTrigger, Separator, Icon, cn } from '@extension/ui';
@@ -11,7 +11,6 @@ import { RecordingTimer } from './timer.ui';
 import { useDraggableToolbar } from '../../../hooks';
 import type { AnnotationTool } from '../../../models';
 
-type RecordingCommand = 'TOGGLE_MIC' | 'PAUSE_RECORDING' | 'RESUME_RECORDING' | 'STOP_RECORDING';
 interface RecordingToolbarProps {
   state: VideoRecordingState;
   tool: AnnotationTool;
@@ -36,7 +35,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
   );
 
   const handleOnToggleMic = useCallback(async () => {
-    safePostMessage('TOGGLE_MIC' as RecordingCommand);
+    safePostMessage(RECORDING.TOGGLE_MIC);
     await recordingSettingsStorage.setMicEnabled(!micEnabled);
   }, [micEnabled]);
 
@@ -72,7 +71,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   className="cursor-pointer shadow-none disabled:cursor-not-allowed"
                   onClick={() => {
                     handleOnToggleTool('none');
-                    safePostMessage(isPaused ? 'RESUME_RECORDING' : 'PAUSE_RECORDING');
+                    safePostMessage(isPaused ? RECORDING.RESUME : RECORDING.PAUSE);
                   }}>
                   <Icon name={isPaused ? 'Play' : 'Pause'} className="size-4" />
                 </Button>
@@ -113,7 +112,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   className="cursor-pointer shadow-none disabled:cursor-not-allowed"
                   onClick={() => {
                     handleOnToggleTool('none');
-                    safePostMessage('STOP_RECORDING');
+                    safePostMessage(RECORDING.STOP);
                   }}>
                   <Icon name="Square" className="size-4 text-red-500/50" fill="#f87171" />
                 </Button>

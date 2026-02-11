@@ -2,7 +2,7 @@ import type { Menus, Tabs } from 'webextension-polyfill';
 import { contextMenus } from 'webextension-polyfill';
 
 import { t } from '@extension/i18n';
-import { sendMessageToTab } from '@extension/shared';
+import { SCREENSHOT, sendMessageToTab } from '@extension/shared';
 import { captureStateStorage, captureTabStorage } from '@extension/storage';
 
 import type { CaptureType } from '@src/types';
@@ -53,7 +53,7 @@ export const handleOnContextMenuClicked = async (info: Menus.OnClickData, tab?: 
     await captureStateStorage.setScreenshotState('capturing');
     await captureTabStorage.setCaptureTabId(tabId);
 
-    await sendMessageToTab(tabId, { action: 'START_SCREENSHOT', payload: { type } });
+    await sendMessageToTab(tabId, { action: SCREENSHOT.START, payload: { type } });
   } catch (e) {
     console.error('[background] onContextMenuClicked error:', e);
   }

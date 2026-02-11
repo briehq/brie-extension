@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { runtime } from 'webextension-polyfill';
 
-import { useStorage } from '@extension/shared';
+import { AUTH, useStorage } from '@extension/shared';
 import { authIdentityProviderStorage } from '@extension/storage';
 import type { AuthIdentityProviderStorage as AuthFlowState } from '@extension/storage';
 
@@ -35,7 +35,7 @@ export const useAuthIdentityProvider = () => {
     setAuthFlow({ active: true });
 
     try {
-      const response: any = await runtime.sendMessage({ type: 'AUTH_START' });
+      const response: any = await runtime.sendMessage({ type: AUTH.START });
 
       if (!response?.ok) {
         throw new Error(response?.error || 'Auth flow failed');

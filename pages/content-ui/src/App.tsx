@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
-import { sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
+import { AUTH, REWIND, SCREENSHOT, UI, VIDEO, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -34,19 +34,19 @@ export default function App() {
   const [events, setEvents] = useState<unknown[] | null>(null);
 
   useEffect(() => {
-    window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
-    window.addEventListener('CLOSE_MODAL', handleOnClose);
-    window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
-    window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
-    window.addEventListener('VIDEO_CAPTURED', handleOnVideoCaptured);
-    window.addEventListener('REWIND/OPEN_REVIEW', handleOnRewindCapture);
+    window.addEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
+    window.addEventListener(UI.CLOSE_MODAL, handleOnClose);
+    window.addEventListener(SCREENSHOT.STORE, handleOnStoreScreenshot);
+    window.addEventListener(AUTH.STATUS, handleOnAuthStatus);
+    window.addEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
+    window.addEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
 
     return () => {
-      window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
-      window.removeEventListener('CLOSE_MODAL', handleOnClose);
-      window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
-      window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
-      window.removeEventListener('REWIND/OPEN_REVIEW', handleOnRewindCapture);
+      window.removeEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
+      window.removeEventListener(UI.CLOSE_MODAL, handleOnClose);
+      window.removeEventListener(SCREENSHOT.STORE, handleOnStoreScreenshot);
+      window.removeEventListener(AUTH.STATUS, handleOnAuthStatus);
+      window.removeEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
     };
   }, []);
 
@@ -99,7 +99,7 @@ export default function App() {
         missingAnchor: boolean;
         toTimestamp: number;
       } = await sendRuntimeMessageToActiveTab({
-        type: 'REWIND/GET_FROZEN',
+        type: REWIND.GET_FROZEN,
         tabId,
       });
 
@@ -126,7 +126,7 @@ export default function App() {
     const tab = await requestActiveTab();
 
     if (tab?.id) {
-      await sendRuntimeMessageToActiveTab({ type: 'REWIND/RESET_TAB', tabId: tab.id });
+      await sendRuntimeMessageToActiveTab({ type: REWIND.RESET_TAB, tabId: tab.id });
     }
 
     await Promise.all([

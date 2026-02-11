@@ -16,7 +16,7 @@ export const Header = () => {
         className="flex items-center gap-x-2">
         <img src={logo} className="size-8" alt="Brie" />
 
-        {!IS_DEV && (
+        {IS_DEV && (
           <h1 className="-ml-1.5 text-lg font-semibold text-[#df8801]">
             {NAME} - {plan}
           </h1>

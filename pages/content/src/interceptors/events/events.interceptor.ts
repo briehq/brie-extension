@@ -1,3 +1,5 @@
+import { UI, VIDEO } from '@extension/shared';
+
 import { AppEventType } from '@src/constants';
 import type { ResizeHandler } from '@src/interfaces';
 import {
@@ -405,10 +407,10 @@ export const interceptEvents = () => {
   document.addEventListener('submit', handleOnSubmit, { capture: true });
 
   // Custom metadata event
-  window.addEventListener('metadata', handleOnMetadata as EventListener, { capture: true });
+  window.addEventListener(UI.LAYOUT_RECALC, handleOnMetadata as EventListener, { capture: true });
 
   // Custom video metadata event
-  window.addEventListener('VIDEO:METADATA', handleOnVideoMetadata as EventListener, { capture: true });
+  window.addEventListener(VIDEO.METADATA, handleOnVideoMetadata as EventListener, { capture: true });
 
   // History
   historyApiInterceptor();

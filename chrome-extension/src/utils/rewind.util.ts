@@ -1,7 +1,7 @@
 // rewind.service.ts
 import type { Runtime } from 'webextension-polyfill';
 
-import { isRewindBlocked, sendMessageToTab } from '@extension/shared';
+import { REWIND, isRewindBlocked, sendMessageToTab } from '@extension/shared';
 
 import { deleteTabAll, deleteBefore, getRange, putBatch } from '@src/services';
 
@@ -456,7 +456,7 @@ export const rewindService = {
 
   resetTab: async (tabId: number): Promise<void> => {
     await resetTabRewind(tabId);
-    await sendMessageToTab(tabId, { action: 'REWIND/RESTART_CAPTURE' });
+    await sendMessageToTab(tabId, { action: REWIND.RESTART_CAPTURE });
   },
 
   deleteTab: async (tabId: number): Promise<void> => {

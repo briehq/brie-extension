@@ -1,7 +1,7 @@
 import { identity } from 'webextension-polyfill';
 
 import { APP_BASE_URL } from '@extension/env';
-import { sendMessageToActiveTab } from '@extension/shared';
+import { AUTH, sendMessageToActiveTab } from '@extension/shared';
 
 import type { BgResponse } from '@src/types';
 import { persistTokens } from '@src/utils';
@@ -19,14 +19,14 @@ export const handleOnAuthStart = async (): Promise<BgResponse> => {
     if (!responseUrl) throw new Error('EMPTY_URL');
 
     await persistTokens(responseUrl);
-    await sendMessageToActiveTab('AUTH_STATUS', { ok: true });
+    await sendMessageToActiveTab(AUTH.STATUS, { ok: true });
 
     return { ok: true };
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
     const isUserCancel = /user cancelled|canceled/i.test(msg);
 
-    await sendMessageToActiveTab('AUTH_STATUS', { ok: false, error: msg });
+    await sendMessageToActiveTab(AUTH.STATUS, { ok: false, error: msg });
 
     return { ok: false, error: isUserCancel ? 'USER_CANCELLED' : msg };
   }

@@ -1,7 +1,7 @@
 /* eslint-disable import-x/exports-last */
 import { record } from 'rrweb';
 
-import { isRewindBlocked } from '@extension/shared';
+import { isRewindBlocked, REWIND } from '@extension/shared';
 import { rewindSettingsStorage } from '@extension/storage';
 
 type RrwebStopFunction = () => void;
@@ -50,7 +50,7 @@ const flushPendingEvents = (): void => {
 
   try {
     chrome.runtime.sendMessage({
-      type: 'REWIND/EVENT_BATCH',
+      type: REWIND.EVENT_BATCH,
       events: batch,
       t0: Date.now(),
     });
@@ -90,7 +90,7 @@ const stopCaptureInternal = (): void => {
 const sendBlockedSignal = (blockState: BlockState, url: string): void => {
   if (!blockState.blocked) return;
   try {
-    chrome.runtime.sendMessage({ type: 'REWIND/BLOCKED', reason: blockState.reason, url });
+    chrome.runtime.sendMessage({ type: REWIND.BLOCKED, reason: blockState.reason, url });
   } catch {
     //
   }

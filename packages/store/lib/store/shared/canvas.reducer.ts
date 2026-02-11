@@ -1,6 +1,8 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 
+import type { CanvasAction } from '@extension/shared';
+
 interface State {
   tick: number;
   lastAction: CanvasAction | null;
@@ -22,5 +24,3 @@ export const canvasSlice = createSlice({
     },
   },
 });
-
-export type CanvasAction = 'UNDO' | 'REDO' | 'START_OVER';

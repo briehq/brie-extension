@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, safePostMessage } from '@extension/shared';
 
 interface Cookie {
   key: string;
@@ -22,5 +22,5 @@ export const interceptCookies = () => {
     return ac;
   }, []);
 
-  safePostMessage('ADD_RECORD', { timestamp, recordType: 'cookies', source: 'client', items: cookies });
+  safePostMessage(RECORD.ADD, { timestamp, recordType: 'cookies', source: 'client', items: cookies });
 };

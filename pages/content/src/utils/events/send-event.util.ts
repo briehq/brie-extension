@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, safePostMessage } from '@extension/shared';
 
 import { AppEventType } from '@src/constants';
 import type { TrackedEvent } from '@src/interfaces';
@@ -25,7 +25,7 @@ export const sendEvent = (event: AppEventType, el?: Element | null, extra?: Reco
     extra: extra && Object.keys(extra).length ? extra : null,
   });
 
-  safePostMessage('ADD_RECORD', {
+  safePostMessage(RECORD.ADD, {
     type: 'event',
     recordType: 'events',
     source: 'client',

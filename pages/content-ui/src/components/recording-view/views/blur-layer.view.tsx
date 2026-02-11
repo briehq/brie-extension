@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { VIDEO } from '@extension/shared';
+
 import type { HoverRect, BlurTarget, Position } from '@src/models';
 import { createBlurTarget, getRectCoords, isInsideShadowDom, isTooLargeToBlur } from '@src/utils/recording';
 
@@ -191,9 +193,9 @@ export const BlurLayer: FC<BlurLayerProps> = ({ active }) => {
       setHoverRect(null);
     };
 
-    window.addEventListener('VIDEO_CAPTURED', onVideoCaptured as EventListener);
+    window.addEventListener(VIDEO.CAPTURED, onVideoCaptured as EventListener);
 
-    return () => window.removeEventListener('VIDEO_CAPTURED', onVideoCaptured as EventListener);
+    return () => window.removeEventListener(VIDEO.CAPTURED, onVideoCaptured as EventListener);
   }, []);
 
   /**

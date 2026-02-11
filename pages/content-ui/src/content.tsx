@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
 import type { Screenshot, Workspace, InitSliceRequest } from '@extension/shared';
-import { AuthMethod, SliceState, useStorage } from '@extension/shared';
+import { AuthMethod, CANVAS_ACTION, SliceState, useStorage } from '@extension/shared';
 import { themeStorage } from '@extension/storage';
 import {
   triggerCanvasAction,
@@ -354,13 +354,13 @@ const Content = ({
           title={title}
           onTitleChange={setTitle}
           onUndo={() => {
-            dispatch(triggerCanvasAction('UNDO'));
+            dispatch(triggerCanvasAction(CANVAS_ACTION.UNDO));
           }}
           onRedo={() => {
-            dispatch(triggerCanvasAction('REDO'));
+            dispatch(triggerCanvasAction(CANVAS_ACTION.REDO));
           }}
           onStartOver={() => {
-            dispatch(triggerCanvasAction('START_OVER'));
+            dispatch(triggerCanvasAction(CANVAS_ACTION.START_OVER));
           }}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}

@@ -2,7 +2,7 @@ import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
+import { REWIND, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import {
   annotationsHistoryStorage,
@@ -704,7 +704,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const tab = await requestActiveTab();
 
       if (tab?.id) {
-        await sendRuntimeMessageToActiveTab({ type: 'REWIND/RESET_TAB', tabId: tab.id });
+        await sendRuntimeMessageToActiveTab({ type: REWIND.RESET_TAB, tabId: tab.id });
       }
 
       await Promise.all([

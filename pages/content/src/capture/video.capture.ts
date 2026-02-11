@@ -1,4 +1,5 @@
 import type { Segment } from '@extension/shared';
+import { UI, VIDEO } from '@extension/shared';
 import { captureStateStorage, recordingSettingsStorage } from '@extension/storage';
 import type { VideoRecordingState } from '@extension/storage';
 
@@ -96,7 +97,7 @@ const pickMimeType = (): MediaRecorderOptions => {
 export const beginPreparingRecording = (options?: CaptureOptions) => {
   if (!['idle', 'error', 'unsaved'].includes(recordingState)) return;
 
-  window.dispatchEvent(new CustomEvent('metadata'));
+  window.dispatchEvent(new CustomEvent(UI.LAYOUT_RECALC));
 
   pendingOptions = options ?? { audio: false };
   chunks = [];
@@ -122,7 +123,7 @@ export const startCaptureNow = async () => {
     const mimeOptions = pickMimeType();
 
     window.dispatchEvent(
-      new CustomEvent('VIDEO:METADATA', {
+      new CustomEvent(VIDEO.METADATA, {
         detail: {
           action: 'START',
           startedAt: segments[0]?.startAt ?? Date.now(),
@@ -153,7 +154,7 @@ export const startCaptureNow = async () => {
 
         const blob = new Blob(chunks, { type: recorder?.mimeType ?? 'video/webm' });
         const videoMetadata = { durationMs, startedAt, endedAt, segments: segments.slice(), options: options ?? {} };
-        const event = new CustomEvent('VIDEO_CAPTURED', {
+        const event = new CustomEvent(VIDEO.CAPTURED, {
           detail: {
             blob,
             ...videoMetadata,
@@ -162,7 +163,7 @@ export const startCaptureNow = async () => {
 
         window.dispatchEvent(event);
         window.dispatchEvent(
-          new CustomEvent('VIDEO:METADATA', {
+          new CustomEvent(VIDEO.METADATA, {
             detail: {
               action: 'STOP',
               ...videoMetadata,
@@ -207,7 +208,7 @@ export const pauseRecording = () => {
     setState('paused');
 
     window.dispatchEvent(
-      new CustomEvent('VIDEO:METADATA', {
+      new CustomEvent(VIDEO.METADATA, {
         detail: {
           action: 'PAUSE',
         },
@@ -235,7 +236,7 @@ export const resumeRecording = () => {
     setState('capturing');
 
     window.dispatchEvent(
-      new CustomEvent('VIDEO:METADATA', {
+      new CustomEvent(VIDEO.METADATA, {
         detail: {
           action: 'RESUME',
         },

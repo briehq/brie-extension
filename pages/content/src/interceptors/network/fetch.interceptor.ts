@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, safePostMessage } from '@extension/shared';
 
 import { extractQueryParams } from '@src/utils';
 
@@ -171,7 +171,7 @@ export const interceptFetch = (): void => {
       const endISO = new Date().toISOString();
       const durationMs = performance.now() - startPerf;
 
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -192,7 +192,7 @@ export const interceptFetch = (): void => {
         outcome: 'error',
       });
 
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         type: 'log',
         recordType: 'console',
         source: 'client',
@@ -213,7 +213,7 @@ export const interceptFetch = (): void => {
 
     // Opaque / CORS no-cors responses
     if (response.type === 'opaque') {
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -283,7 +283,7 @@ export const interceptFetch = (): void => {
     };
 
     try {
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -292,7 +292,7 @@ export const interceptFetch = (): void => {
       });
 
       if (response.status >= 400) {
-        safePostMessage('ADD_RECORD', {
+        safePostMessage(RECORD.ADD, {
           timestamp: Date.now(),
           domain: 'fetch',
           type: 'log',

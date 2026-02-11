@@ -1,3 +1,5 @@
+import type { RECORDING, VIDEO } from '../constants/messages/index.js';
+
 export interface RecordingSession {
   state: RecordingState;
   tabId: number;
@@ -18,31 +20,31 @@ export interface VideoMeta {
 }
 
 export type PopupToBgMessage =
-  | { type: 'START_RECORDING'; tabId: number }
-  | { type: 'PAUSE_RECORDING'; tabId: number }
-  | { type: 'RESUME_RECORDING'; tabId: number }
-  | { type: 'STOP_RECORDING'; tabId: number }
-  | { type: 'TOGGLE_MIC'; tabId: number }
-  | { type: 'GET_RECORDING_STATE'; tabId: number };
+  | { type: typeof RECORDING.START; tabId: number }
+  | { type: typeof RECORDING.PAUSE; tabId: number }
+  | { type: typeof RECORDING.RESUME; tabId: number }
+  | { type: typeof RECORDING.STOP; tabId: number }
+  | { type: typeof RECORDING.TOGGLE_MIC; tabId: number }
+  | { type: typeof RECORDING.STATE_CHANGED; tabId: number };
 
 export type ContentToBgMessage =
-  | { type: 'COUNTDOWN_FINISHED'; tabId: number }
-  | { type: 'TOOLBAR_ACTION'; action: 'stop' | 'pause' | 'resume' | 'toggleMic'; tabId: number };
+  | { type: typeof RECORDING.COUNTDOWN_FINISHED; tabId: number }
+  | { type: typeof RECORDING.TOOLBAR_ACTION; action: 'stop' | 'pause' | 'resume' | 'toggleMic'; tabId: number };
 
 export type BgToContentMessage =
   | {
-      type: 'RECORDING_STATE_CHANGED';
+      type: typeof RECORDING.STATE_CHANGED;
       state: RecordingState;
       hasAudio: boolean;
       startedAt?: number;
       totalPausedMs?: number;
     }
-  | { type: 'RECORDING_COUNTDOWN'; secondsLeft: number }
-  | { type: 'VIDEO_CAPTURED'; meta: VideoMeta };
+  | { type: typeof RECORDING.COUNTDOWN; secondsLeft: number }
+  | { type: typeof VIDEO.CAPTURED; meta: VideoMeta };
 
 export type BgToPopupMessage =
-  | { type: 'RECORDING_STATE_CHANGED'; session: RecordingSession }
-  | { type: 'VIDEO_CAPTURED'; meta: VideoMeta };
+  | { type: typeof RECORDING.STATE_CHANGED; session: RecordingSession }
+  | { type: typeof VIDEO.CAPTURED; meta: VideoMeta };
 
 export interface Segment {
   startAt: number;

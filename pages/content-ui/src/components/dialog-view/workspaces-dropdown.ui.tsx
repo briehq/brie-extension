@@ -126,7 +126,9 @@ export const WorkspacesDropdown = ({ onChange }: Props) => {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="gap-x-2 text-[rgba(39,36,29,0.4)]" onClick={handleOnCreateWorkspace}>
+        <DropdownMenuItem
+          className="dark:text-muted-foreground gap-x-2 text-[rgba(39,36,29,0.4)]"
+          onClick={handleOnCreateWorkspace}>
           <div className="flex h-8 w-8 items-center justify-center">
             <Icon name="PlusIcon" className="h-3.5 w-3.5" />
           </div>

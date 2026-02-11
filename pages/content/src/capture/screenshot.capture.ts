@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
+import { CAPTURE, RECORD, SCREENSHOT } from '@extension/shared';
 
 let lastPointerX = 0;
 let lastPointerY = 0;
@@ -258,7 +259,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     cleanup(); // Cleanup on ESC
 
     // Notify Background on ESC
-    chrome.runtime.sendMessage({ type: 'EXIT_CAPTURE' });
+    chrome.runtime.sendMessage({ type: CAPTURE.EXIT });
   }
 };
 
@@ -392,7 +393,7 @@ const captureTab = (): Promise<string> =>
   new Promise((resolve, reject) => {
     toggleMinimizedPreview();
 
-    chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, response => {
+    chrome.runtime.sendMessage({ action: CAPTURE.VISIBLE_TAB }, response => {
       if (chrome.runtime.lastError) {
         // Error from Chrome's runtime
         console.log('chrome.runtime.lastError.message', chrome.runtime.lastError.message);
@@ -413,7 +414,7 @@ const captureTab = (): Promise<string> =>
 
 const checkIfNativeCaptureAvailable = () =>
   new Promise(resolve => {
-    chrome.runtime.sendMessage({ action: 'checkNativeCapture' }, response => {
+    chrome.runtime.sendMessage({ action: CAPTURE.CHECK_NATIVE }, response => {
       resolve(response?.isAvailable || false);
     });
   });
@@ -556,7 +557,7 @@ const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode:
    */
   window.postMessage(
     {
-      type: 'ADD_RECORD',
+      type: RECORD.ADD,
       payload: {
         type: 'event',
         event: 'capture',
@@ -569,7 +570,7 @@ const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode:
     '*',
   );
 
-  const eventName = mode === 'single' ? 'DISPLAY_MODAL' : 'STORE_SCREENSHOT';
+  const eventName = mode === 'single' ? SCREENSHOT.DISPLAY : SCREENSHOT.STORE;
 
   const event = new CustomEvent(eventName, {
     detail: {

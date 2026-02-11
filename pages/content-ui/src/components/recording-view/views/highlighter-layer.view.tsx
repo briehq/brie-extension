@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { VIDEO } from '@extension/shared';
+
 import type { Position } from '@src/models';
 
 type Point = Position;
@@ -84,9 +86,9 @@ export const HighlighterLayer: FC<HighlighterLayerProps> = ({ active }) => {
       }
     };
 
-    window.addEventListener('VIDEO_CAPTURED', onVideoCaptured as EventListener);
+    window.addEventListener(VIDEO.CAPTURED, onVideoCaptured as EventListener);
 
-    return () => window.removeEventListener('VIDEO_CAPTURED', onVideoCaptured as EventListener);
+    return () => window.removeEventListener(VIDEO.CAPTURED, onVideoCaptured as EventListener);
   }, [clearStrokeTimers]);
 
   const scheduleFadeOut = useCallback(

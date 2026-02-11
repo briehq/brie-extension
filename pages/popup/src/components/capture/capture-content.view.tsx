@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+  RECORDING,
+  REWIND,
+  SCREENSHOT,
   getActiveTab,
   isRewindBlocked,
   sendMessageToActiveTab,
@@ -65,7 +68,7 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     await updateCaptureState('capturing');
     await updateActiveTab(tab.id);
 
-    sendMessageToTab(tab.id, { action: 'START_SCREENSHOT', payload: { type: popupState.captureMode } });
+    sendMessageToTab(tab.id, { action: SCREENSHOT.START, payload: { type: popupState.captureMode } });
 
     window.close();
   }, [popupState.captureMode, updateActiveTab, updateCaptureState]);
@@ -112,13 +115,13 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
         return;
       }
 
-      const freeze = await sendRuntimeMessageToActiveTab({ type: 'REWIND/FREEZE', tabId });
+      const freeze = await sendRuntimeMessageToActiveTab({ type: REWIND.FREEZE, tabId });
       if (freeze?.status !== 'success') {
         // TODO: show toast with freezeResp.error
         return;
       }
 
-      sendMessageToTab(tabId, { action: 'REWIND/OPEN_REVIEW', payload: { tabId } });
+      sendMessageToTab(tabId, { action: REWIND.OPEN_REVIEW, payload: { tabId } });
       window.close();
     } catch (err) {
       console.error('[brie|popup] onOpenRewind failed', err);
@@ -131,11 +134,14 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
 
     await rewindSettingsStorage.setRewindEnabled(next);
 
-    await sendMessageToActiveTab('REWIND/SET_ENABLED', { enabled: next });
+    await sendMessageToActiveTab(REWIND.SET_ENABLED, { enabled: next });
   }, []);
 
   const sendRecordingCommand = useCallback(
-    (type: 'START_RECORDING' | 'STOP_RECORDING' | 'PAUSE_RECORDING' | 'RESUME_RECORDING', captureType?: RecordArea) => {
+    (
+      type: typeof RECORDING.START | typeof RECORDING.STOP | typeof RECORDING.PAUSE | typeof RECORDING.RESUME,
+      captureType?: RecordArea,
+    ) => {
       sendMessageToActiveTab(type, { captureType });
       window.close();
     },
@@ -148,11 +154,11 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
 
     await updateActiveTab(tab.id);
 
-    await sendRecordingCommand('START_RECORDING', popupState.recordArea);
+    await sendRecordingCommand(RECORDING.START, popupState.recordArea);
   }, [popupState.recordArea]);
 
   const handleOnStopVideoRecording = useCallback(async () => {
-    await sendRecordingCommand('STOP_RECORDING');
+    await sendRecordingCommand(RECORDING.STOP);
   }, [sendRecordingCommand]);
 
   return (

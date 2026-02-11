@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 
 import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
-import { AuthMethod, getActiveTab, reloadTab, sendMessageToTab, updateTab, useStorage } from '@extension/shared';
+import { AuthMethod, UI, getActiveTab, reloadTab, sendMessageToTab, updateTab, useStorage } from '@extension/shared';
 import type { BaseStorage, CaptureState, ScreenshotCaptureState } from '@extension/storage';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
 import { useUser } from '@extension/store';
@@ -84,7 +84,7 @@ export const PopupContent = () => {
       await updateCaptureState('idle');
       await updateActiveTab(null);
 
-      if (activeTabId) sendMessageToTab(activeTabId, { action: 'CLOSE_MODAL' });
+      if (activeTabId) sendMessageToTab(activeTabId, { action: UI.CLOSE_MODAL });
     },
     [updateActiveTab, updateCaptureState],
   );
