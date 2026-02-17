@@ -26,10 +26,10 @@ export const AuthView = () => {
     <div className="lg:p-8">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-lg font-semibold tracking-tight">Report bugs in seconds</h1>
+          <h1 className="text-lg font-semibold tracking-tight">{t('reportBugsHeading')}</h1>
 
           <p className="text-muted-foreground text-sm">
-            Get full access with your email.
+            {t('getFullAccess')}
             <br />
             {/* or a quick peek as a guest. */}
           </p>
@@ -41,7 +41,7 @@ export const AuthView = () => {
             loading={authIsLoading}
             disabled={authIsLoading || loginGuestIsLoading}
             onClick={register}>
-            Continue with email
+            {t('continueWithEmail')}
           </Button>
 
           {/* <Button
@@ -63,15 +63,14 @@ export const AuthView = () => {
         )}
 
         <p className="text-muted-foreground text-center text-[11px]">
-          By clicking "Continue",
-          <br />
-          you agree to our{' '}
+          {t('byClickingContinue')}
+          <br />{' '}
           <a href="https://brie.io/terms" target="_blank" className="hover:text-primary underline underline-offset-4">
-            Terms of Service
+            {t('termsOfService')}
           </a>{' '}
           and{' '}
           <a href="https://brie.io/privacy" target="_blank" className="hover:text-primary underline underline-offset-4">
-            Privacy Policy
+            {t('privacyPolicy')}
           </a>
           .
         </p>

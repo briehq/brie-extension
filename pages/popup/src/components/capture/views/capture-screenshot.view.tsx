@@ -1,3 +1,4 @@
+import { t } from '@extension/i18n';
 import type { CaptureMode } from '@extension/shared';
 import { Icon } from '@extension/ui';
 
@@ -38,14 +39,14 @@ export const CaptureScreenshotView = ({
       isDisabled={isDisabled}
       isActive={isActive}
       icon={icon}
-      activeTitle={`Exit ${title}`}
+      activeTitle={t('exitAction', title)}
       title={title}
       open={open}
       onToggleOpen={onToggleOpen}
       onPrimaryAction={onPrimaryAction}
-      primaryAriaLabel={`Run ${title}`}>
+      primaryAriaLabel={t('runAction', title)}>
       <div className="flex items-center justify-between">
-        <div className="text-muted-foreground text-xs">Capture mode</div>
+        <div className="text-muted-foreground text-xs">{t('captureMode')}</div>
         <ButtonGroup value={mode} options={CAPTURE_MODE_OPTIONS} ariaLabel="Capture mode" onChange={onChange} />
       </div>
     </CollapsibleActionCard>

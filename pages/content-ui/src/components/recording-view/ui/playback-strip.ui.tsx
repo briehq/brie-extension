@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import type { NetworkRecord, RecordLike, Segment } from '@extension/shared';
 import { formatDurationMs } from '@extension/shared';
 import { Button, cn, Icon } from '@extension/ui';
@@ -297,7 +298,7 @@ export const PlaybackStrip = ({
               className={cn('bg-background relative h-9 w-full rounded-lg border', !duration && 'opacity-60')}
               style={{ touchAction: 'none' }}
               onPointerDown={startPointerAction('scrub')}
-              aria-label="Playback timeline">
+              aria-label={t('playbackTimeline')}>
               <div className="text-muted-foreground pointer-events-none absolute inset-x-0 flex h-full items-center justify-between px-4 text-[10px]">
                 <span>0:00</span>
                 <span>{durationLabel}</span>
@@ -329,7 +330,7 @@ export const PlaybackStrip = ({
                     style={{ left: `${trimStartPercentage}%` }}
                     onPointerDown={startPointerAction('trimStart')}
                     role="slider"
-                    aria-label="Trim start"
+                    aria-label={t('trimStart')}
                   />
                   {showTrimStartTip && (
                     <div
@@ -344,7 +345,7 @@ export const PlaybackStrip = ({
                     style={{ left: `${trimEndPercentage}%` }}
                     onPointerDown={startPointerAction('trimEnd')}
                     role="slider"
-                    aria-label="Trim end"
+                    aria-label={t('trimEnd')}
                   />
                   {showTrimEndTip && (
                     <div

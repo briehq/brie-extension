@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import type { RecordLike } from '@extension/shared';
 import { cn, Icon, Popover, PopoverContent, PopoverTrigger } from '@extension/ui';
 
@@ -52,11 +53,11 @@ export const EventsDropdown = ({
           sideOffset={18}
           className="w-[420px]">
           <div className="grid gap-3">
-            <h4 className="font-medium leading-none">Important events</h4>
+            <h4 className="font-medium leading-none">{t('importantEvents')}</h4>
 
             <ul className="grid gap-1 text-[10px]">
               {!timelineEvents.length ? (
-                <li className="text-muted-foreground">No important events.</li>
+                <li className="text-muted-foreground">{t('noImportantEvents')}</li>
               ) : (
                 <>
                   {timelineEvents.map(event => (
@@ -69,7 +70,9 @@ export const EventsDropdown = ({
                       onBlur={() => onEventHover(null)}>
                       <span className="text-muted-foreground shrink-0 tabular-nums">{formatTime(event.timestamp)}</span>
 
-                      <span className="text-muted-foreground shrink-0">{event.type === 'network' ? 'NET' : 'LOG'}</span>
+                      <span className="text-muted-foreground shrink-0">
+                        {event.type === 'network' ? t('eventTypeNetwork') : t('eventTypeLog')}
+                      </span>
 
                       <span
                         className={cn({
@@ -81,7 +84,7 @@ export const EventsDropdown = ({
                     </li>
                   ))}
 
-                  <li className="text-muted-foreground px-1 py-1">Create the slice to see all events.</li>
+                  <li className="text-muted-foreground px-1 py-1">{t('createSliceToSeeEvents')}</li>
                 </>
               )}
             </ul>

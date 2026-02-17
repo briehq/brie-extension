@@ -143,7 +143,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
                 {previewScreenshotUrl(item.attachments) && (
                   <img
                     src={previewScreenshotUrl(item.attachments)}
-                    alt="Slice Thumbnail"
+                    alt={t('sliceThumbnail')}
                     loading="lazy"
                     crossOrigin="anonymous"
                     className="mr-3 size-12 rounded-md object-cover"

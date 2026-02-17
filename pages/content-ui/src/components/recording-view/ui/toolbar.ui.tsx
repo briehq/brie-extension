@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useCallback } from 'react';
 
+import { t } from '@extension/i18n';
 import { RECORDING, safePostMessage, useStorage } from '@extension/shared';
 import { recordingSettingsStorage } from '@extension/storage';
 import type { BaseStorage, RecordingSettings, VideoRecordingState } from '@extension/storage';
@@ -76,7 +77,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   <Icon name={isPaused ? 'Play' : 'Pause'} className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{isPaused ? 'Resume' : 'Pause'}</TooltipContent>
+              <TooltipContent side="top">{isPaused ? t('resumeRecording') : t('pauseRecording')}</TooltipContent>
             </Tooltip>
 
             {/* 
@@ -117,7 +118,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   <Icon name="Square" className="size-4 text-red-500/50" fill="#f87171" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">Stop &amp; save</TooltipContent>
+              <TooltipContent side="top">{t('stopAndSave')}</TooltipContent>
             </Tooltip>
           </div>
 
@@ -142,7 +143,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{isHighlighter ? 'Exit draw mode' : 'Draw (fades in 5s)'} </TooltipContent>
+              <TooltipContent side="top">{isHighlighter ? t('exitDrawMode') : t('drawMode')}</TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -164,7 +165,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{isBlur ? 'Exit blur mode' : 'Blur an element'}</TooltipContent>
+              <TooltipContent side="top">{isBlur ? t('exitBlurMode') : t('blurElement')}</TooltipContent>
             </Tooltip>
           </div>
         </div>

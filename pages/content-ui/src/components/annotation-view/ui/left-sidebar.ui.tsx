@@ -1,6 +1,7 @@
 import type { WheelEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import { annotationsStorage } from '@extension/storage';
@@ -58,7 +59,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
         <Button
           size="icon"
           variant="secondary"
-          aria-label="Open screenshots"
+          aria-label={t('openScreenshots')}
           type="button"
           onClick={toggle}
           className="border-border bg-background group absolute left-4 top-[5.2rem] z-10 border transition-colors">
@@ -79,7 +80,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
           className,
         )}>
         <div className="flex items-center justify-between">
-          <p className="text-primary text-sm font-medium">Screenshots</p>
+          <p className="text-primary text-sm font-medium">{t('screenshots')}</p>
           <Icon
             strokeWidth={1.5}
             name="PanelLeftCloseIcon"

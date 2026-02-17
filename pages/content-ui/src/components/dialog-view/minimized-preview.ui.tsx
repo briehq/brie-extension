@@ -111,7 +111,7 @@ export const MinimizedPreview: FC<MinimizedPreviewProps> = ({ screenshots, unsav
 
       <img
         src={lastImage.src}
-        alt={`Last captured screenshot: ${lastImage.name}`}
+        alt={t('lastCapturedScreenshot', lastImage.name)}
         className="h-full w-full object-cover"
         draggable={false}
       />

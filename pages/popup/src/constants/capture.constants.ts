@@ -8,17 +8,17 @@ export const CAPTURE_MODE_OPTIONS: { value: CaptureMode; label: string }[] = [
 ];
 
 export const RECORD_AREA_OPTIONS: { value: RecordArea; label: string }[] = [
-  { value: 'tab', label: 'Tab' },
-  { value: 'desktop', label: 'Desktop' },
+  { value: 'tab', label: t('recordAreaTab') },
+  { value: 'desktop', label: t('desktop') },
 ];
 
 export const CAPTURE_TITLE: Record<CaptureMode, string> = {
-  area: 'Capture Area',
-  viewport: 'Capture Window',
-  fullPage: 'Capture Fullscreen',
+  area: t('captureArea'),
+  viewport: t('captureWindow'),
+  fullPage: t('captureFullscreen'),
 };
 
 export const RECORD_TITLE: Record<RecordArea, string> = {
-  tab: 'Record Tab',
-  desktop: 'Record Desktop',
+  tab: t('recordTab'),
+  desktop: t('recordDesktop'),
 };

@@ -1,3 +1,4 @@
+import { t } from '@extension/i18n';
 import { Button, cn, Icon, Switch } from '@extension/ui';
 
 interface CaptureSessionViewProps {
@@ -25,17 +26,17 @@ export const CaptureSessionView = ({ isDisabled, enabled, onToggle, onOpen }: Ca
             })}>
             <div className="flex w-full items-center gap-2 text-[14px] font-medium">
               <Icon name="RewindIcon" className="h-4 w-4" />
-              <span>Replay</span>
+              <span>{t('replay')}</span>
             </div>
 
-            <div className="text-muted-foreground text-xs font-normal">Capture last minute before bug happened</div>
+            <div className="text-muted-foreground text-xs font-normal">{t('captureLastMinute')}</div>
           </div>
         </Button>
 
         <Switch
           checked={enabled}
           onCheckedChange={onToggle}
-          aria-label="Toggle rewind"
+          aria-label={t('toggleRewind')}
           className="data-[state=checked]:bg-foreground/80"
         />
       </div>

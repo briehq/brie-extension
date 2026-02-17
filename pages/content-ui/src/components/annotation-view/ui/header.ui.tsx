@@ -1,4 +1,5 @@
 import { IS_DEV } from '@extension/env';
+import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
@@ -78,24 +79,34 @@ export const Header: React.FC<EditorHeaderProps> = ({
         <div className="flex items-center">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="icon" variant="destructive" onClick={onClose} className="size-[35px]" aria-label="Close">
+              <Button
+                size="icon"
+                variant="destructive"
+                onClick={onClose}
+                className="size-[35px]"
+                aria-label={t('close')}>
                 <Icon name="X" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Close
+              {t('close')}
             </TooltipContent>
           </Tooltip>
 
           {onMinimize && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost" onClick={onMinimize} className="size-[35px]" aria-label="Minimize">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={onMinimize}
+                  className="size-[35px]"
+                  aria-label={t('minimize')}>
                   <Icon name="MinusIcon" size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" align="center">
-                Minimize
+                {t('minimize')}
               </TooltipContent>
             </Tooltip>
           )}
@@ -107,12 +118,12 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 variant="ghost"
                 onClick={onToggleFullScreen}
                 className="hidden size-[35px] sm:flex"
-                aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}>
+                aria-label={isFullScreen ? t('exitFullScreen') : t('enterFullScreen')}>
                 <Icon name={isFullScreen ? 'MinimizeIcon' : 'MaximizeIcon'} size={14} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              {isFullScreen ? 'Exit full screen' : 'Enter full screen'}
+              {isFullScreen ? t('exitFullScreen') : t('enterFullScreen')}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -130,12 +141,12 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 variant="ghost"
                 onClick={onUndo}
                 className="size-[35px]"
-                aria-label="Undo">
+                aria-label={t('undo')}>
                 <Icon name="Undo2Icon" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Undo
+              {t('undo')}
             </TooltipContent>
           </Tooltip>
 
@@ -147,12 +158,12 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 variant="ghost"
                 onClick={onRedo}
                 className="size-[35px]"
-                aria-label="Redo">
+                aria-label={t('redo')}>
                 <Icon name="Redo2Icon" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Redo
+              {t('redo')}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -160,11 +171,11 @@ export const Header: React.FC<EditorHeaderProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button disabled={!canStartOver} variant="destructive" onClick={onStartOver} className="h-[35px] px-[10px]">
-              <span className="font-normal leading-normal">Start over</span>
+              <span className="font-normal leading-normal">{t('startOver')}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="top" align="center">
-            Deletes all the shapes
+            {t('deletesAllShapes')}
           </TooltipContent>
         </Tooltip>
 

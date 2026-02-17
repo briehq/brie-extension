@@ -1,4 +1,5 @@
 import { IS_DEV, NAME } from '@extension/env';
+import { t } from '@extension/i18n';
 import { useUserOrganization } from '@extension/store';
 import { Button, Icon } from '@extension/ui';
 
@@ -24,7 +25,7 @@ export const Header = () => {
       </button>
       <div className="flex items-center">
         <Button
-          title="Join the Discord community"
+          title={t('joinDiscord')}
           type="button"
           size="icon"
           variant="ghost"
@@ -34,7 +35,7 @@ export const Header = () => {
         </Button>
 
         <Button
-          title="View the source code on GitHub"
+          title={t('viewSourceCode')}
           type="button"
           size="icon"
           variant="ghost"
@@ -46,7 +47,7 @@ export const Header = () => {
         <div className="bg-border/60 mx-2 h-[20px] w-[1px]" />
 
         <Button
-          title="Visit the Brie homepage"
+          title={t('visitHomepage')}
           type="button"
           size="icon"
           variant="ghost"

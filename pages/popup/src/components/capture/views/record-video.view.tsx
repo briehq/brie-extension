@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { t } from '@extension/i18n';
 import type { RecordArea } from '@extension/shared';
 import { Icon } from '@extension/ui';
 
@@ -44,24 +45,24 @@ export const RecordVideoView = ({
       isActive={isActive}
       icon={icon}
       title={title}
-      activeTitle={`Stop ${title}`}
+      activeTitle={t('stopAction', title)}
       open={open}
       onToggleOpen={onToggleOpen}
       onPrimaryAction={onPrimaryAction}
-      primaryAriaLabel={`Start ${title}`}
+      primaryAriaLabel={t('startAction', title)}
       right={
         isMicEnabled && (
           <StatusBadge
             state={isMicEnabled}
             icon={<Icon name={isMicEnabled ? 'Mic' : 'MicOff'} className="h-3.5 w-3.5" />}
-            label={isMicEnabled ? 'On' : 'Off'}
-            ariaLabel="Toggle system audio"
+            label={isMicEnabled ? t('statusOn') : t('statusOff')}
+            ariaLabel={t('toggleSystemAudio')}
             onClick={onToggleMic}
           />
         )
       }>
       <div className="flex items-center justify-between">
-        <div className="text-muted-foreground text-xs">Record area</div>
+        <div className="text-muted-foreground text-xs">{t('recordArea')}</div>
         <ButtonGroup value={mode} options={RECORD_AREA_OPTIONS} ariaLabel="Record area" onChange={onChange} />
       </div>
     </CollapsibleActionCard>

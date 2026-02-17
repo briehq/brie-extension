@@ -89,7 +89,7 @@ export default function App() {
       const tabId = tab?.id;
 
       if (!tabId) {
-        toast.error('No active tab for rewind');
+        toast.error(t('noActiveTabForRewind'));
         return;
       }
 
@@ -104,7 +104,7 @@ export default function App() {
       });
 
       if (rewindResponse?.missingAnchor) {
-        toast.message('No user actions captured yet');
+        toast.message(t('noUserActionsCaptured'));
         return;
       }
 
@@ -112,7 +112,7 @@ export default function App() {
       setMinimized(false);
     } catch (error) {
       console.error('[brie|rewind] failed to load frozen snapshot', error);
-      toast.error('Failed to load rewind replay');
+      toast.error(t('failedToLoadRewind'));
     }
   }, []);
 

@@ -3,6 +3,7 @@ import type { eventWithTime } from '@rrweb/types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import rrwebPlayer from 'rrweb-player';
 
+import { t } from '@extension/i18n';
 import type { NetworkRecord, RecordLike } from '@extension/shared';
 import { cn, Button, Icon, Switch, Popover, PopoverContent, PopoverTrigger } from '@extension/ui';
 
@@ -740,10 +741,10 @@ export const RewindPlayer = ({
     <div className={cn('relative flex min-h-0 min-w-0 flex-1 flex-col', className)}>
       <div ref={viewportRef} className="relative min-h-0 flex-1">
         {!hasAnyEvents ? (
-          <div className="p-3 text-sm text-gray-600">No replay data captured yet.</div>
+          <div className="p-3 text-sm text-gray-600">{t('noReplayData')}</div>
         ) : !isPlayable ? (
           <div className="p-3 text-sm text-gray-600">
-            <div className="font-medium text-gray-900">Replay not ready.</div>
+            <div className="font-medium text-gray-900">{t('replayNotReady')}</div>
             <div className="mt-1">
               {eventsToPlay.length < 2 && <div>Not enough events to play.</div>}
               {missingMeta && <div>Missing rrweb Meta (type 4).</div>}
@@ -776,7 +777,7 @@ export const RewindPlayer = ({
                 )}
                 style={{ touchAction: 'none' }}
                 onPointerDown={onStripPointerDown}
-                aria-label="Playback timeline">
+                aria-label={t('playbackTimeline')}>
                 <div className="text-muted-foreground pointer-events-none absolute inset-x-0 flex h-full items-center justify-between px-4 text-[10px]">
                   <span>0:00</span>
                   <span>{fullDurationLabel}</span>
@@ -831,7 +832,7 @@ export const RewindPlayer = ({
                       }}
                       aria-hidden="true">
                       <span className="text-muted-foreground absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-[10px] backdrop-blur-sm group-hover:block">
-                        Inactive
+                        {t('inactive')}
                       </span>
                     </div>
                   );
@@ -870,7 +871,7 @@ export const RewindPlayer = ({
                         startPointerAction('trimStart')(e);
                       }}
                       role="slider"
-                      aria-label="Trim start"
+                      aria-label={t('trimStart')}
                     />
                     {showTrimStartTip && (
                       <div
@@ -890,7 +891,7 @@ export const RewindPlayer = ({
                         startPointerAction('trimEnd')(e);
                       }}
                       role="slider"
-                      aria-label="Trim end"
+                      aria-label={t('trimEnd')}
                     />
                     {showTrimEndTip && (
                       <div
@@ -933,31 +934,31 @@ export const RewindPlayer = ({
                 sideOffset={18}
                 className="w-[380px]">
                 <div className="grid gap-3">
-                  <h4 className="font-medium leading-none">Playback settings</h4>
+                  <h4 className="font-medium leading-none">{t('playbackSettings')}</h4>
 
                   <div className="grid gap-3 rounded-lg">
                     <div className="flex items-center justify-between gap-3">
                       <div className="grid gap-0.5">
-                        <span className="text-sm font-medium">Skip inactivity</span>
-                        <span className="text-muted-foreground text-xs">Fast-forward long gaps between events.</span>
+                        <span className="text-sm font-medium">{t('skipInactivity')}</span>
+                        <span className="text-muted-foreground text-xs">{t('skipInactivityDescription')}</span>
                       </div>
                       <Switch
                         checked={skipInactivity}
                         onCheckedChange={setSkipInactivity}
-                        aria-label="Skip inactivity"
+                        aria-label={t('skipInactivity')}
                       />
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
                       <div className="grid gap-0.5">
-                        <span className="text-sm font-medium">Speed</span>
-                        <span className="text-muted-foreground text-xs">Playback rate.</span>
+                        <span className="text-sm font-medium">{t('speed')}</span>
+                        <span className="text-muted-foreground text-xs">{t('playbackRate')}</span>
                       </div>
                       <select
                         className="bg-background h-9 rounded-lg border px-2 text-sm"
                         value={String(speed)}
                         onChange={e => setSpeed(normalizeSpeed(Number(e.target.value)))}
-                        aria-label="Playback speed">
+                        aria-label={t('playbackSpeed')}>
                         {speedOptions.map(option => (
                           <option key={option} value={String(option)}>
                             {option}x

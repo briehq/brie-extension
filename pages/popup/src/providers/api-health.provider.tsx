@@ -4,6 +4,7 @@ import type React from 'react';
 import { useEffect, useState, useCallback } from 'react';
 
 import { API_BASE_URL } from '@extension/env';
+import { t } from '@extension/i18n';
 import { Alert, AlertDescription, AlertTitle } from '@extension/ui';
 
 interface ApiHealthProviderProps {
@@ -56,12 +57,14 @@ export const ApiHealthProvider = ({ children, checkInterval = 60000 }: ApiHealth
       <Alert variant="destructive" className="border-red-200">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-          <AlertTitle className="font-semibold text-red-800">Service Unavailable</AlertTitle>
+          <AlertTitle className="font-semibold text-red-800">{t('serviceUnavailable')}</AlertTitle>
         </div>
         <AlertDescription className="mt-2 text-red-700">
-          We're sorry, our system is currently offline. <br />
-          We'll be back as soon as possible.
-          {retryCount > 1 && <span className="mt-1 block text-sm text-red-600">Retry attempt: {retryCount}</span>}
+          {t('systemOffline')} <br />
+          {t('backSoon')}
+          {retryCount > 1 && (
+            <span className="mt-1 block text-sm text-red-600">{t('retryAttempt', String(retryCount))}</span>
+          )}
         </AlertDescription>
       </Alert>
     );

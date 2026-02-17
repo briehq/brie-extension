@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { t } from '@extension/i18n';
 import { Button, cn, Icon, Separator } from '@extension/ui';
 
 interface CollapsibleActionCardProps {
@@ -76,7 +77,7 @@ export const CollapsibleActionCard = ({
             size="icon"
             variant="ghost"
             onClick={onToggleOpen}
-            aria-label={open ? `Collapse ${title}` : `Expand ${title}`}
+            aria-label={open ? t('collapseAction', title) : t('expandAction', title)}
             className={cn('text-muted-foreground/80 hover:bg-muted/60 hover:text-foreground size-8')}>
             <Icon name={open ? 'ChevronUp' : 'ChevronDown'} className="h-4 w-4 transition-transform" />
           </Button>

@@ -183,7 +183,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
         <Button
           size="icon"
           variant="secondary"
-          aria-label="Open details"
+          aria-label={t('openDetails')}
           type="button"
           onClick={toggle}
           className="border-border bg-background group absolute right-4 top-[5.2rem] z-10 border transition-colors">
@@ -204,7 +204,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           className,
         )}>
         <div className="flex w-full items-center justify-between">
-          <p className="text-primary text-sm font-medium">Details</p>
+          <p className="text-primary text-sm font-medium">{t('details')}</p>
 
           <Icon
             size={16}
@@ -222,7 +222,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               name="description"
               rules={{
                 maxLength: {
-                  message: 'Keep it short and sweet, 10 - 512 characters max!',
+                  message: t('descriptionMaxLength'),
                   value: 512,
                 },
               }}
@@ -231,7 +231,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
                 return (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs">Description</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs">{t('description')}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Textarea
@@ -241,7 +241,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                             if (typeof field.ref === 'function') field.ref(node);
                             else (field as any).ref = node;
                           }}
-                          placeholder={!suggestion?.length ? 'Write a description here...' : ''}
+                          placeholder={!suggestion?.length ? t('descriptionPlaceholder') : ''}
                           rows={7}
                           className="resize-none overflow-y-auto"
                           onWheelCapture={e => e.stopPropagation()}
@@ -301,11 +301,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               defaultValue={SlicePriority.LOW}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs">Priority</FormLabel>
+                  <FormLabel className="text-muted-foreground text-xs">{t('priority')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={SlicePriority.LOW}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
+                        <SelectValue placeholder={t('selectPriority')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -342,7 +342,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 name="labels"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs">Labels</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs">{t('labels')}</FormLabel>
                     <FormControl>
                       <TagInput
                         {...field}
@@ -350,7 +350,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                         showCount={false}
                         truncate={15}
                         textCase="lowercase"
-                        placeholder="Insert a label"
+                        placeholder={t('insertLabel')}
                         tags={labels}
                         inputFieldPosition="top"
                         setTags={labels => {

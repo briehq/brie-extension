@@ -2,6 +2,7 @@ import '@src/Popup.css';
 
 import { useEffect } from 'react';
 
+import { t } from '@extension/i18n';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
 import { themeStorage } from '@extension/storage';
 import { store, ReduxProvider } from '@extension/store';
@@ -40,4 +41,4 @@ const Popup = () => {
   );
 };
 
-export default withErrorBoundary(withSuspense(Popup, <Skeleton />), <div>Error Occurred</div>);
+export default withErrorBoundary(withSuspense(Popup, <Skeleton />), <div>{t('errorOccurred')}</div>);
