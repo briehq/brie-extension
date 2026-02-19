@@ -127,6 +127,9 @@
   "retry": {
     "message": "Retry"
   },
+  "sessionExpired": {
+    "message": "Your login session has expired. Please sign in again."
+  },
   "authFailed": {
     "message": "Помилка автентифікації!"
   }

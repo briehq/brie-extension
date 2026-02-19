@@ -46,6 +46,7 @@ export default function App() {
       window.removeEventListener(UI.CLOSE_MODAL, handleOnClose);
       window.removeEventListener(SCREENSHOT.STORE, handleOnStoreScreenshot);
       window.removeEventListener(AUTH.STATUS, handleOnAuthStatus);
+      window.removeEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
       window.removeEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
     };
   }, []);

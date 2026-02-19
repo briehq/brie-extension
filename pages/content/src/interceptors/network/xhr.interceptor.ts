@@ -1,5 +1,7 @@
 import { RECORD, safePostMessage } from '@extension/shared';
 
+const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
+
 // Define interfaces for request details and payload
 interface RequestDetails {
   method: string;
@@ -53,7 +55,11 @@ export const interceptXHR = (): void => {
         const responseHeaders = rawHeaders
           .split('\r\n')
           .filter(line => line.includes(':'))
-          .map(line => line.split(':').map(str => str.trim()));
+          .map(line => {
+            const [key, ...rest] = line.split(':').map(str => str.trim());
+            const value = REDACT_HEADER_KEYS.includes(key.toLowerCase()) ? '***redacted***' : rest.join(':');
+            return [key, value];
+          });
 
         const { requestBody } = this._requestDetails;
 

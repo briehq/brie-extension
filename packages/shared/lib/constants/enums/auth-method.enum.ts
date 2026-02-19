@@ -3,5 +3,6 @@ export enum AuthMethod {
   PHONE = 'PHONE',
   GOOGLE = 'GOOGLE',
   APPLE = 'APPLE',
+  TWITTER = 'TWITTER',
   GUEST = 'GUEST',
 }
