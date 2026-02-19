@@ -11,7 +11,7 @@ import { Separator } from '@extension/ui';
 import { BetaNotifier, Header, Skeleton } from './components/ui';
 import { AuthGuard } from './guards';
 import { PopupContent } from './popup-content';
-import { ApiHealthProvider } from './providers';
+import { AuthStateProvider } from './providers';
 
 const Popup = () => {
   const theme = useStorage(themeStorage);
@@ -24,8 +24,8 @@ const Popup = () => {
 
   return (
     <div className="dark:bg-background.dark relative px-5 pb-5 pt-4">
-      <ApiHealthProvider>
-        <ReduxProvider store={store}>
+      <ReduxProvider store={store}>
+        <AuthStateProvider>
           <AuthGuard>
             <div className="flex flex-col gap-y-4">
               <Header />
@@ -35,8 +35,8 @@ const Popup = () => {
               <BetaNotifier />
             </div>
           </AuthGuard>
-        </ReduxProvider>
-      </ApiHealthProvider>
+        </AuthStateProvider>
+      </ReduxProvider>
     </div>
   );
 };

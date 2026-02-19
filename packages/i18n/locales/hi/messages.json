@@ -121,6 +121,12 @@
   "authCompleted": {
     "message": "प्रमाणीकरण सफल रहा!"
   },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
   "authFailed": {
     "message": "प्रमाणीकरण विफल रहा!"
   }

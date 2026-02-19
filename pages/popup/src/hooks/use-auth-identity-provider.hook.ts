@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { runtime } from 'webextension-polyfill';
 
 import { AUTH, useStorage } from '@extension/shared';
@@ -19,10 +19,6 @@ export const useAuthIdentityProvider = () => {
 
   const authFlow = useStorage(authIdentityProviderStorage);
   const setAuthFlow = useCallback((state: AuthFlowState | null) => authIdentityProviderStorage.set(state), []);
-
-  useEffect(() => {
-    setAuthFlow(null);
-  }, []);
 
   /**
    * Launches the authentication flow via background message.

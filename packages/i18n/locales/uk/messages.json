@@ -121,6 +121,12 @@
   "authCompleted": {
     "message": "Автентифікація пройшла успішно!"
   },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
   "authFailed": {
     "message": "Помилка автентифікації!"
   }

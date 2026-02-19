@@ -121,6 +121,12 @@
   "authCompleted": {
     "message": "Autentificare reușită!"
   },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
   "authFailed": {
     "message": "Autentificare eșuată!"
   }

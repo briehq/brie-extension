@@ -48,12 +48,8 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
           // retry the initial query
           result = await accessBaseQuery(args, api, extraOptions);
         } else {
-          toast.loading('Sorry, you will be logged off, because your login session has expired.');
-
-          setTimeout(() => {
-            authTokensStorage.setTokens({} as Tokens);
-            // location.reload();
-          }, 4000);
+          toast.error('Your login session has expired. Please sign in again.');
+          await authTokensStorage.setTokens({} as Tokens);
         }
       } finally {
         // release must be called once the mutex should be released again.

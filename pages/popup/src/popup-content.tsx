@@ -5,12 +5,12 @@ import { t } from '@extension/i18n';
 import { AuthMethod, UI, getActiveTab, reloadTab, sendMessageToTab, updateTab, useStorage } from '@extension/shared';
 import type { BaseStorage, CaptureState, ScreenshotCaptureState } from '@extension/storage';
 import { captureStateStorage, captureTabStorage, pendingReloadTabsStorage } from '@extension/storage';
-import { useUser } from '@extension/store';
 import { Button } from '@extension/ui';
 
 import { CaptureContentView } from './components/capture';
 import { InternalPageView, PendingReloadView, UnsavedCurrentTabView, UnsavedTabView } from './components/capture/views';
 import { useSlicesCreatedToday } from './hooks';
+import { useAuthStateContext } from './providers/auth-state.provider';
 import { isInternalUrl } from './utils';
 
 interface ActiveTab {
@@ -20,7 +20,7 @@ interface ActiveTab {
 
 export const PopupContent = () => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
-  const user = useUser();
+  const { user } = useAuthStateContext();
 
   const { state, mode } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
   const captureTabId = useStorage<BaseStorage<number | null>>(captureTabStorage);
@@ -33,14 +33,14 @@ export const PopupContent = () => {
   const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(state), [state]);
 
   const isCaptureScreenshotDisabled = useMemo(() => {
-    const isGuest = user?.fields?.authMethod === AuthMethod.GUEST;
+    const isGuest = user?.authMethod === AuthMethod.GUEST;
 
     // Dev or non-guest: no limit
     if (IS_DEV || !isGuest) return false;
 
     // Guests: block after daily limit
     return isGuest && totalSlicesCreatedToday > 10 && !!activeTab.id;
-  }, [totalSlicesCreatedToday, user?.fields?.authMethod, activeTab.id]);
+  }, [totalSlicesCreatedToday, user?.authMethod, activeTab.id]);
 
   useEffect(() => {
     const initializeState = async () => {

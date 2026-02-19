@@ -460,6 +460,9 @@
   "errorOccurred": {
     "message": "Error Occurred"
   },
+  "retry": {
+    "message": "Retry"
+  },
   "exitAction": {
     "message": "Exit $1"
   },

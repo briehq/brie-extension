@@ -121,6 +121,12 @@
   "authCompleted": {
     "message": "Tunnistautuminen onnistui!"
   },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
   "authFailed": {
     "message": "Tunnistautuminen epäonnistui!"
   }

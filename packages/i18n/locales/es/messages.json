@@ -121,6 +121,12 @@
   "authCompleted": {
     "message": "¡Autenticación exitosa!"
   },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
   "authFailed": {
     "message": "¡Error de autenticación!"
   }

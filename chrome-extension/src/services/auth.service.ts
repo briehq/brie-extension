@@ -9,7 +9,7 @@ import { persistTokens } from '@src/utils';
 export const handleOnAuthStart = async (): Promise<BgResponse> => {
   try {
     const redirectUri = identity.getRedirectURL();
-    const url = `${APP_BASE_URL}/register?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    const url = `${APP_BASE_URL}/auth?redirect_uri=${encodeURIComponent(redirectUri)}`;
 
     const responseUrl: string = await identity.launchWebAuthFlow({
       url,
