@@ -431,10 +431,10 @@
     "message": "Report bugs in seconds"
   },
   "getFullAccess": {
-    "message": "Get full access with your email."
+    "message": "Start capturing and fixing bugs faster."
   },
-  "continueWithEmail": {
-    "message": "Continue with email"
+  "continue": {
+    "message": "Continue"
   },
   "byClickingContinue": {
     "message": "By clicking \"Continue\","

@@ -36,7 +36,7 @@ export const useAuthIdentityProvider = () => {
       if (!response?.ok) {
         throw new Error(response?.error || 'Auth flow failed');
       } else {
-        window.close();
+        // window.close();
       }
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e));
