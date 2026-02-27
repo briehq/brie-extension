@@ -16,7 +16,8 @@ let dimensionLabel: HTMLDivElement;
 let message: HTMLDivElement | null = null;
 let loadingMessage: HTMLDivElement | null = null;
 
-const waitForRepaint = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+const waitForRepaint = () =>
+  new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 const getShadowHost = () => document.getElementById('brie-root');
 
 // Helper Functions
@@ -255,8 +256,8 @@ const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') =>
 // Handle keydown events for ESC press
 const onKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
-    // cancelled = true; // Mark as cancelled when ESC is pressed
-    cleanup(); // Cleanup on ESC
+    cleanup();
+    showPreview();
 
     // Notify Background on ESC
     chrome.runtime.sendMessage({ type: CAPTURE.EXIT });
@@ -351,17 +352,14 @@ const onTouchMove = (e: TouchEvent) => {
   positionInstructionsMessage(lastPointerX, lastPointerY);
 };
 
-const toggleMinimizedPreview = () => {
+const hidePreview = () => {
   const shadowHost = getShadowHost();
-  const wasHidden = shadowHost?.hidden ?? false;
+  if (shadowHost) shadowHost.hidden = true;
+};
 
-  if (!shadowHost) return;
-
-  if (!wasHidden) {
-    shadowHost.hidden = true;
-  } else {
-    shadowHost.hidden = false;
-  }
+const showPreview = () => {
+  const shadowHost = getShadowHost();
+  if (shadowHost) shadowHost.hidden = false;
 };
 
 // Show instructions message
@@ -391,24 +389,16 @@ const showInstructions = () => {
 
 const captureTab = (): Promise<string> =>
   new Promise((resolve, reject) => {
-    toggleMinimizedPreview();
-
     chrome.runtime.sendMessage({ action: CAPTURE.VISIBLE_TAB }, response => {
       if (chrome.runtime.lastError) {
-        // Error from Chrome's runtime
         console.log('chrome.runtime.lastError.message', chrome.runtime.lastError.message);
-
         reject(new Error(chrome.runtime.lastError.message));
       } else if (!response || !response.success) {
         console.log('response?.message', response?.message);
-        // Error from the response itself
         reject(new Error(response?.message || 'Failed to capture screenshot.'));
       } else {
-        // Successfully received data URL
         resolve(response.dataUrl);
       }
-
-      toggleMinimizedPreview();
     });
   });
 
@@ -486,7 +476,7 @@ const captureScreenshots = async ({
   } catch (error) {
     console.error('Error during screenshot capture:', error);
   } finally {
-    toggleMinimizedPreview();
+    showPreview();
   }
 };
 
@@ -623,16 +613,20 @@ export const startScreenshotCapture = async ({
   }
 
   if (type === 'viewport') {
-    const viewport = await captureTab();
-
-    saveAndNotify({ screenshots: [{ src: viewport }], mode });
-
+    hidePreview();
+    await waitForRepaint();
+    try {
+      const viewport = await captureTab();
+      saveAndNotify({ screenshots: [{ src: viewport }], mode });
+    } finally {
+      showPreview();
+    }
     return;
   }
 
   createOverlay();
   showInstructions();
-  toggleMinimizedPreview();
+  hidePreview();
 
   overlay.addEventListener('keydown', onKeyDown); // Listen for ESC key press
   overlay.addEventListener('mousedown', e => onMouseDown(e, mode));
