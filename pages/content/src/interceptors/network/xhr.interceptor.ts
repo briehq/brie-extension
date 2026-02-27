@@ -1,6 +1,6 @@
 import { RECORD, safePostMessage } from '@extension/shared';
 
-const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
+import { redactHeaderValue, redactSensitiveBodyKeys } from './redact.util.js';
 
 // Define interfaces for request details and payload
 interface RequestDetails {
@@ -57,11 +57,11 @@ export const interceptXHR = (): void => {
           .filter(line => line.includes(':'))
           .map(line => {
             const [key, ...rest] = line.split(':').map(str => str.trim());
-            const value = REDACT_HEADER_KEYS.includes(key.toLowerCase()) ? '***redacted***' : rest.join(':');
+            const value = redactHeaderValue(key, rest.join(':'));
             return [key, value];
           });
 
-        const { requestBody } = this._requestDetails;
+        const requestBody = redactSensitiveBodyKeys(this._requestDetails.requestBody);
 
         // Check for large or binary content (skip cloning and parsing for binary data)
         const contentType = this.getResponseHeader('Content-Type');

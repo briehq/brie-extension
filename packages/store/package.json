@@ -25,6 +25,7 @@
     "@extension/env": "workspace:*",
     "@extension/shared": "workspace:*",
     "@extension/storage": "workspace:*",
+    "@extension/i18n": "workspace:*",
     "@extension/tsconfig": "workspace:*"
   },
   "dependencies": {

@@ -4,8 +4,11 @@ import { Mutex } from 'async-mutex';
 import { toast } from 'react-hot-toast';
 
 import { API_BASE_URL } from '@extension/env';
+import { t } from '@extension/i18n';
 import type { Tokens, UserAndTokensResponse } from '@extension/shared';
 import { authTokensStorage } from '@extension/storage';
+
+import { resetAllApiState } from './reset-api-state.util.js';
 
 const mutex = new Mutex();
 const baseQuery = (type: 'access' | 'refresh') =>
@@ -48,10 +51,9 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
           // retry the initial query
           result = await accessBaseQuery(args, api, extraOptions);
         } else {
-          // TODO: use t('sessionExpired') once @extension/i18n is added as a dependency
-          toast.error('Your login session has expired. Please sign in again.');
+          toast.error(t('sessionExpired'));
           await authTokensStorage.setTokens({} as Tokens);
-          api.dispatch({ type: 'user/resetApiState' });
+          resetAllApiState(api.dispatch);
         }
       } finally {
         // release must be called once the mutex should be released again.

@@ -2,17 +2,16 @@ import { RECORD, safePostMessage } from '@extension/shared';
 
 import { extractQueryParams } from '@src/utils';
 
-type FetchArgs = [RequestInfo | URL, RequestInit?];
+import { REDACT_BODY_KEYS, redactHeaderValue } from './redact.util.js';
 
-const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
-const REDACT_BODY_KEYS = ['password', 'pass', 'token', 'secret', 'authorization', 'auth'];
+type FetchArgs = [RequestInfo | URL, RequestInit?];
 const MAX_BODY_BYTES = 100_000; // 100KB cap for request/response previews
 const BINARY_CT = /(octet-stream|pdf|zip|gzip|image|audio|video)\b/i;
 const SELF_ENDPOINT_REGEX = /\/add-record|\/telemetry|\/analytics/; // adjust to your endpoints
 
 const truncate = (s: string, max = MAX_BODY_BYTES) => (s.length > max ? s.slice(0, max) + '…[truncated]' : s);
 
-const redactHeader = (k: string, v: string) => (REDACT_HEADER_KEYS.includes(k.toLowerCase()) ? '***redacted***' : v);
+const redactHeader = redactHeaderValue;
 
 const headersInitToRecord = (h?: HeadersInit): Record<string, string> => {
   if (!h) return {};
