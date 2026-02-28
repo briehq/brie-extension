@@ -1,8 +1,10 @@
+import { REDACTED_KEYWORD } from '@extension/shared';
+
 const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
 const REDACT_BODY_KEYS = ['password', 'pass', 'token', 'secret', 'authorization', 'auth'];
 
 const redactHeaderValue = (key: string, value: string): string =>
-  REDACT_HEADER_KEYS.includes(key.toLowerCase()) ? '***redacted***' : value;
+  REDACT_HEADER_KEYS.includes(key.toLowerCase()) ? REDACTED_KEYWORD : value;
 
 const redactObject = (obj: unknown): unknown => {
   if (Array.isArray(obj)) return obj.map(redactObject);
@@ -10,7 +12,7 @@ const redactObject = (obj: unknown): unknown => {
     return Object.fromEntries(
       Object.entries(obj).map(([k, v]) => [
         k,
-        REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? '***redacted***' : redactObject(v),
+        REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? REDACTED_KEYWORD : redactObject(v),
       ]),
     );
   }

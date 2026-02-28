@@ -1,4 +1,4 @@
-import { RECORD, safePostMessage } from '@extension/shared';
+import { RECORD, REDACTED_KEYWORD, safePostMessage } from '@extension/shared';
 
 import { extractQueryParams } from '@src/utils';
 
@@ -65,7 +65,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
                     Object.entries(o).map(([k, v]) => [
                       k,
                       REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x))
-                        ? '***redacted***'
+                        ? REDACTED_KEYWORD
                         : typeof v === 'string'
                           ? truncate(v)
                           : redact(v),
@@ -84,7 +84,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
       const rec: Record<string, string> = {};
       body.forEach(
         (v, k) =>
-          (rec[k] = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? '***redacted***' : truncate(v, 10_000)),
+          (rec[k] = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? REDACTED_KEYWORD : truncate(v, 10_000)),
       );
       const text = JSON.stringify(rec);
       return { text: truncate(text), bytes: text.length };
@@ -93,7 +93,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
       const parts: string[] = [];
       body.forEach((v, k) => {
         const safe = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x))
-          ? '***redacted***'
+          ? REDACTED_KEYWORD
           : typeof v === 'string'
             ? truncate(v, 10_000)
             : `[file:${(v as File).name ?? 'blob'}:${(v as File).size ?? '?'}B]`;
