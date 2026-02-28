@@ -3,7 +3,7 @@ import { contextMenus } from 'webextension-polyfill';
 
 import { t } from '@extension/i18n';
 import { SCREENSHOT, sendMessageToTab } from '@extension/shared';
-import { captureStateStorage, captureTabStorage } from '@extension/storage';
+import { authTokensStorage, captureStateStorage, captureTabStorage } from '@extension/storage';
 
 import type { CaptureType } from '@src/types';
 
@@ -44,6 +44,9 @@ export const addContextMenus = async (): Promise<void> => {
 
 export const handleOnContextMenuClicked = async (info: Menus.OnClickData, tab?: Tabs.Tab) => {
   try {
+    const tokens = await authTokensStorage.getTokens();
+    if (!tokens?.accessToken) return;
+
     const tabId = tab?.id;
     if (!tabId) return;
 
