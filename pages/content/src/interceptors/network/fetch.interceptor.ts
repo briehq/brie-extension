@@ -241,7 +241,7 @@ export const interceptFetch = (): void => {
     const clone = response.clone();
 
     const serializedHeaders: Record<string, string> = {};
-    clone.headers.forEach((value, key) => (serializedHeaders[key] = value));
+    clone.headers.forEach((value, key) => (serializedHeaders[key] = redactHeader(key, value)));
 
     let responseBody: string | object = '';
     try {

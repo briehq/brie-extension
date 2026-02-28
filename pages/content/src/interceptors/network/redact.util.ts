@@ -1,6 +1,6 @@
 import { REDACTED_KEYWORD } from '@extension/shared';
 
-const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
+const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'set-cookie', 'x-api-key', 'x-auth-token'];
 const REDACT_BODY_KEYS = ['password', 'pass', 'token', 'secret', 'authorization', 'auth'];
 
 const redactHeaderValue = (key: string, value: string): string =>

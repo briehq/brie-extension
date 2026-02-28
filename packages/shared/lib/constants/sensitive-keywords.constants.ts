@@ -21,7 +21,6 @@ export const STRONG_KEYS = [
   'sso_token',
   'encryption_key',
   'decryption_key',
-  'user_id',
   'social_security_number',
   'ssn',
   'card_number',
