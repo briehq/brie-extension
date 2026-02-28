@@ -528,5 +528,11 @@
   },
   "sliceThumbnail": {
     "message": "Slice Thumbnail"
+  },
+  "errorDetected": {
+    "message": "A bug was detected on this page"
+  },
+  "errorDetectedAction": {
+    "message": "Review Replay"
   }
 }

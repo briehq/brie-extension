@@ -1,6 +1,9 @@
-import { RECORD, RECORDING } from '@extension/shared';
+import { ERROR, RECORD, RECORDING } from '@extension/shared';
 
 import { pauseRecording, resumeRecording, startCaptureNow, stopRecording, toggleMic } from '@src/capture';
+
+const ERROR_NOTIFICATION_COOLDOWN_MS = 60_000;
+let lastErrorNotificationTimestamp = 0;
 
 export const addWindowEventListeners = () => {
   /**
@@ -37,6 +40,14 @@ export const addWindowEventListeners = () => {
             console.error('[RECORD:ADD error]', chrome.runtime.lastError);
           }
         });
+
+        if (payload.method === 'error' && payload.recordType === 'console') {
+          const now = Date.now();
+          if (now - lastErrorNotificationTimestamp >= ERROR_NOTIFICATION_COOLDOWN_MS) {
+            lastErrorNotificationTimestamp = now;
+            window.dispatchEvent(new CustomEvent(ERROR.DETECTED, { detail: payload }));
+          }
+        }
 
         break;
       }

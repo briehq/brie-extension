@@ -1,5 +1,6 @@
 export { AUTH, type AuthMsg } from './auth.message.js';
 export { CAPTURE, type CaptureMsg } from './capture.message.js';
+export { ERROR, type ErrorMsg } from './error.message.js';
 export { SCREENSHOT, type ScreenshotMsg } from './screenshot.message.js';
 export { RECORDING, type RecordingMsg } from './recording.message.js';
 export { VIDEO, type VideoMsg } from './video.message.js';
