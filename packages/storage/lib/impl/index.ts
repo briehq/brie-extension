@@ -7,3 +7,4 @@ export type { CaptureNotifyStorage } from './capture/index.js';
 export * from './theme.storage.js';
 export * from './user-uuid.storage.js';
 export * from './pending-reload-tabs.storage.js';
+export * from './domain-skip-list.storage.js';

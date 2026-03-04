@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { tabs } from 'webextension-polyfill';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
+import { domainSkipListStorage } from '@extension/storage';
 
 import type { Record } from '@src/types';
 
@@ -55,6 +56,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
 
   const [tab] = await tabs.query({ active: true, lastFocusedWindow: true });
   const tabUrl = tab?.url || record?.url;
+  const skipDomains = await domainSkipListStorage.get();
 
   if (!tabRecordsMap.has(tabId)) {
     tabRecordsMap.set(tabId, new Map());
@@ -65,7 +67,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
 
   try {
     if (record.recordType !== 'network') {
-      recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl) });
+      recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl, skipDomains) });
       return;
     }
 
@@ -111,13 +113,13 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     }
     const { requestBody: baseRequestBody, ...restForRedaction } = baseRecord;
 
-    const redactedRest = deepRedactSensitiveInfo(restForRedaction, tabUrl);
+    const redactedRest = deepRedactSensitiveInfo(restForRedaction, tabUrl, skipDomains);
     let safeRequestBody: any = undefined;
 
     if (baseRequestBody?.parsed || baseRequestBody?.decoded) {
       safeRequestBody = {
         ...(baseRequestBody?.raw ? { raw: baseRequestBody.raw } : {}),
-        parsed: deepRedactSensitiveInfo(baseRequestBody.parsed ?? baseRequestBody.decoded, tabUrl),
+        parsed: deepRedactSensitiveInfo(baseRequestBody.parsed ?? baseRequestBody.decoded, tabUrl, skipDomains),
       };
     }
 
