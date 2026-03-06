@@ -225,5 +225,23 @@
   },
   "fileTooLarge": {
     "message": "“$1” is too large. Choose a file under 20 MB."
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "domainSkipList": {
+    "message": "Domain Skip List"
+  },
+  "domainSkipListDescription": {
+    "message": "Domains where sensitive information redaction is skipped."
+  },
+  "addDomain": {
+    "message": "Add"
+  },
+  "domainPlaceholder": {
+    "message": "e.g. staging.example.com"
+  },
+  "noDomains": {
+    "message": "No domains added yet. Sensitive info is only skipped on localhost by default."
   }
 }
