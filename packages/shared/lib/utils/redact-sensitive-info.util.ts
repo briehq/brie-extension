@@ -160,18 +160,36 @@ const deepRedactInternal = (input: any, shouldSkipRedaction: boolean, ctx?: { st
 };
 
 /**
+ * Checks if the given URL matches any domain in the skip list.
+ *
+ * @param url - The URL to check.
+ * @param skipDomains - List of domain patterns to skip redaction for.
+ * @returns True if the URL matches a domain in the skip list.
+ */
+const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
+  if (!url || !skipDomains || skipDomains.length === 0) return false;
+
+  const lowerUrl = url.toLowerCase();
+  return skipDomains.some(domain => lowerUrl.includes(domain.toLowerCase()));
+};
+
+/**
  * Deeply redacts sensitive information from an input structure.
- * Automatically skips redaction in non-production environments.
+ * Automatically skips redaction in non-production environments or
+ * when the URL matches a domain in the user-configured skip list.
  * Uses cache when `uuid` is available on the object.
  *
  * @param input - Any value (object, array, string, etc.) to redact.
  * @param url - Optional URL to determine if redaction should apply (e.g. non-prod).
+ * @param skipDomains - Optional list of domain patterns for which redaction is skipped.
  * @returns Redacted copy of the input.
  */
-export const deepRedactSensitiveInfo = (input: any, url?: string): any => {
+export const deepRedactSensitiveInfo = (input: any, url?: string, skipDomains?: string[]): any => {
   const nonProd = isNonProduction(url);
+  const domainSkipped = isSkipDomain(url, skipDomains);
+  const shouldSkip = nonProd || domainSkipped;
   const cacheKey =
-    input && typeof input === 'object' && input.uuid ? `${input.uuid}::${nonProd ? 'nonprod' : 'prod'}` : undefined;
+    input && typeof input === 'object' && input.uuid ? `${input.uuid}::${shouldSkip ? 'skip' : 'prod'}` : undefined;
 
   let shouldSkipRedaction = false;
 
@@ -180,11 +198,11 @@ export const deepRedactSensitiveInfo = (input: any, url?: string): any => {
     if (cached !== undefined) {
       shouldSkipRedaction = cached;
     } else {
-      shouldSkipRedaction = nonProd;
+      shouldSkipRedaction = shouldSkip;
       redactSkipCache.set(cacheKey, shouldSkipRedaction);
     }
   } else {
-    shouldSkipRedaction = nonProd;
+    shouldSkipRedaction = shouldSkip;
   }
 
   return deepRedactInternal(input, shouldSkipRedaction);

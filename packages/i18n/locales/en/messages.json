@@ -534,5 +534,23 @@
   },
   "errorDetectedAction": {
     "message": "Review Replay"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "domainSkipList": {
+    "message": "Domain Skip List"
+  },
+  "domainSkipListDescription": {
+    "message": "Domains where sensitive information redaction is skipped."
+  },
+  "addDomain": {
+    "message": "Add"
+  },
+  "domainPlaceholder": {
+    "message": "e.g. staging.example.com"
+  },
+  "noDomains": {
+    "message": "No domains added yet. Sensitive info is only skipped on localhost by default."
   }
 }

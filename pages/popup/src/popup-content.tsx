@@ -9,6 +9,9 @@ import { Button } from '@extension/ui';
 
 import { CaptureContentView } from './components/capture';
 import { InternalPageView, PendingReloadView, UnsavedCurrentTabView, UnsavedTabView } from './components/capture/views';
+import { SettingsButton, SettingsContent } from './components/settings';
+import { SlicesHistoryButton, SlicesHistoryContent } from './components/slices-history';
+import { Header, BetaNotifier } from './components/ui';
 import { useSlicesCreatedToday } from './hooks';
 import { useAuthStateContext } from './providers/auth-state.provider';
 import { isInternalUrl } from './utils';
@@ -26,9 +29,15 @@ export const PopupContent = () => {
   const captureTabId = useStorage<BaseStorage<number | null>>(captureTabStorage);
   const pendingReloadTabIds = useStorage<BaseStorage<number[]>>(pendingReloadTabsStorage) ?? [];
 
-  // const [showSlicesHistory, setShowSlicesHistory] = useState(false);
+  const [showSlicesHistory, setShowSlicesHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number | undefined>();
+
+  const handleOnBack = () => {
+    setShowSlicesHistory(false);
+    setShowSettings(false);
+  };
 
   const isCaptureActive = useMemo(() => ['capturing', 'unsaved'].includes(state), [state]);
 
@@ -91,9 +100,13 @@ export const PopupContent = () => {
 
   const internalPage = isInternalUrl(activeTab.url);
 
-  // if (showSlicesHistory) {
-  //   return <SlicesHistoryContent onBack={() => setShowSlicesHistory(false)} />;
-  // }
+  if (showSlicesHistory) {
+    return <SlicesHistoryContent onBack={handleOnBack} />;
+  }
+
+  if (showSettings) {
+    return <SettingsContent onBack={handleOnBack} />;
+  }
 
   // Use-case: Pending reload for this tab
   if (currentActiveTab && pendingReloadTabIds.includes(currentActiveTab)) {
@@ -130,7 +143,9 @@ export const PopupContent = () => {
           setActiveTab(prev => ({ ...prev, id }));
         }}
       />
-      {/* {state === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />} */}
+      {state === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
+      {state === 'idle' && <SettingsButton onClick={() => setShowSettings(true)} />}
+      <BetaNotifier />
     </>
   );
 };
