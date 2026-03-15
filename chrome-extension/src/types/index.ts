@@ -19,7 +19,8 @@ export type BgMessage =
   | { action: typeof CAPTURE.VISIBLE_TAB };
 
 export type BgResponse =
-  | { status: 'success' }
+  | { status: 'success'; [key: string]: unknown }
+  | { status: 'error'; message: string }
   | { records: unknown[] }
   | { success: boolean; dataUrl?: string; message?: string }
   | { ok: boolean; error?: string }

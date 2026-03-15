@@ -83,7 +83,7 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="gap-x-2 text-[rgba(39,36,29,0.4)]" onClick={handleOnCreateSpace}>
+        <DropdownMenuItem className="text-muted-foreground gap-x-2" onClick={handleOnCreateSpace}>
           <div className="flex h-8 w-8 items-center justify-center">
             <Icon name="PlusIcon" className="h-3.5 w-3.5" />
           </div>

@@ -4,7 +4,7 @@ import { tabs } from 'webextension-polyfill';
 import { AUTH, CAPTURE, RECORD, REWIND, TAB } from '@extension/shared';
 import { annotationsRedoStorage, annotationsStorage, captureStateStorage, captureTabStorage } from '@extension/storage';
 
-import type { BgResponse } from '@src/types';
+import type { BgResponse, Record as BrieRecord } from '@src/types';
 import { addOrMergeRecords, deleteRecords, getRecords, rewindService } from '@src/utils';
 
 import { handleOnAuthStart } from './auth.service';
@@ -27,7 +27,7 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
       case RECORD.ADD: {
         const tabId = sender.tab?.id;
-        if (typeof tabId === 'number') addOrMergeRecords(tabId, message.data);
+        if (typeof tabId === 'number') addOrMergeRecords(tabId, message.data as BrieRecord);
 
         return { status: 'success' };
       }
@@ -64,7 +64,7 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
       case REWIND.FREEZE: {
         const tabId = message?.tabId;
 
-        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+        if (typeof tabId !== 'number') return { status: 'error', message: 'Invalid tabId' };
 
         const frozen = await rewindService.freeze(tabId);
 
@@ -76,13 +76,13 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
         if (!tabId) return { status: 'error', message: 'Invalid tabId' };
 
-        return rewindService.getFrozenOrFreeze(tabId);
+        return (await rewindService.getFrozenOrFreeze(tabId)) as unknown as BgResponse;
       }
 
       case REWIND.RESET_TAB: {
         const tabId = message?.tabId;
 
-        if (!tabId) return { status: 'error', message: 'Invalid tabId' };
+        if (typeof tabId !== 'number') return { status: 'error', message: 'Invalid tabId' };
 
         await rewindService.resetTab(tabId);
         return { status: 'success' };

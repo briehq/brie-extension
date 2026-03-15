@@ -106,7 +106,7 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
 
       const { id: tabId, url: tabUrl } = tab;
 
-      if (tabUrl.startsWith('chrome://') || tabUrl.startsWith('edge://') || tabUrl.startsWith('about:')) return {};
+      if (tabUrl.startsWith('chrome://') || tabUrl.startsWith('edge://') || tabUrl.startsWith('about:')) return;
 
       const { blocked: rewindBlocked, reason } = isRewindBlocked(tabUrl);
 
@@ -115,7 +115,7 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
         return;
       }
 
-      const freeze = await sendRuntimeMessageToActiveTab({ type: REWIND.FREEZE, tabId });
+      const freeze = (await sendRuntimeMessageToActiveTab({ type: REWIND.FREEZE, tabId })) as { status: string };
       if (freeze?.status !== 'success') {
         // TODO: show toast with freezeResp.error
         return;
