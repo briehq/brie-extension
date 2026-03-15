@@ -38,7 +38,7 @@
     "message": "În versiune beta."
   },
   "reportBugsOrRequestFeatures": {
-    "message": "Raportează bug."
+    "message": "Raportează bug-uri sau solicită funcționalități noi."
   },
   "area": {
     "message": "Zonă"
@@ -118,25 +118,439 @@
   "readyToGo": {
     "message": "va fi gata de utilizare!"
   },
+  "LOW": {
+    "message": "Scăzută"
+  },
+  "HIGH": {
+    "message": "Ridicată"
+  },
+  "HIGHEST": {
+    "message": "Critică"
+  },
+  "MEDIUM": {
+    "message": "Medie"
+  },
   "authCompleted": {
     "message": "Autentificare reușită!"
-  },
-  "errorOccurred": {
-    "message": "Error Occurred"
-  },
-  "retry": {
-    "message": "Retry"
-  },
-  "sessionExpired": {
-    "message": "Your login session has expired. Please sign in again."
   },
   "authFailed": {
     "message": "Autentificare eșuată!"
   },
+  "screenshotCaptured": {
+    "message": "Screenshot capturat"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Capturează mai multe sau treci direct la editare."
+  },
+  "imagePreparing": {
+    "message": "Se pregătește screenshot-ul pentru descărcare…"
+  },
+  "imagePreparingFailed": {
+    "message": "Nu s-a putut pregăti screenshot-ul pentru descărcare."
+  },
+  "imageCopied": {
+    "message": "Screenshot copiat!"
+  },
+  "imageCopiedFailed": {
+    "message": "Nu s-a putut copia screenshot-ul."
+  },
+  "edit": {
+    "message": "Editează"
+  },
+  "copy": {
+    "message": "Copiază"
+  },
+  "save": {
+    "message": "Salvează..."
+  },
+  "addToSpace": {
+    "message": "Adaugă în spațiu"
+  },
+  "createSpace": {
+    "message": "Creează spațiu"
+  },
+  "noSpaces": {
+    "message": "Niciun spațiu încă"
+  },
+  "colorPalette": {
+    "message": "Paletă de culori"
+  },
+  "selectColor": {
+    "message": "Selectează culoarea"
+  },
+  "toggle": {
+    "message": "Comută"
+  },
+  "moreIntegrationSoon": {
+    "message": "Mai multe integrări în curând..."
+  },
+  "createLink": {
+    "message": "Creează un link"
+  },
+  "createLinear": {
+    "message": "Creează în Linear"
+  },
+  "createJira": {
+    "message": "Creează în Jira"
+  },
+  "createAzure": {
+    "message": "Creează în Azure"
+  },
+  "rename": {
+    "message": "Redenumește"
+  },
+  "export": {
+    "message": "Exportă"
+  },
+  "exportSettings": {
+    "message": "Setări export"
+  },
+  "imageFormat": {
+    "message": "Format imagine"
+  },
+  "outputResolution": {
+    "message": "Rezoluție de ieșire"
+  },
+  "edited": {
+    "message": "Editat"
+  },
+  "deleteScreenshot": {
+    "message": "Șterge screenshot-ul"
+  },
+  "workspaces": {
+    "message": "Spații de lucru"
+  },
+  "createWorkspace": {
+    "message": "Creează spațiu de lucru"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" este prea mare. Alege un fișier sub 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "Înregistrarea este în desfășurare pe această filă."
+  },
+  "pauseRecording": {
+    "message": "Pauză"
+  },
+  "stopRecording": {
+    "message": "Oprește"
+  },
+  "recordingPaused": {
+    "message": "Înregistrarea este pe pauză pe această filă."
+  },
+  "resumeRecording": {
+    "message": "Reia"
+  },
+  "preparingRecording": {
+    "message": "Se pregătește înregistrarea acestei file…"
+  },
+  "videoRecordingDescription": {
+    "message": "Capturează un video al acestei file cu o bară de instrumente mobilă și adnotări."
+  },
+  "startRecording": {
+    "message": "Înregistrează această filă"
+  },
+  "tab": {
+    "message": "Fila curentă"
+  },
+  "desktop": {
+    "message": "Desktop"
+  },
+  "micPermissionDenied": {
+    "message": "Microfonul este blocat în browser"
+  },
+  "enableMic": {
+    "message": "Activează microfonul"
+  },
+  "disableMic": {
+    "message": "Dezactivează microfonul"
+  },
+  "exitEditMode": {
+    "message": "Ieși din modul de editare"
+  },
+  "noActiveTabForRewind": {
+    "message": "Nicio filă activă pentru derulare înapoi"
+  },
+  "noUserActionsCaptured": {
+    "message": "Nicio acțiune a utilizatorului capturată încă"
+  },
+  "failedToLoadRewind": {
+    "message": "Nu s-a putut încărca reluarea derulării înapoi"
+  },
+  "stopAndSave": {
+    "message": "Oprește și salvează"
+  },
+  "exitDrawMode": {
+    "message": "Ieși din modul de desenare"
+  },
+  "drawMode": {
+    "message": "Desenare (dispare în 5s)"
+  },
+  "exitBlurMode": {
+    "message": "Ieși din modul de estompare"
+  },
+  "blurElement": {
+    "message": "Estompează un element"
+  },
+  "close": {
+    "message": "Închide"
+  },
+  "minimize": {
+    "message": "Minimizează"
+  },
+  "exitFullScreen": {
+    "message": "Ieși din ecran complet"
+  },
+  "enterFullScreen": {
+    "message": "Ecran complet"
+  },
+  "undo": {
+    "message": "Anulează"
+  },
+  "redo": {
+    "message": "Refă"
+  },
+  "startOver": {
+    "message": "Începe din nou"
+  },
+  "deletesAllShapes": {
+    "message": "Șterge toate formele"
+  },
+  "toolLabel": {
+    "message": "Instrument:"
+  },
+  "zoomLabel": {
+    "message": "Zoom:"
+  },
+  "durationLabel": {
+    "message": "Durată:"
+  },
+  "trimLabel": {
+    "message": "Decupare:"
+  },
+  "fileLabel": {
+    "message": "Fișier:"
+  },
+  "openScreenshots": {
+    "message": "Deschide screenshot-urile"
+  },
+  "screenshots": {
+    "message": "Screenshot-uri"
+  },
+  "openDetails": {
+    "message": "Deschide detalii"
+  },
+  "details": {
+    "message": "Detalii"
+  },
+  "descriptionMaxLength": {
+    "message": "Fii scurt și concis, maxim 10 - 512 caractere!"
+  },
+  "description": {
+    "message": "Descriere"
+  },
+  "descriptionPlaceholder": {
+    "message": "Scrie o descriere aici..."
+  },
+  "priority": {
+    "message": "Prioritate"
+  },
+  "selectPriority": {
+    "message": "Selectează prioritatea"
+  },
+  "labels": {
+    "message": "Etichete"
+  },
+  "insertLabel": {
+    "message": "Inserează o etichetă"
+  },
+  "playbackTimeline": {
+    "message": "Cronologia redării"
+  },
+  "trimStart": {
+    "message": "Început decupare"
+  },
+  "trimEnd": {
+    "message": "Sfârșit decupare"
+  },
+  "noReplayData": {
+    "message": "Niciun dat de reluare capturat încă."
+  },
+  "replayNotReady": {
+    "message": "Reluarea nu este pregătită."
+  },
+  "inactive": {
+    "message": "Inactiv"
+  },
+  "playbackSettings": {
+    "message": "Setări de redare"
+  },
+  "skipInactivity": {
+    "message": "Sari peste inactivitate"
+  },
+  "skipInactivityDescription": {
+    "message": "Avansare rapidă peste pauzele lungi între evenimente."
+  },
+  "speed": {
+    "message": "Viteză"
+  },
+  "playbackRate": {
+    "message": "Rata de redare."
+  },
+  "playbackSpeed": {
+    "message": "Viteza de redare"
+  },
+  "importantEvents": {
+    "message": "Evenimente importante"
+  },
+  "noImportantEvents": {
+    "message": "Niciun eveniment important."
+  },
+  "eventTypeNetwork": {
+    "message": "REȚEA"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Creează felia pentru a vedea toate evenimentele."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Ultimul screenshot capturat: $1"
+  },
+  "joinDiscord": {
+    "message": "Alătură-te comunității Discord"
+  },
+  "viewSourceCode": {
+    "message": "Vezi codul sursă pe GitHub"
+  },
+  "visitHomepage": {
+    "message": "Vizitează pagina Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Raportează bug-uri în câteva secunde"
+  },
+  "getFullAccess": {
+    "message": "Începe să capturezi și să rezolvi bug-uri mai rapid."
+  },
+  "continue": {
+    "message": "Continuă"
+  },
+  "byClickingContinue": {
+    "message": "Apăsând \"Continuă\","
+  },
+  "termsOfService": {
+    "message": "Termeni și condiții"
+  },
+  "privacyPolicy": {
+    "message": "Politica de confidențialitate"
+  },
+  "serviceUnavailable": {
+    "message": "Serviciu indisponibil"
+  },
+  "systemOffline": {
+    "message": "Ne cerem scuze, sistemul nostru este momentan offline."
+  },
+  "backSoon": {
+    "message": "Vom reveni cât mai curând posibil."
+  },
+  "retryAttempt": {
+    "message": "Încercare de reîncercare: $1"
+  },
+  "errorOccurred": {
+    "message": "A apărut o eroare"
+  },
+  "retry": {
+    "message": "Reîncearcă"
+  },
+  "sessionExpired": {
+    "message": "Sesiunea ta a expirat. Te rugăm să te autentifici din nou."
+  },
+  "exitAction": {
+    "message": "Ieși din $1"
+  },
+  "runAction": {
+    "message": "Rulează $1"
+  },
+  "captureMode": {
+    "message": "Mod de captură"
+  },
+  "stopAction": {
+    "message": "Oprește $1"
+  },
+  "startAction": {
+    "message": "Pornește $1"
+  },
+  "statusOn": {
+    "message": "Activat"
+  },
+  "statusOff": {
+    "message": "Dezactivat"
+  },
+  "toggleSystemAudio": {
+    "message": "Comută sunetul de sistem"
+  },
+  "recordArea": {
+    "message": "Înregistrează zona"
+  },
+  "replay": {
+    "message": "Reluare"
+  },
+  "captureLastMinute": {
+    "message": "Capturează ultimul minut înainte de apariția bug-ului"
+  },
+  "toggleRewind": {
+    "message": "Comută derularea înapoi"
+  },
+  "collapseAction": {
+    "message": "Restrânge $1"
+  },
+  "expandAction": {
+    "message": "Extinde $1"
+  },
+  "recordAreaTab": {
+    "message": "Filă"
+  },
+  "captureArea": {
+    "message": "Capturează zona"
+  },
+  "captureWindow": {
+    "message": "Capturează fereastra"
+  },
+  "captureFullscreen": {
+    "message": "Capturează ecranul complet"
+  },
+  "recordTab": {
+    "message": "Înregistrează fila"
+  },
+  "recordDesktop": {
+    "message": "Înregistrează desktop-ul"
+  },
+  "sliceThumbnail": {
+    "message": "Miniatura feliei"
+  },
   "errorDetected": {
-    "message": "A bug was detected on this page"
+    "message": "A fost detectat un bug pe această pagină"
   },
   "errorDetectedAction": {
-    "message": "Review Replay"
+    "message": "Vezi reluarea"
+  },
+  "settings": {
+    "message": "Setări"
+  },
+  "domainSkipList": {
+    "message": "Lista domeniilor excluse"
+  },
+  "domainSkipListDescription": {
+    "message": "Domeniile unde redactarea informațiilor sensibile este omisă."
+  },
+  "addDomain": {
+    "message": "Adaugă"
+  },
+  "domainPlaceholder": {
+    "message": "ex. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Niciun domeniu adăugat încă. Informațiile sensibile sunt omise doar pe localhost în mod implicit."
   }
 }

@@ -118,25 +118,439 @@
   "readyToGo": {
     "message": "ay magiging handa na!"
   },
+  "LOW": {
+    "message": "Mababa"
+  },
+  "HIGH": {
+    "message": "Mataas"
+  },
+  "HIGHEST": {
+    "message": "Kritikal"
+  },
+  "MEDIUM": {
+    "message": "Katamtaman"
+  },
   "authCompleted": {
-    "message": "Tunnistautuminen onnistui!"
-  },
-  "errorOccurred": {
-    "message": "Error Occurred"
-  },
-  "retry": {
-    "message": "Retry"
-  },
-  "sessionExpired": {
-    "message": "Your login session has expired. Please sign in again."
+    "message": "Matagumpay kang naka-sign in!"
   },
   "authFailed": {
-    "message": "Tunnistautuminen epäonnistui!"
+    "message": "Hindi nagtagumpay ang pag-sign in. Subukan ulit."
+  },
+  "screenshotCaptured": {
+    "message": "Na-capture ang screenshot"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Mag-capture pa ng iba o dumiretso sa pag-edit."
+  },
+  "imagePreparing": {
+    "message": "Ihinahanda ang iyong screenshot para i-download…"
+  },
+  "imagePreparingFailed": {
+    "message": "Hindi naihanda ang iyong screenshot para i-download."
+  },
+  "imageCopied": {
+    "message": "Na-copy ang screenshot!"
+  },
+  "imageCopiedFailed": {
+    "message": "Hindi na-copy ang iyong screenshot."
+  },
+  "edit": {
+    "message": "I-edit"
+  },
+  "copy": {
+    "message": "Kopyahin"
+  },
+  "save": {
+    "message": "I-save..."
+  },
+  "addToSpace": {
+    "message": "Idagdag sa space"
+  },
+  "createSpace": {
+    "message": "Gumawa ng space"
+  },
+  "noSpaces": {
+    "message": "Wala pang mga space"
+  },
+  "colorPalette": {
+    "message": "Palette ng Kulay"
+  },
+  "selectColor": {
+    "message": "Pumili ng kulay"
+  },
+  "toggle": {
+    "message": "I-toggle"
+  },
+  "moreIntegrationSoon": {
+    "message": "Mas maraming integration ang darating..."
+  },
+  "createLink": {
+    "message": "Gumawa ng link"
+  },
+  "createLinear": {
+    "message": "Gumawa sa Linear"
+  },
+  "createJira": {
+    "message": "Gumawa sa Jira"
+  },
+  "createAzure": {
+    "message": "Gumawa sa Azure"
+  },
+  "rename": {
+    "message": "Palitan ang pangalan"
+  },
+  "export": {
+    "message": "I-export"
+  },
+  "exportSettings": {
+    "message": "Mga Setting ng Export"
+  },
+  "imageFormat": {
+    "message": "Format ng imahe"
+  },
+  "outputResolution": {
+    "message": "Output Resolution"
+  },
+  "edited": {
+    "message": "Na-edit"
+  },
+  "deleteScreenshot": {
+    "message": "Tanggalin ang screenshot"
+  },
+  "workspaces": {
+    "message": "Mga Workspace"
+  },
+  "createWorkspace": {
+    "message": "Gumawa ng Workspace"
+  },
+  "fileTooLarge": {
+    "message": "Masyadong malaki ang \"$1\". Pumili ng file na wala pang 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "May ginagawang recording sa tab na ito."
+  },
+  "pauseRecording": {
+    "message": "I-pause"
+  },
+  "stopRecording": {
+    "message": "Ihinto"
+  },
+  "recordingPaused": {
+    "message": "Naka-pause ang recording sa tab na ito."
+  },
+  "resumeRecording": {
+    "message": "Ituloy"
+  },
+  "preparingRecording": {
+    "message": "Ihinahanda ang pag-record ng tab na ito…"
+  },
+  "videoRecordingDescription": {
+    "message": "Mag-capture ng video ng tab na ito gamit ang nadadrag na toolbar at mga annotation."
+  },
+  "startRecording": {
+    "message": "I-record ang tab na ito"
+  },
+  "tab": {
+    "message": "Kasalukuyang Tab"
+  },
+  "desktop": {
+    "message": "Desktop"
+  },
+  "micPermissionDenied": {
+    "message": "Naka-block ang mikropono sa browser"
+  },
+  "enableMic": {
+    "message": "I-enable ang mikropono"
+  },
+  "disableMic": {
+    "message": "I-mute ang mikropono"
+  },
+  "exitEditMode": {
+    "message": "Lumabas sa Edit Mode"
+  },
+  "noActiveTabForRewind": {
+    "message": "Walang active tab para sa rewind"
+  },
+  "noUserActionsCaptured": {
+    "message": "Wala pang na-capture na aksyon ng user"
+  },
+  "failedToLoadRewind": {
+    "message": "Hindi na-load ang rewind replay"
+  },
+  "stopAndSave": {
+    "message": "Ihinto at i-save"
+  },
+  "exitDrawMode": {
+    "message": "Lumabas sa draw mode"
+  },
+  "drawMode": {
+    "message": "Mag-draw (mawawala sa 5s)"
+  },
+  "exitBlurMode": {
+    "message": "Lumabas sa blur mode"
+  },
+  "blurElement": {
+    "message": "I-blur ang isang element"
+  },
+  "close": {
+    "message": "Isara"
+  },
+  "minimize": {
+    "message": "I-minimize"
+  },
+  "exitFullScreen": {
+    "message": "Lumabas sa full screen"
+  },
+  "enterFullScreen": {
+    "message": "Pumasok sa full screen"
+  },
+  "undo": {
+    "message": "I-undo"
+  },
+  "redo": {
+    "message": "I-redo"
+  },
+  "startOver": {
+    "message": "Magsimula ulit"
+  },
+  "deletesAllShapes": {
+    "message": "Tatanggalin lahat ng mga hugis"
+  },
+  "toolLabel": {
+    "message": "Tool:"
+  },
+  "zoomLabel": {
+    "message": "Zoom:"
+  },
+  "durationLabel": {
+    "message": "Tagal:"
+  },
+  "trimLabel": {
+    "message": "Trim:"
+  },
+  "fileLabel": {
+    "message": "File:"
+  },
+  "openScreenshots": {
+    "message": "Buksan ang mga screenshot"
+  },
+  "screenshots": {
+    "message": "Mga Screenshot"
+  },
+  "openDetails": {
+    "message": "Buksan ang mga detalye"
+  },
+  "details": {
+    "message": "Mga Detalye"
+  },
+  "descriptionMaxLength": {
+    "message": "Paikliin lang, 10 - 512 na character ang maximum!"
+  },
+  "description": {
+    "message": "Paglalarawan"
+  },
+  "descriptionPlaceholder": {
+    "message": "Magsulat ng paglalarawan dito..."
+  },
+  "priority": {
+    "message": "Priyoridad"
+  },
+  "selectPriority": {
+    "message": "Pumili ng priyoridad"
+  },
+  "labels": {
+    "message": "Mga Label"
+  },
+  "insertLabel": {
+    "message": "Maglagay ng label"
+  },
+  "playbackTimeline": {
+    "message": "Timeline ng playback"
+  },
+  "trimStart": {
+    "message": "Simula ng trim"
+  },
+  "trimEnd": {
+    "message": "Dulo ng trim"
+  },
+  "noReplayData": {
+    "message": "Wala pang na-capture na replay data."
+  },
+  "replayNotReady": {
+    "message": "Hindi pa handa ang replay."
+  },
+  "inactive": {
+    "message": "Hindi aktibo"
+  },
+  "playbackSettings": {
+    "message": "Mga setting ng playback"
+  },
+  "skipInactivity": {
+    "message": "Laktawan ang inactivity"
+  },
+  "skipInactivityDescription": {
+    "message": "I-fast-forward ang mahabang gaps sa pagitan ng mga event."
+  },
+  "speed": {
+    "message": "Bilis"
+  },
+  "playbackRate": {
+    "message": "Bilis ng playback."
+  },
+  "playbackSpeed": {
+    "message": "Bilis ng playback"
+  },
+  "importantEvents": {
+    "message": "Mga importanteng event"
+  },
+  "noImportantEvents": {
+    "message": "Walang importanteng event."
+  },
+  "eventTypeNetwork": {
+    "message": "NET"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Gumawa ng slice para makita ang lahat ng event."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Huling na-capture na screenshot: $1"
+  },
+  "joinDiscord": {
+    "message": "Sumali sa Discord community"
+  },
+  "viewSourceCode": {
+    "message": "Tingnan ang source code sa GitHub"
+  },
+  "visitHomepage": {
+    "message": "Bisitahin ang homepage ng Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Mag-report ng mga bug sa ilang segundo"
+  },
+  "getFullAccess": {
+    "message": "Simulan ang pag-capture at pag-fix ng mga bug nang mas mabilis."
+  },
+  "continue": {
+    "message": "Magpatuloy"
+  },
+  "byClickingContinue": {
+    "message": "Sa pag-click ng \"Magpatuloy\","
+  },
+  "termsOfService": {
+    "message": "Mga Tuntunin ng Serbisyo"
+  },
+  "privacyPolicy": {
+    "message": "Patakaran sa Privacy"
+  },
+  "serviceUnavailable": {
+    "message": "Hindi Available ang Serbisyo"
+  },
+  "systemOffline": {
+    "message": "Paumanhin, kasalukuyang offline ang aming sistema."
+  },
+  "backSoon": {
+    "message": "Babalik kami sa lalong madaling panahon."
+  },
+  "retryAttempt": {
+    "message": "Retry attempt: $1"
+  },
+  "errorOccurred": {
+    "message": "May Naganap na Error"
+  },
+  "retry": {
+    "message": "Subukan Ulit"
+  },
+  "sessionExpired": {
+    "message": "Nag-expire na ang iyong session. Mag-sign in ulit."
+  },
+  "exitAction": {
+    "message": "Lumabas sa $1"
+  },
+  "runAction": {
+    "message": "Patakbuhin ang $1"
+  },
+  "captureMode": {
+    "message": "Capture mode"
+  },
+  "stopAction": {
+    "message": "Ihinto ang $1"
+  },
+  "startAction": {
+    "message": "Simulan ang $1"
+  },
+  "statusOn": {
+    "message": "Naka-on"
+  },
+  "statusOff": {
+    "message": "Naka-off"
+  },
+  "toggleSystemAudio": {
+    "message": "I-toggle ang system audio"
+  },
+  "recordArea": {
+    "message": "I-record ang lugar"
+  },
+  "replay": {
+    "message": "Replay"
+  },
+  "captureLastMinute": {
+    "message": "I-capture ang huling minuto bago nangyari ang bug"
+  },
+  "toggleRewind": {
+    "message": "I-toggle ang rewind"
+  },
+  "collapseAction": {
+    "message": "I-collapse ang $1"
+  },
+  "expandAction": {
+    "message": "I-expand ang $1"
+  },
+  "recordAreaTab": {
+    "message": "Tab"
+  },
+  "captureArea": {
+    "message": "I-capture ang Lugar"
+  },
+  "captureWindow": {
+    "message": "I-capture ang Window"
+  },
+  "captureFullscreen": {
+    "message": "I-capture ang Fullscreen"
+  },
+  "recordTab": {
+    "message": "I-record ang Tab"
+  },
+  "recordDesktop": {
+    "message": "I-record ang Desktop"
+  },
+  "sliceThumbnail": {
+    "message": "Thumbnail ng Slice"
   },
   "errorDetected": {
-    "message": "A bug was detected on this page"
+    "message": "May na-detect na bug sa pahinang ito"
   },
   "errorDetectedAction": {
-    "message": "Review Replay"
+    "message": "Tingnan ang Replay"
+  },
+  "settings": {
+    "message": "Mga Setting"
+  },
+  "domainSkipList": {
+    "message": "Listahan ng mga Na-skip na Domain"
+  },
+  "domainSkipListDescription": {
+    "message": "Mga domain kung saan nili-laktawan ang pag-redact ng sensitibong impormasyon."
+  },
+  "addDomain": {
+    "message": "Idagdag"
+  },
+  "domainPlaceholder": {
+    "message": "hal. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Wala pang naidagdag na domain. Ang sensitibong impormasyon ay nili-laktawan lang sa localhost bilang default."
   }
 }
