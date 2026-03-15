@@ -36,11 +36,15 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
         <div>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="button" size="icon" variant="ghost">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className={cn('relative', { 'border-[0.5px]': activeSpaceId })}>
                 <Icon name="Folder" size={16} />
 
                 {activeSpaceId && (
-                  <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full" />
+                  <span className="bg-primary text-primary-foreground absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium" />
                 )}
               </Button>
             </TooltipTrigger>

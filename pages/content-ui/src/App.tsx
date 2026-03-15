@@ -4,16 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
-import {
-  AUTH,
-  ERROR,
-  REWIND,
-  SCREENSHOT,
-  UI,
-  VIDEO,
-  sendRuntimeMessageToActiveTab,
-  useStorage,
-} from '@extension/shared';
+import { AUTH, REWIND, SCREENSHOT, UI, VIDEO, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -49,7 +40,6 @@ export default function App() {
     window.addEventListener(AUTH.STATUS, handleOnAuthStatus);
     window.addEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
     window.addEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
-    window.addEventListener(ERROR.DETECTED, handleOnErrorDetected);
 
     return () => {
       window.removeEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
@@ -58,7 +48,6 @@ export default function App() {
       window.removeEventListener(AUTH.STATUS, handleOnAuthStatus);
       window.removeEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
       window.removeEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
-      window.removeEventListener(ERROR.DETECTED, handleOnErrorDetected);
     };
   }, []);
 
@@ -127,20 +116,6 @@ export default function App() {
       toast.error(t('failedToLoadRewind'));
     }
   }, []);
-
-  const handleOnErrorDetected = useCallback(() => {
-    if (isDialogOpenRef.current) return;
-
-    toast.error(t('errorDetected'), {
-      duration: 10_000,
-      action: {
-        label: t('errorDetectedAction'),
-        onClick: () => {
-          if (!isDialogOpenRef.current) handleOnRewindCapture();
-        },
-      },
-    });
-  }, [handleOnRewindCapture]);
 
   const handleOnClose = useCallback(async () => {
     setIdempotencyKey(uuid());

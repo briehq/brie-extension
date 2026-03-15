@@ -373,7 +373,14 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   control={control}
                   defaultValue={undefined as unknown as FileList}
                   render={({ field: { onChange, value, ref } }) => {
-                    const count = value?.length ?? 0;
+                    const files: File[] = value ? Array.from(value as FileList) : [];
+                    const count = files.length;
+
+                    const updateFiles = (nextFiles: File[]) => {
+                      const dt = new DataTransfer();
+                      nextFiles.forEach(f => dt.items.add(f));
+                      onChange(dt.files);
+                    };
 
                     return (
                       <div className="relative">
@@ -382,7 +389,15 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                           type="file"
                           multiple
                           ref={ref}
-                          onChange={e => onChange(e.target.files as FileList)}
+                          onChange={e => {
+                            const incoming = e.target.files ? Array.from(e.target.files) : [];
+                            const existingNames = new Set(files.map(f => `${f.name}-${f.size}-${f.lastModified}`));
+                            const deduped = incoming.filter(
+                              f => !existingNames.has(`${f.name}-${f.size}-${f.lastModified}`),
+                            );
+                            updateFiles([...files, ...deduped]);
+                            e.target.value = '';
+                          }}
                           className="sr-only"
                         />
 
@@ -408,6 +423,24 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                             {t('attachFile')}
                           </TooltipContent>
                         </Tooltip>
+
+                        {count > 0 && (
+                          <div className="absolute left-0 top-full z-10 mt-1 flex max-w-[200px] flex-col gap-1">
+                            {files.map((file, i) => (
+                              <div
+                                key={`${file.name}-${file.size}-${file.lastModified}`}
+                                className="border-border bg-background flex items-center gap-1 rounded border px-1.5 py-0.5">
+                                <span className="text-muted-foreground truncate text-[10px]">{file.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateFiles(files.filter((_, j) => j !== i))}
+                                  className="text-muted-foreground hover:text-destructive shrink-0">
+                                  <Icon name="X" size={10} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   }}
