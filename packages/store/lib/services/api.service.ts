@@ -8,8 +8,6 @@ import { t } from '@extension/i18n';
 import type { Tokens, UserAndTokensResponse } from '@extension/shared';
 import { authTokensStorage } from '@extension/storage';
 
-import { resetAllApiState } from './reset-api-state.util.js';
-
 const mutex = new Mutex();
 const baseQuery = (type: 'access' | 'refresh') =>
   fetchBaseQuery({
@@ -53,6 +51,7 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
         } else {
           toast.error(t('sessionExpired'));
           await authTokensStorage.setTokens({} as Tokens);
+          const { resetAllApiState } = await import('./reset-api-state.util.js');
           resetAllApiState(api.dispatch);
         }
       } finally {
