@@ -5,7 +5,12 @@ import { Button, Icon } from '@extension/ui';
 
 import { navigateTo } from '@src/utils';
 
-export const Header = () => {
+interface HeaderProps {
+  onSlicesHistory?: () => void;
+  onSettings?: () => void;
+}
+
+export const Header = ({ onSlicesHistory, onSettings }: HeaderProps = {}) => {
   const logo = chrome.runtime.getURL('popup/brie-icon-64x64.png');
   const userOrg = useUserOrganization();
   const plan = userOrg.fields?.plan?.name;
@@ -45,6 +50,30 @@ export const Header = () => {
         </Button>
 
         <div className="bg-border/60 mx-2 h-[20px] w-[1px]" />
+
+        {onSlicesHistory && (
+          <Button
+            title={t('sliceHistoryTitle')}
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="hover:bg-accent size-8"
+            onClick={onSlicesHistory}>
+            <Icon name="History" size={20} className="hover:text-primary text-muted-foreground size-4" />
+          </Button>
+        )}
+
+        {onSettings && (
+          <Button
+            title={t('settings')}
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="hover:bg-accent size-8"
+            onClick={onSettings}>
+            <Icon name="Settings" size={20} className="hover:text-primary text-muted-foreground size-4" />
+          </Button>
+        )}
 
         <Button
           title={t('visitHomepage')}

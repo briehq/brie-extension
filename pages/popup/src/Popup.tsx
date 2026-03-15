@@ -1,6 +1,6 @@
 import '@src/Popup.css';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { t } from '@extension/i18n';
 import { useStorage, withErrorBoundary, withSuspense } from '@extension/shared';
@@ -15,6 +15,8 @@ import { AuthStateProvider } from './providers';
 
 const Popup = () => {
   const theme = useStorage(themeStorage);
+  const [showSlicesHistory, setShowSlicesHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     document.body.classList.add(theme);
@@ -28,9 +30,14 @@ const Popup = () => {
         <AuthStateProvider>
           <AuthGuard>
             <div className="flex flex-col gap-y-4">
-              <Header />
+              <Header onSlicesHistory={() => setShowSlicesHistory(true)} onSettings={() => setShowSettings(true)} />
               <Separator className="bg-border/60" />
-              <PopupContent />
+              <PopupContent
+                showSlicesHistory={showSlicesHistory}
+                showSettings={showSettings}
+                setShowSlicesHistory={setShowSlicesHistory}
+                setShowSettings={setShowSettings}
+              />
               <Separator className="bg-border/60" />
               <BetaNotifier />
             </div>

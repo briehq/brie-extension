@@ -17,7 +17,7 @@ export {
   recordingSettingsStorage,
   rewindSettingsStorage,
 } from './capture/index.js';
-export type { AuthTokensStorage, AuthIdentityProviderStorage } from './auth/index.js';
+export type { AuthTokensStorage, AuthIdentityProviderStorage, ITokens } from './auth/index.js';
 export type { CaptureNotifyStorage } from './capture/index.js';
 
 export * from './theme.storage.js';

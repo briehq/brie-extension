@@ -9,9 +9,8 @@ import { Button } from '@extension/ui';
 
 import { CaptureContentView } from './components/capture';
 import { InternalPageView, PendingReloadView, UnsavedCurrentTabView, UnsavedTabView } from './components/capture/views';
-import { SettingsButton, SettingsContent } from './components/settings';
-import { SlicesHistoryButton, SlicesHistoryContent } from './components/slices-history';
-import { Header, BetaNotifier } from './components/ui';
+import { SettingsContent } from './components/settings';
+import { SlicesHistoryContent } from './components/slices-history';
 import { useSlicesCreatedToday } from './hooks';
 import { useAuthStateContext } from './providers/auth-state.provider';
 import { isInternalUrl } from './utils';
@@ -21,7 +20,19 @@ interface ActiveTab {
   url: string;
 }
 
-export const PopupContent = () => {
+interface PopupContentProps {
+  showSlicesHistory: boolean;
+  showSettings: boolean;
+  setShowSlicesHistory: (show: boolean) => void;
+  setShowSettings: (show: boolean) => void;
+}
+
+export const PopupContent = ({
+  showSlicesHistory,
+  showSettings,
+  setShowSlicesHistory,
+  setShowSettings,
+}: PopupContentProps) => {
   const totalSlicesCreatedToday = useSlicesCreatedToday();
   const { user } = useAuthStateContext();
 
@@ -29,8 +40,6 @@ export const PopupContent = () => {
   const captureTabId = useStorage<BaseStorage<number | null>>(captureTabStorage);
   const pendingReloadTabIds = useStorage<BaseStorage<number[]>>(pendingReloadTabsStorage) ?? [];
 
-  const [showSlicesHistory, setShowSlicesHistory] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>({ id: null, url: '' });
   const [currentActiveTab, setCurrentActiveTab] = useState<number | undefined>();
 
@@ -143,9 +152,6 @@ export const PopupContent = () => {
           setActiveTab(prev => ({ ...prev, id }));
         }}
       />
-      {state === 'idle' && <SlicesHistoryButton onClick={() => setShowSlicesHistory(true)} />}
-      {state === 'idle' && <SettingsButton onClick={() => setShowSettings(true)} />}
-      <BetaNotifier />
     </>
   );
 };
