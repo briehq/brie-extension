@@ -1,6 +1,7 @@
 import type { WheelEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
+import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import { annotationsStorage } from '@extension/storage';
@@ -54,14 +55,14 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   return (
     <>
-      {!isOpen && screenshots.length && (
+      {!isOpen && !!screenshots.length && (
         <Button
           size="icon"
           variant="secondary"
-          aria-label="Open screenshots"
+          aria-label={t('openScreenshots')}
           type="button"
           onClick={toggle}
-          className="group absolute left-4 top-[5.2rem] z-10 border border-[#EDECE8] bg-white transition-colors dark:text-white">
+          className="border-border bg-background group absolute left-4 top-[5.2rem] z-10 border transition-colors">
           <Icon
             strokeWidth={1.5}
             name="PanelLeftOpenIcon"
@@ -73,19 +74,19 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
       <aside
         className={cn(
-          'relative flex flex-col space-y-2.5 rounded-lg border border-[#EDECE8] bg-white p-4',
+          'border-border bg-background relative flex flex-col space-y-2.5 rounded-lg border p-4',
           isOpen ? 'opacity-100' : 'pointer-events-none size-0 opacity-0',
           isScrollEnabled ? 'min-h-0' : 'self-start',
           className,
         )}>
         <div className="flex items-center justify-between">
-          <p className="text-primary text-sm font-medium">Screenshots</p>
+          <p className="text-primary text-sm font-medium">{t('screenshots')}</p>
           <Icon
             strokeWidth={1.5}
             name="PanelLeftCloseIcon"
             size={16}
             onClick={toggle}
-            className="text-muted-foreground hover:text-primary cursor-pointer dark:text-white"
+            className="text-muted-foreground hover:text-primary cursor-pointer"
           />
         </div>
 

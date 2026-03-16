@@ -1,1 +1,1 @@
-export const REDACTED_KEYWORD = 'REDACTED_BY_BRIE';
+export const REDACTED_KEYWORD = '[REDACTED_BY_BRIE]';

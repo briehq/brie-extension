@@ -1,4 +1,6 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, safePostMessage } from '@extension/shared';
+
+import { redactHeaderValue, redactSensitiveBodyKeys } from './redact.util.js';
 
 // Define interfaces for request details and payload
 interface RequestDetails {
@@ -53,9 +55,13 @@ export const interceptXHR = (): void => {
         const responseHeaders = rawHeaders
           .split('\r\n')
           .filter(line => line.includes(':'))
-          .map(line => line.split(':').map(str => str.trim()));
+          .map(line => {
+            const [key, ...rest] = line.split(':').map(str => str.trim());
+            const value = redactHeaderValue(key, rest.join(':'));
+            return [key, value];
+          });
 
-        const { requestBody } = this._requestDetails;
+        const requestBody = redactSensitiveBodyKeys(this._requestDetails.requestBody);
 
         // Check for large or binary content (skip cloning and parsing for binary data)
         const contentType = this.getResponseHeader('Content-Type');
@@ -94,7 +100,7 @@ export const interceptXHR = (): void => {
               domain: 'xhr',
             };
 
-            safePostMessage('ADD_RECORD', {
+            safePostMessage(RECORD.ADD, {
               timestamp,
               recordType: 'network',
               source: 'client',
@@ -102,7 +108,7 @@ export const interceptXHR = (): void => {
             });
 
             if (this.status >= 400) {
-              safePostMessage('ADD_RECORD', {
+              safePostMessage(RECORD.ADD, {
                 type: 'log',
                 recordType: 'console',
                 source: 'client',

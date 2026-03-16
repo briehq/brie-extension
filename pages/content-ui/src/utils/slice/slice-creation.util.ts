@@ -11,6 +11,8 @@ interface RunSliceFlowParams {
     attachments: File[];
     records?: File;
     annotations?: File;
+    video?: File;
+    events?: File;
   };
   onProgress?: (progress: number) => void;
   concurrency?: number; // default: 4
@@ -20,7 +22,7 @@ type UploadItem = {
   assetId: string;
   sliceId: string;
   file: File;
-  kind: 'screenshot' | 'attachment' | 'records' | 'annotations';
+  kind: 'screenshot' | 'attachment' | 'records' | 'annotations' | 'videos' | 'events';
   index?: number;
 };
 
@@ -118,8 +120,16 @@ const buildUploadQueue = (draft: InitSliceResponse, files: RunSliceFlowParams['f
     q.push({ assetId: draft.assets.records.id, sliceId: draft.id, file: files.records, kind: 'records' });
   }
 
+  if (draft.assets.events?.id && !draft.assets.events.uploaded && files.events) {
+    q.push({ assetId: draft.assets.events.id, sliceId: draft.id, file: files.events, kind: 'events' });
+  }
+
   if (draft.assets.annotations?.id && !draft.assets.annotations.uploaded && files.annotations) {
     q.push({ assetId: draft.assets.annotations.id, sliceId: draft.id, file: files.annotations, kind: 'annotations' });
+  }
+
+  if (draft.assets.video?.id && !draft.assets.video.uploaded && files.video) {
+    q.push({ assetId: draft.assets.video.id, sliceId: draft.id, file: files.video, kind: 'videos' });
   }
 
   return q;

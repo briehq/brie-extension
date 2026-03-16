@@ -51,7 +51,12 @@ export const SettingsContent = ({ onBack }: { onBack: () => void }) => {
             placeholder={t('domainPlaceholder')}
             className="h-8 text-xs"
           />
-          <Button type="button" size="sm" className="h-8 shrink-0" onClick={handleAddDomain} disabled={!newDomain.trim()}>
+          <Button
+            type="button"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={handleAddDomain}
+            disabled={!newDomain.trim()}>
             <Icon name="Plus" className="mr-1 size-3.5" />
             {t('addDomain')}
           </Button>
@@ -61,7 +66,9 @@ export const SettingsContent = ({ onBack }: { onBack: () => void }) => {
           {domains.length === 0 && <p className="text-muted-foreground text-xs">{t('noDomains')}</p>}
 
           {domains.map(domain => (
-            <div key={domain} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800">
+            <div
+              key={domain}
+              className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800">
               <span className="max-w-[240px] truncate text-xs text-slate-700 dark:text-slate-300">{domain}</span>
               <Button
                 variant="ghost"

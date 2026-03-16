@@ -14,6 +14,12 @@ const estimateJsonSizeBytes = (data: unknown): number => {
   }
 };
 
+export const getNormalizedRecords = async () => {
+  const records: any = await getRecords().catch(() => []);
+
+  return Array.isArray(records) ? records.flat() : [];
+};
+
 /**
  * Builds a JSON file with recorded events.
  * Always returns a file, even when there are no records.
@@ -27,8 +33,7 @@ const estimateJsonSizeBytes = (data: unknown): number => {
  * @returns JSON File containing [] or filtered records.
  */
 export const buildRecordsFile = async (trim: boolean = false): Promise<File> => {
-  const records = await getRecords().catch(() => []);
-  const normalizedRecords = Array.isArray(records) ? records.flat() : [];
+  const normalizedRecords: any[] = await getNormalizedRecords();
   const baseName = fileNameOr('records.json', 0);
 
   if (!normalizedRecords.length) {

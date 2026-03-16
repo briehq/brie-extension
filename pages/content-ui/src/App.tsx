@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import type { eventWithTime } from '@rrweb/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
-import { useStorage } from '@extension/shared';
+import { AUTH, REWIND, SCREENSHOT, UI, VIDEO, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -16,30 +17,44 @@ import { store, ReduxProvider } from '@extension/store';
 import { cn, toast, ToasterProvider, TooltipProvider } from '@extension/ui';
 
 import { MinimizedPreview } from './components/dialog-view';
+import { RecordingOverlay } from './components/recording-view';
 import Content from './content';
+import type { VideoSource } from './models';
+import { requestActiveTab } from './utils/recording';
 
 export default function App() {
   const captureNotifyState = useStorage(captureNotifyStorage);
-  const captureState = useStorage(captureStateStorage);
+  const { state: captureState, mode } = useStorage(captureStateStorage);
   const theme = useStorage(themeStorage);
   const [minimized, setMinimized] = useState(true);
+  const [video, setVideo] = useState<VideoSource>();
   const [screenshots, setScreenshots] = useState<Screenshot[]>();
   const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
   const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
+  const [events, setEvents] = useState<unknown[] | null>(null);
 
   useEffect(() => {
-    window.addEventListener('DISPLAY_MODAL', handleOnDisplay);
-    window.addEventListener('CLOSE_MODAL', handleOnClose);
-    window.addEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
-    window.addEventListener('AUTH_STATUS', handleOnAuthStatus);
+    window.addEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
+    window.addEventListener(UI.CLOSE_MODAL, handleOnClose);
+    window.addEventListener(SCREENSHOT.STORE, handleOnStoreScreenshot);
+    window.addEventListener(AUTH.STATUS, handleOnAuthStatus);
+    window.addEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
+    window.addEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
 
     return () => {
-      window.removeEventListener('DISPLAY_MODAL', handleOnDisplay);
-      window.removeEventListener('CLOSE_MODAL', handleOnClose);
-      window.removeEventListener('STORE_SCREENSHOT', handleOnStoreScreenshot);
-      window.removeEventListener('AUTH_STATUS', handleOnAuthStatus);
+      window.removeEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
+      window.removeEventListener(UI.CLOSE_MODAL, handleOnClose);
+      window.removeEventListener(SCREENSHOT.STORE, handleOnStoreScreenshot);
+      window.removeEventListener(AUTH.STATUS, handleOnAuthStatus);
+      window.removeEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
+      window.removeEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
     };
   }, []);
+
+  const handleOnVideoCaptured = async (event: any) => {
+    setVideo(event.detail);
+    setMinimized(false);
+  };
 
   const handleOnAuthStatus = async (event: any) => {
     if (event.detail.ok) toast.success(t('authCompleted'));
@@ -66,16 +81,57 @@ export default function App() {
   const handleOnDisplay = async (event: any) => {
     setScreenshots(event.detail.screenshots);
     setMinimized(false);
-    await captureStateStorage.setCaptureState('unsaved');
+    await captureStateStorage.setScreenshotState('unsaved');
   };
+
+  const handleOnRewindCapture = useCallback(async () => {
+    try {
+      const tab = await requestActiveTab();
+      const tabId = tab?.id;
+
+      if (!tabId) {
+        toast.error(t('noActiveTabForRewind'));
+        return;
+      }
+
+      const rewindResponse: {
+        events: eventWithTime[];
+        fromTimestamp: number;
+        missingAnchor: boolean;
+        toTimestamp: number;
+      } = await sendRuntimeMessageToActiveTab({
+        type: REWIND.GET_FROZEN,
+        tabId,
+      });
+
+      if (rewindResponse?.missingAnchor) {
+        toast.message(t('noUserActionsCaptured'));
+        return;
+      }
+
+      setEvents(rewindResponse?.events || []);
+      setMinimized(false);
+    } catch (error) {
+      console.error('[brie|rewind] failed to load frozen snapshot', error);
+      toast.error(t('failedToLoadRewind'));
+    }
+  }, []);
 
   const handleOnClose = useCallback(async () => {
     setIdempotencyKey(uuid());
     setScreenshots([]);
+    setVideo({} as any);
+    setEvents([]);
     setMinimized(false);
 
+    const tab = await requestActiveTab();
+
+    if (tab?.id) {
+      await sendRuntimeMessageToActiveTab({ type: REWIND.RESET_TAB, tabId: tab.id });
+    }
+
     await Promise.all([
-      captureStateStorage.setCaptureState('idle'),
+      captureStateStorage.setScreenshotState('idle'),
       annotationsStorage.clearAll(),
       annotationsRedoStorage.clearAll(),
       annotationsHistoryStorage.clearAll(),
@@ -109,29 +165,38 @@ export default function App() {
   );
 
   const handleOnMinimize = async () => {
-    await captureStateStorage.setCaptureState('capturing');
+    await captureStateStorage.setScreenshotState('capturing');
     setMinimized(true);
   };
+
   const handleOnEdit = async () => {
     setActiveScreenshotId(screenshots?.[0]?.id);
 
     setMinimized(false);
 
-    await captureStateStorage.setCaptureState('unsaved');
+    await captureStateStorage.setScreenshotState('unsaved');
   };
 
-  const capturing = captureState === 'capturing';
+  const capturing = captureState === 'capturing' && mode === 'screenshot';
+  const isDialogOpen = !!screenshots?.length || !!video?.blob || !!events?.length;
+  const isDialogOpenRef = useRef(false);
+
+  useEffect(() => {
+    isDialogOpenRef.current = isDialogOpen;
+  }, [isDialogOpen]);
 
   return (
-    <div id="brie-content" className={cn('light', 'relative')}>
-      <ToasterProvider theme={theme} />
+    <div id="brie-content" className={cn(theme, 'relative')}>
+      <TooltipProvider>
+        <RecordingOverlay />
 
-      <ReduxProvider store={store}>
-        <TooltipProvider>
-          {!!screenshots?.length &&
+        <ToasterProvider theme={theme} />
+
+        <ReduxProvider store={store}>
+          {isDialogOpen &&
             (minimized ? (
               <MinimizedPreview
-                screenshots={screenshots}
+                screenshots={screenshots || []}
                 onEdit={handleOnEdit}
                 unsaved={capturing}
                 onDiscard={handleOnClose}
@@ -140,15 +205,17 @@ export default function App() {
               <Content
                 idempotencyKey={idempotencyKey}
                 activeScreenshotId={activeScreenshotId || ''}
-                screenshots={screenshots}
+                screenshots={screenshots || []}
+                video={video}
+                events={events}
                 onClose={handleOnClose}
                 onMinimize={handleOnMinimize}
                 onDeleteScreenshot={handleOnDeleteScreenshot}
                 onSelectScreenshot={handleOnSelectScreenshot}
               />
             ))}
-        </TooltipProvider>
-      </ReduxProvider>
+        </ReduxProvider>
+      </TooltipProvider>
     </div>
   );
 }

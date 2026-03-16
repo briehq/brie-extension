@@ -11,3 +11,4 @@ pnpm-lock.yaml
 chrome-extension/manifest.js
 packages/i18n/lib/i18n.ts
 .turbo
+brie-extension/pages/content-ui/public

@@ -118,10 +118,439 @@
   "readyToGo": {
     "message": "буде готова до використання!"
   },
+  "LOW": {
+    "message": "Низький"
+  },
+  "HIGH": {
+    "message": "Високий"
+  },
+  "HIGHEST": {
+    "message": "Критичний"
+  },
+  "MEDIUM": {
+    "message": "Середній"
+  },
   "authCompleted": {
     "message": "Автентифікація пройшла успішно!"
   },
   "authFailed": {
     "message": "Помилка автентифікації!"
+  },
+  "screenshotCaptured": {
+    "message": "Скріншот зроблено"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Зробіть ще знімки або переходьте до редагування."
+  },
+  "imagePreparing": {
+    "message": "Підготовка скріншоту для завантаження…"
+  },
+  "imagePreparingFailed": {
+    "message": "Не вдалося підготувати скріншот для завантаження."
+  },
+  "imageCopied": {
+    "message": "Скріншот скопійовано!"
+  },
+  "imageCopiedFailed": {
+    "message": "Не вдалося скопіювати скріншот."
+  },
+  "edit": {
+    "message": "Редагувати"
+  },
+  "copy": {
+    "message": "Копіювати"
+  },
+  "save": {
+    "message": "Зберегти..."
+  },
+  "addToSpace": {
+    "message": "Додати до простору"
+  },
+  "createSpace": {
+    "message": "Створити простір"
+  },
+  "noSpaces": {
+    "message": "Просторів поки немає"
+  },
+  "colorPalette": {
+    "message": "Палітра кольорів"
+  },
+  "selectColor": {
+    "message": "Вибрати колір"
+  },
+  "toggle": {
+    "message": "Перемкнути"
+  },
+  "moreIntegrationSoon": {
+    "message": "Більше інтеграцій незабаром..."
+  },
+  "createLink": {
+    "message": "Створити посилання"
+  },
+  "createLinear": {
+    "message": "Створити в Linear"
+  },
+  "createJira": {
+    "message": "Створити в Jira"
+  },
+  "createAzure": {
+    "message": "Створити в Azure"
+  },
+  "rename": {
+    "message": "Перейменувати"
+  },
+  "export": {
+    "message": "Експорт"
+  },
+  "exportSettings": {
+    "message": "Налаштування експорту"
+  },
+  "imageFormat": {
+    "message": "Формат зображення"
+  },
+  "outputResolution": {
+    "message": "Вихідна роздільна здатність"
+  },
+  "edited": {
+    "message": "Відредаговано"
+  },
+  "deleteScreenshot": {
+    "message": "Видалити скріншот"
+  },
+  "workspaces": {
+    "message": "Робочі простори"
+  },
+  "createWorkspace": {
+    "message": "Створити робочий простір"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" занадто великий. Виберіть файл до 20 МБ."
+  },
+  "recordingInProgress": {
+    "message": "На цій вкладці йде запис."
+  },
+  "pauseRecording": {
+    "message": "Пауза"
+  },
+  "stopRecording": {
+    "message": "Стоп"
+  },
+  "recordingPaused": {
+    "message": "Запис на цій вкладці призупинено."
+  },
+  "resumeRecording": {
+    "message": "Продовжити"
+  },
+  "preparingRecording": {
+    "message": "Підготовка до запису цієї вкладки…"
+  },
+  "videoRecordingDescription": {
+    "message": "Запишіть відео цієї вкладки з панеллю інструментів та анотаціями."
+  },
+  "startRecording": {
+    "message": "Записати цю вкладку"
+  },
+  "tab": {
+    "message": "Поточна вкладка"
+  },
+  "desktop": {
+    "message": "Робочий стіл"
+  },
+  "micPermissionDenied": {
+    "message": "Мікрофон заблоковано в браузері"
+  },
+  "enableMic": {
+    "message": "Увімкнути мікрофон"
+  },
+  "disableMic": {
+    "message": "Вимкнути мікрофон"
+  },
+  "exitEditMode": {
+    "message": "Вийти з режиму редагування"
+  },
+  "noActiveTabForRewind": {
+    "message": "Немає активної вкладки для перемотування"
+  },
+  "noUserActionsCaptured": {
+    "message": "Дії користувача ще не зафіксовані"
+  },
+  "failedToLoadRewind": {
+    "message": "Не вдалося завантажити відтворення перемотування"
+  },
+  "stopAndSave": {
+    "message": "Зупинити і зберегти"
+  },
+  "exitDrawMode": {
+    "message": "Вийти з режиму малювання"
+  },
+  "drawMode": {
+    "message": "Малювання (зникає через 5с)"
+  },
+  "exitBlurMode": {
+    "message": "Вийти з режиму розмиття"
+  },
+  "blurElement": {
+    "message": "Розмити елемент"
+  },
+  "close": {
+    "message": "Закрити"
+  },
+  "minimize": {
+    "message": "Згорнути"
+  },
+  "exitFullScreen": {
+    "message": "Вийти з повноекранного режиму"
+  },
+  "enterFullScreen": {
+    "message": "Повноекранний режим"
+  },
+  "undo": {
+    "message": "Скасувати"
+  },
+  "redo": {
+    "message": "Повторити"
+  },
+  "startOver": {
+    "message": "Почати спочатку"
+  },
+  "deletesAllShapes": {
+    "message": "Видаляє всі фігури"
+  },
+  "toolLabel": {
+    "message": "Інструмент:"
+  },
+  "zoomLabel": {
+    "message": "Масштаб:"
+  },
+  "durationLabel": {
+    "message": "Тривалість:"
+  },
+  "trimLabel": {
+    "message": "Обрізка:"
+  },
+  "fileLabel": {
+    "message": "Файл:"
+  },
+  "openScreenshots": {
+    "message": "Відкрити скріншоти"
+  },
+  "screenshots": {
+    "message": "Скріншоти"
+  },
+  "openDetails": {
+    "message": "Відкрити деталі"
+  },
+  "details": {
+    "message": "Деталі"
+  },
+  "descriptionMaxLength": {
+    "message": "Будьте лаконічними, максимум 10 - 512 символів!"
+  },
+  "description": {
+    "message": "Опис"
+  },
+  "descriptionPlaceholder": {
+    "message": "Напишіть опис тут..."
+  },
+  "priority": {
+    "message": "Пріоритет"
+  },
+  "selectPriority": {
+    "message": "Виберіть пріоритет"
+  },
+  "labels": {
+    "message": "Мітки"
+  },
+  "insertLabel": {
+    "message": "Введіть мітку"
+  },
+  "playbackTimeline": {
+    "message": "Шкала відтворення"
+  },
+  "trimStart": {
+    "message": "Початок обрізки"
+  },
+  "trimEnd": {
+    "message": "Кінець обрізки"
+  },
+  "noReplayData": {
+    "message": "Дані відтворення ще не отримані."
+  },
+  "replayNotReady": {
+    "message": "Відтворення не готове."
+  },
+  "inactive": {
+    "message": "Неактивно"
+  },
+  "playbackSettings": {
+    "message": "Налаштування відтворення"
+  },
+  "skipInactivity": {
+    "message": "Пропустити бездіяльність"
+  },
+  "skipInactivityDescription": {
+    "message": "Прискорена перемотка довгих пауз між подіями."
+  },
+  "speed": {
+    "message": "Швидкість"
+  },
+  "playbackRate": {
+    "message": "Швидкість відтворення."
+  },
+  "playbackSpeed": {
+    "message": "Швидкість відтворення"
+  },
+  "importantEvents": {
+    "message": "Важливі події"
+  },
+  "noImportantEvents": {
+    "message": "Немає важливих подій."
+  },
+  "eventTypeNetwork": {
+    "message": "МЕРЕЖА"
+  },
+  "eventTypeLog": {
+    "message": "ЛОГ"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Створіть зріз, щоб побачити всі події."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Останній скріншот: $1"
+  },
+  "joinDiscord": {
+    "message": "Приєднатися до спільноти Discord"
+  },
+  "viewSourceCode": {
+    "message": "Переглянути вихідний код на GitHub"
+  },
+  "visitHomepage": {
+    "message": "Відвідати домашню сторінку Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Повідомляйте про помилки за секунди"
+  },
+  "getFullAccess": {
+    "message": "Почніть знаходити та виправляти помилки швидше."
+  },
+  "continue": {
+    "message": "Продовжити"
+  },
+  "byClickingContinue": {
+    "message": "Натискаючи \"Продовжити\","
+  },
+  "termsOfService": {
+    "message": "Умови використання"
+  },
+  "privacyPolicy": {
+    "message": "Політика конфіденційності"
+  },
+  "serviceUnavailable": {
+    "message": "Сервіс недоступний"
+  },
+  "systemOffline": {
+    "message": "Перепрошуємо, наша система наразі недоступна."
+  },
+  "backSoon": {
+    "message": "Ми повернемося якомога швидше."
+  },
+  "retryAttempt": {
+    "message": "Спроба повтору: $1"
+  },
+  "errorOccurred": {
+    "message": "Сталася помилка"
+  },
+  "retry": {
+    "message": "Повторити"
+  },
+  "sessionExpired": {
+    "message": "Ваша сесія закінчилася. Будь ласка, увійдіть знову."
+  },
+  "exitAction": {
+    "message": "Вийти з $1"
+  },
+  "runAction": {
+    "message": "Запустити $1"
+  },
+  "captureMode": {
+    "message": "Режим захоплення"
+  },
+  "stopAction": {
+    "message": "Зупинити $1"
+  },
+  "startAction": {
+    "message": "Запустити $1"
+  },
+  "statusOn": {
+    "message": "Увімк"
+  },
+  "statusOff": {
+    "message": "Вимк"
+  },
+  "toggleSystemAudio": {
+    "message": "Перемкнути системний звук"
+  },
+  "recordArea": {
+    "message": "Записати область"
+  },
+  "replay": {
+    "message": "Відтворення"
+  },
+  "captureLastMinute": {
+    "message": "Захопити останню хвилину перед помилкою"
+  },
+  "toggleRewind": {
+    "message": "Перемкнути перемотування"
+  },
+  "collapseAction": {
+    "message": "Згорнути $1"
+  },
+  "expandAction": {
+    "message": "Розгорнути $1"
+  },
+  "recordAreaTab": {
+    "message": "Вкладка"
+  },
+  "captureArea": {
+    "message": "Захопити область"
+  },
+  "captureWindow": {
+    "message": "Захопити вікно"
+  },
+  "captureFullscreen": {
+    "message": "Захопити весь екран"
+  },
+  "recordTab": {
+    "message": "Записати вкладку"
+  },
+  "recordDesktop": {
+    "message": "Записати робочий стіл"
+  },
+  "sliceThumbnail": {
+    "message": "Мініатюра зрізу"
+  },
+  "errorDetected": {
+    "message": "На цій сторінці виявлено помилку"
+  },
+  "errorDetectedAction": {
+    "message": "Переглянути відтворення"
+  },
+  "settings": {
+    "message": "Налаштування"
+  },
+  "domainSkipList": {
+    "message": "Список виключених доменів"
+  },
+  "domainSkipListDescription": {
+    "message": "Домени, де пропускається приховування конфіденційної інформації."
+  },
+  "addDomain": {
+    "message": "Додати"
+  },
+  "domainPlaceholder": {
+    "message": "напр. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Домени ще не додано. Конфіденційна інформація пропускається лише на localhost за замовчуванням."
   }
 }

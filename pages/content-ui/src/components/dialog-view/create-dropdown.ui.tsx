@@ -33,7 +33,7 @@ export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; on
         form="details-form"
         disabled={isLoading}
         onClick={() => onChange(activeActionKey)}
-        className="bg-gradient-overlay flex h-[35px] min-w-[160px] justify-between gap-x-2 p-0">
+        className="bg-gradient-overlay dark:bg-primary flex h-[35px] min-w-[160px] justify-between gap-x-2 p-0">
         <div className="py-2 pl-[10px]">
           <span>{activeAction?.name || defaultAction?.name} </span>
         </div>

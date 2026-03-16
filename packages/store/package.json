@@ -1,6 +1,6 @@
 {
   "name": "@extension/store",
-  "version": "0.5.27",
+  "version": "0.6.50",
   "description": "chrome extension - store",
   "type": "module",
   "private": true,
@@ -25,6 +25,7 @@
     "@extension/env": "workspace:*",
     "@extension/shared": "workspace:*",
     "@extension/storage": "workspace:*",
+    "@extension/i18n": "workspace:*",
     "@extension/tsconfig": "workspace:*"
   },
   "dependencies": {

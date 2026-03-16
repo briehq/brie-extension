@@ -4,14 +4,14 @@ import { safeStructuredClone } from './structured-clone.util.js';
  * Safely sends a message using `window.postMessage`, ensuring no un-cloneable
  * objects (like DOM nodes) are included in the payload.
  *
- * @param type - A string identifier for the message (e.g. 'ADD_RECORD')
+ * @param type - A string identifier for the message (e.g. RECORD.ADD)
  * @param payload - The data to send. Should be plain and serializable.
  */
-export const safePostMessage = (type: string, payload: Record<string, any>) => {
+export const safePostMessage = (type: string, payload: Record<string, any> = {}) => {
   try {
     const message = {
       type,
-      payload: safeStructuredClone(payload),
+      ...(payload ? { payload: safeStructuredClone(payload) } : {}),
     };
 
     window.postMessage(message, '*');

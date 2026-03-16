@@ -1,4 +1,4 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, safePostMessage } from '@extension/shared';
 
 // Get all localStorage data
 export const interceptLocalStorage = () => {
@@ -16,5 +16,10 @@ export const interceptLocalStorage = () => {
     });
   }
 
-  safePostMessage('ADD_RECORD', { timestamp, recordType: 'local-storage', source: 'client', items: localStorageData });
+  safePostMessage(RECORD.ADD, {
+    timestamp,
+    recordType: 'local-storage',
+    source: 'client',
+    items: localStorageData,
+  });
 };

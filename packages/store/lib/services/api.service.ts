@@ -4,6 +4,7 @@ import { Mutex } from 'async-mutex';
 import { toast } from 'react-hot-toast';
 
 import { API_BASE_URL } from '@extension/env';
+import { t } from '@extension/i18n';
 import type { Tokens, UserAndTokensResponse } from '@extension/shared';
 import { authTokensStorage } from '@extension/storage';
 
@@ -48,12 +49,10 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
           // retry the initial query
           result = await accessBaseQuery(args, api, extraOptions);
         } else {
-          toast.loading('Sorry, you will be logged off, because your login session has expired.');
-
-          setTimeout(() => {
-            authTokensStorage.setTokens({} as Tokens);
-            // location.reload();
-          }, 4000);
+          toast.error(t('sessionExpired'));
+          await authTokensStorage.setTokens({} as Tokens);
+          const { resetAllApiState } = await import('./reset-api-state.util.js');
+          resetAllApiState(api.dispatch);
         }
       } finally {
         // release must be called once the mutex should be released again.

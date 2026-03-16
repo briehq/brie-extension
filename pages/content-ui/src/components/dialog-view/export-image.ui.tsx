@@ -23,7 +23,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
       <Button
         disabled={false}
         onClick={() => onExport(selectedFormat)}
-        className="bg-gradient-overlay flex h-[35px] gap-x-[6px] px-2.5">
+        className="bg-gradient-overlay dark:bg-primary flex h-[35px] gap-x-[6px] px-2.5">
         <Icon name="ArrowUpIcon" size={16} />
 
         <span>{t('export')}</span>
@@ -35,11 +35,7 @@ export const ExportImage = ({ onExport }: { onExport: (format: string) => void }
 
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
-          <Button
-            size="icon"
-            variant="secondary"
-            className="dark:bg-primary size-[35px] dark:text-white"
-            aria-label={t('exportSettings')}>
+          <Button size="icon" variant="secondary" className="size-[35px]" aria-label={t('exportSettings')}>
             <Icon name="Settings2Icon" size={16} />
           </Button>
         </PopoverTrigger>

@@ -1,20 +1,26 @@
 import type { PropsWithChildren } from 'react';
 
-import { AuthMethod } from '@extension/shared';
-import { useUser } from '@extension/store';
-
-import { AuthView, Skeleton } from '../components/ui';
+import { ApiUnavailableView, AuthErrorView, AuthView, Skeleton } from '../components/ui';
+import { useAuthStateContext } from '../providers/auth-state.provider';
 
 export const AuthGuard: React.FC<PropsWithChildren> = ({ children }) => {
-  const { fields, isLoading, isFetching, isUninitialized } = useUser();
+  const { phase, retry } = useAuthStateContext();
 
-  if (isUninitialized || isLoading || isFetching) {
-    return <Skeleton />;
+  switch (phase) {
+    case 'checking_health':
+    case 'checking_auth':
+      return <Skeleton />;
+
+    case 'api_unavailable':
+      return <ApiUnavailableView onRetry={retry} />;
+
+    case 'error':
+      return <AuthErrorView onRetry={retry} />;
+
+    case 'unauthenticated':
+      return <AuthView />;
+
+    case 'authenticated':
+      return children;
   }
-
-  if (!fields?.id || fields.authMethod === AuthMethod.GUEST) {
-    return <AuthView />;
-  }
-
-  return children;
 };

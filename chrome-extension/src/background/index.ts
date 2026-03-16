@@ -10,6 +10,7 @@ import {
   handleOnTabRemoved,
   handleOnTabUpdated,
   handleOnCommitted,
+  initBadgeListener,
 } from '@src/services';
 
 tabs.onRemoved.addListener(handleOnTabRemoved);
@@ -29,3 +30,5 @@ webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, { urls: ['<all_url
 webRequest.onBeforeSendHeaders.addListener(handleOnBeforeSendHeaders, { urls: ['<all_urls>'] }, ['requestHeaders']);
 webRequest.onCompleted.addListener(handleOnCompleted, { urls: ['<all_urls>'] });
 webNavigation.onCommitted.addListener(handleOnCommitted);
+
+initBadgeListener();

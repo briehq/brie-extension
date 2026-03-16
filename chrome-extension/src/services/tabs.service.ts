@@ -1,5 +1,6 @@
 import type { Tabs } from 'webextension-polyfill';
 
+import { sendRuntimeMessageToActiveTab } from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -9,7 +10,7 @@ import {
   pendingReloadTabsStorage,
 } from '@extension/storage';
 
-import { deleteRecords } from '@src/utils';
+import { deleteRecords, rewindService } from '@src/utils';
 
 export const handleOnTabRemoved = async (tabId: number) => {
   try {
@@ -18,13 +19,12 @@ export const handleOnTabRemoved = async (tabId: number) => {
       await pendingReloadTabsStorage.remove(tabId);
     }
 
-    await deleteRecords(tabId);
-    console.log('handleOnTabRemoved: records deleted ');
+    await Promise.all([deleteRecords(tabId), rewindService.deleteTab(tabId)]);
 
     const captureTabId = await captureTabStorage.getCaptureTabId();
     if (tabId === captureTabId) {
       await Promise.all([
-        captureStateStorage.setCaptureState('idle'),
+        captureStateStorage.setScreenshotState('idle'),
         captureTabStorage.setCaptureTabId(null),
         annotationsStorage.clearAll(),
         annotationsRedoStorage.clearAll(),
@@ -48,21 +48,22 @@ export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdat
     if (changeInfo.status !== 'loading') return;
 
     const [state, capturedTabId] = await Promise.all([
-      captureStateStorage.getCaptureState(),
+      captureStateStorage.getState(),
       captureTabStorage.getCaptureTabId(),
     ]);
 
     if (!capturedTabId && state === 'unsaved') {
-      await captureStateStorage.setCaptureState('idle');
+      await captureStateStorage.setScreenshotState('idle');
     }
 
-    if (tabId === capturedTabId) {
+    if (tabId === capturedTabId && state !== 'capturing') {
       await Promise.all([
-        captureStateStorage.setCaptureState('idle'),
+        captureStateStorage.setScreenshotState('idle'),
         captureTabStorage.setCaptureTabId(null),
         annotationsStorage.clearAll(),
         annotationsRedoStorage.clearAll(),
         annotationsHistoryStorage.clearAll(),
+        // rewindService.deleteTab(tabId),
       ]);
     }
   } catch (err) {

@@ -118,10 +118,439 @@
   "readyToGo": {
     "message": "तैयार हो जाएगी!"
   },
+  "LOW": {
+    "message": "कम"
+  },
+  "HIGH": {
+    "message": "उच्च"
+  },
+  "HIGHEST": {
+    "message": "गंभीर"
+  },
+  "MEDIUM": {
+    "message": "मध्यम"
+  },
   "authCompleted": {
-    "message": "प्रमाणीकरण सफल रहा!"
+    "message": "आप सफलतापूर्वक साइन इन हो गए!"
   },
   "authFailed": {
-    "message": "प्रमाणीकरण विफल रहा!"
+    "message": "साइन इन विफल रहा। कृपया पुनः प्रयास करें।"
+  },
+  "screenshotCaptured": {
+    "message": "स्क्रीनशॉट कैप्चर हो गया"
+  },
+  "screenshotCapturedDescription": {
+    "message": "और स्क्रीनशॉट लें या सीधे एडिटिंग शुरू करें।"
+  },
+  "imagePreparing": {
+    "message": "आपका स्क्रीनशॉट डाउनलोड के लिए तैयार किया जा रहा है…"
+  },
+  "imagePreparingFailed": {
+    "message": "आपका स्क्रीनशॉट डाउनलोड के लिए तैयार नहीं हो पाया।"
+  },
+  "imageCopied": {
+    "message": "स्क्रीनशॉट कॉपी हो गया!"
+  },
+  "imageCopiedFailed": {
+    "message": "आपका स्क्रीनशॉट कॉपी नहीं हो पाया।"
+  },
+  "edit": {
+    "message": "संपादित करें"
+  },
+  "copy": {
+    "message": "कॉपी करें"
+  },
+  "save": {
+    "message": "सहेजें..."
+  },
+  "addToSpace": {
+    "message": "स्पेस में जोड़ें"
+  },
+  "createSpace": {
+    "message": "स्पेस बनाएं"
+  },
+  "noSpaces": {
+    "message": "अभी तक कोई स्पेस नहीं"
+  },
+  "colorPalette": {
+    "message": "रंग पैलेट"
+  },
+  "selectColor": {
+    "message": "रंग चुनें"
+  },
+  "toggle": {
+    "message": "टॉगल"
+  },
+  "moreIntegrationSoon": {
+    "message": "और इंटीग्रेशन जल्द आ रहे हैं..."
+  },
+  "createLink": {
+    "message": "एक लिंक बनाएं"
+  },
+  "createLinear": {
+    "message": "Linear में बनाएं"
+  },
+  "createJira": {
+    "message": "Jira में बनाएं"
+  },
+  "createAzure": {
+    "message": "Azure में बनाएं"
+  },
+  "rename": {
+    "message": "नाम बदलें"
+  },
+  "export": {
+    "message": "निर्यात करें"
+  },
+  "exportSettings": {
+    "message": "निर्यात सेटिंग्स"
+  },
+  "imageFormat": {
+    "message": "छवि प्रारूप"
+  },
+  "outputResolution": {
+    "message": "आउटपुट रेज़ॉल्यूशन"
+  },
+  "edited": {
+    "message": "संपादित"
+  },
+  "deleteScreenshot": {
+    "message": "स्क्रीनशॉट हटाएं"
+  },
+  "workspaces": {
+    "message": "वर्कस्पेस"
+  },
+  "createWorkspace": {
+    "message": "वर्कस्पेस बनाएं"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" बहुत बड़ी है। 20 MB से छोटी फ़ाइल चुनें।"
+  },
+  "recordingInProgress": {
+    "message": "इस टैब पर रिकॉर्डिंग चल रही है।"
+  },
+  "pauseRecording": {
+    "message": "रोकें"
+  },
+  "stopRecording": {
+    "message": "बंद करें"
+  },
+  "recordingPaused": {
+    "message": "इस टैब पर रिकॉर्डिंग रुकी हुई है।"
+  },
+  "resumeRecording": {
+    "message": "फिर से शुरू करें"
+  },
+  "preparingRecording": {
+    "message": "इस टैब को रिकॉर्ड करने की तैयारी हो रही है…"
+  },
+  "videoRecordingDescription": {
+    "message": "इस टैब का वीडियो कैप्चर करें, ड्रैग करने योग्य टूलबार और एनोटेशन के साथ।"
+  },
+  "startRecording": {
+    "message": "इस टैब को रिकॉर्ड करें"
+  },
+  "tab": {
+    "message": "वर्तमान टैब"
+  },
+  "desktop": {
+    "message": "डेस्कटॉप"
+  },
+  "micPermissionDenied": {
+    "message": "ब्राउज़र में माइक्रोफ़ोन ब्लॉक है"
+  },
+  "enableMic": {
+    "message": "माइक्रोफ़ोन चालू करें"
+  },
+  "disableMic": {
+    "message": "माइक्रोफ़ोन म्यूट करें"
+  },
+  "exitEditMode": {
+    "message": "संपादन मोड से बाहर निकलें"
+  },
+  "noActiveTabForRewind": {
+    "message": "रिवाइंड के लिए कोई सक्रिय टैब नहीं"
+  },
+  "noUserActionsCaptured": {
+    "message": "अभी तक कोई उपयोगकर्ता कार्रवाई कैप्चर नहीं हुई"
+  },
+  "failedToLoadRewind": {
+    "message": "रिवाइंड रिप्ले लोड नहीं हो पाया"
+  },
+  "stopAndSave": {
+    "message": "बंद करें और सहेजें"
+  },
+  "exitDrawMode": {
+    "message": "ड्रॉ मोड से बाहर निकलें"
+  },
+  "drawMode": {
+    "message": "ड्रॉ करें (5 सेकंड में मिटता है)"
+  },
+  "exitBlurMode": {
+    "message": "ब्लर मोड से बाहर निकलें"
+  },
+  "blurElement": {
+    "message": "किसी एलिमेंट को ब्लर करें"
+  },
+  "close": {
+    "message": "बंद करें"
+  },
+  "minimize": {
+    "message": "छोटा करें"
+  },
+  "exitFullScreen": {
+    "message": "फ़ुल स्क्रीन से बाहर निकलें"
+  },
+  "enterFullScreen": {
+    "message": "फ़ुल स्क्रीन में प्रवेश करें"
+  },
+  "undo": {
+    "message": "पूर्ववत करें"
+  },
+  "redo": {
+    "message": "फिर से करें"
+  },
+  "startOver": {
+    "message": "शुरू से शुरू करें"
+  },
+  "deletesAllShapes": {
+    "message": "सभी आकृतियां हटा देता है"
+  },
+  "toolLabel": {
+    "message": "टूल:"
+  },
+  "zoomLabel": {
+    "message": "ज़ूम:"
+  },
+  "durationLabel": {
+    "message": "अवधि:"
+  },
+  "trimLabel": {
+    "message": "ट्रिम:"
+  },
+  "fileLabel": {
+    "message": "फ़ाइल:"
+  },
+  "openScreenshots": {
+    "message": "स्क्रीनशॉट खोलें"
+  },
+  "screenshots": {
+    "message": "स्क्रीनशॉट"
+  },
+  "openDetails": {
+    "message": "विवरण खोलें"
+  },
+  "details": {
+    "message": "विवरण"
+  },
+  "descriptionMaxLength": {
+    "message": "संक्षिप्त रखें, अधिकतम 10 - 512 अक्षर!"
+  },
+  "description": {
+    "message": "विवरण"
+  },
+  "descriptionPlaceholder": {
+    "message": "यहां विवरण लिखें..."
+  },
+  "priority": {
+    "message": "प्राथमिकता"
+  },
+  "selectPriority": {
+    "message": "प्राथमिकता चुनें"
+  },
+  "labels": {
+    "message": "लेबल"
+  },
+  "insertLabel": {
+    "message": "एक लेबल डालें"
+  },
+  "playbackTimeline": {
+    "message": "प्लेबैक टाइमलाइन"
+  },
+  "trimStart": {
+    "message": "ट्रिम शुरू"
+  },
+  "trimEnd": {
+    "message": "ट्रिम समाप्त"
+  },
+  "noReplayData": {
+    "message": "अभी तक कोई रिप्ले डेटा कैप्चर नहीं हुआ।"
+  },
+  "replayNotReady": {
+    "message": "रिप्ले तैयार नहीं है।"
+  },
+  "inactive": {
+    "message": "निष्क्रिय"
+  },
+  "playbackSettings": {
+    "message": "प्लेबैक सेटिंग्स"
+  },
+  "skipInactivity": {
+    "message": "निष्क्रियता छोड़ें"
+  },
+  "skipInactivityDescription": {
+    "message": "इवेंट्स के बीच लंबे अंतराल को तेज़ी से आगे बढ़ाएं।"
+  },
+  "speed": {
+    "message": "गति"
+  },
+  "playbackRate": {
+    "message": "प्लेबैक दर।"
+  },
+  "playbackSpeed": {
+    "message": "प्लेबैक गति"
+  },
+  "importantEvents": {
+    "message": "महत्वपूर्ण इवेंट्स"
+  },
+  "noImportantEvents": {
+    "message": "कोई महत्वपूर्ण इवेंट नहीं।"
+  },
+  "eventTypeNetwork": {
+    "message": "NET"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "सभी इवेंट्स देखने के लिए स्लाइस बनाएं।"
+  },
+  "lastCapturedScreenshot": {
+    "message": "अंतिम कैप्चर किया गया स्क्रीनशॉट: $1"
+  },
+  "joinDiscord": {
+    "message": "Discord समुदाय से जुड़ें"
+  },
+  "viewSourceCode": {
+    "message": "GitHub पर सोर्स कोड देखें"
+  },
+  "visitHomepage": {
+    "message": "Brie होमपेज पर जाएं"
+  },
+  "reportBugsHeading": {
+    "message": "सेकंडों में बग रिपोर्ट करें"
+  },
+  "getFullAccess": {
+    "message": "बग्स को तेज़ी से कैप्चर और ठीक करना शुरू करें।"
+  },
+  "continue": {
+    "message": "जारी रखें"
+  },
+  "byClickingContinue": {
+    "message": "\"जारी रखें\" पर क्लिक करके,"
+  },
+  "termsOfService": {
+    "message": "सेवा की शर्तें"
+  },
+  "privacyPolicy": {
+    "message": "गोपनीयता नीति"
+  },
+  "serviceUnavailable": {
+    "message": "सेवा अनुपलब्ध"
+  },
+  "systemOffline": {
+    "message": "क्षमा करें, हमारा सिस्टम अभी ऑफ़लाइन है।"
+  },
+  "backSoon": {
+    "message": "हम जल्द से जल्द वापस आएंगे।"
+  },
+  "retryAttempt": {
+    "message": "पुनः प्रयास: $1"
+  },
+  "errorOccurred": {
+    "message": "त्रुटि हुई"
+  },
+  "retry": {
+    "message": "पुनः प्रयास करें"
+  },
+  "sessionExpired": {
+    "message": "आपका लॉगिन सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।"
+  },
+  "exitAction": {
+    "message": "$1 से बाहर निकलें"
+  },
+  "runAction": {
+    "message": "$1 चलाएं"
+  },
+  "captureMode": {
+    "message": "कैप्चर मोड"
+  },
+  "stopAction": {
+    "message": "$1 बंद करें"
+  },
+  "startAction": {
+    "message": "$1 शुरू करें"
+  },
+  "statusOn": {
+    "message": "चालू"
+  },
+  "statusOff": {
+    "message": "बंद"
+  },
+  "toggleSystemAudio": {
+    "message": "सिस्टम ऑडियो टॉगल करें"
+  },
+  "recordArea": {
+    "message": "क्षेत्र रिकॉर्ड करें"
+  },
+  "replay": {
+    "message": "रिप्ले"
+  },
+  "captureLastMinute": {
+    "message": "बग होने से पहले का आखिरी मिनट कैप्चर करें"
+  },
+  "toggleRewind": {
+    "message": "रिवाइंड टॉगल करें"
+  },
+  "collapseAction": {
+    "message": "$1 संक्षिप्त करें"
+  },
+  "expandAction": {
+    "message": "$1 विस्तृत करें"
+  },
+  "recordAreaTab": {
+    "message": "टैब"
+  },
+  "captureArea": {
+    "message": "क्षेत्र कैप्चर करें"
+  },
+  "captureWindow": {
+    "message": "विंडो कैप्चर करें"
+  },
+  "captureFullscreen": {
+    "message": "फ़ुलस्क्रीन कैप्चर करें"
+  },
+  "recordTab": {
+    "message": "टैब रिकॉर्ड करें"
+  },
+  "recordDesktop": {
+    "message": "डेस्कटॉप रिकॉर्ड करें"
+  },
+  "sliceThumbnail": {
+    "message": "स्लाइस थंबनेल"
+  },
+  "errorDetected": {
+    "message": "इस पेज पर एक बग पाया गया"
+  },
+  "errorDetectedAction": {
+    "message": "रिप्ले देखें"
+  },
+  "settings": {
+    "message": "सेटिंग्स"
+  },
+  "domainSkipList": {
+    "message": "डोमेन स्किप सूची"
+  },
+  "domainSkipListDescription": {
+    "message": "वे डोमेन जहां संवेदनशील जानकारी की रिडैक्शन छोड़ दी जाती है।"
+  },
+  "addDomain": {
+    "message": "जोड़ें"
+  },
+  "domainPlaceholder": {
+    "message": "उदा. staging.example.com"
+  },
+  "noDomains": {
+    "message": "अभी तक कोई डोमेन नहीं जोड़ा गया। संवेदनशील जानकारी डिफ़ॉल्ट रूप से केवल localhost पर छोड़ी जाती है।"
   }
 }

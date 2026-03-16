@@ -1,0 +1,1 @@
+export { CAPTURE_MODE_OPTIONS, CAPTURE_TITLE, RECORD_AREA_OPTIONS, RECORD_TITLE } from './capture.constants';

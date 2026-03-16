@@ -2,15 +2,16 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 
 import type { Pagination, Workspace } from '@extension/shared';
 
+import { TAG_TYPE } from '../../constants/tag-type.const.js';
 import { baseQueryWithReauth } from '../../services/index.js';
 
 export const workspacesPrivateAPI = createApi({
   reducerPath: 'workspaces-private',
-  tagTypes: ['WORKSPACES', 'WORKSPACE'],
+  tagTypes: [TAG_TYPE.WORKSPACES, TAG_TYPE.WORKSPACE],
   baseQuery: baseQueryWithReauth,
   endpoints: build => ({
     getWorkspaces: build.query<{ items: Workspace[]; total: number; hasItems: boolean }, Pagination>({
-      providesTags: ['WORKSPACES'],
+      providesTags: [TAG_TYPE.WORKSPACES],
       query: params => ({
         url: '/workspaces',
         params,
@@ -18,7 +19,7 @@ export const workspacesPrivateAPI = createApi({
     }),
 
     createWorkspace: build.mutation<Workspace, Partial<Workspace>>({
-      invalidatesTags: ['WORKSPACES'],
+      invalidatesTags: [TAG_TYPE.WORKSPACES],
       query: body => ({
         url: '/workspaces',
         method: 'POST',
@@ -27,7 +28,7 @@ export const workspacesPrivateAPI = createApi({
     }),
 
     getWorkspaceById: build.query<Workspace, { id: string }>({
-      providesTags: ['WORKSPACE'],
+      providesTags: [TAG_TYPE.WORKSPACE],
       query: ({ id }) => ({
         url: `/workspaces/${id}`,
       }),

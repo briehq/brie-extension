@@ -1,1 +1,1 @@
-export { CaptureScreenshotGroup } from './screenshot-group.capture';
+export { CaptureContentView } from './capture-content.view';

@@ -14,9 +14,9 @@ export const updateTab = (tabId: number, updateProps: Tabs.UpdateUpdatePropertie
   return tabs.update(tabId, updateProps);
 };
 
-export const sendMessageToTab = async (tabId: number, payload: unknown): Promise<void> => {
+export const sendMessageToTab = async (tabId: number, payload: any): Promise<void> => {
   try {
-    await tabs.sendMessage(tabId, payload);
+    await tabs.sendMessage(tabId, { ...payload, tabId });
   } catch (e) {
     const msg = (e as Error)?.message ?? String(e);
 
@@ -24,11 +24,11 @@ export const sendMessageToTab = async (tabId: number, payload: unknown): Promise
   }
 };
 
-export const sendMessageToActiveTab = async (action: string, payload: unknown): Promise<void> => {
+export const sendMessageToActiveTab = async (action: string, payload: any): Promise<void> => {
   const tab = await getActiveTab();
   const tabId = tab?.id;
 
   if (!tabId) return;
 
-  await sendMessageToTab(tabId, { action, payload });
+  await sendMessageToTab(tabId, { action, payload: { ...payload, tabId } });
 };

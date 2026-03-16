@@ -183,10 +183,10 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
         <Button
           size="icon"
           variant="secondary"
-          aria-label="Open details"
+          aria-label={t('openDetails')}
           type="button"
           onClick={toggle}
-          className="group absolute right-4 top-[5.2rem] z-10 border border-[#EDECE8] bg-white transition-colors dark:text-white">
+          className="border-border bg-background group absolute right-4 top-[5.2rem] z-10 border transition-colors">
           <Icon
             name="PanelRightOpenIcon"
             strokeWidth={1.5}
@@ -199,19 +199,19 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       <aside
         ref={detailsViewRef}
         className={cn(
-          'relative flex h-fit flex-col space-y-2.5 overflow-hidden rounded-lg border border-[#EDECE8] bg-white p-4',
+          'border-border bg-background relative flex h-fit flex-col space-y-2.5 overflow-hidden rounded-lg border p-4',
           isOpen ? 'opacity-100' : `pointer-events-none size-0 opacity-0`,
           className,
         )}>
         <div className="flex w-full items-center justify-between">
-          <p className="text-primary text-sm font-medium">Details</p>
+          <p className="text-primary text-sm font-medium">{t('details')}</p>
 
           <Icon
             size={16}
             strokeWidth={1.5}
             onClick={toggle}
             name="PanelRightCloseIcon"
-            className="dark:bg-primary text-muted-foreground hover:text-primary hover:cursor-pointer dark:text-white"
+            className="text-muted-foreground hover:text-primary hover:cursor-pointer"
           />
         </div>
 
@@ -222,7 +222,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               name="description"
               rules={{
                 maxLength: {
-                  message: 'Keep it short and sweet, 10 - 512 characters max!',
+                  message: t('descriptionMaxLength'),
                   value: 512,
                 },
               }}
@@ -231,7 +231,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
                 return (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs">Description</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs">{t('description')}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Textarea
@@ -241,7 +241,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                             if (typeof field.ref === 'function') field.ref(node);
                             else (field as any).ref = node;
                           }}
-                          placeholder={!suggestion?.length ? 'Write a description here...' : ''}
+                          placeholder={!suggestion?.length ? t('descriptionPlaceholder') : ''}
                           rows={7}
                           className="resize-none overflow-y-auto"
                           onWheelCapture={e => e.stopPropagation()}
@@ -301,11 +301,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               defaultValue={SlicePriority.LOW}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs">Priority</FormLabel>
+                  <FormLabel className="text-muted-foreground text-xs">{t('priority')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={SlicePriority.LOW}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
+                        <SelectValue placeholder={t('selectPriority')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -342,7 +342,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 name="labels"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs">Labels</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs">{t('labels')}</FormLabel>
                     <FormControl>
                       <TagInput
                         {...field}
@@ -350,7 +350,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                         showCount={false}
                         truncate={15}
                         textCase="lowercase"
-                        placeholder="Insert a label"
+                        placeholder={t('insertLabel')}
                         tags={labels}
                         inputFieldPosition="top"
                         setTags={labels => {
@@ -373,7 +373,14 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   control={control}
                   defaultValue={undefined as unknown as FileList}
                   render={({ field: { onChange, value, ref } }) => {
-                    const count = value?.length ?? 0;
+                    const files: File[] = value ? Array.from(value as FileList) : [];
+                    const count = files.length;
+
+                    const updateFiles = (nextFiles: File[]) => {
+                      const dt = new DataTransfer();
+                      nextFiles.forEach(f => dt.items.add(f));
+                      onChange(dt.files);
+                    };
 
                     return (
                       <div className="relative">
@@ -382,7 +389,15 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                           type="file"
                           multiple
                           ref={ref}
-                          onChange={e => onChange(e.target.files as FileList)}
+                          onChange={e => {
+                            const incoming = e.target.files ? Array.from(e.target.files) : [];
+                            const existingNames = new Set(files.map(f => `${f.name}-${f.size}-${f.lastModified}`));
+                            const deduped = incoming.filter(
+                              f => !existingNames.has(`${f.name}-${f.size}-${f.lastModified}`),
+                            );
+                            updateFiles([...files, ...deduped]);
+                            e.target.value = '';
+                          }}
                           className="sr-only"
                         />
 
@@ -392,13 +407,13 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                               htmlFor="file-input"
                               className={cn(
                                 'hover:bg-muted flex size-[35px] cursor-pointer items-center justify-center rounded-md transition',
-                                'text-muted-foreground text-primary relative bg-transparent dark:text-white',
+                                'text-muted-foreground relative bg-transparent',
                                 { 'border-[0.5px]': count > 0 },
                               )}>
                               <Icon name="Paperclip" size={16} />
 
                               {count > 0 && (
-                                <span className="bg-primary absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white">
+                                <span className="bg-primary text-primary-foreground absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                                   {count}
                                 </span>
                               )}
@@ -408,6 +423,24 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                             {t('attachFile')}
                           </TooltipContent>
                         </Tooltip>
+
+                        {count > 0 && (
+                          <div className="absolute left-0 top-full z-10 mt-1 flex max-w-[200px] flex-col gap-1">
+                            {files.map((file, i) => (
+                              <div
+                                key={`${file.name}-${file.size}-${file.lastModified}`}
+                                className="border-border bg-background flex items-center gap-1 rounded border px-1.5 py-0.5">
+                                <span className="text-muted-foreground truncate text-[10px]">{file.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateFiles(files.filter((_, j) => j !== i))}
+                                  className="text-muted-foreground hover:text-destructive shrink-0">
+                                  <Icon name="X" size={10} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   }}
