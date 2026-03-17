@@ -1,4 +1,4 @@
-import { safePostMessage, safeStructuredClone } from '@extension/shared';
+import { RECORD, safePostMessage, safeStructuredClone } from '@extension/shared';
 
 export const interceptConsole = () => {
   const originalConsole = {
@@ -55,7 +55,7 @@ export const interceptConsole = () => {
         };
       }
 
-      safePostMessage('ADD_RECORD', logData);
+      safePostMessage(RECORD.ADD, logData);
     } catch {
       // Don't throw or break host page
     }

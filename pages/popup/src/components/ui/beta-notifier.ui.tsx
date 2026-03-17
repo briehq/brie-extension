@@ -6,7 +6,7 @@ export const BetaNotifier = () => {
   const uuid = user.fields?.id;
 
   return (
-    <div className="dark:text-muted-foreground mt-4 text-center text-[10px] font-normal text-slate-600">
+    <div className="text-muted-foreground text-center text-[10px] font-normal">
       {t('inBeta')}{' '}
       <a
         href="https://go.brie.io/discord?utm_source=extension"

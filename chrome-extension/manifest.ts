@@ -62,10 +62,23 @@ const manifest = {
   ],
   web_accessible_resources: [
     {
-      resources: ['*.js', '*.css', '*.svg', '*.png', 'content/extend.iife.js', 'auth-identity.html'],
+      resources: [
+        '*.js',
+        '*.css',
+        '*.svg',
+        '*.png',
+        'content/extend.iife.js',
+        'auth-identity.html',
+        'content-ui/rrweb/*',
+        'content-ui/ffmpeg/*',
+        'content-ui/ffmpeg/*.wasm',
+      ],
       matches: ['*://*/*'],
     },
   ],
+  content_security_policy: {
+    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
+  },
 } satisfies chrome.runtime.ManifestV3;
 
 export default manifest;

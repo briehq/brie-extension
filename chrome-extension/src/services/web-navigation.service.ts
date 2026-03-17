@@ -1,6 +1,6 @@
 import type { WebNavigation } from 'webextension-polyfill';
 
-import { deleteRecords } from '@src/utils';
+import { deleteRecords, rewindService } from '@src/utils';
 
 const TARGET_TYPES = ['reload', 'typed'] as WebNavigation.TransitionType[];
 
@@ -12,6 +12,7 @@ export const handleOnCommitted = async (details: WebNavigation.OnCommittedDetail
 
   try {
     await deleteRecords(tabId);
+    await rewindService.resetTab(tabId);
   } catch (err) {
     console.error('[webNavigation] deleteRecords error', err, details);
   }

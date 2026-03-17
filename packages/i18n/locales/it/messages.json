@@ -118,10 +118,439 @@
   "readyToGo": {
     "message": "sarà pronta all'uso!"
   },
+  "LOW": {
+    "message": "Bassa"
+  },
+  "HIGH": {
+    "message": "Alta"
+  },
+  "HIGHEST": {
+    "message": "Critica"
+  },
+  "MEDIUM": {
+    "message": "Media"
+  },
   "authCompleted": {
     "message": "Autenticazione riuscita!"
   },
   "authFailed": {
     "message": "Autenticazione non riuscita!"
+  },
+  "screenshotCaptured": {
+    "message": "Screenshot catturato"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Cattura altre immagini o passa direttamente alla modifica."
+  },
+  "imagePreparing": {
+    "message": "Preparazione dello screenshot per il download…"
+  },
+  "imagePreparingFailed": {
+    "message": "Impossibile preparare lo screenshot per il download."
+  },
+  "imageCopied": {
+    "message": "Screenshot copiato!"
+  },
+  "imageCopiedFailed": {
+    "message": "Impossibile copiare lo screenshot."
+  },
+  "edit": {
+    "message": "Modifica"
+  },
+  "copy": {
+    "message": "Copia"
+  },
+  "save": {
+    "message": "Salva..."
+  },
+  "addToSpace": {
+    "message": "Aggiungi allo spazio"
+  },
+  "createSpace": {
+    "message": "Crea spazio"
+  },
+  "noSpaces": {
+    "message": "Nessuno spazio ancora"
+  },
+  "colorPalette": {
+    "message": "Tavolozza colori"
+  },
+  "selectColor": {
+    "message": "Seleziona colore"
+  },
+  "toggle": {
+    "message": "Attiva/Disattiva"
+  },
+  "moreIntegrationSoon": {
+    "message": "Altre integrazioni in arrivo..."
+  },
+  "createLink": {
+    "message": "Crea un link"
+  },
+  "createLinear": {
+    "message": "Crea in Linear"
+  },
+  "createJira": {
+    "message": "Crea in Jira"
+  },
+  "createAzure": {
+    "message": "Crea in Azure"
+  },
+  "rename": {
+    "message": "Rinomina"
+  },
+  "export": {
+    "message": "Esporta"
+  },
+  "exportSettings": {
+    "message": "Impostazioni di esportazione"
+  },
+  "imageFormat": {
+    "message": "Formato immagine"
+  },
+  "outputResolution": {
+    "message": "Risoluzione di output"
+  },
+  "edited": {
+    "message": "Modificato"
+  },
+  "deleteScreenshot": {
+    "message": "Elimina screenshot"
+  },
+  "workspaces": {
+    "message": "Workspace"
+  },
+  "createWorkspace": {
+    "message": "Crea Workspace"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" è troppo grande. Scegli un file inferiore a 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "La registrazione è in corso su questa scheda."
+  },
+  "pauseRecording": {
+    "message": "Pausa"
+  },
+  "stopRecording": {
+    "message": "Stop"
+  },
+  "recordingPaused": {
+    "message": "La registrazione è in pausa su questa scheda."
+  },
+  "resumeRecording": {
+    "message": "Riprendi"
+  },
+  "preparingRecording": {
+    "message": "Preparazione della registrazione di questa scheda…"
+  },
+  "videoRecordingDescription": {
+    "message": "Cattura un video di questa scheda con una barra degli strumenti trascinabile e annotazioni."
+  },
+  "startRecording": {
+    "message": "Registra questa scheda"
+  },
+  "tab": {
+    "message": "Scheda corrente"
+  },
+  "desktop": {
+    "message": "Desktop"
+  },
+  "micPermissionDenied": {
+    "message": "Microfono bloccato nel browser"
+  },
+  "enableMic": {
+    "message": "Attiva microfono"
+  },
+  "disableMic": {
+    "message": "Disattiva microfono"
+  },
+  "exitEditMode": {
+    "message": "Esci dalla modalità modifica"
+  },
+  "noActiveTabForRewind": {
+    "message": "Nessuna scheda attiva per il riavvolgimento"
+  },
+  "noUserActionsCaptured": {
+    "message": "Nessuna azione utente acquisita"
+  },
+  "failedToLoadRewind": {
+    "message": "Impossibile caricare la riproduzione del riavvolgimento"
+  },
+  "stopAndSave": {
+    "message": "Ferma e salva"
+  },
+  "exitDrawMode": {
+    "message": "Esci dalla modalità disegno"
+  },
+  "drawMode": {
+    "message": "Disegna (scompare in 5s)"
+  },
+  "exitBlurMode": {
+    "message": "Esci dalla modalità sfocatura"
+  },
+  "blurElement": {
+    "message": "Sfoca un elemento"
+  },
+  "close": {
+    "message": "Chiudi"
+  },
+  "minimize": {
+    "message": "Riduci a icona"
+  },
+  "exitFullScreen": {
+    "message": "Esci da schermo intero"
+  },
+  "enterFullScreen": {
+    "message": "Schermo intero"
+  },
+  "undo": {
+    "message": "Annulla"
+  },
+  "redo": {
+    "message": "Ripeti"
+  },
+  "startOver": {
+    "message": "Ricomincia"
+  },
+  "deletesAllShapes": {
+    "message": "Elimina tutte le forme"
+  },
+  "toolLabel": {
+    "message": "Strumento:"
+  },
+  "zoomLabel": {
+    "message": "Zoom:"
+  },
+  "durationLabel": {
+    "message": "Durata:"
+  },
+  "trimLabel": {
+    "message": "Taglia:"
+  },
+  "fileLabel": {
+    "message": "File:"
+  },
+  "openScreenshots": {
+    "message": "Apri screenshot"
+  },
+  "screenshots": {
+    "message": "Screenshot"
+  },
+  "openDetails": {
+    "message": "Apri dettagli"
+  },
+  "details": {
+    "message": "Dettagli"
+  },
+  "descriptionMaxLength": {
+    "message": "Sii breve, massimo 10 - 512 caratteri!"
+  },
+  "description": {
+    "message": "Descrizione"
+  },
+  "descriptionPlaceholder": {
+    "message": "Scrivi una descrizione qui..."
+  },
+  "priority": {
+    "message": "Priorità"
+  },
+  "selectPriority": {
+    "message": "Seleziona priorità"
+  },
+  "labels": {
+    "message": "Etichette"
+  },
+  "insertLabel": {
+    "message": "Inserisci un'etichetta"
+  },
+  "playbackTimeline": {
+    "message": "Timeline di riproduzione"
+  },
+  "trimStart": {
+    "message": "Inizio taglio"
+  },
+  "trimEnd": {
+    "message": "Fine taglio"
+  },
+  "noReplayData": {
+    "message": "Nessun dato di replay acquisito."
+  },
+  "replayNotReady": {
+    "message": "Il replay non è pronto."
+  },
+  "inactive": {
+    "message": "Inattivo"
+  },
+  "playbackSettings": {
+    "message": "Impostazioni di riproduzione"
+  },
+  "skipInactivity": {
+    "message": "Salta inattività"
+  },
+  "skipInactivityDescription": {
+    "message": "Avanza rapidamente nei lunghi intervalli tra gli eventi."
+  },
+  "speed": {
+    "message": "Velocità"
+  },
+  "playbackRate": {
+    "message": "Velocità di riproduzione."
+  },
+  "playbackSpeed": {
+    "message": "Velocità di riproduzione"
+  },
+  "importantEvents": {
+    "message": "Eventi importanti"
+  },
+  "noImportantEvents": {
+    "message": "Nessun evento importante."
+  },
+  "eventTypeNetwork": {
+    "message": "RETE"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Crea il frammento per vedere tutti gli eventi."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Ultimo screenshot catturato: $1"
+  },
+  "joinDiscord": {
+    "message": "Unisciti alla community Discord"
+  },
+  "viewSourceCode": {
+    "message": "Visualizza il codice sorgente su GitHub"
+  },
+  "visitHomepage": {
+    "message": "Visita la homepage di Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Segnala bug in pochi secondi"
+  },
+  "getFullAccess": {
+    "message": "Inizia a catturare e risolvere bug più velocemente."
+  },
+  "continue": {
+    "message": "Continua"
+  },
+  "byClickingContinue": {
+    "message": "Cliccando \"Continua\","
+  },
+  "termsOfService": {
+    "message": "Termini di servizio"
+  },
+  "privacyPolicy": {
+    "message": "Informativa sulla privacy"
+  },
+  "serviceUnavailable": {
+    "message": "Servizio non disponibile"
+  },
+  "systemOffline": {
+    "message": "Ci scusiamo, il nostro sistema è attualmente offline."
+  },
+  "backSoon": {
+    "message": "Torneremo il prima possibile."
+  },
+  "retryAttempt": {
+    "message": "Tentativo di ripetizione: $1"
+  },
+  "errorOccurred": {
+    "message": "Si è verificato un errore"
+  },
+  "retry": {
+    "message": "Riprova"
+  },
+  "sessionExpired": {
+    "message": "La sessione è scaduta. Accedi di nuovo."
+  },
+  "exitAction": {
+    "message": "Esci da $1"
+  },
+  "runAction": {
+    "message": "Esegui $1"
+  },
+  "captureMode": {
+    "message": "Modalità di cattura"
+  },
+  "stopAction": {
+    "message": "Ferma $1"
+  },
+  "startAction": {
+    "message": "Avvia $1"
+  },
+  "statusOn": {
+    "message": "Attivo"
+  },
+  "statusOff": {
+    "message": "Disattivo"
+  },
+  "toggleSystemAudio": {
+    "message": "Attiva/disattiva audio di sistema"
+  },
+  "recordArea": {
+    "message": "Registra area"
+  },
+  "replay": {
+    "message": "Replay"
+  },
+  "captureLastMinute": {
+    "message": "Cattura l'ultimo minuto prima del bug"
+  },
+  "toggleRewind": {
+    "message": "Attiva/disattiva riavvolgimento"
+  },
+  "collapseAction": {
+    "message": "Comprimi $1"
+  },
+  "expandAction": {
+    "message": "Espandi $1"
+  },
+  "recordAreaTab": {
+    "message": "Scheda"
+  },
+  "captureArea": {
+    "message": "Cattura area"
+  },
+  "captureWindow": {
+    "message": "Cattura finestra"
+  },
+  "captureFullscreen": {
+    "message": "Cattura schermo intero"
+  },
+  "recordTab": {
+    "message": "Registra scheda"
+  },
+  "recordDesktop": {
+    "message": "Registra desktop"
+  },
+  "sliceThumbnail": {
+    "message": "Miniatura del frammento"
+  },
+  "errorDetected": {
+    "message": "È stato rilevato un bug su questa pagina"
+  },
+  "errorDetectedAction": {
+    "message": "Rivedi replay"
+  },
+  "settings": {
+    "message": "Impostazioni"
+  },
+  "domainSkipList": {
+    "message": "Lista domini esclusi"
+  },
+  "domainSkipListDescription": {
+    "message": "Domini dove la redazione delle informazioni sensibili viene saltata."
+  },
+  "addDomain": {
+    "message": "Aggiungi"
+  },
+  "domainPlaceholder": {
+    "message": "es. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Nessun dominio aggiunto. Le informazioni sensibili vengono saltate solo su localhost per impostazione predefinita."
   }
 }

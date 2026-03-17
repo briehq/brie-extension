@@ -1,11 +1,11 @@
-import type { ContextMenus, Menus, Tabs } from 'webextension-polyfill';
+import type { Menus, Tabs } from 'webextension-polyfill';
 import { contextMenus } from 'webextension-polyfill';
 
 import { t } from '@extension/i18n';
-import { captureStateStorage, captureTabStorage } from '@extension/storage';
+import { SCREENSHOT, sendMessageToTab } from '@extension/shared';
+import { authTokensStorage, captureStateStorage, captureTabStorage } from '@extension/storage';
 
 import type { CaptureType } from '@src/types';
-import { sendMessageToTab } from '@src/utils';
 
 export const addContextMenus = async (): Promise<void> => {
   try {
@@ -44,16 +44,19 @@ export const addContextMenus = async (): Promise<void> => {
 
 export const handleOnContextMenuClicked = async (info: Menus.OnClickData, tab?: Tabs.Tab) => {
   try {
+    const tokens = await authTokensStorage.getTokens();
+    if (!tokens?.accessToken) return;
+
     const tabId = tab?.id;
     if (!tabId) return;
 
     const type = info.menuItemId as CaptureType;
     if (!['area', 'full-page', 'viewport'].includes(type)) return;
 
-    await captureStateStorage.setCaptureState('capturing');
+    await captureStateStorage.setScreenshotState('capturing');
     await captureTabStorage.setCaptureTabId(tabId);
 
-    await sendMessageToTab(tabId, { action: 'START_SCREENSHOT', payload: { type } });
+    await sendMessageToTab(tabId, { action: SCREENSHOT.START, payload: { type } });
   } catch (e) {
     console.error('[background] onContextMenuClicked error:', e);
   }

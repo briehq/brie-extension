@@ -2,7 +2,7 @@ import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useStorage } from '@extension/shared';
+import { REWIND, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import {
   annotationsHistoryStorage,
@@ -19,6 +19,7 @@ import { useFitCanvasToParent } from '@src/hooks';
 import type { ActiveElement, Attributes, BackgroundFitMeta, ShapeSnapshot } from '@src/models';
 import { base64ToFile } from '@src/utils';
 import { applyBrush, DRAWING_TOOLS, getShadowHostElement } from '@src/utils/annotation/canvas.util';
+import { requestActiveTab } from '@src/utils/recording';
 
 import { CanvasWrapper } from './canvas-wrapper.view';
 import { Toolbar } from './ui';
@@ -50,7 +51,7 @@ interface CanvasContainerProps {
 }
 
 const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
-  const captureState = useStorage(captureStateStorage);
+  const { state: captureState } = useStorage(captureStateStorage);
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
 
@@ -281,7 +282,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       const shapeData = object.toJSON();
       const shape = { ...shapeData, objectId, shapeType, ...(blurRadius ? { blurRadius } : {}) };
 
-      let { objects } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
+      let { objects = [] } = (await annotationsStorage.getAnnotations(screenshot.id!)) || {
         objects: [],
         meta: {} as BackgroundFitMeta,
       };
@@ -699,10 +700,18 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       e.returnValue = '';
     };
 
-    const clearAnnotations = () => {
-      annotationsStorage.clearAll();
-      annotationsRedoStorage.clearAll();
-      annotationsHistoryStorage.clearAll();
+    const clearAnnotations = async () => {
+      const tab = await requestActiveTab();
+
+      if (tab?.id) {
+        await sendRuntimeMessageToActiveTab({ type: REWIND.RESET_TAB, tabId: tab.id });
+      }
+
+      await Promise.all([
+        annotationsStorage.clearAll(),
+        annotationsRedoStorage.clearAll(),
+        annotationsHistoryStorage.clearAll(),
+      ]);
     };
 
     const handlePageHide = (e: PageTransitionEvent) => {
@@ -790,7 +799,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
           <Button
             type="button"
             size="icon"
-            className="size-7 hover:bg-slate-200"
+            className="hover:bg-accent size-7"
             variant="secondary"
             onClick={handleOnRemove}>
             <Icon name="TrashIcon" className="size-4" />

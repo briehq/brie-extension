@@ -2,15 +2,16 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 
 import type { Pagination, Space } from '@extension/shared';
 
+import { TAG_TYPE } from '../../constants/tag-type.const.js';
 import { baseQueryWithReauth } from '../../services/index.js';
 
 export const spacesAPI = createApi({
   reducerPath: 'spaces',
-  tagTypes: ['SPACES'],
+  tagTypes: [TAG_TYPE.SPACES],
   baseQuery: baseQueryWithReauth,
   endpoints: build => ({
     createSpaces: build.mutation<Space[], Partial<any>>({
-      invalidatesTags: ['SPACES'],
+      invalidatesTags: [TAG_TYPE.SPACES],
       query: body => ({
         url: '/spaces',
         method: 'POST',
@@ -19,7 +20,7 @@ export const spacesAPI = createApi({
     }),
 
     getSpaces: build.query<{ items: Space[]; total: number }, Pagination>({
-      providesTags: ['SPACES'],
+      providesTags: [TAG_TYPE.SPACES],
       query: params => ({
         url: '/spaces',
         params,

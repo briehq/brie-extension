@@ -76,8 +76,6 @@ export const filterRecordsByWindows = (records: AnyRecord[], opts: NetworkFilter
       continue;
     }
 
-    console.log('rec.timestamp', rec.timestamp);
-
     if (!rec.timestamp) {
       continue;
     }
@@ -85,7 +83,6 @@ export const filterRecordsByWindows = (records: AnyRecord[], opts: NetworkFilter
     if (isInAnyWindow(rec.timestamp, windows)) {
       kept.push(rec);
     }
-    console.log('hello, ', rec);
   }
 
   return kept;

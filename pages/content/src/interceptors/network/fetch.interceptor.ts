@@ -1,18 +1,17 @@
-import { safePostMessage } from '@extension/shared';
+import { RECORD, REDACTED_KEYWORD, safePostMessage } from '@extension/shared';
 
 import { extractQueryParams } from '@src/utils';
 
-type FetchArgs = [RequestInfo | URL, RequestInit?];
+import { REDACT_BODY_KEYS, redactHeaderValue } from './redact.util.js';
 
-const REDACT_HEADER_KEYS = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
-const REDACT_BODY_KEYS = ['password', 'pass', 'token', 'secret', 'authorization', 'auth'];
+type FetchArgs = [RequestInfo | URL, RequestInit?];
 const MAX_BODY_BYTES = 100_000; // 100KB cap for request/response previews
 const BINARY_CT = /(octet-stream|pdf|zip|gzip|image|audio|video)\b/i;
 const SELF_ENDPOINT_REGEX = /\/add-record|\/telemetry|\/analytics/; // adjust to your endpoints
 
 const truncate = (s: string, max = MAX_BODY_BYTES) => (s.length > max ? s.slice(0, max) + '…[truncated]' : s);
 
-const redactHeader = (k: string, v: string) => (REDACT_HEADER_KEYS.includes(k.toLowerCase()) ? '***redacted***' : v);
+const redactHeader = redactHeaderValue;
 
 const headersInitToRecord = (h?: HeadersInit): Record<string, string> => {
   if (!h) return {};
@@ -66,7 +65,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
                     Object.entries(o).map(([k, v]) => [
                       k,
                       REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x))
-                        ? '***redacted***'
+                        ? REDACTED_KEYWORD
                         : typeof v === 'string'
                           ? truncate(v)
                           : redact(v),
@@ -85,7 +84,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
       const rec: Record<string, string> = {};
       body.forEach(
         (v, k) =>
-          (rec[k] = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? '***redacted***' : truncate(v, 10_000)),
+          (rec[k] = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x)) ? REDACTED_KEYWORD : truncate(v, 10_000)),
       );
       const text = JSON.stringify(rec);
       return { text: truncate(text), bytes: text.length };
@@ -94,7 +93,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
       const parts: string[] = [];
       body.forEach((v, k) => {
         const safe = REDACT_BODY_KEYS.some(x => k.toLowerCase().includes(x))
-          ? '***redacted***'
+          ? REDACTED_KEYWORD
           : typeof v === 'string'
             ? truncate(v, 10_000)
             : `[file:${(v as File).name ?? 'blob'}:${(v as File).size ?? '?'}B]`;
@@ -171,7 +170,7 @@ export const interceptFetch = (): void => {
       const endISO = new Date().toISOString();
       const durationMs = performance.now() - startPerf;
 
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -192,7 +191,7 @@ export const interceptFetch = (): void => {
         outcome: 'error',
       });
 
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         type: 'log',
         recordType: 'console',
         source: 'client',
@@ -213,7 +212,7 @@ export const interceptFetch = (): void => {
 
     // Opaque / CORS no-cors responses
     if (response.type === 'opaque') {
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -242,7 +241,7 @@ export const interceptFetch = (): void => {
     const clone = response.clone();
 
     const serializedHeaders: Record<string, string> = {};
-    clone.headers.forEach((value, key) => (serializedHeaders[key] = value));
+    clone.headers.forEach((value, key) => (serializedHeaders[key] = redactHeader(key, value)));
 
     let responseBody: string | object = '';
     try {
@@ -283,7 +282,7 @@ export const interceptFetch = (): void => {
     };
 
     try {
-      safePostMessage('ADD_RECORD', {
+      safePostMessage(RECORD.ADD, {
         domain: 'fetch',
         recordType: 'network',
         source: 'client',
@@ -292,7 +291,7 @@ export const interceptFetch = (): void => {
       });
 
       if (response.status >= 400) {
-        safePostMessage('ADD_RECORD', {
+        safePostMessage(RECORD.ADD, {
           timestamp: Date.now(),
           domain: 'fetch',
           type: 'log',

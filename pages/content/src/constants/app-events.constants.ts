@@ -12,4 +12,5 @@ export enum AppEventType {
   FormSubmit = 'FormSubmit',
   Metadata = 'Metadata',
   Navigate = 'Navigate',
+  VideoMetadata = 'VideoMetadata',
 }

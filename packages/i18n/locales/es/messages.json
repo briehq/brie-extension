@@ -80,7 +80,7 @@
     "message": "Esto creará un link que podrás compartir."
   },
   "sliceDescription": {
-    "message": "Esta es la descripción del problema. Porfavor, añade una descripción detallada del mismo."
+    "message": "Esta es la descripción del problema. Por favor, añade una descripción detallada del mismo."
   },
   "attachFile": {
     "message": "Adjuntar archivo"
@@ -89,19 +89,19 @@
     "message": "Agregar a carpeta"
   },
   "failedToCreateRecords": {
-    "message": "Hubo un problema al crear el archivo de registro. Porfavor, inténtalo nuevamente."
+    "message": "Hubo un problema al crear el archivo de registro. Por favor, inténtalo nuevamente."
   },
   "failedToCreateSlice": {
-    "message": "Hubo un problema al crear el recorte. Porfavor, inténtalo nuevamente."
+    "message": "Hubo un problema al crear el recorte. Por favor, inténtalo nuevamente."
   },
   "openReport": {
     "message": "El reporte está listo y será abierto en una nueva pestaña."
   },
   "noRecordsCaptured": {
-    "message": "No se capturaron peticiones. Porfavor inténtelo más tarde."
+    "message": "No se capturaron peticiones. Por favor, inténtelo más tarde."
   },
   "unexpectedError": {
-    "message": "Ocurrió un error inesperado. Porfavor, inténtalo nuevamente."
+    "message": "Ocurrió un error inesperado. Por favor, inténtalo nuevamente."
   },
   "selectArea": {
     "message": "Haz click o arrastra la selección de un área para tomar una captura"
@@ -118,10 +118,439 @@
   "readyToGo": {
     "message": "¡estará lista para usarse!"
   },
+  "LOW": {
+    "message": "Baja"
+  },
+  "HIGH": {
+    "message": "Alta"
+  },
+  "HIGHEST": {
+    "message": "Crítica"
+  },
+  "MEDIUM": {
+    "message": "Media"
+  },
   "authCompleted": {
     "message": "¡Autenticación exitosa!"
   },
   "authFailed": {
     "message": "¡Error de autenticación!"
+  },
+  "screenshotCaptured": {
+    "message": "Captura de pantalla tomada"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Captura más imágenes o pasa directamente a editar."
+  },
+  "imagePreparing": {
+    "message": "Preparando tu captura de pantalla para descargar…"
+  },
+  "imagePreparingFailed": {
+    "message": "No se pudo preparar tu captura de pantalla para descargar."
+  },
+  "imageCopied": {
+    "message": "¡Captura de pantalla copiada!"
+  },
+  "imageCopiedFailed": {
+    "message": "No se pudo copiar tu captura de pantalla."
+  },
+  "edit": {
+    "message": "Editar"
+  },
+  "copy": {
+    "message": "Copiar"
+  },
+  "save": {
+    "message": "Guardar..."
+  },
+  "addToSpace": {
+    "message": "Agregar al espacio"
+  },
+  "createSpace": {
+    "message": "Crear espacio"
+  },
+  "noSpaces": {
+    "message": "Aún no hay espacios"
+  },
+  "colorPalette": {
+    "message": "Paleta de colores"
+  },
+  "selectColor": {
+    "message": "Seleccionar color"
+  },
+  "toggle": {
+    "message": "Alternar"
+  },
+  "moreIntegrationSoon": {
+    "message": "Más integraciones próximamente..."
+  },
+  "createLink": {
+    "message": "Crear un enlace"
+  },
+  "createLinear": {
+    "message": "Crear en Linear"
+  },
+  "createJira": {
+    "message": "Crear en Jira"
+  },
+  "createAzure": {
+    "message": "Crear en Azure"
+  },
+  "rename": {
+    "message": "Renombrar"
+  },
+  "export": {
+    "message": "Exportar"
+  },
+  "exportSettings": {
+    "message": "Configuración de exportación"
+  },
+  "imageFormat": {
+    "message": "Formato de imagen"
+  },
+  "outputResolution": {
+    "message": "Resolución de salida"
+  },
+  "edited": {
+    "message": "Editado"
+  },
+  "deleteScreenshot": {
+    "message": "Eliminar captura de pantalla"
+  },
+  "workspaces": {
+    "message": "Espacios de trabajo"
+  },
+  "createWorkspace": {
+    "message": "Crear espacio de trabajo"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" es demasiado grande. Elige un archivo de menos de 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "La grabación está en curso en esta pestaña."
+  },
+  "pauseRecording": {
+    "message": "Pausar"
+  },
+  "stopRecording": {
+    "message": "Detener"
+  },
+  "recordingPaused": {
+    "message": "La grabación está pausada en esta pestaña."
+  },
+  "resumeRecording": {
+    "message": "Reanudar"
+  },
+  "preparingRecording": {
+    "message": "Preparando para grabar esta pestaña…"
+  },
+  "videoRecordingDescription": {
+    "message": "Captura un video de esta pestaña con una barra de herramientas movible y anotaciones."
+  },
+  "startRecording": {
+    "message": "Grabar esta pestaña"
+  },
+  "tab": {
+    "message": "Pestaña actual"
+  },
+  "desktop": {
+    "message": "Escritorio"
+  },
+  "micPermissionDenied": {
+    "message": "Micrófono bloqueado en el navegador"
+  },
+  "enableMic": {
+    "message": "Activar micrófono"
+  },
+  "disableMic": {
+    "message": "Silenciar micrófono"
+  },
+  "exitEditMode": {
+    "message": "Salir del modo edición"
+  },
+  "noActiveTabForRewind": {
+    "message": "No hay pestaña activa para rebobinar"
+  },
+  "noUserActionsCaptured": {
+    "message": "Aún no se han capturado acciones del usuario"
+  },
+  "failedToLoadRewind": {
+    "message": "No se pudo cargar la repetición de rebobinado"
+  },
+  "stopAndSave": {
+    "message": "Detener y guardar"
+  },
+  "exitDrawMode": {
+    "message": "Salir del modo dibujo"
+  },
+  "drawMode": {
+    "message": "Dibujar (desaparece en 5s)"
+  },
+  "exitBlurMode": {
+    "message": "Salir del modo desenfoque"
+  },
+  "blurElement": {
+    "message": "Desenfocar un elemento"
+  },
+  "close": {
+    "message": "Cerrar"
+  },
+  "minimize": {
+    "message": "Minimizar"
+  },
+  "exitFullScreen": {
+    "message": "Salir de pantalla completa"
+  },
+  "enterFullScreen": {
+    "message": "Entrar a pantalla completa"
+  },
+  "undo": {
+    "message": "Deshacer"
+  },
+  "redo": {
+    "message": "Rehacer"
+  },
+  "startOver": {
+    "message": "Empezar de nuevo"
+  },
+  "deletesAllShapes": {
+    "message": "Elimina todas las formas"
+  },
+  "toolLabel": {
+    "message": "Herramienta:"
+  },
+  "zoomLabel": {
+    "message": "Zoom:"
+  },
+  "durationLabel": {
+    "message": "Duración:"
+  },
+  "trimLabel": {
+    "message": "Recortar:"
+  },
+  "fileLabel": {
+    "message": "Archivo:"
+  },
+  "openScreenshots": {
+    "message": "Abrir capturas de pantalla"
+  },
+  "screenshots": {
+    "message": "Capturas de pantalla"
+  },
+  "openDetails": {
+    "message": "Abrir detalles"
+  },
+  "details": {
+    "message": "Detalles"
+  },
+  "descriptionMaxLength": {
+    "message": "Sé breve y conciso, ¡máximo 10 - 512 caracteres!"
+  },
+  "description": {
+    "message": "Descripción"
+  },
+  "descriptionPlaceholder": {
+    "message": "Escribe una descripción aquí..."
+  },
+  "priority": {
+    "message": "Prioridad"
+  },
+  "selectPriority": {
+    "message": "Seleccionar prioridad"
+  },
+  "labels": {
+    "message": "Etiquetas"
+  },
+  "insertLabel": {
+    "message": "Insertar una etiqueta"
+  },
+  "playbackTimeline": {
+    "message": "Línea de tiempo de reproducción"
+  },
+  "trimStart": {
+    "message": "Inicio del recorte"
+  },
+  "trimEnd": {
+    "message": "Fin del recorte"
+  },
+  "noReplayData": {
+    "message": "Aún no se han capturado datos de repetición."
+  },
+  "replayNotReady": {
+    "message": "La repetición no está lista."
+  },
+  "inactive": {
+    "message": "Inactivo"
+  },
+  "playbackSettings": {
+    "message": "Configuración de reproducción"
+  },
+  "skipInactivity": {
+    "message": "Omitir inactividad"
+  },
+  "skipInactivityDescription": {
+    "message": "Avanzar rápidamente los largos intervalos entre eventos."
+  },
+  "speed": {
+    "message": "Velocidad"
+  },
+  "playbackRate": {
+    "message": "Velocidad de reproducción."
+  },
+  "playbackSpeed": {
+    "message": "Velocidad de reproducción"
+  },
+  "importantEvents": {
+    "message": "Eventos importantes"
+  },
+  "noImportantEvents": {
+    "message": "No hay eventos importantes."
+  },
+  "eventTypeNetwork": {
+    "message": "RED"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Crea el recorte para ver todos los eventos."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Última captura de pantalla: $1"
+  },
+  "joinDiscord": {
+    "message": "Únete a la comunidad de Discord"
+  },
+  "viewSourceCode": {
+    "message": "Ver el código fuente en GitHub"
+  },
+  "visitHomepage": {
+    "message": "Visitar la página de Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Reporta errores en segundos"
+  },
+  "getFullAccess": {
+    "message": "Comienza a capturar y corregir errores más rápido."
+  },
+  "continue": {
+    "message": "Continuar"
+  },
+  "byClickingContinue": {
+    "message": "Al hacer clic en \"Continuar\","
+  },
+  "termsOfService": {
+    "message": "Términos de servicio"
+  },
+  "privacyPolicy": {
+    "message": "Política de privacidad"
+  },
+  "serviceUnavailable": {
+    "message": "Servicio no disponible"
+  },
+  "systemOffline": {
+    "message": "Lo sentimos, nuestro sistema no está disponible en este momento."
+  },
+  "backSoon": {
+    "message": "Volveremos lo antes posible."
+  },
+  "retryAttempt": {
+    "message": "Intento de reintento: $1"
+  },
+  "errorOccurred": {
+    "message": "Ocurrió un error"
+  },
+  "retry": {
+    "message": "Reintentar"
+  },
+  "sessionExpired": {
+    "message": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo."
+  },
+  "exitAction": {
+    "message": "Salir de $1"
+  },
+  "runAction": {
+    "message": "Ejecutar $1"
+  },
+  "captureMode": {
+    "message": "Modo de captura"
+  },
+  "stopAction": {
+    "message": "Detener $1"
+  },
+  "startAction": {
+    "message": "Iniciar $1"
+  },
+  "statusOn": {
+    "message": "Activado"
+  },
+  "statusOff": {
+    "message": "Desactivado"
+  },
+  "toggleSystemAudio": {
+    "message": "Alternar audio del sistema"
+  },
+  "recordArea": {
+    "message": "Grabar área"
+  },
+  "replay": {
+    "message": "Repetición"
+  },
+  "captureLastMinute": {
+    "message": "Capturar el último minuto antes del error"
+  },
+  "toggleRewind": {
+    "message": "Alternar rebobinado"
+  },
+  "collapseAction": {
+    "message": "Contraer $1"
+  },
+  "expandAction": {
+    "message": "Expandir $1"
+  },
+  "recordAreaTab": {
+    "message": "Pestaña"
+  },
+  "captureArea": {
+    "message": "Capturar área"
+  },
+  "captureWindow": {
+    "message": "Capturar ventana"
+  },
+  "captureFullscreen": {
+    "message": "Capturar pantalla completa"
+  },
+  "recordTab": {
+    "message": "Grabar pestaña"
+  },
+  "recordDesktop": {
+    "message": "Grabar escritorio"
+  },
+  "sliceThumbnail": {
+    "message": "Miniatura del recorte"
+  },
+  "errorDetected": {
+    "message": "Se detectó un error en esta página"
+  },
+  "errorDetectedAction": {
+    "message": "Ver repetición"
+  },
+  "settings": {
+    "message": "Configuración"
+  },
+  "domainSkipList": {
+    "message": "Lista de dominios excluidos"
+  },
+  "domainSkipListDescription": {
+    "message": "Dominios donde se omite la redacción de información sensible."
+  },
+  "addDomain": {
+    "message": "Agregar"
+  },
+  "domainPlaceholder": {
+    "message": "ej. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Aún no se han agregado dominios. La información sensible solo se omite en localhost por defecto."
   }
 }

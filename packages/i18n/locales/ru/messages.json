@@ -118,10 +118,439 @@
   "readyToGo": {
     "message": "будет готово к работе!"
   },
+  "LOW": {
+    "message": "Низкий"
+  },
+  "HIGH": {
+    "message": "Высокий"
+  },
+  "HIGHEST": {
+    "message": "Критический"
+  },
+  "MEDIUM": {
+    "message": "Средний"
+  },
   "authCompleted": {
     "message": "Аутентификация прошла успешно!"
   },
   "authFailed": {
     "message": "Ошибка аутентификации!"
+  },
+  "screenshotCaptured": {
+    "message": "Скриншот сделан"
+  },
+  "screenshotCapturedDescription": {
+    "message": "Сделайте ещё снимки или переходите к редактированию."
+  },
+  "imagePreparing": {
+    "message": "Подготовка скриншота к скачиванию…"
+  },
+  "imagePreparingFailed": {
+    "message": "Не удалось подготовить скриншот к скачиванию."
+  },
+  "imageCopied": {
+    "message": "Скриншот скопирован!"
+  },
+  "imageCopiedFailed": {
+    "message": "Не удалось скопировать скриншот."
+  },
+  "edit": {
+    "message": "Редактировать"
+  },
+  "copy": {
+    "message": "Копировать"
+  },
+  "save": {
+    "message": "Сохранить..."
+  },
+  "addToSpace": {
+    "message": "Добавить в пространство"
+  },
+  "createSpace": {
+    "message": "Создать пространство"
+  },
+  "noSpaces": {
+    "message": "Пространств пока нет"
+  },
+  "colorPalette": {
+    "message": "Цветовая палитра"
+  },
+  "selectColor": {
+    "message": "Выбрать цвет"
+  },
+  "toggle": {
+    "message": "Переключить"
+  },
+  "moreIntegrationSoon": {
+    "message": "Скоро появятся новые интеграции..."
+  },
+  "createLink": {
+    "message": "Создать ссылку"
+  },
+  "createLinear": {
+    "message": "Создать в Linear"
+  },
+  "createJira": {
+    "message": "Создать в Jira"
+  },
+  "createAzure": {
+    "message": "Создать в Azure"
+  },
+  "rename": {
+    "message": "Переименовать"
+  },
+  "export": {
+    "message": "Экспорт"
+  },
+  "exportSettings": {
+    "message": "Настройки экспорта"
+  },
+  "imageFormat": {
+    "message": "Формат изображения"
+  },
+  "outputResolution": {
+    "message": "Выходное разрешение"
+  },
+  "edited": {
+    "message": "Отредактировано"
+  },
+  "deleteScreenshot": {
+    "message": "Удалить скриншот"
+  },
+  "workspaces": {
+    "message": "Рабочие пространства"
+  },
+  "createWorkspace": {
+    "message": "Создать рабочее пространство"
+  },
+  "fileTooLarge": {
+    "message": "\"$1\" слишком большой. Выберите файл размером до 20 МБ."
+  },
+  "recordingInProgress": {
+    "message": "На этой вкладке идёт запись."
+  },
+  "pauseRecording": {
+    "message": "Пауза"
+  },
+  "stopRecording": {
+    "message": "Стоп"
+  },
+  "recordingPaused": {
+    "message": "Запись на этой вкладке приостановлена."
+  },
+  "resumeRecording": {
+    "message": "Продолжить"
+  },
+  "preparingRecording": {
+    "message": "Подготовка к записи этой вкладки…"
+  },
+  "videoRecordingDescription": {
+    "message": "Запишите видео этой вкладки с перетаскиваемой панелью и аннотациями."
+  },
+  "startRecording": {
+    "message": "Записать эту вкладку"
+  },
+  "tab": {
+    "message": "Текущая вкладка"
+  },
+  "desktop": {
+    "message": "Рабочий стол"
+  },
+  "micPermissionDenied": {
+    "message": "Микрофон заблокирован в браузере"
+  },
+  "enableMic": {
+    "message": "Включить микрофон"
+  },
+  "disableMic": {
+    "message": "Выключить микрофон"
+  },
+  "exitEditMode": {
+    "message": "Выйти из режима редактирования"
+  },
+  "noActiveTabForRewind": {
+    "message": "Нет активной вкладки для перемотки"
+  },
+  "noUserActionsCaptured": {
+    "message": "Действия пользователя ещё не зафиксированы"
+  },
+  "failedToLoadRewind": {
+    "message": "Не удалось загрузить воспроизведение перемотки"
+  },
+  "stopAndSave": {
+    "message": "Остановить и сохранить"
+  },
+  "exitDrawMode": {
+    "message": "Выйти из режима рисования"
+  },
+  "drawMode": {
+    "message": "Рисование (исчезает через 5с)"
+  },
+  "exitBlurMode": {
+    "message": "Выйти из режима размытия"
+  },
+  "blurElement": {
+    "message": "Размыть элемент"
+  },
+  "close": {
+    "message": "Закрыть"
+  },
+  "minimize": {
+    "message": "Свернуть"
+  },
+  "exitFullScreen": {
+    "message": "Выйти из полноэкранного режима"
+  },
+  "enterFullScreen": {
+    "message": "Полноэкранный режим"
+  },
+  "undo": {
+    "message": "Отменить"
+  },
+  "redo": {
+    "message": "Повторить"
+  },
+  "startOver": {
+    "message": "Начать заново"
+  },
+  "deletesAllShapes": {
+    "message": "Удаляет все фигуры"
+  },
+  "toolLabel": {
+    "message": "Инструмент:"
+  },
+  "zoomLabel": {
+    "message": "Масштаб:"
+  },
+  "durationLabel": {
+    "message": "Длительность:"
+  },
+  "trimLabel": {
+    "message": "Обрезка:"
+  },
+  "fileLabel": {
+    "message": "Файл:"
+  },
+  "openScreenshots": {
+    "message": "Открыть скриншоты"
+  },
+  "screenshots": {
+    "message": "Скриншоты"
+  },
+  "openDetails": {
+    "message": "Открыть детали"
+  },
+  "details": {
+    "message": "Детали"
+  },
+  "descriptionMaxLength": {
+    "message": "Будьте краткими, максимум 10 - 512 символов!"
+  },
+  "description": {
+    "message": "Описание"
+  },
+  "descriptionPlaceholder": {
+    "message": "Напишите описание здесь..."
+  },
+  "priority": {
+    "message": "Приоритет"
+  },
+  "selectPriority": {
+    "message": "Выберите приоритет"
+  },
+  "labels": {
+    "message": "Метки"
+  },
+  "insertLabel": {
+    "message": "Введите метку"
+  },
+  "playbackTimeline": {
+    "message": "Шкала воспроизведения"
+  },
+  "trimStart": {
+    "message": "Начало обрезки"
+  },
+  "trimEnd": {
+    "message": "Конец обрезки"
+  },
+  "noReplayData": {
+    "message": "Данные воспроизведения ещё не получены."
+  },
+  "replayNotReady": {
+    "message": "Воспроизведение не готово."
+  },
+  "inactive": {
+    "message": "Неактивно"
+  },
+  "playbackSettings": {
+    "message": "Настройки воспроизведения"
+  },
+  "skipInactivity": {
+    "message": "Пропустить бездействие"
+  },
+  "skipInactivityDescription": {
+    "message": "Ускоренная перемотка длинных пауз между событиями."
+  },
+  "speed": {
+    "message": "Скорость"
+  },
+  "playbackRate": {
+    "message": "Скорость воспроизведения."
+  },
+  "playbackSpeed": {
+    "message": "Скорость воспроизведения"
+  },
+  "importantEvents": {
+    "message": "Важные события"
+  },
+  "noImportantEvents": {
+    "message": "Нет важных событий."
+  },
+  "eventTypeNetwork": {
+    "message": "СЕТЬ"
+  },
+  "eventTypeLog": {
+    "message": "ЛОГ"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Создайте срез, чтобы увидеть все события."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Последний скриншот: $1"
+  },
+  "joinDiscord": {
+    "message": "Присоединиться к сообществу Discord"
+  },
+  "viewSourceCode": {
+    "message": "Посмотреть исходный код на GitHub"
+  },
+  "visitHomepage": {
+    "message": "Посетить домашнюю страницу Brie"
+  },
+  "reportBugsHeading": {
+    "message": "Сообщайте об ошибках за секунды"
+  },
+  "getFullAccess": {
+    "message": "Начните находить и исправлять ошибки быстрее."
+  },
+  "continue": {
+    "message": "Продолжить"
+  },
+  "byClickingContinue": {
+    "message": "Нажимая \"Продолжить\","
+  },
+  "termsOfService": {
+    "message": "Условия использования"
+  },
+  "privacyPolicy": {
+    "message": "Политика конфиденциальности"
+  },
+  "serviceUnavailable": {
+    "message": "Сервис недоступен"
+  },
+  "systemOffline": {
+    "message": "Приносим извинения, наша система временно недоступна."
+  },
+  "backSoon": {
+    "message": "Мы вернёмся как можно скорее."
+  },
+  "retryAttempt": {
+    "message": "Попытка повтора: $1"
+  },
+  "errorOccurred": {
+    "message": "Произошла ошибка"
+  },
+  "retry": {
+    "message": "Повторить"
+  },
+  "sessionExpired": {
+    "message": "Ваша сессия истекла. Пожалуйста, войдите снова."
+  },
+  "exitAction": {
+    "message": "Выйти из $1"
+  },
+  "runAction": {
+    "message": "Запустить $1"
+  },
+  "captureMode": {
+    "message": "Режим захвата"
+  },
+  "stopAction": {
+    "message": "Остановить $1"
+  },
+  "startAction": {
+    "message": "Запустить $1"
+  },
+  "statusOn": {
+    "message": "Вкл"
+  },
+  "statusOff": {
+    "message": "Выкл"
+  },
+  "toggleSystemAudio": {
+    "message": "Переключить системный звук"
+  },
+  "recordArea": {
+    "message": "Записать область"
+  },
+  "replay": {
+    "message": "Воспроизведение"
+  },
+  "captureLastMinute": {
+    "message": "Захватить последнюю минуту перед ошибкой"
+  },
+  "toggleRewind": {
+    "message": "Переключить перемотку"
+  },
+  "collapseAction": {
+    "message": "Свернуть $1"
+  },
+  "expandAction": {
+    "message": "Развернуть $1"
+  },
+  "recordAreaTab": {
+    "message": "Вкладка"
+  },
+  "captureArea": {
+    "message": "Захватить область"
+  },
+  "captureWindow": {
+    "message": "Захватить окно"
+  },
+  "captureFullscreen": {
+    "message": "Захватить весь экран"
+  },
+  "recordTab": {
+    "message": "Записать вкладку"
+  },
+  "recordDesktop": {
+    "message": "Записать рабочий стол"
+  },
+  "sliceThumbnail": {
+    "message": "Миниатюра среза"
+  },
+  "errorDetected": {
+    "message": "На этой странице обнаружена ошибка"
+  },
+  "errorDetectedAction": {
+    "message": "Просмотреть воспроизведение"
+  },
+  "settings": {
+    "message": "Настройки"
+  },
+  "domainSkipList": {
+    "message": "Список исключённых доменов"
+  },
+  "domainSkipListDescription": {
+    "message": "Домены, на которых пропускается скрытие конфиденциальной информации."
+  },
+  "addDomain": {
+    "message": "Добавить"
+  },
+  "domainPlaceholder": {
+    "message": "напр. staging.example.com"
+  },
+  "noDomains": {
+    "message": "Домены ещё не добавлены. Конфиденциальная информация пропускается только на localhost по умолчанию."
   }
 }

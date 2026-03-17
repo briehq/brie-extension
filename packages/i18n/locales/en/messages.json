@@ -44,10 +44,10 @@
     "message": "Area"
   },
   "viewport": {
-    "message": "Visible Window"
+    "message": "Window"
   },
   "fullPage": {
-    "message": "Full Page"
+    "message": "Fullscreen"
   },
   "navigateToWebsite": {
     "message": "Navigate to any website to start capturing bugs."
@@ -225,5 +225,332 @@
   },
   "fileTooLarge": {
     "message": "“$1” is too large. Choose a file under 20 MB."
+  },
+  "recordingInProgress": {
+    "message": "Recording is in progress on this tab."
+  },
+  "pauseRecording": {
+    "message": "Pause"
+  },
+  "stopRecording": {
+    "message": "Stop"
+  },
+  "recordingPaused": {
+    "message": "Recording is paused on this tab."
+  },
+  "resumeRecording": {
+    "message": "Resume"
+  },
+  "preparingRecording": {
+    "message": "Preparing to record this tab…"
+  },
+  "videoRecordingDescription": {
+    "message": "Capture a video of this tab with a draggable toolbar and annotations."
+  },
+  "startRecording": {
+    "message": "Record this tab"
+  },
+  "tab": {
+    "message": "Current Tab"
+  },
+  "desktop": {
+    "message": "Desktop"
+  },
+  "micPermissionDenied": {
+    "message": "Microphone blocked in browser"
+  },
+  "enableMic": {
+    "message": "Enable microphone"
+  },
+  "disableMic": {
+    "message": "Mute microphone"
+  },
+  "exitEditMode": {
+    "message": "Exit Edit Mode"
+  },
+  "noActiveTabForRewind": {
+    "message": "No active tab for rewind"
+  },
+  "noUserActionsCaptured": {
+    "message": "No user actions captured yet"
+  },
+  "failedToLoadRewind": {
+    "message": "Failed to load rewind replay"
+  },
+  "stopAndSave": {
+    "message": "Stop & save"
+  },
+  "exitDrawMode": {
+    "message": "Exit draw mode"
+  },
+  "drawMode": {
+    "message": "Draw (fades in 5s)"
+  },
+  "exitBlurMode": {
+    "message": "Exit blur mode"
+  },
+  "blurElement": {
+    "message": "Blur an element"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "minimize": {
+    "message": "Minimize"
+  },
+  "exitFullScreen": {
+    "message": "Exit full screen"
+  },
+  "enterFullScreen": {
+    "message": "Enter full screen"
+  },
+  "undo": {
+    "message": "Undo"
+  },
+  "redo": {
+    "message": "Redo"
+  },
+  "startOver": {
+    "message": "Start over"
+  },
+  "deletesAllShapes": {
+    "message": "Deletes all the shapes"
+  },
+  "toolLabel": {
+    "message": "Tool:"
+  },
+  "zoomLabel": {
+    "message": "Zoom:"
+  },
+  "durationLabel": {
+    "message": "Duration:"
+  },
+  "trimLabel": {
+    "message": "Trim:"
+  },
+  "fileLabel": {
+    "message": "File:"
+  },
+  "openScreenshots": {
+    "message": "Open screenshots"
+  },
+  "screenshots": {
+    "message": "Screenshots"
+  },
+  "openDetails": {
+    "message": "Open details"
+  },
+  "details": {
+    "message": "Details"
+  },
+  "descriptionMaxLength": {
+    "message": "Keep it short and sweet, 10 - 512 characters max!"
+  },
+  "description": {
+    "message": "Description"
+  },
+  "descriptionPlaceholder": {
+    "message": "Write a description here..."
+  },
+  "priority": {
+    "message": "Priority"
+  },
+  "selectPriority": {
+    "message": "Select priority"
+  },
+  "labels": {
+    "message": "Labels"
+  },
+  "insertLabel": {
+    "message": "Insert a label"
+  },
+  "playbackTimeline": {
+    "message": "Playback timeline"
+  },
+  "trimStart": {
+    "message": "Trim start"
+  },
+  "trimEnd": {
+    "message": "Trim end"
+  },
+  "noReplayData": {
+    "message": "No replay data captured yet."
+  },
+  "replayNotReady": {
+    "message": "Replay not ready."
+  },
+  "inactive": {
+    "message": "Inactive"
+  },
+  "playbackSettings": {
+    "message": "Playback settings"
+  },
+  "skipInactivity": {
+    "message": "Skip inactivity"
+  },
+  "skipInactivityDescription": {
+    "message": "Fast-forward long gaps between events."
+  },
+  "speed": {
+    "message": "Speed"
+  },
+  "playbackRate": {
+    "message": "Playback rate."
+  },
+  "playbackSpeed": {
+    "message": "Playback speed"
+  },
+  "importantEvents": {
+    "message": "Important events"
+  },
+  "noImportantEvents": {
+    "message": "No important events."
+  },
+  "eventTypeNetwork": {
+    "message": "NET"
+  },
+  "eventTypeLog": {
+    "message": "LOG"
+  },
+  "createSliceToSeeEvents": {
+    "message": "Create the slice to see all events."
+  },
+  "lastCapturedScreenshot": {
+    "message": "Last captured screenshot: $1"
+  },
+  "joinDiscord": {
+    "message": "Join the Discord community"
+  },
+  "viewSourceCode": {
+    "message": "View the source code on GitHub"
+  },
+  "visitHomepage": {
+    "message": "Visit the Brie homepage"
+  },
+  "reportBugsHeading": {
+    "message": "Report bugs in seconds"
+  },
+  "getFullAccess": {
+    "message": "Start capturing and fixing bugs faster."
+  },
+  "continue": {
+    "message": "Continue"
+  },
+  "byClickingContinue": {
+    "message": "By clicking \"Continue\","
+  },
+  "termsOfService": {
+    "message": "Terms of Service"
+  },
+  "privacyPolicy": {
+    "message": "Privacy Policy"
+  },
+  "serviceUnavailable": {
+    "message": "Service Unavailable"
+  },
+  "systemOffline": {
+    "message": "We're sorry, our system is currently offline."
+  },
+  "backSoon": {
+    "message": "We'll be back as soon as possible."
+  },
+  "retryAttempt": {
+    "message": "Retry attempt: $1"
+  },
+  "errorOccurred": {
+    "message": "Error Occurred"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "sessionExpired": {
+    "message": "Your login session has expired. Please sign in again."
+  },
+  "exitAction": {
+    "message": "Exit $1"
+  },
+  "runAction": {
+    "message": "Run $1"
+  },
+  "captureMode": {
+    "message": "Capture mode"
+  },
+  "stopAction": {
+    "message": "Stop $1"
+  },
+  "startAction": {
+    "message": "Start $1"
+  },
+  "statusOn": {
+    "message": "On"
+  },
+  "statusOff": {
+    "message": "Off"
+  },
+  "toggleSystemAudio": {
+    "message": "Toggle system audio"
+  },
+  "recordArea": {
+    "message": "Record area"
+  },
+  "replay": {
+    "message": "Replay"
+  },
+  "captureLastMinute": {
+    "message": "Capture last minute before bug happened"
+  },
+  "toggleRewind": {
+    "message": "Toggle rewind"
+  },
+  "collapseAction": {
+    "message": "Collapse $1"
+  },
+  "expandAction": {
+    "message": "Expand $1"
+  },
+  "recordAreaTab": {
+    "message": "Tab"
+  },
+  "captureArea": {
+    "message": "Capture Area"
+  },
+  "captureWindow": {
+    "message": "Capture Window"
+  },
+  "captureFullscreen": {
+    "message": "Capture Fullscreen"
+  },
+  "recordTab": {
+    "message": "Record Tab"
+  },
+  "recordDesktop": {
+    "message": "Record Desktop"
+  },
+  "sliceThumbnail": {
+    "message": "Slice Thumbnail"
+  },
+  "errorDetected": {
+    "message": "A bug was detected on this page"
+  },
+  "errorDetectedAction": {
+    "message": "Review Replay"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "domainSkipList": {
+    "message": "Domain Skip List"
+  },
+  "domainSkipListDescription": {
+    "message": "Domains where sensitive information redaction is skipped."
+  },
+  "addDomain": {
+    "message": "Add"
+  },
+  "domainPlaceholder": {
+    "message": "e.g. staging.example.com"
+  },
+  "noDomains": {
+    "message": "No domains added yet. Sensitive info is only skipped on localhost by default."
   }
 }

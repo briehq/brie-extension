@@ -1,4 +1,5 @@
 import { IS_DEV } from '@extension/env';
+import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
@@ -11,7 +12,7 @@ interface EditorHeaderProps {
 
   /** window controls */
   onClose: () => void;
-  onMinimize: () => void;
+  onMinimize?: () => void;
   onToggleFullScreen: () => void;
   isFullScreen?: boolean;
 
@@ -71,7 +72,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
   return (
     <header
       className={cn(
-        'grid grid-cols-2 items-center rounded-t-[18px] border-b border-[#EDECE8] bg-white p-4 sm:grid-cols-3',
+        'border-border bg-background grid grid-cols-2 items-center rounded-t-[18px] border-b p-4 sm:grid-cols-3',
         className,
       )}>
       <div className="flex items-center gap-[14px]">
@@ -82,31 +83,33 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 size="icon"
                 variant="destructive"
                 onClick={onClose}
-                className="dark:bg-primary size-[35px] dark:text-white"
-                aria-label="Close">
+                className="size-[35px]"
+                aria-label={t('close')}>
                 <Icon name="X" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Close
+              {t('close')}
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={onMinimize}
-                className="dark:bg-primary size-[35px] dark:text-white"
-                aria-label="Minimize">
-                <Icon name="MinusIcon" size={16} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="center">
-              Minimize
-            </TooltipContent>
-          </Tooltip>
+          {onMinimize && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={onMinimize}
+                  className="size-[35px]"
+                  aria-label={t('minimize')}>
+                  <Icon name="MinusIcon" size={16} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="center">
+                {t('minimize')}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -114,13 +117,13 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 size="icon"
                 variant="ghost"
                 onClick={onToggleFullScreen}
-                className="dark:bg-primary hidden size-[35px] sm:flex dark:text-white"
-                aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}>
+                className="hidden size-[35px] sm:flex"
+                aria-label={isFullScreen ? t('exitFullScreen') : t('enterFullScreen')}>
                 <Icon name={isFullScreen ? 'MinimizeIcon' : 'MaximizeIcon'} size={14} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              {isFullScreen ? 'Exit full screen' : 'Enter full screen'}
+              {isFullScreen ? t('exitFullScreen') : t('enterFullScreen')}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -137,13 +140,13 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 size="icon"
                 variant="ghost"
                 onClick={onUndo}
-                className="dark:bg-primary size-[35px] dark:text-white"
-                aria-label="Undo">
+                className="size-[35px]"
+                aria-label={t('undo')}>
                 <Icon name="Undo2Icon" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Undo
+              {t('undo')}
             </TooltipContent>
           </Tooltip>
 
@@ -154,29 +157,25 @@ export const Header: React.FC<EditorHeaderProps> = ({
                 size="icon"
                 variant="ghost"
                 onClick={onRedo}
-                className="dark:bg-primary size-[35px] dark:text-white"
-                aria-label="Redo">
+                className="size-[35px]"
+                aria-label={t('redo')}>
                 <Icon name="Redo2Icon" size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" align="center">
-              Redo
+              {t('redo')}
             </TooltipContent>
           </Tooltip>
         </div>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              disabled={!canStartOver}
-              variant="destructive"
-              onClick={onStartOver}
-              className="dark:bg-primary h-[35px] px-[10px] dark:text-white">
-              <span className="font-normal leading-normal">Start over</span>
+            <Button disabled={!canStartOver} variant="destructive" onClick={onStartOver} className="h-[35px] px-[10px]">
+              <span className="font-normal leading-normal">{t('startOver')}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="top" align="center">
-            Deletes all the shapes
+            {t('deletesAllShapes')}
           </TooltipContent>
         </Tooltip>
 

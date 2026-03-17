@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import { APP_BASE_URL } from '@extension/env';
 import { t } from '@extension/i18n';
@@ -25,55 +25,6 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
 
   const [deleteSliceByExternalId, { isLoading: isDeleteSliceLoading }] = useDeleteSliceByIdMutation();
   const { isLoading, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
-
-  const { screenshots, records, attachments } = useMemo(
-    slice => {
-      if (isLoading || !slice?.attachments) {
-        return {
-          screenshots: [],
-          records: [],
-          attachments: [],
-        };
-      }
-
-      const attachments: any[] = [];
-      const screenshots: any[] = [];
-      const records: any[] = [];
-
-      for (const attachment of slice.attachments) {
-        const { assetType, name } = attachment;
-
-        if (assetType) {
-          switch (assetType) {
-            case 'ATTACHMENT':
-              attachments.push(attachment);
-              break;
-
-            case 'SCREENSHOT':
-              screenshots.push(attachment);
-              break;
-
-            case 'RECORDS':
-              records.push(attachment);
-              break;
-          }
-        } else {
-          if (name?.toLowerCase().includes('records')) {
-            records.push(attachment);
-          } else {
-            screenshots.push(attachment);
-          }
-        }
-      }
-
-      return {
-        screenshots: screenshots.sort((a, b) => (a?.order ?? 0) - (b?.order ?? 0)),
-        records,
-        attachments,
-      };
-    },
-    [isLoading],
-  );
 
   const previewScreenshotUrl = (attachments: any) => attachments.find((a: any) => a?.name === 'primary')?.preview;
 
@@ -112,7 +63,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
         <div className="mb-2 flex items-center justify-between">
           <h2 className="flex items-center text-base font-semibold">{t('sliceHistoryTitle')}</h2>
 
-          <p className="text-muted-foreground text-sm font-medium text-red-500">
+          <p className="text-destructive text-sm font-medium">
             {totalSlicesCreatedToday}/10 {t('slicesLimitLabel')}
           </p>
         </div>
@@ -143,7 +94,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
                 {previewScreenshotUrl(item.attachments) && (
                   <img
                     src={previewScreenshotUrl(item.attachments)}
-                    alt="Slice Thumbnail"
+                    alt={t('sliceThumbnail')}
                     loading="lazy"
                     crossOrigin="anonymous"
                     className="mr-3 size-12 rounded-md object-cover"

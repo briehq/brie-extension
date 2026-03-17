@@ -13,6 +13,11 @@ export const EditableTitle = ({ value, onChange, className }: EditableTitleProps
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(value || 'Untitled report');
   const inputRef = useRef<HTMLInputElement>(null);
+  const isCancellingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isEditing) setDraft(value || 'Untitled report');
+  }, [value, isEditing]);
 
   useEffect(() => {
     if (isEditing) {
@@ -22,15 +27,22 @@ export const EditableTitle = ({ value, onChange, className }: EditableTitleProps
   }, [isEditing]);
 
   const handleBlur = () => {
+    if (isCancellingRef.current) {
+      isCancellingRef.current = false;
+      setIsEditing(false);
+      return;
+    }
     setIsEditing(false);
     if (draft.trim() && draft !== value) onChange(draft.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     if (e.key === 'Enter') {
       e.preventDefault();
       handleBlur();
     } else if (e.key === 'Escape') {
+      isCancellingRef.current = true;
       setDraft(value);
       setIsEditing(false);
     }
@@ -52,6 +64,7 @@ export const EditableTitle = ({ value, onChange, className }: EditableTitleProps
           onChange={e => setDraft(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          onKeyUp={e => e.stopPropagation()}
           className="text-primary h-8 w-auto border-none bg-transparent px-1 py-0 font-normal not-italic leading-normal shadow-none focus-visible:ring-0"
         />
       ) : (

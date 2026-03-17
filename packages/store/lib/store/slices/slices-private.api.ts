@@ -10,6 +10,7 @@ import type {
   UpdateSliceState,
 } from '@extension/shared';
 
+import { TAG_TYPE } from '../../constants/tag-type.const.js';
 import { baseQueryWithReauth } from '../../services/index.js';
 
 export const attachmentUrlPath = (a: Slice) => {
@@ -37,10 +38,10 @@ export const attachmentUrlPath = (a: Slice) => {
 export const slicesPrivateAPI = createApi({
   reducerPath: 'slices-private',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['SLICE', 'SLICES'],
+  tagTypes: [TAG_TYPE.SLICE, TAG_TYPE.SLICES],
   endpoints: build => ({
     getSlices: build.query<{ items: Slice[]; total: number; hasItems: boolean; totalToday: number }, Pagination>({
-      providesTags: ['SLICES'],
+      providesTags: [TAG_TYPE.SLICES],
       query: params => ({
         url: '/slices',
         params,
@@ -61,7 +62,7 @@ export const slicesPrivateAPI = createApi({
     }),
 
     createSlice: build.mutation<Slice, Partial<{ primary: File; secondary: File; records: File }>>({
-      invalidatesTags: ['SLICES'],
+      invalidatesTags: [TAG_TYPE.SLICES],
       query: body => ({
         url: '/slices',
         method: 'POST',
@@ -70,7 +71,7 @@ export const slicesPrivateAPI = createApi({
     }),
 
     deleteSliceById: build.mutation<Slice, string>({
-      invalidatesTags: ['SLICES'],
+      invalidatesTags: [TAG_TYPE.SLICES],
       query: externalId => ({
         url: `/slices/${externalId}`,
         method: 'DELETE',
@@ -84,7 +85,7 @@ export const slicesPrivateAPI = createApi({
         headers: { 'Idempotency-Key': string };
       }
     >({
-      invalidatesTags: ['SLICES'],
+      invalidatesTags: [TAG_TYPE.SLICES],
       query: ({ body, headers }) => ({
         url: '/slices/draft',
         method: 'POST',
@@ -94,7 +95,7 @@ export const slicesPrivateAPI = createApi({
     }),
 
     uploadAssetBySliceId: build.mutation<AssetUploadResponse, { sliceId: string; assetId: string; file: File }>({
-      invalidatesTags: ['SLICE'],
+      invalidatesTags: [TAG_TYPE.SLICE],
       query: ({ sliceId, assetId, file }) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -108,7 +109,7 @@ export const slicesPrivateAPI = createApi({
     }),
 
     updateSliceState: build.mutation<UpdateSliceState, UpdateSliceState>({
-      invalidatesTags: ['SLICE'],
+      invalidatesTags: [TAG_TYPE.SLICE],
       query: ({ id, state }) => ({
         url: `/slices/${id}/state`,
         method: 'PATCH',
