@@ -101,6 +101,8 @@ export const trimBlobWithFfmpeg = async (input: Blob, trim: TrimRange, options: 
       'realtime',
       '-cpu-used',
       '6',
+      '-c:a',
+      'libopus',
       outName,
     ];
     const argsAccurateMp4 = [
