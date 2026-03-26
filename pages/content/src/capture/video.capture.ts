@@ -1,5 +1,5 @@
 import type { Segment } from '@extension/shared';
-import { UI, VIDEO } from '@extension/shared';
+import { RECORDING, UI, VIDEO } from '@extension/shared';
 import { captureStateStorage, recordingSettingsStorage } from '@extension/storage';
 import type { VideoRecordingState } from '@extension/storage';
 
@@ -11,7 +11,8 @@ let recordingState: VideoRecordingState = 'idle';
 let stream: MediaStream | null = null;
 let recorder: MediaRecorder | null = null;
 let chunks: BlobPart[] = [];
-let audioTrack: MediaStreamTrack | null = null;
+let micStream: MediaStream | null = null;
+let micAudioTrack: MediaStreamTrack | null = null;
 let pendingOptions: CaptureOptions | null = null;
 let segments: Segment[] = [];
 let activeSegmentStartAt: number | null = null;
@@ -71,13 +72,12 @@ const startAutoStop = () => {
   }, 500);
 };
 
-const buildDisplayMediaConstraints = (options: CaptureOptions): MediaStreamConstraints => {
-  const isDesktop = options.captureType === 'desktop';
-  const enableAudio = options.audio;
+const buildDisplayMediaConstraints = (captureType: CaptureOptions['captureType']): MediaStreamConstraints => {
+  const isDesktop = captureType === 'desktop';
 
   return {
     preferCurrentTab: !isDesktop,
-    audio: enableAudio,
+    audio: false,
     video: {
       displaySurface: isDesktop ? 'monitor' : 'browser',
     },
@@ -94,12 +94,28 @@ const pickMimeType = (): MediaRecorderOptions => {
   return {};
 };
 
+const cleanupMic = () => {
+  if (micStream) {
+    micStream.getTracks().forEach(track => {
+      try {
+        track.stop();
+      } catch {
+        /* */
+      }
+    });
+  }
+  micStream = null;
+  micAudioTrack = null;
+  recordingSettingsStorage.setMicActiveTrack(false);
+  recordingSettingsStorage.setMicMuted(false);
+};
+
 export const beginPreparingRecording = (options?: CaptureOptions) => {
   if (!['idle', 'error', 'unsaved'].includes(recordingState)) return;
 
   window.dispatchEvent(new CustomEvent(UI.LAYOUT_RECALC));
 
-  pendingOptions = options ?? { audio: false };
+  pendingOptions = options ?? { captureType: 'tab' };
   chunks = [];
   segments = [];
   activeSegmentStartAt = null;
@@ -112,14 +128,11 @@ export const startCaptureNow = async () => {
 
   try {
     const { mic } = await recordingSettingsStorage.getSettings();
-    const enableAudio = !!mic.enabled && mic.permission === 'granted';
+    const wantMic = !!mic.enabled && mic.permission === 'granted';
 
-    const options: CaptureOptions = {
-      captureType: pendingOptions?.captureType ?? 'tab',
-      audio: enableAudio,
-    };
-
-    const constraints = buildDisplayMediaConstraints(options);
+    const captureType = pendingOptions?.captureType ?? 'tab';
+    const captureOptions = { captureType, hasMic: wantMic };
+    const constraints = buildDisplayMediaConstraints(captureType);
     const mimeOptions = pickMimeType();
 
     window.dispatchEvent(
@@ -127,17 +140,44 @@ export const startCaptureNow = async () => {
         detail: {
           action: 'START',
           startedAt: segments[0]?.startAt ?? Date.now(),
-          options: options ?? {},
+          options: captureOptions,
         },
       }),
     );
 
     stream = await navigator.mediaDevices.getDisplayMedia(constraints);
-    audioTrack = stream.getAudioTracks()[0] ?? null;
 
-    if (!enableAudio && audioTrack) audioTrack.enabled = false;
+    // Remove any unexpected audio tracks from the display stream
+    stream.getAudioTracks().forEach(t => t.stop());
 
-    recorder = new MediaRecorder(stream, mimeOptions);
+    let recordingStream = stream;
+
+    if (wantMic) {
+      try {
+        // Timeout guard: getUserMedia can hang if the permission prompt is ignored
+        micStream = await Promise.race([
+          navigator.mediaDevices.getUserMedia({ audio: true }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('getUserMedia timeout')), 5000)),
+        ]);
+        micAudioTrack = micStream.getAudioTracks()[0] ?? null;
+
+        if (micAudioTrack) {
+          recordingStream = new MediaStream([...stream.getVideoTracks(), micAudioTrack]);
+          await recordingSettingsStorage.setMicActiveTrack(true);
+          await recordingSettingsStorage.setMicMuted(false);
+        }
+      } catch (err) {
+        console.warn('[brie | Recording] Mic unavailable, recording without audio:', err);
+        await recordingSettingsStorage.setMicPermission('denied');
+        await recordingSettingsStorage.setMicActiveTrack(false);
+        micStream = null;
+        micAudioTrack = null;
+        // Notify user via window event (content-ui listens and shows toast)
+        window.dispatchEvent(new CustomEvent(RECORDING.MIC_FALLBACK));
+      }
+    }
+
+    recorder = new MediaRecorder(recordingStream, mimeOptions);
     chunks = [];
 
     recorder.ondataavailable = (event: BlobEvent) => {
@@ -153,7 +193,7 @@ export const startCaptureNow = async () => {
         const durationMs = getRecordedMs();
 
         const blob = new Blob(chunks, { type: recorder?.mimeType ?? 'video/webm' });
-        const videoMetadata = { durationMs, startedAt, endedAt, segments: segments.slice(), options: options ?? {} };
+        const videoMetadata = { durationMs, startedAt, endedAt, segments: segments.slice(), options: captureOptions };
         const event = new CustomEvent(VIDEO.CAPTURED, {
           detail: {
             blob,
@@ -189,6 +229,14 @@ export const startCaptureNow = async () => {
     openSegment();
 
     recorder.start(1000);
+
+    const videoTrack = stream.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.addEventListener('ended', () => {
+        cleanupMic();
+      });
+    }
+
     setState('capturing');
 
     startAutoStop();
@@ -264,9 +312,10 @@ export const stopRecording = () => {
   }
 };
 
-export const toggleMic = () => {
-  if (!audioTrack) return;
-  audioTrack.enabled = !audioTrack.enabled;
+export const toggleMic = async () => {
+  if (!micAudioTrack) return;
+  micAudioTrack.enabled = !micAudioTrack.enabled;
+  await recordingSettingsStorage.setMicMuted(!micAudioTrack.enabled);
 };
 
 export const cleanup = () => {
@@ -291,7 +340,7 @@ export const cleanup = () => {
   }
 
   stream = null;
-  audioTrack = null;
+  cleanupMic();
   pendingOptions = null;
   activeSegmentStartAt = null;
   chunks = [];
