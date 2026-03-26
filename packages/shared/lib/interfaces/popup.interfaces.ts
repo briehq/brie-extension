@@ -4,7 +4,6 @@ export type RecordArea = 'tab' | 'desktop';
 export interface PopupState {
   captureMode: CaptureMode;
   recordArea: RecordArea;
-  micEnabled: boolean;
   systemAudioEnabled: boolean;
   captureOpen: boolean;
   recordOpen: boolean;

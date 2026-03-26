@@ -17,7 +17,7 @@ interface RecordSectionViewProps {
   onToggleOpen: () => void;
   onPrimaryAction: () => void;
   onChange: (next: RecordArea) => void;
-  onToggleMic: () => void;
+  onToggleMic?: () => void;
 }
 
 const RECORD_ICON: Record<RecordArea, ReactNode> = {
@@ -51,15 +51,14 @@ export const RecordVideoView = ({
       onPrimaryAction={onPrimaryAction}
       primaryAriaLabel={t('startAction', title)}
       right={
-        isMicEnabled && (
-          <StatusBadge
-            state={isMicEnabled}
-            icon={<Icon name={isMicEnabled ? 'Mic' : 'MicOff'} className="h-3.5 w-3.5" />}
-            label={isMicEnabled ? t('statusOn') : t('statusOff')}
-            ariaLabel={t('toggleSystemAudio')}
-            onClick={onToggleMic}
-          />
-        )
+        <StatusBadge
+          state={isMicEnabled}
+          icon={<Icon name={isMicEnabled ? 'Mic' : 'MicOff'} className="h-3.5 w-3.5" />}
+          label={isMicEnabled ? t('statusOn') : t('statusOff')}
+          ariaLabel={isActive ? t('micLockedDuringRecording') : t('toggleMic')}
+          onClick={onToggleMic}
+          disabled={!onToggleMic}
+        />
       }>
       <div className="flex items-center justify-between">
         <div className="text-muted-foreground text-xs">{t('recordArea')}</div>

@@ -490,6 +490,12 @@
   "toggleSystemAudio": {
     "message": "सिस्टम ऑडियो टॉगल करें"
   },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
+  },
   "recordArea": {
     "message": "क्षेत्र रिकॉर्ड करें"
   },

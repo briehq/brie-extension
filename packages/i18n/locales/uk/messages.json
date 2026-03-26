@@ -490,6 +490,12 @@
   "toggleSystemAudio": {
     "message": "Перемкнути системний звук"
   },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
+  },
   "recordArea": {
     "message": "Записати область"
   },

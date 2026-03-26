@@ -13,31 +13,14 @@ export const MicToggleButton: FC = () => {
   const micPermission = mic?.permission ?? 'unknown';
 
   const handleOnToggleMic = useCallback(async () => {
-    if (micPermission === 'denied') {
-      /**
-       * @todo
-       * - open a option page that will show how to enable the mic
-       * - ask user to: Clear the chrome-extension://<id> entry from chrome://settings/content/microphone
-       *
-       * chrome.runtime.openOptionsPage()
-       */
-
-      return;
-    }
-
     if (micPermission === 'granted') {
       await recordingSettingsStorage.setMicEnabled(!micEnabled);
       return;
     }
 
-    /**
-     * @todo
-     * - open a option page that will show how to enable the mic from prompt
-     *
-     * chrome.runtime.openOptionsPage()
-     */
+    // Both 'denied' and 'unknown' open the permission page
     chrome.tabs.create({
-      url: chrome.runtime.getURL('mic-permission.html'),
+      url: chrome.runtime.getURL('mic-permission/index.html'),
       active: true,
     });
   }, [micEnabled, micPermission]);
