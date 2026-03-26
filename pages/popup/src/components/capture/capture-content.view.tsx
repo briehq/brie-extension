@@ -72,6 +72,22 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [state, updateActiveTab, updateCaptureState]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const status = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        const permission = status.state === 'granted' ? 'granted' : status.state === 'denied' ? 'denied' : 'unknown';
+        const settings = await recordingSettingsStorage.getSettings();
+
+        if (settings.mic.permission !== permission) {
+          await recordingSettingsStorage.setMicPermission(permission);
+        }
+      } catch {
+        // navigator.permissions.query may not be available (Firefox)
+      }
+    })();
+  }, []);
+
   const handleOnCaptureScreenshot = useCallback(async () => {
     const tab = await getActiveTab();
     if (!tab?.id) return;
