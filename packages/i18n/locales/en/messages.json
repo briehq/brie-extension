@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Mute microphone"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Exit Edit Mode"
   },

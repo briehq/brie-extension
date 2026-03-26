@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Вимкнути мікрофон"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Вийти з режиму редагування"
   },

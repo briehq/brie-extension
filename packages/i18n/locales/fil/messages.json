@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "I-mute ang mikropono"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Lumabas sa Edit Mode"
   },

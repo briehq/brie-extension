@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "माइक्रोफ़ोन म्यूट करें"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "संपादन मोड से बाहर निकलें"
   },

@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Dezactivează microfonul"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Ieși din modul de editare"
   },

@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Silenciar micrófono"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Salir del modo edición"
   },
