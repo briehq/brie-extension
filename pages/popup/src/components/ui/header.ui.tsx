@@ -76,6 +76,21 @@ export const Header = ({ onSlicesHistory, onSettings }: HeaderProps = {}) => {
         )}
 
         <Button
+          title="Help Center"
+          type="button"
+          size="icon"
+          variant="ghost"
+          className="hover:bg-accent size-8"
+          onClick={() => navigateTo('https://brie.io/help?utm_source=extension')}>
+          <Icon
+            name="CircleHelp"
+            size={20}
+            className="hover:text-primary text-muted-foreground size-4"
+            strokeWidth={1.5}
+          />
+        </Button>
+
+        <Button
           title={t('visitHomepage')}
           type="button"
           size="icon"
