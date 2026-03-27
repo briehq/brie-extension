@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { themeStorage } from '@extension/storage';
 
 import './index.css';
-import { MicPermission } from './MicPermission';
+import { MicPermission } from './mic-permission';
 
 themeStorage.applySystemTheme();
 themeStorage.listenToSystemThemeChanges();
