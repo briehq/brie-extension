@@ -49,14 +49,14 @@ export const MicPermission = () => {
 
         {state === 'granted' && (
           <>
-            <h1 className="text-xl font-semibold text-green-600">Microphone Enabled</h1>
+            <h1 className="text-xl font-semibold text-green-600 dark:text-green-400">Microphone Enabled</h1>
             <p className="text-muted-foreground mt-2 text-sm">You're all set. This tab will close automatically.</p>
           </>
         )}
 
         {state === 'denied' && (
           <>
-            <h1 className="text-xl font-semibold text-red-600">Microphone Access Denied</h1>
+            <h1 className="text-xl font-semibold text-red-600 dark:text-red-400">Microphone Access Denied</h1>
             <p className="text-muted-foreground mt-2 text-sm">Your browser blocked microphone access. To fix this:</p>
             <ol className="text-muted-foreground mt-4 space-y-2 text-left text-sm">
               <li>
@@ -78,7 +78,7 @@ export const MicPermission = () => {
 
         {state === 'error' && (
           <>
-            <h1 className="text-xl font-semibold text-red-600">Something Went Wrong</h1>
+            <h1 className="text-xl font-semibold text-red-600 dark:text-red-400">Something Went Wrong</h1>
             <p className="text-muted-foreground mt-2 text-sm">
               An unexpected error occurred while requesting microphone access.
             </p>
