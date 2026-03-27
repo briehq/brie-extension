@@ -10,31 +10,38 @@ const STATE_COLORS: Record<string, string> = {
   preparing: '#3B82F6',
 };
 
-const updateBadge = (tabId: number | null, color: string) => {
-  // Clear global badge
-  action.setBadgeText({ text: '' });
+const clearBadgeForTab = (tabId: number | null) => {
+  action.setBadgeText({ text: '' }).catch(() => {});
 
-  // Clear per-tab badge if we have a tab ID
   if (tabId) {
     action.setBadgeText({ tabId, text: '' }).catch(() => {});
   }
+};
 
-  // Set badge only when actively recording/preparing
-  if (color && tabId) {
-    action.setBadgeText({ tabId, text: RECORDING_BADGE });
-    action.setBadgeBackgroundColor({ tabId, color: 'transparent' });
-    action.setBadgeTextColor({ tabId, color });
-  }
+const setBadgeForTab = (tabId: number, color: string) => {
+  action.setBadgeText({ tabId, text: RECORDING_BADGE }).catch(() => {});
+  action.setBadgeBackgroundColor({ tabId, color: 'transparent' }).catch(() => {});
+  action.setBadgeTextColor({ tabId, color }).catch(() => {});
 };
 
 export const initBadgeListener = () => {
-  chrome.storage.local.get([CAPTURE_STATE_KEY, CAPTURE_TAB_KEY], result => {
-    const { state } = result[CAPTURE_STATE_KEY] ?? {};
-    updateBadge(result[CAPTURE_TAB_KEY] ?? null, STATE_COLORS[state] ?? '');
-  });
-
+  let prevTabId: number | null = null;
   let tabId: number | null = null;
   let color = '';
+
+  // Restore badge state on startup
+  chrome.storage.local.get([CAPTURE_STATE_KEY, CAPTURE_TAB_KEY], result => {
+    const { state } = result[CAPTURE_STATE_KEY] ?? {};
+    tabId = result[CAPTURE_TAB_KEY] ?? null;
+    prevTabId = tabId;
+    color = STATE_COLORS[state] ?? '';
+
+    if (color && tabId) {
+      setBadgeForTab(tabId, color);
+    } else {
+      clearBadgeForTab(tabId);
+    }
+  });
 
   storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
@@ -49,6 +56,14 @@ export const initBadgeListener = () => {
       tabId = (changes[CAPTURE_TAB_KEY].newValue as number) ?? null;
     }
 
-    updateBadge(tabId, color);
+    // Clear badge on the previous tab (handles tab change and capture end)
+    clearBadgeForTab(prevTabId);
+
+    // Set badge on the current tab if actively capturing
+    if (color && tabId) {
+      setBadgeForTab(tabId, color);
+    }
+
+    prevTabId = tabId;
   });
 };
