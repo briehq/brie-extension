@@ -1,12 +1,11 @@
 import type { CaptureOptions } from '../../interfaces';
 
-export const buildDisplayMediaConstraints = (opts: CaptureOptions): MediaStreamConstraints => {
-  const isDesktop = opts.captureType === 'desktop';
-  const enableAudio = opts.audio;
+export const buildDisplayMediaConstraints = (captureType: CaptureOptions['captureType']): MediaStreamConstraints => {
+  const isDesktop = captureType === 'desktop';
 
   return {
     preferCurrentTab: !isDesktop,
-    audio: enableAudio,
+    audio: false,
     video: {
       displaySurface: isDesktop ? 'monitor' : 'browser',
     } as any,

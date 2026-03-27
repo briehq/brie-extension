@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Dezactivează microfonul"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Ieși din modul de editare"
   },
@@ -489,6 +495,12 @@
   },
   "toggleSystemAudio": {
     "message": "Comută sunetul de sistem"
+  },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
   },
   "recordArea": {
     "message": "Înregistrează zona"

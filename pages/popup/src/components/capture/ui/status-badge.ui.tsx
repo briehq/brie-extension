@@ -7,21 +7,24 @@ interface StatusBadgeProps {
   onClick?: () => void;
   className?: string;
   ariaLabel?: string;
+  disabled?: boolean;
 }
 
-export const StatusBadge = ({ state, icon, label, onClick, className, ariaLabel }: StatusBadgeProps) => {
+export const StatusBadge = ({ state, icon, label, onClick, className, ariaLabel, disabled }: StatusBadgeProps) => {
   return (
     <Button
       variant="ghost"
       type="button"
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
       aria-label={ariaLabel ?? label}
       aria-pressed={state}
       className={cn(
         'inline-flex h-8 items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium shadow-none transition-colors',
         state
-          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-50/80'
-          : 'bg-rose-50 text-rose-700 hover:bg-rose-50/80',
+          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-50/80 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-500/20'
+          : 'bg-rose-50 text-rose-700 hover:bg-rose-50/80 dark:bg-rose-500/15 dark:text-rose-300 dark:hover:bg-rose-500/20',
+        disabled && 'cursor-not-allowed opacity-50',
         className,
       )}>
       <span className="inline-flex h-3.5 w-3.5 items-center justify-center">{icon}</span>

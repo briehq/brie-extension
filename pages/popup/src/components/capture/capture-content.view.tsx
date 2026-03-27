@@ -12,19 +12,30 @@ import {
   useStorage,
 } from '@extension/shared';
 import type { CaptureMode, PopupState, RecordArea } from '@extension/shared';
-import type { BaseStorage, CaptureState, RewindSettings, ScreenshotCaptureState } from '@extension/storage';
-import { captureStateStorage, captureTabStorage, rewindSettingsStorage } from '@extension/storage';
+import type {
+  BaseStorage,
+  CaptureState,
+  RecordingSettings,
+  RewindSettings,
+  ScreenshotCaptureState,
+} from '@extension/storage';
+import {
+  captureStateStorage,
+  captureTabStorage,
+  recordingSettingsStorage,
+  rewindSettingsStorage,
+} from '@extension/storage';
 
 import { CaptureScreenshotView, CaptureSessionView, RecordVideoView } from './views';
 
 export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (id: number | null) => void }) => {
   const { state, mode } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
   const { rewind } = useStorage<BaseStorage<RewindSettings>>(rewindSettingsStorage);
+  const { mic } = useStorage<BaseStorage<RecordingSettings>>(recordingSettingsStorage);
 
   const [popupState, setPopupState] = useState<PopupState>({
     captureMode: 'area',
     recordArea: 'tab',
-    micEnabled: false,
     systemAudioEnabled: false,
     captureOpen: false,
     recordOpen: false,
@@ -61,6 +72,22 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [state, updateActiveTab, updateCaptureState]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const status = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        const permission = status.state === 'granted' ? 'granted' : status.state === 'denied' ? 'denied' : 'unknown';
+        const settings = await recordingSettingsStorage.getSettings();
+
+        if (settings.mic.permission !== permission) {
+          await recordingSettingsStorage.setMicPermission(permission);
+        }
+      } catch {
+        // navigator.permissions.query may not be available (Firefox)
+      }
+    })();
+  }, []);
+
   const handleOnCaptureScreenshot = useCallback(async () => {
     const tab = await getActiveTab();
     if (!tab?.id) return;
@@ -89,11 +116,16 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     setPopupState(s => ({ ...s, recordOpen: !s.recordOpen }));
   }, []);
 
-  const onToggleMic = useCallback(() => {
-    setPopupState(s => {
-      return { ...s, micEnabled: !s.micEnabled };
-    });
-  }, []);
+  const onToggleMic = useCallback(async () => {
+    if (mic?.permission === 'granted') {
+      await recordingSettingsStorage.setMicEnabled(!mic?.enabled);
+    } else {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('mic-permission/index.html'),
+        active: true,
+      });
+    }
+  }, [mic?.enabled, mic?.permission]);
 
   const onShareRewind = async () => {
     try {
@@ -187,8 +219,8 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
         }}
         mode={popupState.recordArea}
         onChange={setRecordArea}
-        isMicEnabled={popupState.micEnabled}
-        onToggleMic={onToggleMic}
+        isMicEnabled={!!mic?.enabled && mic?.permission === 'granted'}
+        onToggleMic={isVideoRecordingActive ? undefined : onToggleMic}
       />
 
       <CaptureSessionView

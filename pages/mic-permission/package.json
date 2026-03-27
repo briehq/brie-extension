@@ -1,0 +1,37 @@
+{
+  "name": "@extension/mic-permission",
+  "version": "0.6.50",
+  "description": "chrome extension - microphone permission page",
+  "type": "module",
+  "private": true,
+  "sideEffects": true,
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "clean:node_modules": "pnpx rimraf node_modules",
+    "clean:turbo": "rimraf .turbo",
+    "clean": "pnpm clean:turbo && pnpm clean:node_modules",
+    "build": "vite build",
+    "dev": "vite build --mode development",
+    "lint": "eslint .",
+    "lint:fix": "pnpm lint --fix",
+    "format": "prettier . --write --ignore-path ../../.prettierignore",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@extension/storage": "workspace:*",
+    "@extension/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@extension/tailwindcss-config": "workspace:*",
+    "@extension/tsconfig": "workspace:*",
+    "@extension/vite-config": "workspace:*"
+  },
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
+  }
+}

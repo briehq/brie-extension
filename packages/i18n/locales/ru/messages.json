@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Выключить микрофон"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Выйти из режима редактирования"
   },
@@ -489,6 +495,12 @@
   },
   "toggleSystemAudio": {
     "message": "Переключить системный звук"
+  },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
   },
   "recordArea": {
     "message": "Записать область"

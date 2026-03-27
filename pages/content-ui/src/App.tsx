@@ -4,7 +4,16 @@ import { v4 as uuid } from 'uuid';
 
 import { t } from '@extension/i18n';
 import type { Screenshot } from '@extension/shared';
-import { AUTH, REWIND, SCREENSHOT, UI, VIDEO, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
+import {
+  AUTH,
+  RECORDING,
+  REWIND,
+  SCREENSHOT,
+  UI,
+  VIDEO,
+  sendRuntimeMessageToActiveTab,
+  useStorage,
+} from '@extension/shared';
 import {
   annotationsHistoryStorage,
   annotationsRedoStorage,
@@ -49,6 +58,14 @@ export default function App() {
       window.removeEventListener(VIDEO.CAPTURED, handleOnVideoCaptured);
       window.removeEventListener(REWIND.OPEN_REVIEW, handleOnRewindCapture);
     };
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      toast.error('Mic unavailable — recording without audio', { duration: 5000 });
+    };
+    window.addEventListener(RECORDING.MIC_FALLBACK, handler);
+    return () => window.removeEventListener(RECORDING.MIC_FALLBACK, handler);
   }, []);
 
   const handleOnVideoCaptured = async (event: any) => {
