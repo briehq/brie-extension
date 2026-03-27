@@ -94,7 +94,7 @@ const pickMimeType = (): MediaRecorderOptions => {
   return {};
 };
 
-const cleanupMic = () => {
+const cleanupMic = async () => {
   if (micStream) {
     micStream.getTracks().forEach(track => {
       try {
@@ -106,8 +106,12 @@ const cleanupMic = () => {
   }
   micStream = null;
   micAudioTrack = null;
-  recordingSettingsStorage.setMicActiveTrack(false);
-  recordingSettingsStorage.setMicMuted(false);
+  await Promise.all([
+    recordingSettingsStorage.setMicActiveTrack(false),
+    recordingSettingsStorage.setMicMuted(false),
+  ]).catch(() => {
+    /* storage write failure is non-critical */
+  });
 };
 
 export const beginPreparingRecording = (options?: CaptureOptions) => {
@@ -165,6 +169,12 @@ export const startCaptureNow = async () => {
           recordingStream = new MediaStream([...stream.getVideoTracks(), micAudioTrack]);
           await recordingSettingsStorage.setMicActiveTrack(true);
           await recordingSettingsStorage.setMicMuted(false);
+        } else {
+          // getUserMedia succeeded but returned no audio tracks — treat as failure
+          micStream.getTracks().forEach(t => t.stop());
+          micStream = null;
+          await recordingSettingsStorage.setMicActiveTrack(false);
+          window.dispatchEvent(new CustomEvent(RECORDING.MIC_FALLBACK));
         }
       } catch (err) {
         console.warn('[brie | Recording] Mic unavailable, recording without audio:', err);
@@ -234,6 +244,7 @@ export const startCaptureNow = async () => {
     if (videoTrack) {
       videoTrack.addEventListener('ended', () => {
         cleanupMic();
+        stopRecording();
       });
     }
 
