@@ -158,11 +158,11 @@ export const startCaptureNow = async () => {
 
     if (wantMic) {
       try {
-        // Timeout guard: getUserMedia can hang if the permission prompt is ignored
-        micStream = await Promise.race([
-          navigator.mediaDevices.getUserMedia({ audio: true }),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('getUserMedia timeout')), 5000)),
-        ]);
+        // No timeout — the browser may show a per-page permission prompt that
+        // the user needs time to respond to. The extension permission page only
+        // grants mic for the chrome-extension:// origin; each web page origin
+        // may prompt separately on first use.
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         micAudioTrack = micStream.getAudioTracks()[0] ?? null;
 
         if (micAudioTrack) {
@@ -178,11 +178,12 @@ export const startCaptureNow = async () => {
         }
       } catch (err) {
         console.warn('[brie | Recording] Mic unavailable, recording without audio:', err);
-        await recordingSettingsStorage.setMicPermission('denied');
+        // Don't set permission to 'denied' — the failure is page-origin-specific
+        // (the user may have denied mic on this particular site but the extension
+        // permission is still granted). Only the permission page should set 'denied'.
         await recordingSettingsStorage.setMicActiveTrack(false);
         micStream = null;
         micAudioTrack = null;
-        // Notify user via window event (content-ui listens and shows toast)
         window.dispatchEvent(new CustomEvent(RECORDING.MIC_FALLBACK));
       }
     }
