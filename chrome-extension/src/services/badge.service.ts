@@ -11,8 +11,15 @@ const STATE_COLORS: Record<string, string> = {
 };
 
 const updateBadge = (tabId: number | null, color: string) => {
+  // Clear global badge
   action.setBadgeText({ text: '' });
 
+  // Clear per-tab badge if we have a tab ID
+  if (tabId) {
+    action.setBadgeText({ tabId, text: '' }).catch(() => {});
+  }
+
+  // Set badge only when actively recording/preparing
   if (color && tabId) {
     action.setBadgeText({ tabId, text: RECORDING_BADGE });
     action.setBadgeBackgroundColor({ tabId, color: 'transparent' });
