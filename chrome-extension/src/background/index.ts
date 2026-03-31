@@ -11,6 +11,7 @@ import {
   handleOnTabUpdated,
   handleOnCommitted,
   initBadgeListener,
+  syncMicPermission,
 } from '@src/services';
 
 tabs.onRemoved.addListener(handleOnTabRemoved);
@@ -32,3 +33,4 @@ webRequest.onCompleted.addListener(handleOnCompleted, { urls: ['<all_urls>'] });
 webNavigation.onCommitted.addListener(handleOnCommitted);
 
 initBadgeListener();
+syncMicPermission();

@@ -7,3 +7,4 @@ export { handleOnInstalled } from './install.service';
 export { handleOnMessage } from './message.service';
 export { handleOnCommitted } from './web-navigation.service';
 export { getRange, deleteTabAll, deleteBefore, putBatch } from './indexed-db.service';
+export { syncMicPermission } from './mic-permission.service';
