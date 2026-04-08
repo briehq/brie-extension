@@ -5,14 +5,20 @@ import { pendingReloadTabsStorage } from '@extension/storage';
 
 import { addContextMenus } from './menus.service';
 
-export const handleOnInstalled = async ({ reason }: Runtime.OnInstalledDetailsType) => {
+const WEB_URL = 'https://brie.io';
+
+export const handleOnInstalled = async ({ reason, previousVersion }: Runtime.OnInstalledDetailsType) => {
   try {
     if (reason === 'install') {
-      /**
-       * @todo
-       * Open a welcome page
-       * await tabs.create({ url: 'welcome.html' });
-       */
+      await tabs.create({
+        url: `${WEB_URL}/welcome?reason=install`,
+      });
+    }
+
+    if (reason === 'update') {
+      await tabs.create({
+        url: `${WEB_URL}/welcome?v=${previousVersion ?? 'unknown'}&reason=update`,
+      });
     }
 
     /**
