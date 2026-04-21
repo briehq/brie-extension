@@ -1,6 +1,6 @@
 {
   "name": "@extension/popup",
-  "version": "0.6.50",
+  "version": "0.6.60",
   "description": "chrome extension - popup",
   "type": "module",
   "private": true,
