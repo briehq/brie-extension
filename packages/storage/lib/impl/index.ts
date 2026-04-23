@@ -5,6 +5,7 @@ export type {
   ScreenshotCaptureState,
   VideoRecordingState,
   CaptureState,
+  MicPermission,
   RecordingSettings,
   RecordingSettingsStorage,
   RewindSettings,

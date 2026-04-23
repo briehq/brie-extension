@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "Disattiva microfono"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "Esci dalla modalità modifica"
   },
@@ -489,6 +495,12 @@
   },
   "toggleSystemAudio": {
     "message": "Attiva/disattiva audio di sistema"
+  },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
   },
   "recordArea": {
     "message": "Registra area"

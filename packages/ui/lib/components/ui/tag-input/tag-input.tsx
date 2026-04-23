@@ -76,6 +76,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, _) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     if (delimiterList ? delimiterList.includes(e.key) : e.key === delimiter || e.key === Delimiter.Enter) {
       e.preventDefault();
       const newTagText = inputValue.trim();
@@ -206,6 +207,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, _) => {
                 disabled={maxTags !== undefined && tags.length >= maxTags}
                 onChangeCapture={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onKeyUp={e => e.stopPropagation()}
                 onFocus={onFocus}
                 onBlur={onBlur}
                 className="w-full"
@@ -290,6 +292,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>((props, _) => {
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onKeyUp={e => e.stopPropagation()}
                 onFocus={onFocus}
                 onBlur={onBlur}
                 {...inputProps}

@@ -246,11 +246,13 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                           className="resize-none overflow-y-auto"
                           onWheelCapture={e => e.stopPropagation()}
                           onKeyDown={e => {
+                            e.stopPropagation();
                             if (!field.value && suggestion && ['ArrowRight', 'Tab'].includes(e.key)) {
                               e.preventDefault();
                               acceptSuggestion(field.onChange);
                             }
                           }}
+                          onKeyUp={e => e.stopPropagation()}
                           onChange={e => {
                             if (suggestion && e.target.value.length > 0) setSuggestion(null);
                             field.onChange(e);

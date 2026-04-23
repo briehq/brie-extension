@@ -22,7 +22,8 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
   const { ref: containerRef, styles: wrapperStyle, onDragAndDrop } = useDraggableToolbar();
   const { mic } = useStorage<BaseStorage<RecordingSettings>>(recordingSettingsStorage);
 
-  const micEnabled = mic.enabled ?? false;
+  const hasActiveMicTrack = mic.activeTrack ?? false;
+  const isMicMuted = mic.muted ?? false;
   const isPaused = state === 'paused';
   const isVisible = ['paused', 'capturing'].includes(state);
   const isHighlighter = tool === 'highlighter';
@@ -37,8 +38,8 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
 
   const handleOnToggleMic = useCallback(async () => {
     safePostMessage(RECORDING.TOGGLE_MIC);
-    await recordingSettingsStorage.setMicEnabled(!micEnabled);
-  }, [micEnabled]);
+    // toggleMic in video.capture.ts handles the actual track and updates storage
+  }, []);
 
   if (!isVisible) return null;
 
@@ -80,29 +81,25 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
               <TooltipContent side="top">{isPaused ? t('resumeRecording') : t('pauseRecording')}</TooltipContent>
             </Tooltip>
 
-            {/* 
-              @todo
-              mic toggle is ready to be enabled later 
-    
-  
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-full  text-muted-foreground hover:bg-slate-700"
-                  onClick={handleOnToggleMic}>
-                  {micEnabled ? (
-                    <Icon name="Mic" className="size-4" />
-                  ) : (
-                    <Icon name="MicOff" className="size-4 text-red-400" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">{micEnabled ? 'Mute mic' : 'Unmute mic'}</TooltipContent>
-            </Tooltip>
-         */}
+            {hasActiveMicTrack && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="cursor-pointer shadow-none disabled:cursor-not-allowed"
+                    onClick={handleOnToggleMic}>
+                    {isMicMuted ? (
+                      <Icon name="MicOff" className="size-4 text-red-400" />
+                    ) : (
+                      <Icon name="Mic" className="size-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">{isMicMuted ? t('unmuteMic') : t('muteMic')}</TooltipContent>
+              </Tooltip>
+            )}
 
             <Tooltip>
               <TooltipTrigger asChild>

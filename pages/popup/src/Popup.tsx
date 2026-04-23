@@ -30,7 +30,16 @@ const Popup = () => {
         <AuthStateProvider>
           <AuthGuard>
             <div className="flex flex-col gap-y-4">
-              <Header onSlicesHistory={() => setShowSlicesHistory(true)} onSettings={() => setShowSettings(true)} />
+              <Header
+                onSlicesHistory={() => {
+                  setShowSettings(false);
+                  setShowSlicesHistory(true);
+                }}
+                onSettings={() => {
+                  setShowSlicesHistory(false);
+                  setShowSettings(true);
+                }}
+              />
               <Separator className="bg-border/60" />
               <PopupContent
                 showSlicesHistory={showSlicesHistory}

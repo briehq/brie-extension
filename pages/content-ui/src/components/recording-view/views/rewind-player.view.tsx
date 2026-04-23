@@ -365,8 +365,6 @@ export const RewindPlayer = ({
       if (typeof replayer.getCurrentTime === 'function') {
         const t = replayer.getCurrentTime();
 
-        console.log('getCurrentTime', t);
-
         if (typeof t === 'number' && Number.isFinite(t)) return t;
       }
     } catch {
@@ -407,7 +405,6 @@ export const RewindPlayer = ({
       if (!isPlayingRef.current) return;
 
       const currentMs = getReplayerCurrentTime();
-      console.log('currentMs', currentMs);
 
       if (currentMs != null) {
         // Clamp inside trim window in ms-space

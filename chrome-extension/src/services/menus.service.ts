@@ -7,13 +7,19 @@ import { authTokensStorage, captureStateStorage, captureTabStorage } from '@exte
 
 import type { CaptureType } from '@src/types';
 
+import { handleOnAuthStart } from './auth.service';
+
+export const removeContextMenus = async (): Promise<void> => {
+  try {
+    await contextMenus.removeAll();
+  } catch {
+    // silent
+  }
+};
+
 export const addContextMenus = async (): Promise<void> => {
   try {
-    try {
-      await contextMenus.removeAll();
-    } catch {
-      // @todo
-    }
+    await removeContextMenus();
 
     await contextMenus.create({
       id: 'capture_parent',
@@ -45,7 +51,10 @@ export const addContextMenus = async (): Promise<void> => {
 export const handleOnContextMenuClicked = async (info: Menus.OnClickData, tab?: Tabs.Tab) => {
   try {
     const tokens = await authTokensStorage.getTokens();
-    if (!tokens?.accessToken) return;
+    if (!tokens?.accessToken) {
+      await handleOnAuthStart();
+      return;
+    }
 
     const tabId = tab?.id;
     if (!tabId) return;

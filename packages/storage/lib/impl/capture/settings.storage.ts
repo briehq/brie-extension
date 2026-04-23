@@ -6,6 +6,8 @@ const defaultSettings: RecordingSettings = {
   mic: {
     enabled: true,
     permission: 'unknown',
+    activeTrack: false,
+    muted: false,
   },
 };
 
@@ -33,6 +35,22 @@ export const recordingSettingsStorage: RecordingSettingsStorage = {
     });
   },
 
+  async setMicActiveTrack(active: boolean) {
+    const settings = await storage.get();
+    await storage.set({
+      ...settings,
+      mic: { ...settings.mic, activeTrack: active },
+    });
+  },
+
+  async setMicMuted(muted: boolean) {
+    const settings = await storage.get();
+    await storage.set({
+      ...settings,
+      mic: { ...settings.mic, muted },
+    });
+  },
+
   async getSettings() {
     return await storage.get();
   },
@@ -44,11 +62,15 @@ export interface RecordingSettings {
   mic: {
     enabled: boolean;
     permission: MicPermission;
+    activeTrack: boolean;
+    muted: boolean;
   };
 }
 
 export type RecordingSettingsStorage = BaseStorage<RecordingSettings> & {
   setMicEnabled: (enabled: boolean) => Promise<void>;
   setMicPermission: (perm: MicPermission) => Promise<void>;
+  setMicActiveTrack: (active: boolean) => Promise<void>;
+  setMicMuted: (muted: boolean) => Promise<void>;
   getSettings: () => Promise<RecordingSettings>;
 };

@@ -68,6 +68,27 @@ export const handleOnMessage = async (raw: unknown, sender: Runtime.MessageSende
 
         const frozen = await rewindService.freeze(tabId);
 
+        const durationMs = frozen.toTimestamp - frozen.fromTimestamp;
+        const eventCount = frozen.events?.length ?? 0;
+
+        addOrMergeRecords(tabId, {
+          type: 'event',
+          recordType: 'events',
+          source: 'background',
+          event: 'SessionReplayCaptured',
+          timestamp: Date.now(),
+          url: (await tabs.get(tabId).catch(() => null))?.url ?? '',
+          description: `Session replay captured (${Math.round(durationMs / 1000)}s, ${eventCount} events)`,
+          extra: {
+            action: 'CAPTURED',
+            durationMs,
+            eventCount,
+            fromTimestamp: frozen.fromTimestamp,
+            toTimestamp: frozen.toTimestamp,
+            missingAnchor: frozen.missingAnchor,
+          },
+        } as BrieRecord);
+
         return { status: 'success', ...frozen };
       }
 

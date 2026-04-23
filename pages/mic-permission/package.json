@@ -1,7 +1,7 @@
 {
-  "name": "@extension/content-script",
+  "name": "@extension/mic-permission",
   "version": "0.6.60",
-  "description": "chrome extension - content script",
+  "description": "chrome extension - microphone permission page",
   "type": "module",
   "private": true,
   "sideEffects": true,
@@ -20,15 +20,18 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@extension/env": "workspace:*",
-    "@extension/i18n": "workspace:*",
-    "@extension/shared": "workspace:*",
     "@extension/storage": "workspace:*",
-    "rrweb": "2.0.0-alpha.4"
+    "@extension/ui": "workspace:*"
   },
   "devDependencies": {
-    "@extension/hmr": "workspace:*",
+    "@extension/tailwindcss-config": "workspace:*",
     "@extension/tsconfig": "workspace:*",
     "@extension/vite-config": "workspace:*"
+  },
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
   }
 }

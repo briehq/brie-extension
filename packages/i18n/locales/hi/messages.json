@@ -265,6 +265,12 @@
   "disableMic": {
     "message": "माइक्रोफ़ोन म्यूट करें"
   },
+  "muteMic": {
+    "message": "Mute mic"
+  },
+  "unmuteMic": {
+    "message": "Unmute mic"
+  },
   "exitEditMode": {
     "message": "संपादन मोड से बाहर निकलें"
   },
@@ -489,6 +495,12 @@
   },
   "toggleSystemAudio": {
     "message": "सिस्टम ऑडियो टॉगल करें"
+  },
+  "toggleMic": {
+    "message": "Toggle microphone"
+  },
+  "micLockedDuringRecording": {
+    "message": "Stop recording to change mic settings"
   },
   "recordArea": {
     "message": "क्षेत्र रिकॉर्ड करें"
