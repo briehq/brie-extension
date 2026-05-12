@@ -8,10 +8,12 @@ interface CollapsibleActionCardProps {
   isActive: boolean;
   icon: ReactNode;
   title: string;
+  activeHeaderTitle?: string;
   activeTitle: string;
   open: boolean;
   onToggleOpen: () => void;
   onPrimaryAction: () => void;
+  onStopAction?: () => void;
   primaryAriaLabel: string;
   right?: ReactNode;
   children?: ReactNode;
@@ -23,33 +25,24 @@ export const CollapsibleActionCard = ({
   isActive,
   icon,
   title,
+  activeHeaderTitle,
   activeTitle,
   open,
   onToggleOpen,
   onPrimaryAction,
+  onStopAction,
   primaryAriaLabel,
   right,
   children,
   className,
 }: CollapsibleActionCardProps) => {
+  const headerLabel = isActive ? (activeHeaderTitle ?? title) : title;
+  const titleRowIsInteractive = !isActive || !!onStopAction;
+
   return (
     <div className={cn('bg-background ring-border/60 rounded-2xl ring-1', className)}>
       <div className="flex items-center justify-between gap-2 p-2">
-        {isActive ? (
-          <Button
-            variant="destructive"
-            type="button"
-            onClick={onPrimaryAction}
-            aria-label={primaryAriaLabel}
-            className={cn(
-              'hover:text-foreground size-8 w-full flex-1 cursor-pointer justify-start px-1 py-0.5 text-[14px] font-medium',
-            )}>
-            <div className="flex w-full items-center gap-2">
-              <Icon name="XCircle" className="h-4 w-4" />
-              {activeTitle}
-            </div>
-          </Button>
-        ) : (
+        {titleRowIsInteractive ? (
           <Button
             variant="ghost"
             type="button"
@@ -61,13 +54,32 @@ export const CollapsibleActionCard = ({
             )}>
             <div className="flex w-full items-center gap-2">
               {icon}
-              {title}
+              {headerLabel}
             </div>
           </Button>
+        ) : (
+          <div
+            className="flex size-8 w-full flex-1 items-center gap-2 px-1 py-0.5 text-[14px] font-medium"
+            aria-live="polite">
+            {icon}
+            {headerLabel}
+          </div>
         )}
 
         <div className="align-end flex items-center gap-2">
           {right ? <div className="flex items-center gap-2">{right}</div> : null}
+
+          {isActive ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={onStopAction ?? onPrimaryAction}
+              aria-label={activeTitle}
+              className={cn('text-destructive hover:bg-destructive/10 hover:text-destructive size-8 cursor-pointer')}>
+              <Icon name="X" className="h-4 w-4" />
+            </Button>
+          ) : null}
 
           <div className="bg-border/60 h-[20px] w-[1px]" />
 
