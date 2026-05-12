@@ -4,7 +4,7 @@ import { t } from '@extension/i18n';
 import type { RecordArea } from '@extension/shared';
 import { Icon } from '@extension/ui';
 
-import { RECORD_AREA_OPTIONS, RECORD_TITLE } from '@src/constants';
+import { RECORD_ACTIVE_TITLE, RECORD_AREA_OPTIONS, RECORD_TITLE } from '@src/constants';
 
 import { ButtonGroup, CollapsibleActionCard, StatusBadge } from '../ui';
 
@@ -45,6 +45,7 @@ export const RecordVideoView = ({
       isActive={isActive}
       icon={icon}
       title={title}
+      activeHeaderTitle={RECORD_ACTIVE_TITLE[mode]}
       activeTitle={t('stopAction', title)}
       open={open}
       onToggleOpen={onToggleOpen}
