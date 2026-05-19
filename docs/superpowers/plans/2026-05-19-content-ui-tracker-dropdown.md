@@ -11,8 +11,8 @@
 **Spec:** `brie-extension/docs/superpowers/specs/2026-05-19-content-ui-tracker-dropdown-design.md`
 
 **Backend endpoints used (already shipped, do not modify):**
-- `GET /workspaces/:workspaceId/integrations` → `IIntegrationConnection[]`
-- `GET /integrations/:workspaceId/github/repositories/linked` → `ILinkedRepository[]`
+- `GET /workspaces/:workspaceId/integrations` → `IntegrationConnection[]`
+- `GET /integrations/:workspaceId/github/repositories/linked` → `LinkedRepository[]`
 - `POST /slices/external` (Linear, Jira) — body: `{ integrationId, sliceId, title, description, brieFields, workspaceId }`
 - `POST /integrations/:workspaceId/github/issues` — body: `{ sliceId, repositoryId }`
 
@@ -39,7 +39,7 @@
 
 ```
 packages/store/lib/store/integrations/
-├── integrations.types.ts                                          # IIntegrationConnection, ILinkedRepository, CreateExternalIssuePayload, ExternalIssueResponse, GithubIssueResponse, CreateAction discriminated union
+├── integrations.types.ts                                          # IntegrationConnection, LinkedRepository, CreateExternalIssuePayload, ExternalIssueResponse, GithubIssueResponse, CreateAction discriminated union
 ├── integrations.api.ts                                            # createApi with the 4 endpoints
 └── index.ts                                                       # Re-exports hooks + types (matches existing .js extension convention)
 
@@ -102,7 +102,7 @@ Create `packages/store/lib/store/integrations/integrations.types.ts`:
 ```ts
 export type IntegrationProvider = 'LINEAR' | 'JIRA' | 'GITHUB' | 'AZURE_DEVOPS';
 
-export interface IIntegrationConnection {
+export interface IntegrationConnection {
   id: string;
   provider: IntegrationProvider;
   name: string | null;
@@ -112,7 +112,7 @@ export interface IIntegrationConnection {
   createdAt: string;
 }
 
-export interface ILinkedRepository {
+export interface LinkedRepository {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -139,7 +139,7 @@ export interface CreateExternalIssuePayload {
 
 export interface ExternalIssueResponse {
   id: string;
-  provider: IntegrationProvider | string;
+  provider: IntegrationProvider;
   externalId: string;
   key: string;
   url: string;
@@ -199,8 +199,8 @@ import type {
   CreateExternalIssuePayload,
   ExternalIssueResponse,
   GithubIssueResponse,
-  IIntegrationConnection,
-  ILinkedRepository,
+  IntegrationConnection,
+  LinkedRepository,
 } from './integrations.types.js';
 
 export const integrationsAPI = createApi({
@@ -208,12 +208,12 @@ export const integrationsAPI = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [TAG_TYPE.WORKSPACE_INTEGRATIONS, TAG_TYPE.LINKED_REPOS],
   endpoints: build => ({
-    getIntegrationsByWorkspaceId: build.query<IIntegrationConnection[], { workspaceId: string }>({
+    getIntegrationsByWorkspaceId: build.query<IntegrationConnection[], { workspaceId: string }>({
       providesTags: [TAG_TYPE.WORKSPACE_INTEGRATIONS],
       query: ({ workspaceId }) => ({ url: `/workspaces/${workspaceId}/integrations` }),
     }),
 
-    getLinkedGithubRepos: build.query<ILinkedRepository[], { workspaceId: string }>({
+    getLinkedGithubRepos: build.query<LinkedRepository[], { workspaceId: string }>({
       providesTags: [TAG_TYPE.LINKED_REPOS],
       query: ({ workspaceId }) => ({
         url: `/integrations/${workspaceId}/github/repositories/linked`,
@@ -270,8 +270,8 @@ export type {
   CreateExternalIssuePayload,
   ExternalIssueResponse,
   GithubIssueResponse,
-  IIntegrationConnection,
-  ILinkedRepository,
+  IntegrationConnection,
+  LinkedRepository,
   IntegrationProvider,
 } from './integrations.types.js';
 ```
@@ -318,8 +318,8 @@ export type {
   CreateExternalIssuePayload,
   ExternalIssueResponse,
   GithubIssueResponse,
-  IIntegrationConnection,
-  ILinkedRepository,
+  IntegrationConnection,
+  LinkedRepository,
   IntegrationProvider,
 } from './integrations/index.js';
 ```
@@ -587,7 +587,7 @@ git commit -m "feat(i18n): add createGithub, createdInTracker, trackerSendFailed
 Create `pages/content-ui/src/components/dialog-view/create-dropdown.util.ts`:
 
 ```ts
-import type { CreateAction, IIntegrationConnection, ILinkedRepository } from '@extension/store';
+import type { CreateAction, IntegrationConnection, LinkedRepository } from '@extension/store';
 
 export const LINK_ACTION: CreateAction = {
   key: 'link',
@@ -607,8 +607,8 @@ export const buildCreateActions = ({
   isGuest,
   workspaceId,
 }: {
-  integrations?: IIntegrationConnection[];
-  linkedRepos?: ILinkedRepository[];
+  integrations?: IntegrationConnection[];
+  linkedRepos?: LinkedRepository[];
   isGuest: boolean;
   workspaceId: string;
 }): CreateAction[] => {
