@@ -2,10 +2,12 @@ import * as radix from '@radix-ui/react-icons';
 import * as lucide from 'lucide-react';
 import type { ComponentType, FC, SVGProps } from 'react';
 
-import { BlurIcon } from '../icons';
+import { BlurIcon, JiraIcon, LinearIcon } from '../icons';
 
 const customIcons = {
   BlurIcon,
+  JiraIcon,
+  LinearIcon,
 } satisfies Record<string, ComponentType<SVGProps<SVGSVGElement>>>;
 
 type LucideName = keyof typeof lucide;
