@@ -7,9 +7,14 @@ import { t } from '@extension/i18n';
 import type { Screenshot, Workspace, InitSliceRequest } from '@extension/shared';
 import { AuthMethod, CANVAS_ACTION, SliceState, useStorage } from '@extension/shared';
 import { themeStorage } from '@extension/storage';
+import type { CreateAction, CreateExternalIssuePayload } from '@extension/store';
 import {
   triggerCanvasAction,
   useAppDispatch,
+  useCreateExternalIssueMutation,
+  useCreateGithubIssueMutation,
+  useGetIntegrationsByWorkspaceIdQuery,
+  useGetLinkedGithubReposQuery,
   useGetUserDetailsQuery,
   useUpdateSliceStateMutation,
 } from '@extension/store';
@@ -17,6 +22,7 @@ import { Dialog, DialogContent, Progress, cn, toast } from '@extension/ui';
 
 import { CanvasContainerView } from './components/annotation-view';
 import { Footer, Header, LeftSidebar, RightSidebar } from './components/annotation-view/ui';
+import { LINK_ACTION, PROVIDER_LABEL, buildCreateActions } from './components/dialog-view/create-dropdown.util';
 import { VideoPlayer } from './components/recording-view/ui/video-player.ui';
 import { RewindPlayer } from './components/recording-view/views/rewind-player.view';
 import { defaultNavElement } from './constants';
@@ -69,6 +75,8 @@ const Content = ({
   const { ref: canvasRef, width: canvasWidth, height: canvasHeight } = useElementSize<HTMLDivElement>();
   const { isLoading, isError, data: user } = useGetUserDetailsQuery();
   const [updateSliceState] = useUpdateSliceStateMutation();
+  const [createExternalIssue] = useCreateExternalIssueMutation();
+  const [createGithubIssue] = useCreateGithubIssueMutation();
   const { events: errorEvents } = useErrorEvents();
 
   const [progress, setProgress] = useState(0);
@@ -79,7 +87,7 @@ const Content = ({
   const [title, setTitle] = useState('Untitled report');
   const [workspaceId, setWorkspaceId] = useState('');
   const [activeElement, setActiveElement] = useState<ActiveElement>(defaultNavElement);
-  const [createType, setCreateType] = useState('');
+  const [activeAction, setActiveAction] = useState<CreateAction>(LINK_ACTION);
   const [trimDuration, setTrimDuration] = useState(0);
   const [trim, setTrim] = useState<TrimRange>();
   const [rrwebTrim, setRrwebTrim] = useState<TrimRange | null>(null);
@@ -101,12 +109,41 @@ const Content = ({
     [activeScreenshotId, screenshots],
   );
 
+  const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
+
   const workspace = useMemo(
     () => user?.organization?.workspaces?.find((workspace: Workspace) => workspace.isDefault && !workspace.deletedAt),
     [user?.organization?.workspaces],
   );
 
-  const isGuest = useMemo(() => user?.authMethod === AuthMethod.GUEST, [user?.authMethod]);
+  const effectiveWorkspaceId = workspaceId || workspace?.id || '';
+
+  const { data: integrations } = useGetIntegrationsByWorkspaceIdQuery(
+    { workspaceId: effectiveWorkspaceId },
+    { skip: isGuest || !effectiveWorkspaceId },
+  );
+
+  const { data: linkedRepos } = useGetLinkedGithubReposQuery(
+    { workspaceId: effectiveWorkspaceId },
+    { skip: isGuest || !effectiveWorkspaceId },
+  );
+
+  const createActions = useMemo(
+    () =>
+      buildCreateActions({
+        integrations,
+        linkedRepos,
+        isGuest,
+        workspaceId: effectiveWorkspaceId,
+      }),
+    [integrations, linkedRepos, isGuest, effectiveWorkspaceId],
+  );
+
+  useEffect(() => {
+    if (!createActions.some(action => action.key === activeAction.key)) {
+      setActiveAction(LINK_ACTION);
+    }
+  }, [createActions, activeAction.key]);
 
   const showRightSidebar = useMemo(() => {
     if (user?.authMethod === AuthMethod.GUEST) return false;
@@ -143,7 +180,7 @@ const Content = ({
   const handleToggleRightSection = () => setShowRightSection(value => !value);
 
   const handleOnElement = (element: ActiveElement) => setActiveElement(element);
-  const handleOnCreateType = (type: string) => setCreateType(type);
+  const handleOnCreateType = (action: CreateAction) => setActiveAction(action);
 
   const finalizeCreation = async (sliceId?: string, uploaded?: boolean) => {
     if (!sliceId) return;
@@ -168,7 +205,7 @@ const Content = ({
   };
 
   const handleOnCreate = async ({ labels, priority, attachments, description, spaceId }: HandleOnCreateArgs) => {
-    if (createType !== 'link' || isCreateLoading) return;
+    if (isCreateLoading) return;
 
     setIsCreateLoading(true);
 
@@ -177,14 +214,11 @@ const Content = ({
     try {
       if (video?.blob && trim) {
         const { file } = await prepareRecordedVideo({ video, format: 'webm', trim });
-
         recordedVideoFile = file;
       }
 
       if (events?.length) {
         eventsFile = await buildEventsFile({ events, range: rrwebTrim });
-
-        console.log('events---', events);
       }
 
       const attachedFiles = toArray<File>(attachments);
@@ -203,28 +237,16 @@ const Content = ({
 
         if (isOverSizeLimit) {
           toast.error(t('fileTooLarge', file.name));
-
           return;
         }
       }
 
-      /**
-       * @todo
-       * use annotations store to sent them to BE and allow user to edit annotations
-       * packs each screenshot annotation into one file annotations.json
-       * add to a File object and drop into a FormData
-       *
-       * Idea: use BullMQ, RabbitMQ, etc.
-       * Worker does heavy stuff (merge annotations, generate image, etc).
-       *
-       * see: createAnnotationsJsonFile
-       */
       const payload = {
         priority,
         ...(title ? { summary: title } : {}),
         ...(description ? { description } : {}),
         ...(labels?.length ? { labels } : {}),
-        ...(workspaceId ? { workspaceId } : {}),
+        ...(effectiveWorkspaceId ? { workspaceId: effectiveWorkspaceId } : {}),
         ...(spaceId ? { spaceId } : {}),
         screenshots: screenshots.map((f: Screenshot, idx: number) => ({ name: f.name, order: idx })),
         attachments: attachedFiles.map((f: File, idx: number) => ({ name: f.name, order: idx })),
@@ -249,12 +271,62 @@ const Content = ({
       });
 
       if (slice?.externalId || slice?.id) {
-        toast(t('openReport'));
-        const path = isGuest ? `s/${slice.externalId}` : `slices/${slice.id}`;
+        // Narrow slice.id for the tracker branches (the outer guard accepts externalId-only too)
+        if (!slice.id) {
+          toast(t('openReport'));
+          if (slice.externalId) safeOpenNewTab(`${APP_BASE_URL}/s/${slice.externalId}`);
+          await finalizeCreation(undefined, uploaded);
+          return;
+        }
 
-        safeOpenNewTab(`${APP_BASE_URL}/${path}`);
+        const briePath = isGuest ? `s/${slice.externalId}` : `slices/${slice.id}`;
 
-        await finalizeCreation(slice?.id, uploaded);
+        if (activeAction.key === 'link') {
+          toast(t('openReport'));
+          safeOpenNewTab(`${APP_BASE_URL}/${briePath}`);
+          await finalizeCreation(slice?.id, uploaded);
+          return;
+        }
+
+        try {
+          let trackerUrl: string;
+
+          if (activeAction.key === 'github') {
+            const result = await createGithubIssue({
+              workspaceId: activeAction.workspaceId,
+              sliceId: slice.id,
+              repositoryId: activeAction.repositoryId,
+            }).unwrap();
+            trackerUrl = result.url;
+          } else {
+            const body: CreateExternalIssuePayload = {
+              sliceId: slice.id,
+              title: title || `Bug from Brie – ${slice.externalId || slice.id}`,
+              description: description ?? '',
+              brieFields: {
+                sliceExternalId: slice.externalId,
+                organizationId: user?.organization?.id,
+                reportedBy: user?.email,
+                priority,
+              },
+              workspaceId: activeAction.workspaceId,
+            };
+            const result = await createExternalIssue({
+              integrationId: activeAction.integrationId,
+              body,
+            }).unwrap();
+            trackerUrl = result.url;
+          }
+
+          toast.success(t('createdInTracker', PROVIDER_LABEL[activeAction.key]));
+          safeOpenNewTab(trackerUrl);
+          await finalizeCreation(slice?.id, uploaded);
+        } catch (trackerErr) {
+          console.error('[OnCreate Tracker Error]', trackerErr);
+          toast.error(t('trackerSendFailedFallback', PROVIDER_LABEL[activeAction.key]));
+          safeOpenNewTab(`${APP_BASE_URL}/${briePath}`);
+          await finalizeCreation(slice?.id, uploaded);
+        }
 
         return;
       }
@@ -365,6 +437,8 @@ const Content = ({
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
           onWorkspaceChange={setWorkspaceId}
+          createActions={createActions}
+          activeCreateAction={activeAction}
           onCreate={handleOnCreateType}
           isCreateLoading={isCreateLoading}
         />

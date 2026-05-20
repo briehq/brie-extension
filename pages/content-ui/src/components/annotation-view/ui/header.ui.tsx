@@ -2,6 +2,7 @@ import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
 import { useStorage } from '@extension/shared';
 import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
+import type { CreateAction } from '@extension/store';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 import { CreateDropdown, EditableTitle, WorkspacesDropdown } from '@src/components/dialog-view';
@@ -31,7 +32,9 @@ interface EditorHeaderProps {
 
   /** workspace & create dropdowns */
   onWorkspaceChange: (id: string) => void;
-  onCreate: (key: string) => void;
+  createActions: CreateAction[];
+  activeCreateAction: CreateAction;
+  onCreate: (action: CreateAction) => void;
   isCreateLoading: boolean;
 
   className?: string;
@@ -57,6 +60,8 @@ export const Header: React.FC<EditorHeaderProps> = ({
   canvasHeight,
 
   onWorkspaceChange,
+  createActions,
+  activeCreateAction,
   onCreate,
 
   className,
@@ -189,7 +194,12 @@ export const Header: React.FC<EditorHeaderProps> = ({
       <div className="flex items-center justify-end gap-x-2">
         <WorkspacesDropdown onChange={onWorkspaceChange} />
 
-        <CreateDropdown isLoading={isCreateLoading} onChange={onCreate} />
+        <CreateDropdown
+          isLoading={isCreateLoading}
+          actions={createActions}
+          activeAction={activeCreateAction}
+          onChange={onCreate}
+        />
       </div>
     </header>
   );
