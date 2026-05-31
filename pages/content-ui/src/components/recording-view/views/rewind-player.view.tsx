@@ -375,7 +375,6 @@ export const RewindPlayer = ({
     try {
       const meta = typeof replayer.getMeta === 'function' ? replayer.getMeta() : null;
       const t = (meta as any)?.currentTime;
-      console.log('meta', meta);
       if (typeof t === 'number' && Number.isFinite(t)) return t;
     } catch {
       //
