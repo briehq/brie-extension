@@ -31,7 +31,7 @@
     "@extension/vite-config": "workspace:*",
     "@extension/shared": "workspace:*",
     "@extension/storage": "workspace:*",
-    "@laynezh/vite-plugin-lib-assets": "^0.6.1",
+    "@laynezh/vite-plugin-lib-assets": "^2.1.3",
     "magic-string": "^0.30.17",
     "ts-loader": "^9.5.2"
   }
