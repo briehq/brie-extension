@@ -196,6 +196,15 @@
   "createAzure": {
     "message": "Crear en Azure"
   },
+  "createGithub": {
+    "message": "Create in GitHub"
+  },
+  "createdInTracker": {
+    "message": "Created in $1"
+  },
+  "trackerSendFailedFallback": {
+    "message": "Slice saved. Couldn't send to $1 — opening Brie."
+  },
   "rename": {
     "message": "Renombrar"
   },
