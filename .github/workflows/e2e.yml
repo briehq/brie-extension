@@ -11,6 +11,9 @@ permissions:
 
 jobs:
   chrome:
+    # Dependabot PRs run without repository secrets, so .env.production is
+    # never created and the test suite fails on install. Skip cleanly.
+    if: github.actor != 'dependabot[bot]'
     name: E2E tests for Chrome
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +27,7 @@ jobs:
       - run: pnpm e2e
 
   firefox:
+    if: github.actor != 'dependabot[bot]'
     name: E2E tests for Firefox
     runs-on: ubuntu-latest
     steps:
