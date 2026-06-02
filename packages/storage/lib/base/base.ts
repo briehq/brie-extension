@@ -94,7 +94,10 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
       return fallback;
     }
 
-    return deserialize(value[key]) ?? fallback;
+    // value[key] is typed `unknown` in newer @types/chrome (chrome.storage can
+    // hold any JSON-serializable value); we always write via `serialize` which
+    // returns string, so re-narrowing here matches what we actually wrote.
+    return deserialize(value[key] as string) ?? fallback;
   };
 
   const _emitChange = () => {
@@ -134,7 +137,7 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
     // Check if the key we are listening for is in the changes object
     if (changes[key] === undefined) return;
 
-    const valueOrUpdate: ValueOrUpdate<D> = deserialize(changes[key].newValue);
+    const valueOrUpdate: ValueOrUpdate<D> = deserialize(changes[key].newValue as string);
 
     if (cache === valueOrUpdate) return;
 
