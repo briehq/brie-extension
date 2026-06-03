@@ -148,6 +148,7 @@ export const PopupContent = ({
   return (
     <>
       <CaptureContentView
+        captureState={{ state, mode }}
         onActiveTabChange={id => {
           setActiveTab(prev => ({ ...prev, id }));
         }}

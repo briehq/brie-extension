@@ -30,8 +30,14 @@ import {
 
 import { CaptureScreenshotView, CaptureSessionView, RecordVideoView } from './views';
 
-export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (id: number | null) => void }) => {
-  const { state, mode } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
+type CaptureContentViewProps = {
+  onActiveTabChange: (id: number | null) => void;
+  /** Provided by parent so we don't double-subscribe to captureStateStorage. */
+  captureState: CaptureState;
+};
+
+export const CaptureContentView = ({ onActiveTabChange, captureState }: CaptureContentViewProps) => {
+  const { state, mode } = captureState;
   const { rewind } = useStorage<BaseStorage<RewindSettings>>(rewindSettingsStorage);
   const { mic } = useStorage<BaseStorage<RecordingSettings>>(recordingSettingsStorage);
 

@@ -28,6 +28,7 @@ import { RewindPlayer } from './components/recording-view/views/rewind-player.vi
 import { defaultNavElement } from './constants';
 import { useElementSize, useErrorEvents, useViewportSize } from './hooks';
 import type { ActiveElement, HandleOnCreateArgs, TrimRange, VideoFormat, VideoSource } from './models';
+import { AnnotationsProvider } from './providers';
 import { buildEventsFile, exportRecordingVideo } from './utils/recording';
 import {
   buildRecordsFile,
@@ -415,97 +416,99 @@ const Content = ({
           backgroundImage: `url(${bgLight})`,
           backgroundSize: 10,
         }}>
-        {progress > 0 && <Progress className="absolute left-0 top-0 h-1.5 w-full" value={progress} />}
+        <AnnotationsProvider>
+          {progress > 0 && <Progress className="absolute left-0 top-0 h-1.5 w-full" value={progress} />}
 
-        <Header
-          id={activeScreenshotId || ''}
-          onClose={onClose}
-          onMinimize={activeScreenshotId ? onMinimize : undefined}
-          onToggleFullScreen={() => setFullScreen(flag => !flag)}
-          isFullScreen={isFullScreen}
-          title={title}
-          onTitleChange={setTitle}
-          onUndo={() => {
-            dispatch(triggerCanvasAction(CANVAS_ACTION.UNDO));
-          }}
-          onRedo={() => {
-            dispatch(triggerCanvasAction(CANVAS_ACTION.REDO));
-          }}
-          onStartOver={() => {
-            dispatch(triggerCanvasAction(CANVAS_ACTION.START_OVER));
-          }}
-          canvasWidth={canvasWidth}
-          canvasHeight={canvasHeight}
-          onWorkspaceChange={setWorkspaceId}
-          createActions={createActions}
-          activeCreateAction={activeAction}
-          onCreate={handleOnCreateType}
-          isCreateLoading={isCreateLoading}
-        />
-
-        <main
-          ref={canvasRef}
-          className={cn('grid h-full min-h-0 gap-4 p-4 transition-[grid-template-columns] duration-300', gridCols)}>
-          {!!activeScreenshotId && (
-            <LeftSidebar
-              activeScreenshotId={activeScreenshotId}
-              canvasHeight={canvasHeight}
-              open={isLeftSidebarOpen}
-              onOpenChange={handleOnOpenSidebar('left')}
-              screenshots={screenshots}
-              onDelete={onDeleteScreenshot}
-              onSelect={onSelectScreenshot}
-            />
-          )}
-
-          {video?.blob ? (
-            <VideoPlayer
-              video={video}
-              disableExport={isVideoExporting}
-              onExport={handleOnVideoExport}
-              onTrimUpdate={handleOnTrimUpdate}
-            />
-          ) : events?.length ? (
-            <RewindPlayer
-              events={events}
-              errorEvents={errorEvents}
-              onTrimChange={setRrwebTrim}
-              enableTrim
-              showEventsMenu
-            />
-          ) : (
-            <CanvasContainerView
-              key={activeScreenshotId ?? 'empty'}
-              screenshot={activeScreenshot!}
-              onElement={handleOnElement}
-            />
-          )}
-
-          <RightSidebar
-            defaultOpen
-            workspaceId={workspaceId}
+          <Header
+            id={activeScreenshotId || ''}
+            onClose={onClose}
+            onMinimize={activeScreenshotId ? onMinimize : undefined}
+            onToggleFullScreen={() => setFullScreen(flag => !flag)}
+            isFullScreen={isFullScreen}
+            title={title}
+            onTitleChange={setTitle}
+            onUndo={() => {
+              dispatch(triggerCanvasAction(CANVAS_ACTION.UNDO));
+            }}
+            onRedo={() => {
+              dispatch(triggerCanvasAction(CANVAS_ACTION.REDO));
+            }}
+            onStartOver={() => {
+              dispatch(triggerCanvasAction(CANVAS_ACTION.START_OVER));
+            }}
+            canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
-            open={isRightSidebarOpen}
-            onOpenChange={handleOnOpenSidebar('right')}
-            onCreate={handleOnCreate}
+            onWorkspaceChange={setWorkspaceId}
+            createActions={createActions}
+            activeCreateAction={activeAction}
+            onCreate={handleOnCreateType}
+            isCreateLoading={isCreateLoading}
           />
-        </main>
 
-        <Footer
-          tool={video?.blob ? 'Trim' : activeElement?.name}
-          zoom={100}
-          file={title}
-          duration={trimDuration}
-          trim={trim}
-          onZoomChange={zoom => {
-            /**
-             * @todo
-             * implement zoon feature: min: 100% and max: 100%
-             */
-            console.log('zoom', zoom);
-            // setZoom()
-          }}
-        />
+          <main
+            ref={canvasRef}
+            className={cn('grid h-full min-h-0 gap-4 p-4 transition-[grid-template-columns] duration-300', gridCols)}>
+            {!!activeScreenshotId && (
+              <LeftSidebar
+                activeScreenshotId={activeScreenshotId}
+                canvasHeight={canvasHeight}
+                open={isLeftSidebarOpen}
+                onOpenChange={handleOnOpenSidebar('left')}
+                screenshots={screenshots}
+                onDelete={onDeleteScreenshot}
+                onSelect={onSelectScreenshot}
+              />
+            )}
+
+            {video?.blob ? (
+              <VideoPlayer
+                video={video}
+                disableExport={isVideoExporting}
+                onExport={handleOnVideoExport}
+                onTrimUpdate={handleOnTrimUpdate}
+              />
+            ) : events?.length ? (
+              <RewindPlayer
+                events={events}
+                errorEvents={errorEvents}
+                onTrimChange={setRrwebTrim}
+                enableTrim
+                showEventsMenu
+              />
+            ) : (
+              <CanvasContainerView
+                key={activeScreenshotId ?? 'empty'}
+                screenshot={activeScreenshot!}
+                onElement={handleOnElement}
+              />
+            )}
+
+            <RightSidebar
+              defaultOpen
+              workspaceId={workspaceId}
+              canvasHeight={canvasHeight}
+              open={isRightSidebarOpen}
+              onOpenChange={handleOnOpenSidebar('right')}
+              onCreate={handleOnCreate}
+            />
+          </main>
+
+          <Footer
+            tool={video?.blob ? 'Trim' : activeElement?.name}
+            zoom={100}
+            file={title}
+            duration={trimDuration}
+            trim={trim}
+            onZoomChange={zoom => {
+              /**
+               * @todo
+               * implement zoon feature: min: 100% and max: 100%
+               */
+              console.log('zoom', zoom);
+              // setZoom()
+            }}
+          />
+        </AnnotationsProvider>
       </DialogContent>
     </Dialog>
   );
