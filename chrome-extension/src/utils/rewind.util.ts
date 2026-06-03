@@ -373,7 +373,8 @@ const ingestRewindEvents = async (tabId: number, events: unknown[]): Promise<voi
     return;
   }
 
-  await flushTabToStorage(tabId);
+  // Below threshold: let the scheduled timer coalesce the write.
+  // Previously this path awaited flushTabToStorage AND scheduled a flush, defeating the debounce.
   scheduleFlushForTab(tabId);
 };
 

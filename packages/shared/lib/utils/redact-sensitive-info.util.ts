@@ -10,8 +10,6 @@ import {
 
 type Strength = 'strong' | 'allow' | 'unknown';
 
-const redactSkipCache = new Map<string, boolean>();
-
 const classifyField = (ctx: {
   key?: string;
   name?: string;
@@ -177,7 +175,6 @@ const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
  * Deeply redacts sensitive information from an input structure.
  * Automatically skips redaction in non-production environments or
  * when the URL matches a domain in the user-configured skip list.
- * Uses cache when `uuid` is available on the object.
  *
  * @param input - Any value (object, array, string, etc.) to redact.
  * @param url - Optional URL to determine if redaction should apply (e.g. non-prod).
@@ -185,25 +182,6 @@ const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
  * @returns Redacted copy of the input.
  */
 export const deepRedactSensitiveInfo = (input: any, url?: string, skipDomains?: string[]): any => {
-  const nonProd = isNonProduction(url);
-  const domainSkipped = isSkipDomain(url, skipDomains);
-  const shouldSkip = nonProd || domainSkipped;
-  const cacheKey =
-    input && typeof input === 'object' && input.uuid ? `${input.uuid}::${shouldSkip ? 'skip' : 'prod'}` : undefined;
-
-  let shouldSkipRedaction = false;
-
-  if (cacheKey) {
-    const cached = redactSkipCache.get(cacheKey);
-    if (cached !== undefined) {
-      shouldSkipRedaction = cached;
-    } else {
-      shouldSkipRedaction = shouldSkip;
-      redactSkipCache.set(cacheKey, shouldSkipRedaction);
-    }
-  } else {
-    shouldSkipRedaction = shouldSkip;
-  }
-
+  const shouldSkipRedaction = isNonProduction(url) || isSkipDomain(url, skipDomains);
   return deepRedactInternal(input, shouldSkipRedaction);
 };
