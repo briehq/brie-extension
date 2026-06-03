@@ -84,7 +84,7 @@
     "eslint-plugin-prettier": "5.2.6",
     "eslint-plugin-react": "7.37.4",
     "eslint-plugin-react-hooks": "5.1.0",
-    "eslint-plugin-tailwindcss": "^3.17.5",
+    "eslint-plugin-tailwindcss": "^3.18.3",
     "fast-glob": "^3.3.3",
     "fflate": "^0.8.2",
     "globals": "^15.14.0",
