@@ -588,5 +588,17 @@
   },
   "noDomains": {
     "message": "No domains added yet. Sensitive info is only skipped on localhost by default."
+  },
+  "noCaptureData": {
+    "message": "No capture data available. Start a recording first."
+  },
+  "emptyResultFallback": {
+    "message": "No suggestion could be generated. Try again."
+  },
+  "noStepsFound": {
+    "message": "No steps could be reproduced from the captured session."
+  },
+  "outputTruncated": {
+    "message": "The generated text was cut off. Try with fewer steps."
   }
 }

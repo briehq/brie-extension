@@ -1,4 +1,4 @@
-export const findReactProp = element => {
+export const findReactProp = (element: Element) => {
   // Get all property names on the element
   const props = Object.keys(element);
 

@@ -1,4 +1,4 @@
 export interface LanguageInfo {
   language: string;
-  languages: string[];
+  languages: readonly string[];
 }

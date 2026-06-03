@@ -1,6 +1,8 @@
 import type { FabricObject, Canvas, Path, Gradient, Pattern } from 'fabric';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 
+import type { IconName } from '@extension/ui';
+
 interface Size {
   width: number;
   height: number;
@@ -37,7 +39,7 @@ export interface BackgroundFitMeta {
 
 export interface ShapeSnapshot {
   objects: FabricObject[];
-  meta: BackgroundFitMeta;
+  meta?: BackgroundFitMeta;
 }
 
 export type CursorState =
@@ -94,7 +96,7 @@ export type Attributes = {
 export type ActiveElement = {
   name: string;
   value: string;
-  icon: string;
+  icon: IconName;
   payload?: { color?: string };
 } | null;
 

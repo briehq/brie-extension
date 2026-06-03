@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 import type { UserConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-import env, { IS_DEV, IS_PROD } from '@extension/env';
+import env, { IS_DEV, IS_FIREFOX, IS_PROD } from '@extension/env';
 import { watchRebuildPlugin } from '@extension/hmr';
 
 export const watchOption = IS_DEV
@@ -15,7 +15,11 @@ export const watchOption = IS_DEV
     }
   : undefined;
 
-export const withPageConfig = (config: UserConfig) =>
+export type WithPageConfigOptions = UserConfig & {
+  nodePolyfills?: boolean;
+};
+
+export const withPageConfig = ({ nodePolyfills: enablePolyfills = false, ...config }: WithPageConfigOptions = {}) =>
   defineConfig(
     deepmerge(
       {
@@ -23,10 +27,13 @@ export const withPageConfig = (config: UserConfig) =>
           'process.env': env,
         },
         base: '',
-        plugins: [react(), IS_DEV && watchRebuildPlugin({ refresh: true }), nodePolyfills()],
+        plugins: [react(), IS_DEV && watchRebuildPlugin({ refresh: true }), enablePolyfills && nodePolyfills()].filter(
+          Boolean,
+        ),
         build: {
+          target: IS_FIREFOX ? 'firefox109' : 'chrome120',
           sourcemap: IS_DEV,
-          minify: config?.build?.minify || IS_PROD,
+          minify: IS_PROD,
           reportCompressedSize: IS_PROD,
           emptyOutDir: IS_PROD,
           watch: watchOption,

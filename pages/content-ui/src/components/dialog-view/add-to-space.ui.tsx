@@ -58,7 +58,7 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
       <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-[250px]">
         <DropdownMenuLabel>{t('addToSpace')}</DropdownMenuLabel>
 
-        {!isLoading && spaces?.total > 0 ? (
+        {!isLoading && (spaces?.total ?? 0) > 0 ? (
           <DropdownMenuRadioGroup
             value={activeSpaceId}
             onValueChange={value => {

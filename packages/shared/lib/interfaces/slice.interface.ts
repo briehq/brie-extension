@@ -86,6 +86,7 @@ export interface InitSliceResponse {
   id: string;
   externalId: string;
   status: string;
+  message?: string;
   assets: {
     screenshots: AssetOption[];
     attachments?: AssetOption[];

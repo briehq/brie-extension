@@ -1,5 +1,5 @@
 // Function to get description from an element (supports label, input, etc.)
-export const getElementDescription = element => {
+export const getElementDescription = (element: Element | null) => {
   let description = null;
 
   if (!(element instanceof HTMLElement) || ['BODY', 'DIV'].includes(element?.tagName)) {
