@@ -22,14 +22,19 @@ const applySystemTheme = () => {
   storage.set(() => systemTheme);
 };
 
-const listenToSystemThemeChanges = () => {
+/**
+ * Subscribe to system colour-scheme changes. Returns an unsubscribe function so callers can
+ * remove the matchMedia listener on teardown (previously it leaked for the lifetime of the page).
+ */
+const listenToSystemThemeChanges = (): (() => void) => {
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
   mql.addEventListener('change', applySystemTheme);
+  return () => mql.removeEventListener('change', applySystemTheme);
 };
 
 export const themeStorage: ThemeStorage & {
   applySystemTheme: () => void;
-  listenToSystemThemeChanges: () => void;
+  listenToSystemThemeChanges: () => () => void;
 } = {
   ...storage,
   toggle: async () => {
