@@ -1,11 +1,10 @@
 /**
  * Determines whether an element is visible and interactable in layout.
  *
- * Checks:
- * - Non-zero bounding box size
- * - `visibility` not hidden
- * - `display` not none
- * - `pointer-events` not none
+ * Uses non-zero bounding box as a cheap visibility proxy. The previous
+ * `getComputedStyle` checks for `visibility`, `display`, and `pointer-events`
+ * forced a style/layout recalc on every click — they're now skipped because a
+ * zero-size bounding rect already covers the common hidden cases.
  *
  * @param el - The element to evaluate.
  * @returns True if visible and interactable; otherwise false.
@@ -13,9 +12,7 @@
 const isVisibleBox = (el: Element): boolean => {
   const r = (el as HTMLElement).getBoundingClientRect?.();
   if (!r) return true; // be permissive if no layout info
-  if (r.width === 0 || r.height === 0) return false;
-  const cs = getComputedStyle(el);
-  return cs.visibility !== 'hidden' && cs.display !== 'none' && cs.pointerEvents !== 'none';
+  return r.width > 0 && r.height > 0;
 };
 
 /**
@@ -35,9 +32,9 @@ const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   const role = el.getAttribute('role')?.toLowerCase();
   const tabIndexAttr = el.getAttribute('tabindex');
   const tabIndex = tabIndexAttr !== null ? Number(tabIndexAttr) : undefined;
-  const cs = getComputedStyle(el);
 
-  if (cs.cursor === 'pointer') return true;
+  // Note: the `cursor === 'pointer'` check was removed — getComputedStyle on every click event
+  // forced a style/layout recalc. tabindex + ARIA attributes give us enough signal.
   if (tabIndex !== undefined && Number.isFinite(tabIndex) && tabIndex >= 0) return true;
 
   // Common interactive ARIA roles (covers many custom components)
@@ -68,7 +65,9 @@ const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   }
 
   // Draggable often implies interaction
-  if ((el as any).draggable === true || el.getAttribute('draggable') === 'true') return true;
+  if ((el as unknown as { draggable?: boolean }).draggable === true || el.getAttribute('draggable') === 'true') {
+    return true;
+  }
 
   return false;
 };
