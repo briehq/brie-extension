@@ -1,34 +1,78 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { recordingSettingsStorage } from '@extension/storage';
 import { Button, Icon } from '@extension/ui';
 
 type PageState = 'requesting' | 'granted' | 'denied' | 'error';
 
+const AUTO_CLOSE_DELAY_MS = 2000;
+
 export const MicPermission = () => {
   const [state, setState] = useState<PageState>('requesting');
   const extensionId = chrome.runtime.id;
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestInFlightRef = useRef(false);
 
   const requestPermission = useCallback(async () => {
+    // In-flight guard: rapid Try-Again clicks could race two requestPermission() invocations
+    // and end up scheduling two window.close() timers — one would fire orphaned.
+    if (requestInFlightRef.current) return;
+    requestInFlightRef.current = true;
+
+    // Cancel a pending auto-close from a previous completed attempt before starting a new one.
+    if (autoCloseTimerRef.current !== null) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
+
     setState('requesting');
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
-      await recordingSettingsStorage.setMicPermission('granted');
-      setState('granted');
-      setTimeout(() => window.close(), 2000);
-    } catch (err: any) {
-      if (err?.name === 'NotAllowedError') {
-        await recordingSettingsStorage.setMicPermission('denied');
-        setState('denied');
-      } else {
-        setState('error');
+      // Pre-flight: if the browser already says permission is granted, skip the getUserMedia call
+      // entirely so we don't reacquire a hardware track just to immediately stop it.
+      try {
+        const status = await navigator.permissions?.query({ name: 'microphone' as PermissionName });
+        if (status?.state === 'granted') {
+          await recordingSettingsStorage.setMicPermission('granted');
+          setState('granted');
+          autoCloseTimerRef.current = setTimeout(() => window.close(), AUTO_CLOSE_DELAY_MS);
+          return;
+        }
+      } catch {
+        // navigator.permissions or the 'microphone' name may be unsupported (older Firefox);
+        // fall through to the regular getUserMedia path.
       }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        await recordingSettingsStorage.setMicPermission('granted');
+        setState('granted');
+        autoCloseTimerRef.current = setTimeout(() => window.close(), AUTO_CLOSE_DELAY_MS);
+      } catch (err: unknown) {
+        if ((err as { name?: string })?.name === 'NotAllowedError') {
+          await recordingSettingsStorage.setMicPermission('denied');
+          setState('denied');
+        } else {
+          setState('error');
+        }
+      }
+    } finally {
+      // Clears on every exit path including the early return from the pre-flight branch.
+      requestInFlightRef.current = false;
     }
   }, []);
 
   useEffect(() => {
     requestPermission();
+
+    return () => {
+      // Clear any pending auto-close on unmount so it can't race a stale window reference.
+      if (autoCloseTimerRef.current !== null) {
+        clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+      }
+    };
   }, [requestPermission]);
 
   return (
