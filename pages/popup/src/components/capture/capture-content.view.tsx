@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   CAPTURE,
@@ -36,7 +36,7 @@ type CaptureContentViewProps = {
   captureState: CaptureState;
 };
 
-export const CaptureContentView = ({ onActiveTabChange, captureState }: CaptureContentViewProps) => {
+const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureContentViewProps) => {
   const { state, mode } = captureState;
   const { rewind } = useStorage<BaseStorage<RewindSettings>>(rewindSettingsStorage);
   const { mic } = useStorage<BaseStorage<RecordingSettings>>(recordingSettingsStorage);
@@ -63,10 +63,13 @@ export const CaptureContentView = ({ onActiveTabChange, captureState }: CaptureC
     await captureStateStorage.setScreenshotState(state);
   }, []);
 
-  const updateActiveTab = useCallback(async (tabId: number | null) => {
-    await captureTabStorage.setCaptureTabId(tabId);
-    onActiveTabChange(tabId);
-  }, []);
+  const updateActiveTab = useCallback(
+    async (tabId: number | null) => {
+      await captureTabStorage.setCaptureTabId(tabId);
+      onActiveTabChange(tabId);
+    },
+    [onActiveTabChange],
+  );
 
   useEffect(() => {
     const handleEscapeKey = async (event: KeyboardEvent) => {
@@ -250,3 +253,7 @@ export const CaptureContentView = ({ onActiveTabChange, captureState }: CaptureC
     </div>
   );
 };
+
+// Memoized so a parent re-render that produces the same captureState/onActiveTabChange refs
+// doesn't cascade through this view. Pair with the stable refs in popup-content.tsx.
+export const CaptureContentView = memo(CaptureContentViewInner);

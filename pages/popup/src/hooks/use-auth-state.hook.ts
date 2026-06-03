@@ -20,19 +20,57 @@ interface AuthState {
   retry: () => void;
 }
 
-const checkHealth = async (signal: AbortSignal): Promise<boolean> => {
+const HEALTH_CACHE_KEY = 'brie:health:cache';
+const HEALTH_CACHE_TTL_MS = 30_000;
+const HEALTH_FETCH_TIMEOUT_MS = 8_000;
+
+type HealthCache = { ok: boolean; checkedAt: number };
+
+const fetchHealth = async (signal: AbortSignal): Promise<boolean> => {
   if (!API_BASE_URL) return false;
+
+  // The outer controller aborts on component unmount / new run; this inner controller adds a
+  // bounded timeout so a hung network call doesn't strand the user on `api_unavailable` forever.
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), HEALTH_FETCH_TIMEOUT_MS);
+  const onParentAbort = () => timeoutController.abort();
+  signal.addEventListener('abort', onParentAbort, { once: true });
 
   try {
     const response = await fetch(`${API_BASE_URL}/health`, {
       method: 'HEAD',
       headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
-      signal,
+      signal: timeoutController.signal,
     });
 
     return response.ok;
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeoutId);
+    signal.removeEventListener('abort', onParentAbort);
+  }
+};
+
+const readHealthCache = async (): Promise<HealthCache | null> => {
+  try {
+    const session = chrome?.storage?.session;
+    if (!session) return null;
+    const result = await session.get([HEALTH_CACHE_KEY]);
+    const cached = result[HEALTH_CACHE_KEY] as HealthCache | undefined;
+    if (!cached || typeof cached.checkedAt !== 'number') return null;
+    if (Date.now() - cached.checkedAt > HEALTH_CACHE_TTL_MS) return null;
+    return cached;
+  } catch {
+    return null;
+  }
+};
+
+const writeHealthCache = async (ok: boolean): Promise<void> => {
+  try {
+    await chrome?.storage?.session?.set({ [HEALTH_CACHE_KEY]: { ok, checkedAt: Date.now() } });
+  } catch {
+    // Best-effort cache; ignore quota/permission errors.
   }
 };
 
@@ -48,18 +86,35 @@ const useAuthState = (): AuthState => {
 
   const { data: user, isLoading, isError, error } = useGetUserDetailsQuery(undefined, { skip: skipUserQuery });
 
-  // Health check on mount + retry
-  const runHealthCheck = useCallback(async () => {
+  // Health check on mount + retry. Uses chrome.storage.session as a 30s SWR cache so reopening the
+  // popup doesn't gate first paint on a network round-trip.
+  const runHealthCheck = useCallback(async (options?: { skipCache?: boolean }) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setPhase('checking_health');
-    setHealthPassed(false);
-
-    const healthy = await checkHealth(controller.signal);
+    const cached = options?.skipCache ? null : await readHealthCache();
 
     if (controller.signal.aborted) return;
+
+    if (cached) {
+      // Render immediately from cache, then revalidate in the background. Surfaces stale failure
+      // states via revalidation rather than blocking.
+      if (cached.ok) {
+        setHealthPassed(true);
+      } else {
+        setPhase('api_unavailable');
+      }
+    } else {
+      setPhase('checking_health');
+      setHealthPassed(false);
+    }
+
+    const healthy = await fetchHealth(controller.signal);
+
+    if (controller.signal.aborted) return;
+
+    void writeHealthCache(healthy);
 
     if (healthy) {
       setHealthPassed(true);
@@ -112,7 +167,8 @@ const useAuthState = (): AuthState => {
   }, [healthPassed, hasTokens, isLoading, isError, error, user]);
 
   const retry = useCallback(() => {
-    runHealthCheck();
+    // User-initiated retry bypasses cache.
+    runHealthCheck({ skipCache: true });
   }, [runHealthCheck]);
 
   return { phase, user, retry };

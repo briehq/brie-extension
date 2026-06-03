@@ -61,14 +61,16 @@ export const PopupContent = ({
   }, [totalSlicesCreatedToday, user?.authMethod, activeTab.id]);
 
   useEffect(() => {
+    // Fire the storage read and tab query in parallel — previously the active-tab URL would only
+    // arrive after a second async tick, causing flicker between guards (internal page, unsaved-tab).
     const initializeState = async () => {
-      setActiveTab(prev => ({ ...prev, id: captureTabId ?? null }));
-
       const tab = await getActiveTab();
-      if (tab) {
-        setActiveTab(prev => ({ ...prev, url: tab.url ?? prev.url }));
-        setCurrentActiveTab(tab.id);
-      }
+      setActiveTab(prev => ({
+        ...prev,
+        id: captureTabId ?? null,
+        url: tab?.url ?? prev.url,
+      }));
+      if (tab) setCurrentActiveTab(tab.id);
     };
 
     initializeState();
@@ -106,6 +108,12 @@ export const PopupContent = ({
     },
     [updateActiveTab, updateCaptureState],
   );
+
+  const handleActiveTabChangeFromChild = useCallback((id: number | null) => {
+    setActiveTab(prev => ({ ...prev, id }));
+  }, []);
+
+  const captureStateForChild = useMemo(() => ({ state, mode }), [state, mode]);
 
   const internalPage = isInternalUrl(activeTab.url);
 
@@ -147,12 +155,7 @@ export const PopupContent = ({
 
   return (
     <>
-      <CaptureContentView
-        captureState={{ state, mode }}
-        onActiveTabChange={id => {
-          setActiveTab(prev => ({ ...prev, id }));
-        }}
-      />
+      <CaptureContentView captureState={captureStateForChild} onActiveTabChange={handleActiveTabChangeFromChild} />
     </>
   );
 };
