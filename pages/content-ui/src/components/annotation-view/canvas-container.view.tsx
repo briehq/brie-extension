@@ -312,97 +312,100 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    *
    * @param elem
    */
-  const handleActiveElement = (elem: ActiveElement) => {
-    if (elem?.value === 'color-palette') {
-      const highlighterColor = hexToRgba(elem?.payload?.color || elementAttributes.stroke, 0.45);
+  const handleActiveElement = useCallback(
+    (elem: ActiveElement) => {
+      if (elem?.value === 'color-palette') {
+        const highlighterColor = hexToRgba(elem?.payload?.color || elementAttributes.stroke, 0.45);
 
-      currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
+        currentColorRef.current = elem?.payload?.color || elementAttributes.stroke;
 
-      if (fabricRef.current?.isDrawingMode) {
-        (fabricRef.current.freeDrawingBrush as PencilBrush).color = highlighterColor;
+        if (fabricRef.current?.isDrawingMode) {
+          (fabricRef.current.freeDrawingBrush as PencilBrush).color = highlighterColor;
+        }
+
+        setElementAttributes(prevAttributes => ({
+          ...prevAttributes,
+          stroke: highlighterColor,
+        }));
+
+        modifyShape({
+          canvas: fabricRef.current!,
+          property: 'stroke',
+          value: highlighterColor,
+          activeObjectRef,
+          syncShapeInStorage,
+        });
+
+        return;
       }
 
-      setElementAttributes(prevAttributes => ({
-        ...prevAttributes,
-        stroke: highlighterColor,
-      }));
+      setActiveElement(elem);
+      onElement(elem);
 
-      modifyShape({
-        canvas: fabricRef.current!,
-        property: 'stroke',
-        value: highlighterColor,
-        activeObjectRef,
-        syncShapeInStorage,
-      });
+      switch (elem?.value) {
+        case 'undo':
+          undo();
+          break;
 
-      return;
-    }
+        case 'redo':
+          redo();
+          break;
 
-    setActiveElement(elem);
-    onElement(elem);
+        // delete all the shapes from the canvas
+        case 'start_over':
+          // clear the storage
+          deleteAllShapes();
+          // clear the canvas
+          fabricRef.current?.clear();
+          // set "select" as the active element
+          setActiveElement(defaultNavElement);
+          break;
 
-    switch (elem?.value) {
-      case 'undo':
-        undo();
-        break;
+        // delete the selected shape from the canvas
+        case 'delete':
+          // delete it from the canvas
+          handleDelete(fabricRef.current as any, deleteShapeFromStorage);
+          // set "select" as the active element
+          setActiveElement(defaultNavElement);
+          break;
 
-      case 'redo':
-        redo();
-        break;
+        // upload an image to the canvas
+        case 'image':
+          // trigger the click event on the input element which opens the file dialog
+          imageInputRef.current?.click();
+          /**
+           * set drawing mode to false
+           * If the user is drawing on the canvas, we want to stop the
+           * drawing mode when clicked on the image item from the dropdown.
+           */
+          isDrawing.current = false;
 
-      // delete all the shapes from the canvas
-      case 'start_over':
-        // clear the storage
-        deleteAllShapes();
-        // clear the canvas
-        fabricRef.current?.clear();
-        // set "select" as the active element
-        setActiveElement(defaultNavElement);
-        break;
-
-      // delete the selected shape from the canvas
-      case 'delete':
-        // delete it from the canvas
-        handleDelete(fabricRef.current as any, deleteShapeFromStorage);
-        // set "select" as the active element
-        setActiveElement(defaultNavElement);
-        break;
-
-      // upload an image to the canvas
-      case 'image':
-        // trigger the click event on the input element which opens the file dialog
-        imageInputRef.current?.click();
-        /**
-         * set drawing mode to false
-         * If the user is drawing on the canvas, we want to stop the
-         * drawing mode when clicked on the image item from the dropdown.
-         */
-        isDrawing.current = false;
-
-        if (fabricRef.current) {
-          // disable the drawing mode of canvas
-          fabricRef.current.isDrawingMode = false;
-        }
-        break;
-
-      default:
-        if (fabricRef.current) {
-          if (elem && DRAWING_TOOLS.includes(elem.value)) {
-            isDrawing.current = true;
-            fabricRef.current.isDrawingMode = true;
-
-            applyBrush(elem.value as 'freeform' | 'highlighter', fabricRef.current, currentColorRef);
-          } else {
-            isDrawing.current = false;
+          if (fabricRef.current) {
+            // disable the drawing mode of canvas
             fabricRef.current.isDrawingMode = false;
           }
-        }
+          break;
 
-        selectedShapeRef.current = elem?.value as string;
+        default:
+          if (fabricRef.current) {
+            if (elem && DRAWING_TOOLS.includes(elem.value)) {
+              isDrawing.current = true;
+              fabricRef.current.isDrawingMode = true;
 
-        break;
-    }
-  };
+              applyBrush(elem.value as 'freeform' | 'highlighter', fabricRef.current, currentColorRef);
+            } else {
+              isDrawing.current = false;
+              fabricRef.current.isDrawingMode = false;
+            }
+          }
+
+          selectedShapeRef.current = elem?.value as string;
+
+          break;
+      }
+    },
+    [elementAttributes.stroke, undo, redo, deleteAllShapes, deleteShapeFromStorage, syncShapeInStorage, onElement],
+  );
 
   useEffect(() => {
     if (!lastAction) return;
@@ -620,73 +623,41 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     });
 
     /**
-     * listen to the resize event on the window which is fired when the
-     * user resizes the window.
-     *
-     * We're using this to resize the canvas when the user resizes the
-     * window.
+     * Named handler refs so removeEventListener actually matches the addEventListener registration —
+     * previously inline arrows produced different function references and removal was a no-op,
+     * leaking handlers on every screenshot change.
      */
-    window.addEventListener('resize', () => {
+    const onWindowResize = () => {
       handleResize({
         canvas: fabricRef.current,
         backgroundImage: screenshot?.src ?? null,
       });
-    });
+    };
+    window.addEventListener('resize', onWindowResize);
 
-    /**
-     * listen to the key down event on the shadow dom which is fired when the
-     * user presses a key on the keyboard.
-     *
-     * We're using this to perform some actions like delete, copy, paste, etc when the user presses the respective keys on the keyboard.
-     */
     const shadowHost = getShadowHostElement();
     const shadow = shadowHost?.shadowRoot;
 
-    if (shadow) {
-      shadow.addEventListener('keydown', e => {
-        if (!(e instanceof KeyboardEvent) || !fabricRef.current) return;
-        handleKeyDown({
-          e,
-          canvas: fabricRef.current,
-          undo,
-          redo,
-          syncShapeInStorage,
-          deleteShapeFromStorage,
-        });
+    const onShadowKeyDown = (e: Event) => {
+      if (!(e instanceof KeyboardEvent) || !fabricRef.current) return;
+      handleKeyDown({
+        e,
+        canvas: fabricRef.current,
+        undo,
+        redo,
+        syncShapeInStorage,
+        deleteShapeFromStorage,
       });
+    };
+    if (shadow) {
+      shadow.addEventListener('keydown', onShadowKeyDown);
     }
 
-    // dispose the canvas and remove the event listeners when the component unmounts
     return () => {
-      /**
-       * dispose is a method provided by Fabric that allows you to dispose
-       * the canvas. It clears the canvas and removes all the event
-       * listeners
-       *
-       * dispose: http://fabricjs.com/docs/fabric.Canvas.html#dispose
-       */
       canvas.dispose();
-
-      // remove the event listeners
-      window.removeEventListener('resize', () => {
-        handleResize({
-          canvas: null,
-          backgroundImage: null,
-        });
-      });
-
+      window.removeEventListener('resize', onWindowResize);
       if (shadow) {
-        shadow.removeEventListener('keydown', e => {
-          if (!(e instanceof KeyboardEvent) || !fabricRef.current) return;
-          handleKeyDown({
-            e,
-            canvas: fabricRef.current,
-            undo,
-            redo,
-            syncShapeInStorage,
-            deleteShapeFromStorage,
-          });
-        });
+        shadow.removeEventListener('keydown', onShadowKeyDown);
       }
     };
   }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
@@ -756,26 +727,29 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     setActionMenuVisible(true);
   }, []);
 
-  const handleOnExportScreenshot = async (format: string = 'png') => {
-    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+  const handleOnExportScreenshot = useCallback(
+    async (format: string = 'png') => {
+      const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
 
-    const fileName = `${screenshot.name}.${format}`;
-    let file = null;
+      const fileName = `${screenshot.name}.${format}`;
+      let file = null;
 
-    const natural = meta?.sizes?.natural;
-    if (!objects?.length || !natural) {
-      file = await base64ToFile(screenshot.src, fileName);
-    } else {
-      file = await mergeScreenshot({
-        screenshot,
-        objects,
-        parentHeight: natural.height,
-        parentWidth: natural.width,
-      });
-    }
+      const natural = meta?.sizes?.natural;
+      if (!objects?.length || !natural) {
+        file = await base64ToFile(screenshot.src, fileName);
+      } else {
+        file = await mergeScreenshot({
+          screenshot,
+          objects,
+          parentHeight: natural.height,
+          parentWidth: natural.width,
+        });
+      }
 
-    saveAs(file, fileName);
-  };
+      saveAs(file, fileName);
+    },
+    [screenshot],
+  );
 
   const handleOnRemove = () => {
     handleActiveElement({ value: 'delete' } as any);
