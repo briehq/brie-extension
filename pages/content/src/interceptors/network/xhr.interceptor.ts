@@ -45,9 +45,10 @@ export const interceptXHR = (): void => {
       this._requestDetails.requestBody = body || null;
     }
 
-    const originalOnReadyStateChange = this.onreadystatechange;
-
-    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, ...args: any[]): void {
+    // Use addEventListener instead of replacing this.onreadystatechange. The previous code captured
+    // the page's handler at .send() time and re-invoked it after our work, but any code that
+    // assigns xhr.onreadystatechange AFTER calling .send() would be silently lost.
+    const onReadyStateChange = function (this: ExtendedXMLHttpRequest): void {
       if (this.readyState === 4 && this._requestDetails) {
         // Request completed
         const endTime = new Date().toISOString();
@@ -134,12 +135,9 @@ export const interceptXHR = (): void => {
           console.error('[XHR] Error posting message:', error);
         }
       }
-
-      // Call the original onreadystatechange handler if defined
-      if (originalOnReadyStateChange) {
-        originalOnReadyStateChange.apply(this, args as [Event]);
-      }
     };
+
+    this.addEventListener('readystatechange', onReadyStateChange);
 
     originalSend.apply(this, [body]);
   };
