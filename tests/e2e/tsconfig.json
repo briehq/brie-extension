@@ -8,5 +8,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["specs", "config", "helpers"]
+  "include": ["specs", "config", "helpers", "playwright"]
 }
