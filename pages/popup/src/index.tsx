@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
 import { themeStorage } from '@extension/storage';
+import { ReduxProvider, store } from '@extension/store';
 
 import Popup from '@src/Popup';
 import '@src/index.css';
@@ -15,7 +16,14 @@ const init = () => {
   }
   const root = createRoot(appContainer);
 
-  root.render(<Popup />);
+  // Hoisted out of <Popup/> so the Redux provider doesn't sit inside the theme-reactive render
+  // path. Theme changes triggered a re-render of Popup which previously rerendered ReduxProvider
+  // and every descendant.
+  root.render(
+    <ReduxProvider store={store}>
+      <Popup />
+    </ReduxProvider>,
+  );
 };
 
 init();
