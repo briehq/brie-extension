@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+  CAPTURE,
   RECORDING,
   REWIND,
   SCREENSHOT,
+  UI,
   getActiveTab,
   isRewindBlocked,
   sendMessageToActiveTab,
@@ -49,6 +51,7 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     () => mode === 'screenshot' && ['capturing', 'unsaved'].includes(state),
     [mode, state],
   );
+  const isCaptureScreenshotCapturing = useMemo(() => mode === 'screenshot' && state === 'capturing', [mode, state]);
 
   const updateCaptureState = useCallback(async (state: ScreenshotCaptureState) => {
     await captureStateStorage.setScreenshotState(state);
@@ -99,6 +102,14 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
 
     window.close();
   }, [popupState.captureMode, updateActiveTab, updateCaptureState]);
+
+  const handleStopCaptureScreenshot = useCallback(async () => {
+    await sendMessageToActiveTab(CAPTURE.EXIT, {});
+    await sendMessageToActiveTab(UI.CLOSE_MODAL, {});
+    await chrome.runtime.sendMessage({ type: CAPTURE.EXIT });
+    onActiveTabChange(null);
+    window.close();
+  }, [onActiveTabChange]);
 
   const setCaptureMode = useCallback((next: CaptureMode) => {
     setPopupState(s => ({ ...s, captureMode: next }));
@@ -197,11 +208,12 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     <div className="space-y-4">
       <CaptureScreenshotView
         isDisabled={isVideoRecordingActive}
-        isActive={false}
+        isActive={isCaptureScreenshotCapturing}
         mode={popupState.captureMode}
         open={popupState.captureOpen}
         onToggleOpen={toggleCaptureOpen}
         onPrimaryAction={handleOnCaptureScreenshot}
+        onStopAction={handleStopCaptureScreenshot}
         onChange={setCaptureMode}
       />
 

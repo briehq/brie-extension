@@ -196,6 +196,15 @@
   "createAzure": {
     "message": "Create in Azure"
   },
+  "createGithub": {
+    "message": "Create in GitHub"
+  },
+  "createdInTracker": {
+    "message": "Created in $1"
+  },
+  "trackerSendFailedFallback": {
+    "message": "Slice saved. Couldn't send to $1 — opening Brie."
+  },
   "rename": {
     "message": "Rename"
   },
@@ -532,11 +541,26 @@
   "captureFullscreen": {
     "message": "Capture Fullscreen"
   },
+  "captureAnotherArea": {
+    "message": "Capture Another Area"
+  },
+  "captureAnotherWindow": {
+    "message": "Capture Another Window"
+  },
+  "captureAnotherFullscreen": {
+    "message": "Capture Another Fullscreen"
+  },
   "recordTab": {
     "message": "Record Tab"
   },
   "recordDesktop": {
     "message": "Record Desktop"
+  },
+  "recordingTab": {
+    "message": "Recording Tab"
+  },
+  "recordingDesktop": {
+    "message": "Recording Desktop"
   },
   "sliceThumbnail": {
     "message": "Slice Thumbnail"

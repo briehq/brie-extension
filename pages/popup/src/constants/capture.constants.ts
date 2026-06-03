@@ -18,7 +18,18 @@ export const CAPTURE_TITLE: Record<CaptureMode, string> = {
   fullPage: t('captureFullscreen'),
 };
 
+export const CAPTURE_ACTIVE_TITLE: Record<CaptureMode, string> = {
+  area: t('captureAnotherArea'),
+  viewport: t('captureAnotherWindow'),
+  fullPage: t('captureAnotherFullscreen'),
+};
+
 export const RECORD_TITLE: Record<RecordArea, string> = {
   tab: t('recordTab'),
   desktop: t('recordDesktop'),
+};
+
+export const RECORD_ACTIVE_TITLE: Record<RecordArea, string> = {
+  tab: t('recordingTab'),
+  desktop: t('recordingDesktop'),
 };

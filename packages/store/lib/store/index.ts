@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 
 import { aiAPI } from './ai/ai.api.js';
 import { authReducer, authPublicAPI } from './auth/index.js';
+import { integrationsAPI } from './integrations/index.js';
 import { organizationAPI } from './organization/index.js';
 import { overviewAPI } from './overview/index.js';
 import { screenshotAPI } from './screenshot/index.js';
@@ -40,6 +41,8 @@ const rootReducer = combineReducers({
 
   [aiAPI.reducerPath]: aiAPI.reducer,
 
+  [integrationsAPI.reducerPath]: integrationsAPI.reducer,
+
   canvasReducer,
 });
 
@@ -59,7 +62,8 @@ const setupStore = () =>
         .concat(subscriptionsAPI.middleware)
         .concat(organizationAPI.middleware)
         .concat(screenshotAPI.middleware)
-        .concat(aiAPI.middleware),
+        .concat(aiAPI.middleware)
+        .concat(integrationsAPI.middleware),
   });
 
 export const store = setupStore();
@@ -88,6 +92,24 @@ export const { useLoginGuestMutation } = authPublicAPI;
 export const { useGetOrganizationByIdQuery } = organizationAPI;
 export const { useLazyGetFullScreenshotQuery } = screenshotAPI;
 export const { useGenerateWithAIMutation, useGetTranscriptionMutation } = aiAPI;
+
+export {
+  useGetIntegrationsByWorkspaceIdQuery,
+  useGetLinkedGithubReposQuery,
+  useCreateExternalIssueMutation,
+  useCreateGithubIssueMutation,
+} from './integrations/index.js';
+
+export type {
+  CreateAction,
+  CreateActionKey,
+  CreateExternalIssuePayload,
+  ExternalIssueResponse,
+  GithubIssueResponse,
+  IntegrationConnection,
+  LinkedRepository,
+  IntegrationProvider,
+} from './integrations/index.js';
 
 // export const { setFilters, clearFilters } = slicesSlice.actions;
 // export const { setFilters, clearFilters } = workspacesSlice.actions;

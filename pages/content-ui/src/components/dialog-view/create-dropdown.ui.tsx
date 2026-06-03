@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
-
 import { t } from '@extension/i18n';
+import type { CreateAction } from '@extension/store';
 import {
   Button,
   cn,
@@ -14,28 +13,30 @@ import {
   Icon,
 } from '@extension/ui';
 
-const createActions = [
-  { icon: 'LinkIcon', name: t('createLink'), key: 'link', isDefault: true },
-  // { icon: 'BlocksIcon', name: t('createLinear'), key: 'linear' },
-  // { icon: 'BlocksIcon', name: t('createJira'), key: 'jira' },
-  // { icon: 'BlocksIcon', name: t('createAzure'), key: 'azure' },
-];
+type CreateDropdownProps = {
+  isLoading: boolean;
+  actions: CreateAction[];
+  activeAction: CreateAction;
+  onChange: (action: CreateAction) => void;
+};
 
-export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; onChange: (key: string) => void }) => {
-  const [activeActionKey, setActiveActionKey] = useState('link');
+export const CreateDropdown = ({ isLoading, actions, activeAction, onChange }: CreateDropdownProps) => {
+  const handleValueChange = (key: string) => {
+    const next = actions.find(action => action.key === key);
+    if (next) onChange(next);
+  };
 
-  const defaultAction = useMemo(() => createActions?.find(action => action.isDefault), []);
-  const activeAction = useMemo(() => createActions?.find(action => action.key === activeActionKey), [activeActionKey]);
+  const showFooter = actions.length === 1;
 
   return (
     <DropdownMenu>
       <Button
         form="details-form"
         disabled={isLoading}
-        onClick={() => onChange(activeActionKey)}
+        onClick={() => onChange(activeAction)}
         className="bg-gradient-overlay dark:bg-primary flex h-[35px] min-w-[160px] justify-between gap-x-2 p-0">
         <div className="py-2 pl-[10px]">
-          <span>{activeAction?.name || defaultAction?.name} </span>
+          <span>{t(activeAction.nameKey)} </span>
         </div>
 
         <DropdownMenuTrigger asChild>
@@ -50,26 +51,28 @@ export const CreateDropdown = ({ isLoading, onChange }: { isLoading: boolean; on
       </Button>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-[200px]">
-        <DropdownMenuRadioGroup value={activeActionKey || defaultAction?.key} onValueChange={setActiveActionKey}>
-          {createActions?.map((action: any) => (
+        <DropdownMenuRadioGroup value={activeAction.key} onValueChange={handleValueChange}>
+          {actions.map(action => (
             <DropdownMenuRadioItem
               key={action.key}
               value={action.key}
-              disabled={action.key !== 'link'}
-              className={cn({ 'text-muted-foreground': action.key !== activeActionKey })}>
+              className={cn({ 'text-muted-foreground': action.key !== activeAction.key })}>
               <div className="flex h-8 w-8 items-center justify-center">
                 <Icon name={action.icon} className="h-3.5 w-3.5" />
               </div>
 
-              <span>{action.name}</span>
+              <span>{t(action.nameKey)}</span>
             </DropdownMenuRadioItem>
           ))}
 
-          <DropdownMenuSeparator />
-
-          <DropdownMenuLabel className="text-muted-foreground text-center text-[10px] font-normal">
-            {t('moreIntegrationSoon')}
-          </DropdownMenuLabel>
+          {showFooter && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-muted-foreground text-center text-[10px] font-normal">
+                {t('moreIntegrationSoon')}
+              </DropdownMenuLabel>
+            </>
+          )}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

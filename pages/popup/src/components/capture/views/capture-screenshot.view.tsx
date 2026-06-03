@@ -2,7 +2,7 @@ import { t } from '@extension/i18n';
 import type { CaptureMode } from '@extension/shared';
 import { Icon } from '@extension/ui';
 
-import { CAPTURE_MODE_OPTIONS, CAPTURE_TITLE } from '@src/constants';
+import { CAPTURE_ACTIVE_TITLE, CAPTURE_MODE_OPTIONS, CAPTURE_TITLE } from '@src/constants';
 
 import { ButtonGroup, CollapsibleActionCard } from '../ui';
 
@@ -13,6 +13,7 @@ interface CaptureScreenshotViewProps {
   open: boolean;
   onToggleOpen: () => void;
   onPrimaryAction: () => void;
+  onStopAction: () => void;
   onChange: (mode: CaptureMode) => void;
 }
 
@@ -29,6 +30,7 @@ export const CaptureScreenshotView = ({
   open,
   onToggleOpen,
   onPrimaryAction,
+  onStopAction,
   onChange,
 }: CaptureScreenshotViewProps) => {
   const title = CAPTURE_TITLE[mode];
@@ -39,11 +41,13 @@ export const CaptureScreenshotView = ({
       isDisabled={isDisabled}
       isActive={isActive}
       icon={icon}
-      activeTitle={t('exitAction', title)}
       title={title}
+      activeHeaderTitle={CAPTURE_ACTIVE_TITLE[mode]}
+      activeTitle={t('exitAction', title)}
       open={open}
       onToggleOpen={onToggleOpen}
       onPrimaryAction={onPrimaryAction}
+      onStopAction={onStopAction}
       primaryAriaLabel={t('runAction', title)}>
       <div className="flex items-center justify-between">
         <div className="text-muted-foreground text-xs">{t('captureMode')}</div>
