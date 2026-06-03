@@ -100,13 +100,24 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
     return deserialize(value[key] as string) ?? fallback;
   };
 
+  // Coalesce a burst of set() calls into a single listener notification per microtask. Multiple
+  // synchronous mutations now produce one re-render cycle instead of N.
+  let notifyScheduled = false;
   const _emitChange = () => {
-    listeners.forEach(listener => listener());
+    if (notifyScheduled) return;
+    notifyScheduled = true;
+    queueMicrotask(() => {
+      notifyScheduled = false;
+      listeners.forEach(listener => listener());
+    });
   };
 
   const set = async (valueOrUpdate: ValueOrUpdate<D>) => {
     if (!initedCache) {
       cache = await get();
+      // Mark the cache initialised so subsequent set() calls don't each issue a redundant
+      // chrome.storage.get when the initial get().then() at module load hasn't resolved yet.
+      initedCache = true;
     }
     cache = await updateCache(valueOrUpdate, cache);
 
