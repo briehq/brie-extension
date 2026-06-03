@@ -31,10 +31,10 @@ export const initBadgeListener = () => {
 
   // Restore badge state on startup
   chrome.storage.local.get([CAPTURE_STATE_KEY, CAPTURE_TAB_KEY], result => {
-    const { state } = result[CAPTURE_STATE_KEY] ?? {};
-    tabId = result[CAPTURE_TAB_KEY] ?? null;
+    const { state } = (result[CAPTURE_STATE_KEY] ?? {}) as { state?: string };
+    tabId = (result[CAPTURE_TAB_KEY] as number | null) ?? null;
     prevTabId = tabId;
-    color = STATE_COLORS[state] ?? '';
+    color = state ? (STATE_COLORS[state] ?? '') : '';
 
     if (color && tabId) {
       setBadgeForTab(tabId, color);

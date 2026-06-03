@@ -133,7 +133,7 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
                   })}
                   onClick={() => handleOnToggleTool('highlighter')}>
                   <Icon
-                    name={!isHighlighter ? 'Highlighter' : 'X'}
+                    name={!isHighlighter ? 'HighlighterIcon' : 'X'}
                     className={cn('size-4', {
                       'text-red-500': isHighlighter,
                     })}

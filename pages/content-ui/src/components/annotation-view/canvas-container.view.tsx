@@ -2,7 +2,7 @@ import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { REWIND, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
+import { CANVAS_ACTION, REWIND, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
 import {
   annotationsHistoryStorage,
@@ -160,7 +160,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  const restoreObjects = async (canvas: any, snapshot?: { objects: any[] }) => {
+  const restoreObjects = async (canvas: any, snapshot?: { objects?: any[] }) => {
     const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
 
     if (!meta?.sizes?.fit) return;
@@ -387,11 +387,11 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
       default:
         if (fabricRef.current) {
-          if (DRAWING_TOOLS.includes(elem?.value || '')) {
+          if (elem && DRAWING_TOOLS.includes(elem.value)) {
             isDrawing.current = true;
             fabricRef.current.isDrawingMode = true;
 
-            applyBrush(elem.value, fabricRef.current, currentColorRef);
+            applyBrush(elem.value as 'freeform' | 'highlighter', fabricRef.current, currentColorRef);
           } else {
             isDrawing.current = false;
             fabricRef.current.isDrawingMode = false;
@@ -408,13 +408,13 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     if (!lastAction) return;
 
     switch (lastAction) {
-      case 'UNDO':
+      case CANVAS_ACTION.UNDO:
         undo();
         break;
-      case 'REDO':
+      case CANVAS_ACTION.REDO:
         redo();
         break;
-      case 'START_OVER':
+      case CANVAS_ACTION.START_OVER:
         deleteAllShapes();
         break;
     }
@@ -643,7 +643,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
     const shadow = shadowHost?.shadowRoot;
 
     if (shadow) {
-      shadow.addEventListener('keydown', e =>
+      shadow.addEventListener('keydown', e => {
+        if (!(e instanceof KeyboardEvent) || !fabricRef.current) return;
         handleKeyDown({
           e,
           canvas: fabricRef.current,
@@ -651,8 +652,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
           redo,
           syncShapeInStorage,
           deleteShapeFromStorage,
-        }),
-      );
+        });
+      });
     }
 
     // dispose the canvas and remove the event listeners when the component unmounts
@@ -675,7 +676,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
       });
 
       if (shadow) {
-        shadow.removeEventListener('keydown', e =>
+        shadow.removeEventListener('keydown', e => {
+          if (!(e instanceof KeyboardEvent) || !fabricRef.current) return;
           handleKeyDown({
             e,
             canvas: fabricRef.current,
@@ -683,8 +685,8 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
             redo,
             syncShapeInStorage,
             deleteShapeFromStorage,
-          }),
-        );
+          });
+        });
       }
     };
   }, [screenshot?.id]); // run this effect only once when the component mounts and the canvasRef changes
@@ -730,6 +732,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   }, [captureState]);
 
   const updateMenuPosition = (options: any) => {
+    if (!fabricRef.current) return;
     const obj = options.selected ? options.selected[0] : fabricRef.current.getActiveObject();
     if (!obj) return;
 
@@ -754,21 +757,20 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
   }, []);
 
   const handleOnExportScreenshot = async (format: string = 'png') => {
-    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? { objects: [], meta: {} };
+    const { objects, meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
 
     const fileName = `${screenshot.name}.${format}`;
     let file = null;
 
-    if (!objects?.length) {
+    const natural = meta?.sizes?.natural;
+    if (!objects?.length || !natural) {
       file = await base64ToFile(screenshot.src, fileName);
     } else {
-      const { width, height } = meta!.sizes!.natural;
-
       file = await mergeScreenshot({
         screenshot,
         objects,
-        parentHeight: height,
-        parentWidth: width,
+        parentHeight: natural.height,
+        parentWidth: natural.width,
       });
     }
 

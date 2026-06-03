@@ -6,24 +6,24 @@ export const reportToText = (report: any): string => {
 
   if (report.steps?.length) {
     lines.push('Steps to Reproduce:');
-    lines.push(...report.steps.map(s => `- ${s}`));
+    lines.push(...report.steps.map((s: string) => `- ${s}`));
     lines.push('');
   }
 
   if (report.evidence) {
     if (report.evidence.errors?.length) {
       lines.push('Errors:');
-      lines.push(...report.evidence.errors.map(s => `- ${s}`));
+      lines.push(...report.evidence.errors.map((s: string) => `- ${s}`));
       lines.push('');
     }
     if (report.evidence.network?.length) {
       lines.push('Network:');
-      lines.push(...report.evidence.network.map(s => `- ${s}`));
+      lines.push(...report.evidence.network.map((s: string) => `- ${s}`));
       lines.push('');
     }
     if (report.evidence.console?.length) {
       lines.push('Console:');
-      lines.push(...report.evidence.console.map(s => `- ${s}`));
+      lines.push(...report.evidence.console.map((s: string) => `- ${s}`));
       lines.push('');
     }
   }

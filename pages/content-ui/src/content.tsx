@@ -332,7 +332,7 @@ const Content = ({
       }
 
       // Server returned a draft with an error code (eg: GUEST_DAILY_LIMIT)
-      toast.error(t(slice?.message) || t('failedToCreateSlice'));
+      toast.error((slice?.message && t(slice.message as Parameters<typeof t>[0])) || t('failedToCreateSlice'));
 
       if (slice?.id) {
         await updateSliceState({ id: slice.id, state: SliceState.CANCELED });

@@ -152,15 +152,16 @@ export const startRewindCapture = (): void => {
   if (!isRewindGloballyEnabled || !isCaptureAllowedForUrl) return;
   if (rrwebStopFunction) return;
 
-  rrwebStopFunction = record({
-    emit: enqueueEvent,
-    maskAllInputs: false,
-    recordCanvas: false,
-    inlineStylesheet: true,
-    collectFonts: true,
-    checkoutEveryNms: 30 * 1000,
-    sampling: { mousemove: 50, scroll: 150 },
-  });
+  rrwebStopFunction =
+    record({
+      emit: enqueueEvent,
+      maskAllInputs: false,
+      recordCanvas: false,
+      inlineStylesheet: true,
+      collectFonts: true,
+      checkoutEveryNms: 30 * 1000,
+      sampling: { mousemove: 50, scroll: 150 },
+    }) ?? null;
 };
 
 export const stopRewindCapture = (): void => {

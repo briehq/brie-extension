@@ -93,7 +93,7 @@ export const parseUserAgent = async (): Promise<{ browser: BrowserInfo; os: OSIn
   // this is applied  for Chromium
   // Chromium-based browsers (Chrome, Edge, Brave, Opera)
   if (browserName === 'Unknown' && browserVersion === 'Unknown') {
-    const brands = uaData.brands || [];
+    const brands: Array<{ brand: string; version: string }> = uaData.brands || [];
     const brandInfo =
       brands.find(b => /chrome|chromium|edge|opera|brave/i.test(b.brand)) ||
       brands.find(b => b.brand !== 'Not)A;Brand'); // fallback

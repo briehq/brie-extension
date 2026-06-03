@@ -143,7 +143,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
       const options = { maxSteps: 15, ...(type === AiGenerateType.FULL_REPORT && { maxEvidence: 8 }) };
 
-      const response = await generateWithAI({ type, bundle, options }).unwrap();
+      const response = await generateWithAI({
+        type,
+        bundle: bundle as unknown as Record<string, unknown>,
+        options,
+      }).unwrap();
 
       let text = '';
 
@@ -326,7 +330,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                                 'bg-[#8BC34A]': key === SlicePriority.LOW,
                               })}
                             />
-                            <span>{t(key)}</span>
+                            <span>{t(key as Parameters<typeof t>[0])}</span>
                           </div>
                         </SelectItem>
                       ))}

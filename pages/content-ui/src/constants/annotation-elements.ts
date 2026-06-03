@@ -1,6 +1,13 @@
+import type { IconName } from '@extension/ui';
+
+import type { ActiveElement } from '../models';
+
+type ShapeElement = NonNullable<ActiveElement>;
+type NavElement = { icon: IconName; name: string; value: string | ShapeElement[] } | Record<string, never>;
+
 export const COLORS = ['#DC2626', '#D97706', '#059669', '#7C3AED', '#DB2777'];
 
-export const shapeElements = [
+export const shapeElements: ShapeElement[] = [
   {
     icon: 'SquareIcon',
     name: 'Rectangle',
@@ -23,14 +30,14 @@ export const shapeElements = [
   },
 ];
 
-export const defaultNavElement = {
+export const defaultNavElement: ShapeElement = {
   // icon: 'MousePointer2Icon',
   icon: 'HandIcon',
   name: 'Move',
   value: 'select',
 };
 
-export const navElements = [
+export const navElements: NavElement[] = [
   defaultNavElement,
   {
     icon: 'ColorPalette',
