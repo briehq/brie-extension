@@ -25,7 +25,9 @@ if (navigator.userAgent.includes('Firefox')) {
    * Injecting styles into the document, this may cause style conflicts with the host page
    */
   const styleElement = document.createElement('style');
-  styleElement.innerHTML = tailwindcssOutput;
+  // Bundled CSS string from Vite's ?inline import — not untrusted input. textContent avoids the
+  // host page's strict-CSP rejecting innerHTML on style injection.
+  styleElement.textContent = tailwindcssOutput;
   shadowRoot.appendChild(styleElement);
 } else {
   /** Inject styles into shadow dom */

@@ -2,11 +2,11 @@
   "extends": "@extension/tsconfig/module",
   "compilerOptions": {
     "lib": ["dom"],
-    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework"],
+    "types": ["node"],
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["specs", "config", "helpers"]
+  "include": ["**/*.ts"]
 }

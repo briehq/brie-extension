@@ -138,6 +138,10 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
   };
 
   get().then(data => {
+    // Guard against a set() that ran during the cold-start window and already wrote a value.
+    // Without this check, the stale get() result would clobber the in-memory cache, leaving
+    // React consumers showing the pre-write value until the next set() or liveUpdate fires.
+    if (initedCache) return;
     cache = data;
     initedCache = true;
     _emitChange();

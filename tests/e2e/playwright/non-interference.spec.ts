@@ -11,6 +11,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /**
  * Verifies the extension (a) reaches the target page and (b) doesn't break it.
  *
+ * Chromium only — Firefox's `firefox.launchPersistentContext` does not support `--load-extension`.
+ * Firefox extension testing requires an entirely different path (web-ext run / Marionette protocol)
+ * and is intentionally not wired into this spec.
+ *
  * Usage:
  *   TARGET_URL=https://your-site.com pnpm test:site
  *

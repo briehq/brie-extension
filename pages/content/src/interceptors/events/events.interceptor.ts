@@ -367,9 +367,24 @@ let eventsInterceptorRegistered = false;
 const handleAllClicks = (event: MouseEvent) => {
   // Single early-exit on the extension-overlay path so all three handlers don't pay it independently.
   if (pathTouchesExtension(event)) return;
-  handleOnClick(event);
-  handleOnCustomSelectClick(event);
-  handleOnAriaToggleClick(event);
+  // Each handler is independently wrapped so a throw in one doesn't silently drop the others.
+  // Previously these were 3 separate addEventListener registrations — an exception in one had no
+  // effect on the others; the merged-listener refactor must preserve that behaviour.
+  try {
+    handleOnClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnClick failed:', err);
+  }
+  try {
+    handleOnCustomSelectClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnCustomSelectClick failed:', err);
+  }
+  try {
+    handleOnAriaToggleClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnAriaToggleClick failed:', err);
+  }
 };
 
 /**

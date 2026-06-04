@@ -36,7 +36,12 @@ export const handleOnCompleted = (request: WebRequest.OnCompletedDetailsType) =>
       recordType: 'console',
       source: 'background',
       method: 'error',
-      args: [`[${request.type}] ${request.method} ${request.url} responded with status ${request.statusCode}`, request],
+      // Spread to a fresh object — the live `request` reference is bound to Chrome's webRequest
+      // dispatch; SW suspend/resume can mutate the backing memory between capture and serialization.
+      args: [
+        `[${request.type}] ${request.method} ${request.url} responded with status ${request.statusCode}`,
+        { ...request },
+      ],
       stackTrace: {
         parsed: 'interceptFetch',
         raw: '',
