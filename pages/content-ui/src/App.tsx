@@ -225,6 +225,7 @@ export default function App() {
                 screenshots={screenshots || []}
                 video={video}
                 events={events}
+                captureState={captureState}
                 onClose={handleOnClose}
                 onMinimize={handleOnMinimize}
                 onDeleteScreenshot={handleOnDeleteScreenshot}

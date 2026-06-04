@@ -50,6 +50,8 @@ interface ContentProps {
   screenshots: Screenshot[];
   video?: VideoSource;
   events?: eventWithTime[] | null;
+  /** Lifted from App.tsx so CanvasContainerView doesn't double-subscribe to captureStateStorage. */
+  captureState: 'idle' | 'preparing' | 'capturing' | 'paused' | 'error' | 'unsaved';
   onClose: () => void;
   onMinimize: () => void;
   onDeleteScreenshot: (id: string) => void;
@@ -65,6 +67,7 @@ const Content = ({
   activeScreenshotId,
   video,
   events,
+  captureState,
   onClose,
   onMinimize,
   onDeleteScreenshot,
@@ -479,6 +482,7 @@ const Content = ({
               <CanvasContainerView
                 key={activeScreenshotId ?? 'empty'}
                 screenshot={activeScreenshot!}
+                captureState={captureState}
                 onElement={handleOnElement}
               />
             )}

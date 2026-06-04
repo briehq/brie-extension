@@ -2,14 +2,9 @@ import type { Canvas, FabricObject, PencilBrush } from 'fabric';
 import { saveAs } from 'file-saver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CANVAS_ACTION, REWIND, sendRuntimeMessageToActiveTab, useStorage } from '@extension/shared';
+import { CANVAS_ACTION, REWIND, sendRuntimeMessageToActiveTab } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
-import {
-  annotationsHistoryStorage,
-  annotationsRedoStorage,
-  annotationsStorage,
-  captureStateStorage,
-} from '@extension/storage';
+import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import type { RootState } from '@extension/store';
 import { clearCanvasState, useAppDispatch, useAppSelector } from '@extension/store';
 import { Button, Icon } from '@extension/ui';
@@ -48,10 +43,11 @@ import {
 interface CanvasContainerProps {
   screenshot: Screenshot;
   onElement: (elem: ActiveElement) => void;
+  /** Provided by parent so this view doesn't double-subscribe to captureStateStorage. */
+  captureState: 'idle' | 'preparing' | 'capturing' | 'paused' | 'error' | 'unsaved';
 }
 
-const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) => {
-  const { state: captureState } = useStorage(captureStateStorage);
+const CanvasContainerView = ({ screenshot, onElement, captureState }: CanvasContainerProps) => {
   const { lastAction, tick } = useAppSelector((state: RootState) => state.canvasReducer);
   const dispatch = useAppDispatch();
 
@@ -160,28 +156,33 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  const restoreObjects = async (canvas: any, snapshot?: { objects?: any[] }) => {
-    const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
+  // Stable refs so handleActiveElement (and the Toolbar memo downstream) doesn't re-create on
+  // every render. Without these, the canvas-container useCallback chain is defeated.
+  const restoreObjects = useCallback(
+    async (canvas: any, snapshot?: { objects?: any[] }) => {
+      const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
 
-    if (!meta?.sizes?.fit) return;
+      if (!meta?.sizes?.fit) return;
 
-    const {
-      sizes: {
-        fit: { height, width },
-      },
-    } = meta as BackgroundFitMeta;
+      const {
+        sizes: {
+          fit: { height, width },
+        },
+      } = meta as BackgroundFitMeta;
 
-    if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
+      if (snapshot) canvas.loadFromJSON({ objects: snapshot.objects });
 
-    await setCanvasBackground({
-      file: screenshot.src,
-      canvas,
-      parentWidth: width,
-      parentHeight: height,
-    });
-  };
+      await setCanvasBackground({
+        file: screenshot.src,
+        canvas,
+        parentWidth: width,
+        parentHeight: height,
+      });
+    },
+    [screenshot?.id, screenshot?.src],
+  );
 
-  const undo = async () => {
+  const undo = useCallback(async () => {
     const history = await undoAnnotation(screenshot.id!);
 
     if (history?.prevState && fabricRef.current) {
@@ -193,9 +194,9 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
       await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
-  };
+  }, [screenshot?.id, restoreObjects]);
 
-  const redo = async () => {
+  const redo = useCallback(async () => {
     const history = await redoAnnotation(screenshot.id!);
 
     if (history?.restoredState && fabricRef.current) {
@@ -207,7 +208,7 @@ const CanvasContainerView = ({ screenshot, onElement }: CanvasContainerProps) =>
 
       await annotationsStorage.setAnnotations(screenshot.id!, { objects: canvasObjects.objects ?? [] });
     }
-  };
+  }, [screenshot?.id, restoreObjects]);
 
   /**
    * deleteShapeFromStorage is a mutation that deletes a shape from the
