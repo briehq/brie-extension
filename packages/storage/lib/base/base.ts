@@ -100,8 +100,6 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
     return deserialize(value[key] as string) ?? fallback;
   };
 
-  // Coalesce a burst of set() calls into a single listener notification per microtask. Multiple
-  // synchronous mutations now produce one re-render cycle instead of N.
   let notifyScheduled = false;
   const _emitChange = () => {
     if (notifyScheduled) return;
@@ -115,8 +113,6 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
   const set = async (valueOrUpdate: ValueOrUpdate<D>) => {
     if (!initedCache) {
       cache = await get();
-      // Mark the cache initialised so subsequent set() calls don't each issue a redundant
-      // chrome.storage.get when the initial get().then() at module load hasn't resolved yet.
       initedCache = true;
     }
     cache = await updateCache(valueOrUpdate, cache);
@@ -138,9 +134,6 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
   };
 
   get().then(data => {
-    // Guard against a set() that ran during the cold-start window and already wrote a value.
-    // Without this check, the stale get() result would clobber the in-memory cache, leaving
-    // React consumers showing the pre-write value until the next set() or liveUpdate fires.
     if (initedCache) return;
     cache = data;
     initedCache = true;

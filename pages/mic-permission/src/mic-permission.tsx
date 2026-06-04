@@ -14,12 +14,10 @@ export const MicPermission = () => {
   const requestInFlightRef = useRef(false);
 
   const requestPermission = useCallback(async () => {
-    // In-flight guard: rapid Try-Again clicks could race two requestPermission() invocations
-    // and end up scheduling two window.close() timers — one would fire orphaned.
+    // Rapid Try-Again clicks could schedule two window.close() timers; one would fire orphaned.
     if (requestInFlightRef.current) return;
     requestInFlightRef.current = true;
 
-    // Cancel a pending auto-close from a previous completed attempt before starting a new one.
     if (autoCloseTimerRef.current !== null) {
       clearTimeout(autoCloseTimerRef.current);
       autoCloseTimerRef.current = null;
@@ -28,8 +26,6 @@ export const MicPermission = () => {
     setState('requesting');
 
     try {
-      // Pre-flight: if the browser already says permission is granted, skip the getUserMedia call
-      // entirely so we don't reacquire a hardware track just to immediately stop it.
       try {
         const status = await navigator.permissions?.query({ name: 'microphone' as PermissionName });
         if (status?.state === 'granted') {
@@ -39,8 +35,7 @@ export const MicPermission = () => {
           return;
         }
       } catch {
-        // navigator.permissions or the 'microphone' name may be unsupported (older Firefox);
-        // fall through to the regular getUserMedia path.
+        // navigator.permissions / 'microphone' name unsupported on older Firefox; fall through.
       }
 
       try {
@@ -58,7 +53,6 @@ export const MicPermission = () => {
         }
       }
     } finally {
-      // Clears on every exit path including the early return from the pre-flight branch.
       requestInFlightRef.current = false;
     }
   }, []);
@@ -67,7 +61,6 @@ export const MicPermission = () => {
     requestPermission();
 
     return () => {
-      // Clear any pending auto-close on unmount so it can't race a stale window reference.
       if (autoCloseTimerRef.current !== null) {
         clearTimeout(autoCloseTimerRef.current);
         autoCloseTimerRef.current = null;

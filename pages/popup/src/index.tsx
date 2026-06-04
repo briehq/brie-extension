@@ -16,9 +16,6 @@ const init = () => {
   }
   const root = createRoot(appContainer);
 
-  // Hoisted out of <Popup/> so the Redux provider doesn't sit inside the theme-reactive render
-  // path. Theme changes triggered a re-render of Popup which previously rerendered ReduxProvider
-  // and every descendant.
   root.render(
     <ReduxProvider store={store}>
       <Popup />

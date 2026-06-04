@@ -45,9 +45,8 @@ export const interceptXHR = (): void => {
       this._requestDetails.requestBody = body || null;
     }
 
-    // Use addEventListener instead of replacing this.onreadystatechange. The previous code captured
-    // the page's handler at .send() time and re-invoked it after our work, but any code that
-    // assigns xhr.onreadystatechange AFTER calling .send() would be silently lost.
+    // Use addEventListener instead of replacing this.onreadystatechange — otherwise any handler
+    // the page assigns to xhr.onreadystatechange AFTER calling .send() is silently dropped.
     const onReadyStateChange = function (this: ExtendedXMLHttpRequest): void {
       if (this.readyState === 4 && this._requestDetails) {
         // Request completed

@@ -95,8 +95,6 @@ export default withPageConfig({
   publicDir: resolve(rootDir, 'public'),
   plugins: [selfContainedEntriesPlugin(), IS_DEV && makeEntryPointPlugin()],
   build: {
-    // selfContainedEntriesPlugin runs in `generateBundle` BEFORE the minifier — by then all imports
-    // have been inlined and the regex matching is already done, so production minify is safe.
     rollupOptions: {
       input: {
         index: resolve(rootDir, 'src/index.ts'),

@@ -1,5 +1,3 @@
-// Pre-compile a single case-insensitive regex per list — keyMatches runs on every key of every
-// network record, so the per-call `new RegExp(...)` cost was multiplied across thousands of calls.
 const buildListRegex = (list: string[]): RegExp =>
   new RegExp(`(^|[^a-z0-9])(?:${list.map(s => s.replace(/_/g, '[_-]?')).join('|')})([^a-z0-9]|$)`, 'i');
 

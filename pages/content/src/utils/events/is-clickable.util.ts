@@ -16,9 +16,6 @@ export const isClickable = (el: Element | null): boolean => {
 
   if (role && ['button', 'link', 'menuitem', 'tab', 'option', 'switch'].includes(role)) return true;
 
-  // Inline handlers: any element with an `onclick` is treated as clickable.
-  // Previously a `cursor: pointer` check via getComputedStyle gated this, but the recalc cost on
-  // every click event was too high — accept slightly broader matching instead.
   if (typeof (el as unknown as { onclick?: unknown }).onclick === 'function') return true;
 
   return false;

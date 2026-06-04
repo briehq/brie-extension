@@ -29,8 +29,7 @@ type HealthCache = { ok: boolean; checkedAt: number };
 const fetchHealth = async (signal: AbortSignal): Promise<boolean> => {
   if (!API_BASE_URL) return false;
 
-  // The outer controller aborts on component unmount / new run; this inner controller adds a
-  // bounded timeout so a hung network call doesn't strand the user on `api_unavailable` forever.
+  // Inner controller adds a bounded timeout so a hung request doesn't strand the user.
   const timeoutController = new AbortController();
   const timeoutId = setTimeout(() => timeoutController.abort(), HEALTH_FETCH_TIMEOUT_MS);
   const onParentAbort = () => timeoutController.abort();
@@ -86,8 +85,6 @@ const useAuthState = (): AuthState => {
 
   const { data: user, isLoading, isError, error } = useGetUserDetailsQuery(undefined, { skip: skipUserQuery });
 
-  // Health check on mount + retry. Uses chrome.storage.session as a 30s SWR cache so reopening the
-  // popup doesn't gate first paint on a network round-trip.
   const runHealthCheck = useCallback(async (options?: { skipCache?: boolean }) => {
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -98,8 +95,6 @@ const useAuthState = (): AuthState => {
     if (controller.signal.aborted) return;
 
     if (cached) {
-      // Render immediately from cache, then revalidate in the background. Surfaces stale failure
-      // states via revalidation rather than blocking.
       if (cached.ok) {
         setHealthPassed(true);
       } else {
@@ -131,7 +126,6 @@ const useAuthState = (): AuthState => {
     };
   }, [runHealthCheck]);
 
-  // Derive phase from health + tokens + query state
   useEffect(() => {
     if (!healthPassed) return;
 
@@ -140,7 +134,6 @@ const useAuthState = (): AuthState => {
       return;
     }
 
-    // Waiting for initial user fetch
     if (isLoading) {
       setPhase('checking_auth');
       return;
@@ -167,7 +160,6 @@ const useAuthState = (): AuthState => {
   }, [healthPassed, hasTokens, isLoading, isError, error, user]);
 
   const retry = useCallback(() => {
-    // User-initiated retry bypasses cache.
     runHealthCheck({ skipCache: true });
   }, [runHealthCheck]);
 

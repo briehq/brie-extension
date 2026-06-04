@@ -16,7 +16,6 @@ let dimensionLabel: HTMLDivElement;
 let message: HTMLDivElement | null = null;
 let loadingMessage: HTMLDivElement | null = null;
 
-// Named handler refs so cleanup() can actually removeEventListener.
 let selectionMouseUpHandler: ((e: MouseEvent) => void) | null = null;
 let selectionTouchEndHandler: ((e: TouchEvent) => void) | null = null;
 
@@ -233,9 +232,6 @@ const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
 const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
   if ('button' in e && e.button !== 0) return; // Only respond to left-click
 
-  // If a previous selection's handlers are still registered (e.g. user re-triggers screenshot
-  // before completing the first one), remove them before installing new ones. Otherwise the
-  // module-level refs get overwritten and the old listeners leak.
   if (selectionMouseUpHandler) {
     document.removeEventListener('mouseup', selectionMouseUpHandler);
     selectionMouseUpHandler = null;
@@ -259,8 +255,6 @@ const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') =>
   createSelectionBox();
   createDimensionLabel();
 
-  // updateSelectionBox does not call preventDefault, so passive: true preserves the browser's
-  // scroll-optimisation fast path. Named refs let cleanup() actually remove the up/end listeners.
   selectionMouseUpHandler = (ev: MouseEvent) => onMouseUp(ev, mode);
   selectionTouchEndHandler = (ev: TouchEvent) => onTouchEnd(ev, mode);
 

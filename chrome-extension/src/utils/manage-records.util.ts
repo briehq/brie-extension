@@ -7,21 +7,17 @@ import type { Record } from '@src/types';
 
 import { decodeRequestBody } from './decode-request-body.util';
 
-// Cache the skip list in memory. Refreshed via storage.subscribe so the cost is paid once per change,
-// not once per webRequest event (which fires hundreds of times per page load).
 let skipDomainsCache: string[] = [];
 
 const refreshSkipDomainsFromSnapshot = () => {
   skipDomainsCache = domainSkipListStorage.getSnapshot() ?? [];
 };
 
-// Prime the cache once, then keep it in sync via the storage subscriber (cheap, no async).
 void domainSkipListStorage.get().then(value => {
   skipDomainsCache = value ?? [];
 });
 domainSkipListStorage.subscribe(refreshSkipDomainsFromSnapshot);
 
-// Cap per-tab record count so a long browsing session can't grow the SW heap without bound.
 const MAX_RECORDS_PER_TAB = 5_000;
 const MAX_URL_MAP_PER_TAB = 1_000;
 
@@ -71,9 +67,6 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     return;
   }
 
-  // Use the in-memory skip list cache populated by domainSkipListStorage.subscribe.
-  // First call during SW boot may race the initial load and read [] — acceptable: redaction
-  // simply runs as if no domains were skip-listed for the first few requests.
   const skipDomains = skipDomainsCache;
   const tabUrl = record?.url || record?.pageUrl;
 
@@ -85,9 +78,6 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
 
   const uuid = uuidv4();
 
-  // Drop the oldest entry once we know we'd otherwise grow the map (i.e. this is a brand-new
-  // insertion, not a merge into an existing recordKey). Eviction is performed inline at each
-  // insert site below so we never delete a key we're about to merge into.
   const evictOldestIfFull = () => {
     if (recordsMap.size >= MAX_RECORDS_PER_TAB) {
       const oldestKey = recordsMap.keys().next().value;
@@ -113,7 +103,6 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     let finalRequestId = requestId;
 
     if (type === 'xmlhttprequest' && requestId) {
-      // Bound the per-tab URL→requestId map (Map preserves insertion order, so this drops the oldest entry).
       if (urlMap.size >= MAX_URL_MAP_PER_TAB) {
         const oldestKey = urlMap.keys().next().value;
         if (oldestKey !== undefined) urlMap.delete(oldestKey);

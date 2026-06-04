@@ -61,8 +61,6 @@ export const PopupContent = ({
   }, [totalSlicesCreatedToday, user?.authMethod, activeTab.id]);
 
   useEffect(() => {
-    // Fire the storage read and tab query in parallel — previously the active-tab URL would only
-    // arrive after a second async tick, causing flicker between guards (internal page, unsaved-tab).
     const initializeState = async () => {
       const tab = await getActiveTab();
       setActiveTab(prev => ({

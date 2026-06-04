@@ -15,11 +15,6 @@ type AnnotationsContextValue = {
 
 const AnnotationsContext = createContext<AnnotationsContextValue | null>(null);
 
-/**
- * Subscribes to the three annotation storages once and shares the result via context. Previous
- * implementation had Header, CanvasWrapper, and LeftSidebar each calling useStorage on the same
- * three storages, producing 3x listener calls + 3x re-render cycles per annotation write.
- */
 export const AnnotationsProvider = ({ children }: PropsWithChildren) => {
   const annotations = useStorage(annotationsStorage);
   const historyAnnotations = useStorage(annotationsHistoryStorage);

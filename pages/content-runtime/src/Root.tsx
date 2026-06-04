@@ -9,18 +9,14 @@ const ROOT_ID = 'brie-runtime-root';
 let activeRoot: Root | null = null;
 
 export const mount = () => {
-  // Re-injection guard: if a previous mount() call already added the host element, do nothing.
-  // Without this, repeat injection (e.g. retry, SPA navigation) would create a second React tree
-  // and orphan the first — its event listeners, closures, and storage subscriptions all leak.
   if (document.getElementById(ROOT_ID)) return;
 
-  // SPA edge case: a previous activeRoot exists but its host element was nuked by a router that
-  // replaced document.body. Tear the old root down before creating a new one so we don't leak.
+  // SPA routers can replace document.body and detach our host element without unmounting React.
   if (activeRoot) {
     try {
       activeRoot.unmount();
     } catch {
-      // Best-effort; root may already be invalid.
+      // Root may already be invalid.
     }
     activeRoot = null;
   }
@@ -43,7 +39,6 @@ export const mount = () => {
      * Injecting styles into the document, this may cause style conflicts with the host page
      */
     const styleElement = document.createElement('style');
-    // Bundled CSS string from Vite's ?inline import — not untrusted input.
     styleElement.textContent = injectedStyle;
     shadowRoot.appendChild(styleElement);
   } else {
