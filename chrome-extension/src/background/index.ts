@@ -22,10 +22,6 @@ runtime.onInstalled.addListener(handleOnInstalled);
 contextMenus.onClicked.addListener(handleOnContextMenuClicked);
 
 /**
- * Skip high-volume, low-signal types (images, fonts, media, ping, csp_report, other) — these
- * compounded the cost of every redaction pass without producing useful bug-capture data. Scripts
- * and stylesheets are kept so broken-asset 4xx/5xx errors are still reported.
- *
  * @todo
  * there is a scenario when tabId is -1,
  * but we know the requestId and we can use it to populate the right request data

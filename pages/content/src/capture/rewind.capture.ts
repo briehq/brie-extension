@@ -153,9 +153,6 @@ export const startRewindCapture = (): void => {
   if (!isRewindGloballyEnabled || !isCaptureAllowedForUrl) return;
   if (rrwebStopFunction) return;
 
-  // Stylesheet inlining and font collection serialize the entire page CSS / @font-face graph
-  // into the initial snapshot — megabytes on sites with large frameworks. Default to off and
-  // only enable when the user explicitly turned on rewind globally.
   rrwebStopFunction =
     record({
       emit: enqueueEvent,
@@ -213,14 +210,6 @@ export const restartRewindCapture = async (): Promise<{ ok: boolean; reason?: st
   return { ok: true };
 };
 
-/**
- * Detect SPA URL changes without polling.
- *
- * `historyApiInterceptor` (in interceptors/events/history.interceptor.ts) already monkey-patches
- * pushState/replaceState and dispatches `brie:url-changed` on every transition. We subscribe to
- * that broadcast plus `hashchange` (which the events interceptor does not handle) — no second
- * patch on history.* avoids stacking wrappers if either module is re-evaluated.
- */
 const startUrlWatcher = (): void => {
   const checkUrl = () => {
     const currentUrl = window.location.href;
@@ -239,9 +228,6 @@ const bootstrap = async (): Promise<void> => {
   startUrlWatcher();
 };
 
-// Defer bootstrap off the critical path. rewindSettingsStorage.isRewindEnabled() is async and
-// computeCapturePolicy() reads more storage; running this at idle keeps the host page's first
-// paint clean. Worst case: rrweb misses the earliest few events (acceptable — bootstrap is fast).
 const scheduleBootstrap = (): void => {
   type RIC = (cb: () => void, opts?: { timeout?: number }) => number;
   const ric = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback;

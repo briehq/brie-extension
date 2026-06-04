@@ -84,7 +84,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
  * @param event - Mouse click event.
  */
 const handleOnCustomSelectClick = (event: MouseEvent) => {
-  // pathTouchesExtension early-exit is handled once in handleAllClicks.
   const target = deepTarget(event);
 
   if (!target) return;
@@ -113,7 +112,6 @@ const handleOnCustomSelectClick = (event: MouseEvent) => {
  * @param event - Mouse click event.
  */
 const handleOnClick = (event: MouseEvent) => {
-  // pathTouchesExtension early-exit is handled once in handleAllClicks.
   const ep = document.elementFromPoint(event.clientX, event.clientY);
   const hitTarget = ep instanceof Element ? ep : deepTarget(event);
 
@@ -144,7 +142,6 @@ const handleOnClick = (event: MouseEvent) => {
  * Emits a single InputChange with inferred checked state.
  */
 const handleOnAriaToggleClick = (event: MouseEvent) => {
-  // pathTouchesExtension early-exit is handled once in handleAllClicks.
   const t = deepTarget(event);
   if (!(t instanceof HTMLElement)) return;
 
@@ -365,11 +362,8 @@ const createResizeOncePerActivity = (idleMs = 1000): ResizeHandler => {
 let eventsInterceptorRegistered = false;
 
 const handleAllClicks = (event: MouseEvent) => {
-  // Single early-exit on the extension-overlay path so all three handlers don't pay it independently.
   if (pathTouchesExtension(event)) return;
-  // Each handler is independently wrapped so a throw in one doesn't silently drop the others.
-  // Previously these were 3 separate addEventListener registrations — an exception in one had no
-  // effect on the others; the merged-listener refactor must preserve that behaviour.
+  // Each handler is independently wrapped so a throw in one doesn't drop the others.
   try {
     handleOnClick(event);
   } catch (err) {
@@ -422,7 +416,6 @@ export const interceptEvents = () => {
   // Inputs / selects changes
   document.addEventListener('change', e => handleOnValueChange(e, 'change'), { capture: true });
 
-  // Clicks, custom selects, and ARIA toggles share path/target derivation — merge into one listener.
   document.addEventListener('click', handleAllClicks, { capture: true });
 
   // Keyboard

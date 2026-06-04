@@ -43,7 +43,6 @@ import {
 interface CanvasContainerProps {
   screenshot: Screenshot;
   onElement: (elem: ActiveElement) => void;
-  /** Provided by parent so this view doesn't double-subscribe to captureStateStorage. */
   captureState: 'idle' | 'preparing' | 'capturing' | 'paused' | 'error' | 'unsaved';
 }
 
@@ -156,8 +155,6 @@ const CanvasContainerView = ({ screenshot, onElement, captureState }: CanvasCont
    * useUndo and useRedo are hooks provided by local store that allow you to
    * undo and redo mutations.
    */
-  // Stable refs so handleActiveElement (and the Toolbar memo downstream) doesn't re-create on
-  // every render. Without these, the canvas-container useCallback chain is defeated.
   const restoreObjects = useCallback(
     async (canvas: any, snapshot?: { objects?: any[] }) => {
       const { meta } = (await annotationsStorage.getAnnotations(screenshot.id!)) ?? {};
@@ -623,11 +620,6 @@ const CanvasContainerView = ({ screenshot, onElement, captureState }: CanvasCont
       // });
     });
 
-    /**
-     * Named handler refs so removeEventListener actually matches the addEventListener registration —
-     * previously inline arrows produced different function references and removal was a no-op,
-     * leaking handlers on every screenshot change.
-     */
     const onWindowResize = () => {
       handleResize({
         canvas: fabricRef.current,

@@ -1,11 +1,7 @@
 import { AppEventType } from '@src/constants';
 import { sendEvent } from '@src/utils';
 
-/**
- * Custom event broadcast on every SPA URL transition (pushState / replaceState / popstate).
- * Other modules (e.g. rewind URL policy) can listen here instead of stacking their own
- * history.* monkey-patches on top of ours.
- */
+/** Dispatched on every SPA URL transition (pushState / replaceState / popstate). */
 const BRIE_URL_CHANGED_EVENT = 'brie:url-changed';
 
 let historyInterceptorInstalled = false;

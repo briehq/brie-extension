@@ -1,12 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
 /**
- * Playwright config focused on extension-injection tests.
- *
  * MV3 extensions require persistent-context Chromium, which doesn't compose with Playwright's
- * standard `page` fixture — each spec creates its own context. Workers are forced to 1 so a
- * single shared user-data-dir is used per run (concurrent persistent contexts conflict on the
- * same profile path).
+ * standard `page` fixture — each spec creates its own context. `workers: 1` because concurrent
+ * persistent contexts conflict on the same user-data-dir path.
  */
 export default defineConfig({
   testDir: '.',

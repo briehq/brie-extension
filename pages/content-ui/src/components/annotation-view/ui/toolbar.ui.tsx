@@ -126,7 +126,4 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
   );
 };
 
-// Use React.memo's default shallow comparison: the previous custom comparator only checked
-// activeElement, so changes to onExport / onActiveElement (passed as plain inline functions from
-// the parent) were silently ignored — the toolbar could render with stale closure references.
 export default memo(Toolbar);

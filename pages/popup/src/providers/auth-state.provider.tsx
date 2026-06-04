@@ -9,8 +9,6 @@ const AuthStateContext = createContext<AuthState | null>(null);
 export const AuthStateProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const authState = useAuthState();
 
-  // Memoize the context value so consumers don't re-render on every Provider render — only when
-  // one of phase / user / retry actually changes.
   const value = useMemo(
     () => authState,
     // eslint-disable-next-line react-hooks/exhaustive-deps

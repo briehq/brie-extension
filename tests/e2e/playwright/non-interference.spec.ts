@@ -9,21 +9,10 @@ import type { BrowserContext } from '@playwright/test';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Verifies the extension (a) reaches the target page and (b) doesn't break it.
+ * Chromium only — Firefox's `firefox.launchPersistentContext` does not support `--load-extension`;
+ * Firefox extension testing needs web-ext / Marionette and is intentionally not wired into this spec.
  *
- * Chromium only — Firefox's `firefox.launchPersistentContext` does not support `--load-extension`.
- * Firefox extension testing requires an entirely different path (web-ext run / Marionette protocol)
- * and is intentionally not wired into this spec.
- *
- * Usage:
- *   TARGET_URL=https://your-site.com pnpm test:site
- *
- * Defaults to example.com so the spec stays self-contained for CI.
- *
- * Why Playwright instead of WebdriverIO: chromedriver in Chrome 130+ silently drops
- * --load-extension and the `extensions` capability for MV3 extensions, so wdio specs run
- * against a host page with no extension injected. Playwright's launchPersistentContext path
- * loads MV3 extensions correctly.
+ * Usage: TARGET_URL=https://your-site.com pnpm test:site (defaults to example.com).
  */
 
 const TARGET_URL = process.env.TARGET_URL ?? 'https://www.example.com';

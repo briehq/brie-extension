@@ -50,7 +50,6 @@ interface ContentProps {
   screenshots: Screenshot[];
   video?: VideoSource;
   events?: eventWithTime[] | null;
-  /** Lifted from App.tsx so CanvasContainerView doesn't double-subscribe to captureStateStorage. */
   captureState: 'idle' | 'preparing' | 'capturing' | 'paused' | 'error' | 'unsaved';
   onClose: () => void;
   onMinimize: () => void;

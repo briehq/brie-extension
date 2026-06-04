@@ -78,8 +78,6 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
   const [deleteSliceByExternalId, { isLoading: isDeleteSliceLoading }] = useDeleteSliceByIdMutation();
   const { isLoading, data: slices } = useGetSlicesQuery({ ...pagination, ...filters });
 
-  // Read totalToday from the same query that powers this list — no need for the parallel
-  // useGetSlicesQuery({ limit: 1, take: 10 }) call in useSlicesCreatedToday when we're on this view.
   const totalSlicesCreatedToday = slices?.totalToday ?? 0;
 
   const onDelete = useCallback(
@@ -136,9 +134,7 @@ export const SlicesHistoryContent = ({ onBack }: { onBack: () => void }) => {
                 isDeleteLoading={isDeleteSliceLoading}
                 onDelete={onDelete}
               />
-              {/* Visible-list separator: use items.length, not slices.total (which counts the full
-                  dataset, not just this page). Previously rendered a trailing separator on every
-                  page except the very last one of the entire dataset. */}
+              {/* slices.total is the full dataset count, not this page — use items.length. */}
               {idx !== slices.items.length - 1 && <Separator className="h-px bg-gray-900/5 dark:bg-gray-800" />}
             </Fragment>
           ))}

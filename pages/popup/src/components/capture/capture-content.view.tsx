@@ -32,7 +32,6 @@ import { CaptureScreenshotView, CaptureSessionView, RecordVideoView } from './vi
 
 type CaptureContentViewProps = {
   onActiveTabChange: (id: number | null) => void;
-  /** Provided by parent so we don't double-subscribe to captureStateStorage. */
   captureState: CaptureState;
 };
 
@@ -254,6 +253,4 @@ const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureCon
   );
 };
 
-// Memoized so a parent re-render that produces the same captureState/onActiveTabChange refs
-// doesn't cascade through this view. Pair with the stable refs in popup-content.tsx.
 export const CaptureContentView = memo(CaptureContentViewInner);

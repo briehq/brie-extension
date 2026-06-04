@@ -220,8 +220,7 @@ export const handleCanvasMouseMove = ({
     default:
   }
 
-  // requestRenderAll coalesces multiple mouse:move calls into a single rAF tick; renderAll forces
-  // a synchronous immediate paint per call (dozens per second during fast drag).
+  // requestRenderAll coalesces rapid mouse:move events into one rAF tick (renderAll paints sync each call).
   canvas.requestRenderAll();
 
   // sync shape in storage
@@ -387,16 +386,7 @@ export const renderCanvas = async ({ fabricRef, canvasObjects = [], activeObject
     return;
   }
 
-  /**
-   * enlivenObjects() rehydrates serialized objects into Fabric instances. Previously this was
-   * called once per object inside a forEach with an out-of-order `renderAll()` fired before any
-   * promise resolved — the canvas could flicker / show stale state, and each `.then` added objects
-   * one at a time, triggering an incremental paint per object.
-   *
-   * Now: a single enlivenObjects([all]) call, batch-add, single renderAll.
-   *
-   * enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
-   */
+  // enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
   try {
     const enlivenedObjects = await fabricUtil.enlivenObjects<FabricObject>(canvasObjects);
 
