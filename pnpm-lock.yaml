@@ -61,8 +61,8 @@ importers:
         specifier: ^8.28.0
         version: 8.33.1(eslint@9.28.0(jiti@2.7.0))(typescript@5.8.3)
       autoprefixer:
-        specifier: ^10.4.21
-        version: 10.4.21(postcss@8.5.4)
+        specifier: ^10.5.0
+        version: 10.5.0(postcss@8.5.4)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -3257,8 +3257,8 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  autoprefixer@10.4.21:
-    resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
+  autoprefixer@10.5.0:
+    resolution: {integrity: sha512-FMhOoZV4+qR6aTUALKX2rEqGG+oyATvwBt9IIzVR5rMa2HRWPkxf+P+PAJLD1I/H5/II+HuZcBJYEFBpq39ong==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
@@ -3389,11 +3389,6 @@ packages:
   browserify-zlib@0.2.0:
     resolution: {integrity: sha512-Z942RysHXmJrhqk88FmKBVq/v5tqmSkDz7p54G/MGyjMnCFFnC79XWNbg+Vta8W6Wb2qtSZTSxIGkJrRpCFEiA==}
 
-  browserslist@4.24.4:
-    resolution: {integrity: sha512-KDi1Ny1gSePi1vm0q4oxSF8b4DR44GF4BbmS2YdhPLOEqd8pDviZOGH/GsmRwoWJ2+5Lr085X7naowMwKHDG1A==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-
   browserslist@4.28.2:
     resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -3444,9 +3439,6 @@ packages:
   camelcase@6.3.0:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
-
-  caniuse-lite@1.0.30001714:
-    resolution: {integrity: sha512-mtgapdwDLSSBnCI3JokHM7oEQBLxiJKVRtg10AxM1AyeiKcM96f0Mkbqeq+1AbiCtvMcHRulAAEMu693JrSWqg==}
 
   caniuse-lite@1.0.30001793:
     resolution: {integrity: sha512-iwSsYWaCOoh26cV8NwNRViHlrfUvYsHDfRVcbtmw0Kg6PJIZZXwMkj1442FYLBGkeUf1juAsU3DTfxW579mrPA==}
@@ -3878,9 +3870,6 @@ packages:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
     engines: {node: '>=0.10.0'}
     hasBin: true
-
-  electron-to-chromium@1.5.139:
-    resolution: {integrity: sha512-GGnRYOTdN5LYpwbIr0rwP/ZHOQSvAF6TG0LSzp28uCBb9JiXHJGmaaKw29qjNJc5bGnnp6kXJqRnGMQoELwi5w==}
 
   electron-to-chromium@1.5.367:
     resolution: {integrity: sha512-4Mk/mrynCNQ+atY40D3UpmhLWB6AHMbYMlIrPhHcMF6x0L7O0b052FCAsxw1LlaR++UFuNg3D/A6XCuGDa0guQ==}
@@ -4356,8 +4345,8 @@ packages:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
     engines: {node: '>=12.20.0'}
 
-  fraction.js@4.3.7:
-    resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+  fraction.js@5.3.4:
+    resolution: {integrity: sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ==}
 
   fs-minipass@2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
@@ -5238,9 +5227,6 @@ packages:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  node-releases@2.0.19:
-    resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
-
   node-releases@2.0.47:
     resolution: {integrity: sha512-Uzmd6LXpouKo8EUK68IjH4+E01w/hXyV3R3g/geCJo+rXLNfh1xucB+LOzYEOQPSiUK3h/xZf0cQGcSsmyL2Og==}
     engines: {node: '>=18'}
@@ -5260,10 +5246,6 @@ packages:
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
-    engines: {node: '>=0.10.0'}
-
-  normalize-range@0.1.2:
-    resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
 
   npm-run-path@4.0.1:
@@ -6571,12 +6553,6 @@ packages:
 
   unrs-resolver@1.11.1:
     resolution: {integrity: sha512-bSjt9pjaEBnNiGgc9rUiHGKv5l4/TGzDmYw3RhnkJGtLhbnnA/5qJj7x3dNDCRx/PJxu774LlH8lCOlB4hEfKg==}
-
-  update-browserslist-db@1.1.3:
-    resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
-    hasBin: true
-    peerDependencies:
-      browserslist: '>= 4.21.0'
 
   update-browserslist-db@1.2.3:
     resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
@@ -9505,12 +9481,11 @@ snapshots:
   asynckit@0.4.0:
     optional: true
 
-  autoprefixer@10.4.21(postcss@8.5.4):
+  autoprefixer@10.5.0(postcss@8.5.4):
     dependencies:
-      browserslist: 4.24.4
-      caniuse-lite: 1.0.30001714
-      fraction.js: 4.3.7
-      normalize-range: 0.1.2
+      browserslist: 4.28.2
+      caniuse-lite: 1.0.30001793
+      fraction.js: 5.3.4
       picocolors: 1.1.1
       postcss: 8.5.4
       postcss-value-parser: 4.2.0
@@ -9640,13 +9615,6 @@ snapshots:
     dependencies:
       pako: 1.0.11
 
-  browserslist@4.24.4:
-    dependencies:
-      caniuse-lite: 1.0.30001714
-      electron-to-chromium: 1.5.139
-      node-releases: 2.0.19
-      update-browserslist-db: 1.1.3(browserslist@4.24.4)
-
   browserslist@4.28.2:
     dependencies:
       baseline-browser-mapping: 2.10.33
@@ -9697,8 +9665,6 @@ snapshots:
   camelcase-css@2.0.1: {}
 
   camelcase@6.3.0: {}
-
-  caniuse-lite@1.0.30001714: {}
 
   caniuse-lite@1.0.30001793: {}
 
@@ -10172,8 +10138,6 @@ snapshots:
   ejs@3.1.10:
     dependencies:
       jake: 10.9.2
-
-  electron-to-chromium@1.5.139: {}
 
   electron-to-chromium@1.5.367: {}
 
@@ -10898,7 +10862,7 @@ snapshots:
     dependencies:
       fetch-blob: 3.2.0
 
-  fraction.js@4.3.7: {}
+  fraction.js@5.3.4: {}
 
   fs-minipass@2.1.0:
     dependencies:
@@ -11844,8 +11808,6 @@ snapshots:
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
 
-  node-releases@2.0.19: {}
-
   node-releases@2.0.47: {}
 
   node-stdlib-browser@1.3.1:
@@ -11890,8 +11852,6 @@ snapshots:
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
-
-  normalize-range@0.1.2: {}
 
   npm-run-path@4.0.1:
     dependencies:
@@ -13367,12 +13327,6 @@ snapshots:
       '@unrs/resolver-binding-win32-arm64-msvc': 1.11.1
       '@unrs/resolver-binding-win32-ia32-msvc': 1.11.1
       '@unrs/resolver-binding-win32-x64-msvc': 1.11.1
-
-  update-browserslist-db@1.1.3(browserslist@4.24.4):
-    dependencies:
-      browserslist: 4.24.4
-      escalade: 3.2.0
-      picocolors: 1.1.1
 
   update-browserslist-db@1.2.3(browserslist@4.28.2):
     dependencies:
