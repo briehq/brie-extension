@@ -98,3 +98,28 @@ This was disabled because it needs refinement before shipping:
 - `pages/content/src/interceptors/network/fetch.interceptor.ts` — network error capture
 - `packages/storage/` — new storage for error detection settings (domain allowlist)
 - `pages/popup/` — settings UI for enabling/disabling per domain
+
+---
+
+## Deferred dependency upgrades (post refactor/performance)
+
+**Status:** Deferred
+**Priority:** Low
+**Area:** Build / runtime
+
+Three Dependabot PRs against `develop` are intentionally held until after the `refactor/performance` branch is merged. Each is a major version bump that warrants its own focused validation pass, and merging them now would just be more conflict surface for the perf branch to resolve.
+
+### PRs to revisit
+
+| # | Bump | Why deferred |
+|---|---|---|
+| #297 | `@hookform/resolvers` 4.1.3 → 5.4.0 | Major. v5 changes peer-dep expectations around `react-hook-form` and the validation libs (zod/yup/etc.). Need to confirm our `react-hook-form` + `zod` versions still satisfy the new peer ranges before merging. |
+| #300 | `rrweb-player` 1.0.0-alpha.4 → 2.0.0 | Alpha → stable major. We use this in `pages/content-ui/src/components/recording-view/views/rewind-player.view.tsx`. Need to compare the v2 API surface against our current props/event handlers. |
+| #301 | `globals` 15.15.0 → 17.6.0 | Major dev dep. Used by the ESLint flat config (`eslint.config.ts`). v16 changed how Node 18 / browser globals are bundled — flat config may need adjustments. |
+
+### When to pick this up
+
+After `refactor/performance` → `develop` is merged. At that point:
+1. Trigger `@dependabot rebase` on each so they pick up the new lockfile.
+2. Validate each one independently — type-check, build, and the Playwright `test:site` non-interference suite.
+3. For `rrweb-player`, also smoke-test a recording in the dialog editor (play, pause, scrub, trim).
