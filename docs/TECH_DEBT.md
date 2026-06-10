@@ -123,3 +123,33 @@ After `refactor/performance` → `develop` is merged. At that point:
 1. Trigger `@dependabot rebase` on each so they pick up the new lockfile.
 2. Validate each one independently — type-check, build, and the Playwright `test:site` non-interference suite.
 3. For `rrweb-player`, also smoke-test a recording in the dialog editor (play, pause, scrub, trim).
+
+---
+
+## refactor/performance audit — WARNING-tier follow-ups
+
+**Status:** Open
+**Priority:** Low–Medium
+**Area:** Various
+
+The paranoid-review pass against `refactor/performance` flagged 11 WARNING-tier items (non-blocking, but real). Five were classed as worth landing on develop after the perf merge. Each is a small, isolated fix.
+
+### Items
+
+| # | File | Issue | Fix sketch |
+|---|---|---|---|
+| W-1 | `packages/i18n/locales/{es,fil,hi,it,ro,ru,uk}/messages.json` | Missing 4 keys: `noCaptureData`, `emptyResultFallback`, `noStepsFound`, `outputTruncated`. Firefox doesn't fall back to `en` for missing keys — non-EN Firefox users see blank strings. | Copy the EN values into each non-EN locale, or add a runtime `t(key) || t('fallback')` helper. |
+| W-2 | `pages/content-ui/src/index.tsx` | `themeStorage.listenToSystemThemeChanges()` is called at module load with no teardown. Content-ui is the long-lived shadow-DOM app — every re-injection adds another `matchMedia` listener on the same MediaQueryList object. | Capture the returned unsubscribe and call it from a `pagehide` listener (or move into a `useEffect` inside the `<App />` root). |
+| W-3 | `pages/mic-permission/src/mic-permission.tsx` | If the component unmounts during the `getUserMedia` promise, the continuation re-arms the auto-close `setTimeout` and calls `setState('granted')` on an unmounted component. Harmless in practice but unsound. | Add an `isMountedRef = useRef(true)`, set false in the cleanup, gate both `setState` calls and `setTimeout` scheduling behind it. |
+| W-4 | `pages/content/src/capture/screenshot.capture.ts` | `cleanup()` only removes the `updateSelectionBox` listener from `mousemove`/`touchmove`. The `onMouseMove` / `onTouchMove` attached by `showInstructions()` are never removed — they leak on `document` for the page lifetime after ESC/completion. | Add `document.removeEventListener('mousemove', onMouseMove)` and the `touchmove` equivalent inside `cleanup()`. |
+| W-5 | `pages/content-ui/src/utils/annotation/canvas.util.ts` | `renderCanvas` is exported but no call site exercises it. The Phase 6 batched-enliven rewrite was correct but landed in dead code; the stated goal was never realised. | Either wire it into `restoreObjects` / `getSavedAnnotations` (the previous calling pattern), or delete it from the barrel export. |
+
+### When to pick this up
+
+After `refactor/performance` → `develop` merge. None block the merge.
+
+Suggested grouping for follow-up PRs:
+1. W-1 alone — touches 6 locale files, easy review.
+2. W-2 + W-3 — both are "useEffect teardown" patterns.
+3. W-4 — single-file fix.
+4. W-5 — investigation pass to decide wire-in vs delete.
