@@ -1,20 +1,9 @@
-/**
- * Returns the Chrome extension path.
- * @param browser
- * @returns path to the Chrome extension
- */
 export const getChromeExtensionPath = async (browser: WebdriverIO.Browser) => {
   await browser.url('chrome://extensions/');
   /**
-   * https://webdriver.io/docs/extension-testing/web-extensions/#test-popup-modal-in-chrome
-   * ```ts
-   * const extensionItem = await $('extensions-item').getElement();
-   * ```
-   * The above code is not working. I guess it's because the shadow root is not accessible.
-   * So I used the following code to access the shadow root manually.
-   *
-   *  @url https://github.com/webdriverio/webdriverio/issues/13521
-   *  @url https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/issues/786
+   * The documented `$('extensions-item')` selector doesn't resolve because the shadow root
+   * isn't auto-pierced — walk it manually instead.
+   * https://github.com/webdriverio/webdriverio/issues/13521
    */
   const extensionItem = await (async () => {
     const extensionsManager = await $('extensions-manager').getElement();
@@ -31,11 +20,6 @@ export const getChromeExtensionPath = async (browser: WebdriverIO.Browser) => {
   return `chrome-extension://${extensionId}`;
 };
 
-/**
- * Returns the Firefox extension path.
- * @param browser
- * @returns path to the Firefox extension
- */
 export const getFirefoxExtensionPath = async (browser: WebdriverIO.Browser) => {
   await browser.url('about:debugging#/runtime/this-firefox');
   const uuidElement = await browser.$('//dt[contains(text(), "Internal UUID")]/following-sibling::dd').getElement();

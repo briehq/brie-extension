@@ -7,29 +7,23 @@ import { CreateDropdown, EditableTitle, WorkspacesDropdown } from '@src/componen
 import { useAnnotationActionAvailability } from '@src/providers';
 
 interface EditorHeaderProps {
-  /** active screenshot id */
   id: string;
 
-  /** window controls */
   onClose: () => void;
   onMinimize?: () => void;
   onToggleFullScreen: () => void;
   isFullScreen?: boolean;
 
-  /** title */
   title: string;
   onTitleChange: (val: string) => void;
 
-  /** undo / redo / start over */
   onUndo: () => void;
   onRedo: () => void;
   onStartOver: () => void;
 
-  /** canvas size read-out */
   canvasWidth: number;
   canvasHeight: number;
 
-  /** workspace & create dropdowns */
   onWorkspaceChange: (id: string) => void;
   createActions: CreateAction[];
   activeCreateAction: CreateAction;

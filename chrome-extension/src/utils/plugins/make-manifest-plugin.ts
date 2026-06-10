@@ -46,7 +46,7 @@ const addRefreshContentScript = (manifest: ManifestType) => {
   manifest.content_scripts = manifest.content_scripts || [];
   manifest.content_scripts.push({
     matches: ['http://*/*', 'https://*/*', '<all_urls>'],
-    js: ['refresh.js'], // for public's HMR(refresh) support
+    js: ['refresh.js'],
   });
 };
 

@@ -56,8 +56,7 @@ const flushPendingEvents = (): void => {
       t0: Date.now(),
     });
   } catch {
-    // If sending fails, we already popped the batch.
-    // If you want *zero loss*, keep a retry buffer here.
+    //
   } finally {
     clearFlushTimer();
   }
@@ -69,7 +68,6 @@ const scheduleFlush = (): void => {
 };
 
 const stopCaptureInternal = (): void => {
-  // CRITICAL: flush what we have before clearing
   flushPendingEvents();
 
   if (!rrwebStopFunction) {
@@ -82,7 +80,7 @@ const stopCaptureInternal = (): void => {
     rrwebStopFunction();
   } finally {
     rrwebStopFunction = null;
-    flushPendingEvents(); // flush anything enqueued during stop
+    flushPendingEvents();
     pendingEvents.length = 0;
     clearFlushTimer();
   }
@@ -135,7 +133,7 @@ const enqueueEvent = (eventPayload: unknown): void => {
 
   const rrwebType = getEventType(eventPayload);
 
-  // CRITICAL: never delay META or FULL SNAPSHOT. Flush immediately.
+  // rrweb META and FULL_SNAPSHOT must never be delayed — without them, the replay can't bootstrap.
   if (rrwebType === RRWEB_META_EVENT_TYPE || rrwebType === RRWEB_FULL_SNAPSHOT_EVENT_TYPE) {
     flushPendingEvents();
     return;
@@ -198,7 +196,6 @@ export const applyEnabledState = async (enabled: boolean): Promise<void> => {
 };
 
 export const restartRewindCapture = async (): Promise<{ ok: boolean; reason?: string }> => {
-  // Force a new session boundary
   stopCaptureInternal();
 
   const url = window.location.href;

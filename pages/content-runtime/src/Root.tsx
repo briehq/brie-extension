@@ -16,7 +16,7 @@ export const mount = () => {
     try {
       activeRoot.unmount();
     } catch {
-      // Root may already be invalid.
+      //
     }
     activeRoot = null;
   }

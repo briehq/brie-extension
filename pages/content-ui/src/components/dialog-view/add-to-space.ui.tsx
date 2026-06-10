@@ -89,7 +89,6 @@ export const AddToSpace = ({ workspaceId, onChange }: { workspaceId: string; onC
           </div>
 
           <span>{t('createSpace')}</span>
-          {/* <DropdownMenuShortcut>⇧⌘W</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

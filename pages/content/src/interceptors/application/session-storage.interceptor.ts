@@ -1,13 +1,12 @@
 import { RECORD, safePostMessage } from '@extension/shared';
 
-// Get all sessionStorage data
 export const interceptSessionStorage = () => {
   const timestamp = Date.now();
   const sessionStorageData = [];
 
   for (let i = 0; i < sessionStorage.length; i++) {
     const key = sessionStorage.key(i);
-    if (!key) continue; // Skip null keys
+    if (!key) continue;
 
     const value = sessionStorage.getItem(key);
     sessionStorageData.push({

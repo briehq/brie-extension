@@ -1,6 +1,3 @@
-/**
- * Heuristic to detect whether device emulation mode is likely active.
- */
 export const isLikelyEmulated = (): boolean => {
   const dpr = window.devicePixelRatio;
   const ua = navigator.userAgent;
@@ -16,12 +13,6 @@ export const isLikelyEmulated = (): boolean => {
   return spoofedTouch || suspiciousDesktopUA || suspiciousZoomOrDPR || emulatedButLooksReal;
 };
 
-/**
- * Attempts to detect if DevTools is open by comparing outer and inner window sizes.
- * Useful in combination with `isLikelyEmulated()` to infer responsive testing.
- *
- * @returns Boolean indicating whether DevTools is likely open
- */
 export const isDevToolsOpen = (): boolean => {
   const widthDiff = window.outerWidth - window.innerWidth;
   const heightDiff = window.outerHeight - window.innerHeight;

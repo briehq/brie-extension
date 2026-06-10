@@ -1,4 +1,3 @@
-/** Return trimmed text (bounded), ignoring excessive whitespace. */
 export const readText = (el: Element | null, max = 120): string | null => {
   if (!el) return null;
   const txt = ((el as HTMLElement).innerText || el.textContent || '').replace(/\s+/g, ' ').trim();

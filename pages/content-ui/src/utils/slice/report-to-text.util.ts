@@ -1,8 +1,5 @@
 export const reportToText = (report: any): string => {
   const lines: string[] = [];
-  //   lines.push(`${report.title} [${report.severity}]`);
-  //   lines.push(report.summary);
-  //   lines.push('');
 
   if (report.steps?.length) {
     lines.push('Steps to Reproduce:');

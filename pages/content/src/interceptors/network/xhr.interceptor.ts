@@ -2,7 +2,6 @@ import { RECORD, safePostMessage } from '@extension/shared';
 
 import { redactHeaderValue, redactSensitiveBodyKeys } from './redact.util.js';
 
-// Define interfaces for request details and payload
 interface RequestDetails {
   method: string;
   url: string;
@@ -10,17 +9,14 @@ interface RequestDetails {
   requestBody: Document | XMLHttpRequestBodyInit | null;
 }
 
-// Extend the XMLHttpRequest type to include custom properties
 interface ExtendedXMLHttpRequest extends XMLHttpRequest {
   _requestDetails?: RequestDetails;
 }
 
-// XMLHttpRequest Interceptor
 export const interceptXHR = (): void => {
   const originalOpen = XMLHttpRequest.prototype.open;
   const originalSend = XMLHttpRequest.prototype.send;
 
-  // Intercept XMLHttpRequest open method
   XMLHttpRequest.prototype.open = function (
     this: ExtendedXMLHttpRequest,
     method: string,
@@ -36,7 +32,6 @@ export const interceptXHR = (): void => {
     originalOpen.apply(this, [method, url, ...rest] as Parameters<XMLHttpRequest['open']>);
   };
 
-  // Intercept XMLHttpRequest send method
   XMLHttpRequest.prototype.send = function (
     this: ExtendedXMLHttpRequest,
     body?: Document | XMLHttpRequestBodyInit | null,
@@ -49,7 +44,6 @@ export const interceptXHR = (): void => {
     // the page assigns to xhr.onreadystatechange AFTER calling .send() is silently dropped.
     const onReadyStateChange = function (this: ExtendedXMLHttpRequest): void {
       if (this.readyState === 4 && this._requestDetails) {
-        // Request completed
         const endTime = new Date().toISOString();
         const rawHeaders = this.getAllResponseHeaders();
         const responseHeaders = rawHeaders
@@ -63,21 +57,18 @@ export const interceptXHR = (): void => {
 
         const requestBody = redactSensitiveBodyKeys(this._requestDetails.requestBody);
 
-        // Check for large or binary content (skip cloning and parsing for binary data)
         const contentType = this.getResponseHeader('Content-Type');
         const isBinary =
           contentType?.includes('application/octet-stream') ||
           contentType?.includes('image') ||
           contentType?.includes('audio');
         const isLargeResponse =
-          this.getResponseHeader('Content-Length') && parseInt(this.getResponseHeader('Content-Length')!, 10) > 1000000; // Arbitrary 1MB size limit
+          this.getResponseHeader('Content-Length') && parseInt(this.getResponseHeader('Content-Length')!, 10) > 1000000;
 
         let responseBody: string;
         if (isBinary || isLargeResponse) {
-          // Don't clone large or binary responses
           responseBody = 'BRIE: Binary or Large content - Unable to display';
         } else {
-          // Parse the response as JSON or text for non-binary/small responses
           try {
             responseBody = this.responseText || 'BRIE: No response body';
           } catch (error) {
@@ -86,7 +77,6 @@ export const interceptXHR = (): void => {
           }
         }
 
-        // Ensure message posting is supported
         try {
           if (typeof window !== 'undefined') {
             const timestamp = Date.now();

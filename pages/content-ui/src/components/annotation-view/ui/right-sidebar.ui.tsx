@@ -172,7 +172,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       let msg = serverMsg ?? (err?.message === 'EMPTY_STEPS' ? t('noStepsFound') : undefined) ?? t('unexpectedError');
 
       if (code === 'OUTPUT_TRUNCATED') {
-        msg = t('outputTruncated'); // "The generated text was cut off. Try with fewer steps."
+        msg = t('outputTruncated');
       } else if (code === 'NO_CAPTURE_DATA') {
         msg = t('noCaptureData');
       }
@@ -462,8 +462,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   )}
                 />
               </div>
-
-              {/* <GenerateDropdown isLoading={isLoading} onGenerate={handleOnGenerate} /> */}
             </div>
           </form>
         </Form>

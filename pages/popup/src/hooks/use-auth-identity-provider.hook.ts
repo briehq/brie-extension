@@ -5,25 +5,12 @@ import { AUTH, useStorage } from '@extension/shared';
 import { authIdentityProviderStorage } from '@extension/storage';
 import type { AuthIdentityProviderStorage as AuthFlowState } from '@extension/storage';
 
-/**
- * Hook that launches the “continue with [auth-provider]” flow
- * and stores the resulting access / refresh tokens.
- *
- * @returns An object with:
- *   • `register()` – call to start the flow
- *   • `isLoading`  – `true` while the browser window is open
- *   • `error`      – any error thrown during the flow
- */
 export const useAuthIdentityProvider = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const authFlow = useStorage(authIdentityProviderStorage);
   const setAuthFlow = useCallback((state: AuthFlowState | null) => authIdentityProviderStorage.set(state), []);
 
-  /**
-   * Launches the authentication flow via background message.
-   * Sets active state in storage and handles cleanup automatically.
-   */
   const register = useCallback(async () => {
     if (authFlow?.active) return;
 
@@ -35,8 +22,6 @@ export const useAuthIdentityProvider = () => {
 
       if (!response?.ok) {
         throw new Error(response?.error || 'Auth flow failed');
-      } else {
-        // window.close();
       }
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e));
@@ -47,13 +32,6 @@ export const useAuthIdentityProvider = () => {
     }
   }, [authFlow?.active, setAuthFlow]);
 
-  /**
-   * @todo
-   * - Verify if these states are working correctly
-   * - Check if Chrome login is functioning as expected
-   * - Improve logic in background and here in the code
-   * - Decide whether to remove or keep `auth-provider.html` logic, then refactor accordingly
-   */
   return {
     register,
     isLoading: Boolean(authFlow?.active),

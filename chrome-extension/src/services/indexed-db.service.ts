@@ -91,10 +91,9 @@ export const deleteBefore = async (tabId: number, cutoffTimestamp: number): Prom
   const objectStore = transaction.objectStore(EVENTS_STORE_NAME);
   const tabTimestampIndex = objectStore.index(INDEX_BY_TAB_TIMESTAMP);
 
-  // delete keys where tabId == tabId AND timestamp < cutoffTimestamp
   const lower = [tabId, Number.NEGATIVE_INFINITY];
   const upper = [tabId, cutoffTimestamp];
-  const keyRange = IDBKeyRange.bound(lower, upper, false, true); // upperOpen=true excludes cutoff
+  const keyRange = IDBKeyRange.bound(lower, upper, false, true);
 
   await new Promise<void>((resolve, reject) => {
     const cursorRequest = tabTimestampIndex.openCursor(keyRange);

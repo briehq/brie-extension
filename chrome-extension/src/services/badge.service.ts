@@ -29,7 +29,6 @@ export const initBadgeListener = () => {
   let tabId: number | null = null;
   let color = '';
 
-  // Restore badge state on startup
   chrome.storage.local.get([CAPTURE_STATE_KEY, CAPTURE_TAB_KEY], result => {
     const { state } = (result[CAPTURE_STATE_KEY] ?? {}) as { state?: string };
     tabId = (result[CAPTURE_TAB_KEY] as number | null) ?? null;
@@ -56,10 +55,8 @@ export const initBadgeListener = () => {
       tabId = (changes[CAPTURE_TAB_KEY].newValue as number) ?? null;
     }
 
-    // Clear badge on the previous tab (handles tab change and capture end)
     clearBadgeForTab(prevTabId);
 
-    // Set badge on the current tab if actively capturing
     if (color && tabId) {
       setBadgeForTab(tabId, color);
     }

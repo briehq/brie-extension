@@ -1,4 +1,3 @@
-/** Safe CSS.escape fallback for older engines. */
 export const cssEscape = (s: string) =>
   (window as any).CSS?.escape
     ? (window as any).CSS.escape(s)

@@ -22,16 +22,10 @@ export const addRuntimeEventListeners = () => {
     const { action, payload } = rawMessage;
 
     switch (action) {
-      /**
-       * Auth flow
-       */
       case AUTH.STATUS:
         window.dispatchEvent(new CustomEvent(AUTH.STATUS, { detail: payload }));
         break;
 
-      /**
-       * Screenshot capture flow
-       */
       case SCREENSHOT.START:
         window.dispatchEvent(new CustomEvent(UI.LAYOUT_RECALC));
         startScreenshotCapture(payload);
@@ -45,9 +39,6 @@ export const addRuntimeEventListeners = () => {
         window.dispatchEvent(new CustomEvent(UI.CLOSE_MODAL));
         break;
 
-      /**
-       * Video capture flow
-       */
       case RECORDING.START:
         beginPreparingRecording(payload);
         startCaptureNow();
@@ -69,9 +60,6 @@ export const addRuntimeEventListeners = () => {
         toggleMic();
         break;
 
-      /**
-       * Rewind capture flow
-       */
       case REWIND.SET_ENABLED:
         console.log('runtime: SET_ENABLED', rawMessage);
 

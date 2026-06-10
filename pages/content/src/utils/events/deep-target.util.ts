@@ -1,8 +1,4 @@
-/**
- * Returns the first Element from the event's composed path.
- * @param event - The DOM event (works with Shadow DOM).
- * @returns The deepest Element target, or null if none.
- */
+/** Composed path crosses Shadow DOM; event.target may not. */
 export const deepTarget = (event: Event): Element | null => {
   const path = (event.composedPath?.() ?? []) as Array<EventTarget>;
 

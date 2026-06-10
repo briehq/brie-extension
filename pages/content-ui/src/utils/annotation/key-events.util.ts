@@ -4,24 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { CustomFabricObject, HandleKeyDownDeps } from '@src/models';
 
-/**
- * Is the event target a native form field or contentEditable node?
- */
 const isDomEditor = (el: EventTarget | null): el is HTMLElement =>
   !!el && (/^(INPUT|TEXTAREA|SELECT)$/i.test((el as HTMLElement).tagName) || (el as HTMLElement).isContentEditable);
 
-/**
- * Returns `true` when a Fabric text object is currently being edited.
- */
 const isFabricEditing = (canvas: Canvas): boolean =>
   !!(canvas.getActiveObject() as { isEditing?: boolean } | null)?.isEditing;
 
 export const handleCopy = (canvas: Canvas) => {
   const activeObjects = canvas.getActiveObjects();
   if (activeObjects.length > 0) {
-    // Serialize the selected objects
     const serializedObjects = activeObjects.map(obj => obj.toObject());
-    // Store the serialized objects in the clipboard
     localStorage.setItem('clipboard', JSON.stringify(serializedObjects));
   }
 
@@ -34,17 +26,14 @@ export const handlePaste = (canvas: Canvas, syncShapeInStorage: (shape: FabricOb
     return;
   }
 
-  // Retrieve serialized objects from the clipboard
   const clipboardData = localStorage.getItem('clipboard');
 
   if (clipboardData) {
     try {
       const parsedObjects = JSON.parse(clipboardData);
       parsedObjects.forEach((objData: FabricObject) => {
-        // convert the plain javascript objects retrieved from localStorage into fabricjs objects (deserialization)
         util.enlivenObjects<FabricObject>([objData]).then((enlivenedObjects: FabricObject[]) => {
           enlivenedObjects.forEach(enlivenedObj => {
-            // Offset the pasted objects to avoid overlap with existing objects
             enlivenedObj.set({
               left: enlivenedObj.left || 0 + 20,
               top: enlivenedObj.top || 0 + 20,
@@ -108,7 +97,6 @@ export const handleKeyDown = ({
   syncShapeInStorage,
   deleteShapeFromStorage,
 }: HandleKeyDownDeps) => {
-  // Ignore when typing inside editable elements
   if (isDomEditor(e.target) || isFabricEditing(canvas)) return;
 
   const mod = e.metaKey || e.ctrlKey;

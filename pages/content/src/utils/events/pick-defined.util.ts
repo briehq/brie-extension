@@ -1,9 +1,3 @@
-/**
- * Returns a shallow copy with only defined (non-null/null) fields.
- * @typeParam T - Object type to filter.
- * @param obj - Source object.
- * @returns A new object containing only defined properties.
- */
 type NonNullable_<T> = { [K in keyof T]: Exclude<T[K], null | undefined> };
 
 export const pickDefined = <T extends Record<string, unknown>>(obj: T): NonNullable_<T> => {

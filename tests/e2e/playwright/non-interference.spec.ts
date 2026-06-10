@@ -11,8 +11,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /**
  * Chromium only — Firefox's `firefox.launchPersistentContext` does not support `--load-extension`;
  * Firefox extension testing needs web-ext / Marionette and is intentionally not wired into this spec.
- *
- * Usage: TARGET_URL=https://your-site.com pnpm test:site (defaults to example.com).
  */
 
 const TARGET_URL = process.env.TARGET_URL ?? 'https://www.example.com';
@@ -34,7 +32,7 @@ let userDataDir: string;
 test.beforeAll(async () => {
   userDataDir = mkdtempSync(join(tmpdir(), 'brie-pw-'));
   context = await chromium.launchPersistentContext(userDataDir, {
-    headless: false, // MV3 extensions don't load in old headless; use --headless=new via CI flag below
+    headless: false, // MV3 extensions don't load in old headless; CI passes --headless=new below
     args: [
       `--disable-extensions-except=${EXTENSION_DIR}`,
       `--load-extension=${EXTENSION_DIR}`,
@@ -51,7 +49,6 @@ test.afterAll(async () => {
 test(`extension reaches ${TARGET_URL}`, async () => {
   const page = await context.newPage();
   await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded' });
-  // content-ui injects via document_idle; allow the SPA to settle, then wait for #brie-root.
   await page.waitForFunction(() => !!document.getElementById('brie-root'), null, { timeout: 10_000 });
   expect(await page.locator('#brie-root').count()).toBeGreaterThan(0);
 });
@@ -59,7 +56,6 @@ test(`extension reaches ${TARGET_URL}`, async () => {
 test(`no extension-attributed uncaught errors on ${TARGET_URL}`, async () => {
   const page = await context.newPage();
 
-  // Install error capture before navigation so we catch errors fired during page load.
   await page.addInitScript(() => {
     window.__brieTestErrors = [];
     window.addEventListener('error', e => {

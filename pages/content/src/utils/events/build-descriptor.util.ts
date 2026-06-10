@@ -4,12 +4,6 @@ import { getAssociatedLabelText } from './get-associated-label.util';
 import { pickAttr } from './pick-attr.util';
 import { pickDefined } from './pick-defined.util';
 
-/**
- * Creates a stable, minimal descriptor for an element.
- * Adds common attributes used for identification while avoiding duplicates.
- * @param el - Element to describe (supports null/null).
- * @returns An ElementDescriptor or null if no element.
- */
 export const buildDescriptor = (el?: Element | null): ElementDescriptor | null => {
   if (!el) return null;
 

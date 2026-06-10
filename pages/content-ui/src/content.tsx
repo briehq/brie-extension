@@ -200,7 +200,7 @@ const Content = ({
       try {
         await deleteRecords();
       } catch {
-        //
+        /* noop */
       }
       onClose?.();
       setProgress(0);
@@ -274,7 +274,6 @@ const Content = ({
       });
 
       if (slice?.externalId || slice?.id) {
-        // Narrow slice.id for the tracker branches (the outer guard accepts externalId-only too)
         if (!slice.id) {
           toast(t('openReport'));
           if (slice.externalId) safeOpenNewTab(`${APP_BASE_URL}/s/${slice.externalId}`);
@@ -334,7 +333,6 @@ const Content = ({
         return;
       }
 
-      // Server returned a draft with an error code (eg: GUEST_DAILY_LIMIT)
       toast.error((slice?.message && t(slice.message as Parameters<typeof t>[0])) || t('failedToCreateSlice'));
 
       if (slice?.id) {
@@ -503,12 +501,7 @@ const Content = ({
             duration={trimDuration}
             trim={trim}
             onZoomChange={zoom => {
-              /**
-               * @todo
-               * implement zoon feature: min: 100% and max: 100%
-               */
               console.log('zoom', zoom);
-              // setZoom()
             }}
           />
         </AnnotationsProvider>

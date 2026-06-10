@@ -27,11 +27,6 @@ const ENTER_SUBMIT_WINDOW_MS = 500;
 const ACTIVATION_KEYS = new Set(['Enter', ' ']);
 const pendingEnterSubmit = new WeakMap<HTMLFormElement, number>();
 
-/**
- * Handles value-carrying element changes (input/select/textarea).
- * @param event - The DOM event.
- * @param reason - Why it fired: 'change' | 'blur' | 'input'.
- */
 const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') => {
   if (pathTouchesExtension(event)) return;
 
@@ -42,7 +37,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
   const tag = target.tagName;
   const type = (target.getAttribute?.('type') || '').toLowerCase();
 
-  // Native select
   if (tag === 'SELECT') {
     const value = (target as HTMLSelectElement).value ?? null;
     const controlLabel = getAssociatedLabelText(target);
@@ -56,7 +50,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
     return;
   }
 
-  // Checkbox/Radio: report checked & value
   if (tag === 'INPUT' && ['checkbox', 'radio'].includes(type)) {
     const el = target as HTMLInputElement;
 
@@ -69,7 +62,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
     return;
   }
 
-  // Textual inputs/textarea on blur/change to avoid noise (input reason emits live if needed)
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) {
     const el = target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
     const value = (el as HTMLInputElement).value ?? (el as HTMLTextAreaElement).value ?? null;
@@ -79,10 +71,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
   }
 };
 
-/**
- * Handles clicks on custom select options (e.g., role=option/menuitem).
- * @param event - Mouse click event.
- */
 const handleOnCustomSelectClick = (event: MouseEvent) => {
   const target = deepTarget(event);
 
@@ -97,7 +85,7 @@ const handleOnCustomSelectClick = (event: MouseEvent) => {
 
     sendEvent(
       AppEventType.SelectChange,
-      target, // control ?? target
+      target,
       pickDefined({
         value,
         source: 'custom',
@@ -107,10 +95,6 @@ const handleOnCustomSelectClick = (event: MouseEvent) => {
   }
 };
 
-/**
- * Handles mouse clicks using capture phase and composed path.
- * @param event - Mouse click event.
- */
 const handleOnClick = (event: MouseEvent) => {
   const ep = document.elementFromPoint(event.clientX, event.clientY);
   const hitTarget = ep instanceof Element ? ep : deepTarget(event);
@@ -120,10 +104,7 @@ const handleOnClick = (event: MouseEvent) => {
   const role = (hitTarget as HTMLElement).getAttribute?.('role')?.toLowerCase();
   const tag = hitTarget.tagName;
 
-  /**
-   * Ignore clicks inside native selects and ARIA listboxes/comboboxes;
-   * these are handled by change/option-click handlers below.
-   */
+  // Native selects and ARIA listboxes/comboboxes are handled by change/option-click — skip to avoid duplicates.
   if (tag === 'SELECT' || role === 'option' || role === 'listbox' || role === 'combobox') return;
   if (isClickWithinToggle(hitTarget, event)) return;
 
@@ -137,10 +118,6 @@ const handleOnClick = (event: MouseEvent) => {
   sendEvent(AppEventType.MouseClick, finalTarget);
 };
 
-/**
- * Handles clicks on ARIA toggles (role=checkbox|radio|switch).
- * Emits a single InputChange with inferred checked state.
- */
 const handleOnAriaToggleClick = (event: MouseEvent) => {
   const t = deepTarget(event);
   if (!(t instanceof HTMLElement)) return;
@@ -160,14 +137,7 @@ const handleOnAriaToggleClick = (event: MouseEvent) => {
   });
 };
 
-/**
- * Handles keyboard shortcuts and key-based activations (Enter/Space).
- * - No KeyActivation for Tab or Space while typing.
- * - Shortcuts emit only once per chord (ignores bare modifiers).
- * - Enter inside a FORM defers to FormSubmit (no KeyActivation).
- *
- * @param event - Submit event.
- */
+// Enter inside a FORM defers to handleOnSubmit (no KeyActivation) so the two don't double-fire.
 const handleOnKeydown = (event: KeyboardEvent) => {
   if (pathTouchesExtension(event)) return;
 
@@ -215,26 +185,16 @@ const handleOnKeydown = (event: KeyboardEvent) => {
   }
 };
 
-/**
- * Handles form submission events and emits a single FormSubmit.
- * - Suppresses duplicate KeyActivation events triggered by Enter inside forms.
- * - Captures action/method metadata from the form element.
- *
- * @param event - Submit event.
- */
 const handleOnSubmit = (event: Event) => {
   if (pathTouchesExtension(event)) return;
 
-  // Find the form element from the composed path (handles shadow DOM)
+  // composedPath() crosses shadow DOM; event.target may not.
   const path = (event.composedPath?.() ?? []) as EventTarget[];
   const form = path.find(n => n instanceof HTMLFormElement) as HTMLFormElement | null;
 
-  // Fallback: use the event target if no form found
   const el = form ?? (deepTarget(event) as Element | null);
   if (!el) return;
 
-  // If this was triggered by pressing Enter in a text input,
-  // and we recorded a pending KeyActivation recently → suppress it.
   if (form) {
     const ts = pendingEnterSubmit.get(form);
     if (ts && Date.now() - ts <= ENTER_SUBMIT_WINDOW_MS) {
@@ -242,7 +202,6 @@ const handleOnSubmit = (event: Event) => {
     }
   }
 
-  // Capture useful form metadata (if available)
   const extra = form
     ? {
         action: form.action || null,
@@ -253,10 +212,6 @@ const handleOnSubmit = (event: Event) => {
   sendEvent(AppEventType.FormSubmit, el, extra);
 };
 
-/**
- * Collects system metadata and emits a metadata event.
- * @returns Promise that resolves after metadata is sent.
- */
 const handleOnMetadata = async () => {
   const systemInfo = await getSystemInfo().catch(() => ({}));
 
@@ -274,18 +229,10 @@ const handleOnMetadata = async () => {
   );
 };
 
-/**
- * Collects video metadata and emits a video metadata event.
- * @returns Promise that resolves after metadata is sent.
- */
 const handleOnVideoMetadata = async (event: any) => {
   sendEvent(AppEventType.VideoMetadata, null, pickDefined(event.detail));
 };
 
-/**
- * Creates a visibilitychange handler that tracks hidden/visible and time away of opened tabs.
- * @returns A function to call on each visibilitychange.
- */
 const createTabVisibilityHandler = () => {
   let hiddenAt: number | null = null;
 
@@ -305,16 +252,6 @@ const createTabVisibilityHandler = () => {
   };
 };
 
-/**
- * Creates a debounced resize handler that emits a single event per resize activity.
- *
- * - Fires once after the user stops resizing the window (trailing debounce).
- * - Suppresses duplicate emissions if the final size matches the last emitted size.
- * - Provides `.flush()` to emit immediately and `.cancel()` to clear pending timers.
- *
- * @param idleMs - The debounce delay in milliseconds (default: 1000ms).
- * @returns A resize handler function with `flush()` and `cancel()` helpers attached.
- */
 const createResizeOncePerActivity = (idleMs = 1000): ResizeHandler => {
   let t: ReturnType<typeof setTimeout> | null = null;
   let pendingW = window.innerWidth;
@@ -363,7 +300,7 @@ let eventsInterceptorRegistered = false;
 
 const handleAllClicks = (event: MouseEvent) => {
   if (pathTouchesExtension(event)) return;
-  // Each handler is independently wrapped so a throw in one doesn't drop the others.
+  // Independently wrapped so a throw in one handler doesn't drop the others.
   try {
     handleOnClick(event);
   } catch (err) {
@@ -381,27 +318,21 @@ const handleAllClicks = (event: MouseEvent) => {
   }
 };
 
-/**
- * Initializes all capture-phase listeners and starts event interception.
- * Idempotent — re-running on an SPA navigation will not double-register.
- */
+/** Idempotent — re-running on an SPA navigation will not double-register. */
 export const interceptEvents = () => {
   if (eventsInterceptorRegistered) return;
   eventsInterceptorRegistered = true;
 
-  // Lifecycle
   document.addEventListener('DOMContentLoaded', () => sendEvent(AppEventType.DOMContentLoaded), {
     capture: true,
     passive: true,
   });
   window.addEventListener('load', () => sendEvent(AppEventType.PageLoaded), { capture: true, passive: true });
 
-  // Resize
   const onResize = createResizeOncePerActivity(1500);
   window.addEventListener('resize', onResize, { capture: true, passive: true });
   window.addEventListener('orientationchange', () => onResize.flush(), { capture: true, passive: true });
 
-  // Visibility
   const handleOnTabVisibilityChange = createTabVisibilityHandler();
   document.addEventListener(
     'visibilitychange',
@@ -413,27 +344,20 @@ export const interceptEvents = () => {
     { capture: true, passive: true },
   );
 
-  // Inputs / selects changes
   document.addEventListener('change', e => handleOnValueChange(e, 'change'), { capture: true });
 
   document.addEventListener('click', handleAllClicks, { capture: true });
 
-  // Keyboard
   document.addEventListener('keydown', handleOnKeydown, { capture: true });
 
-  // Submit
   document.addEventListener('submit', handleOnSubmit, { capture: true });
 
-  // Custom metadata event
   window.addEventListener(UI.LAYOUT_RECALC, handleOnMetadata as EventListener, { capture: true });
 
-  // Custom video metadata event
   window.addEventListener(VIDEO.METADATA, handleOnVideoMetadata as EventListener, { capture: true });
 
-  // History
   historyApiInterceptor();
 
-  // Media
   const mediaEvents: Array<keyof HTMLMediaElementEventMap> = ['play', 'pause', 'volumechange'];
 
   for (const event of mediaEvents) {

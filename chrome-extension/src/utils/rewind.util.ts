@@ -1,4 +1,3 @@
-// rewind.service.ts
 import type { Runtime } from 'webextension-polyfill';
 
 import { REWIND, isRewindBlocked, sendMessageToTab } from '@extension/shared';
@@ -8,10 +7,10 @@ import { deleteTabAll, deleteBefore, getRange, putBatch } from '@src/services';
 const WINDOW_DURATION_MS = 60_000;
 const CLEANUP_CUSHION_MS = 10_000;
 
-const FLUSH_INTERVAL_MS = 2_000; // best-effort only (MV3 timers unreliable)
-const FLUSH_THRESHOLD_EVENTS = 1_000; // best-effort only
+// best-effort only (MV3 timers unreliable)
+const FLUSH_INTERVAL_MS = 2_000;
+const FLUSH_THRESHOLD_EVENTS = 1_000;
 
-// rrweb event types
 const RRWEB_FULL_SNAPSHOT_EVENT_TYPE = 2;
 const RRWEB_META_EVENT_TYPE = 4;
 
@@ -57,10 +56,8 @@ type TabRewindState = {
 
   latestEventTimestampSeen: number | null;
 
-  // in-memory anchor cache (diagnostic + fallback)
   anchors: AnchorCache;
 
-  // logging guard
   hasLoggedMissingAnchors: boolean;
 
   frozenSnapshot: FrozenRewindSnapshot | null;
@@ -138,12 +135,7 @@ const getEventTimestamp = (payload: unknown): number => {
   return typeof ts === 'number' && Number.isFinite(ts) ? ts : Date.now();
 };
 
-/**
- * rrweb versions and wrappers can differ. Be defensive:
- * - most: event.type is number
- * - sometimes payload could be wrapped: { event: {...} } (your own structure)
- * - sometimes: event.data?.type (rare but seen in pipelines)
- */
+// rrweb versions/wrappers vary: direct `type`, nested `event.type`, or `data.type`.
 const getEventType = (payload: unknown): number | null => {
   const direct = (payload as any)?.type;
   if (typeof direct === 'number') return direct;
@@ -206,10 +198,7 @@ const pickStrictRetentionCutoff = (tabState: TabRewindState, fallbackNow: number
   return latest - WINDOW_DURATION_MS - CLEANUP_CUSHION_MS;
 };
 
-/**
- * LOSSLESS flush: does not drop pending events if IDB write fails.
- * Coalesces concurrent flush calls via flushInFlightPromise.
- */
+// Lossless: keeps pending events if IDB write fails; coalesces concurrent calls.
 const flushTabToStorage = async (tabId: number): Promise<void> => {
   const tabState = getTabRewindState(tabId);
   if (tabState.flushInFlightPromise) return tabState.flushInFlightPromise;
@@ -221,7 +210,6 @@ const flushTabToStorage = async (tabId: number): Promise<void> => {
 
     const pendingSnapshot = tabState.pendingEvents.slice();
 
-    // update in-memory caches before attempting storage
     updateLatestSeen(tabState, pendingSnapshot);
     updateAnchorCacheFromPending(tabState, pendingSnapshot);
 
@@ -235,16 +223,14 @@ const flushTabToStorage = async (tabId: number): Promise<void> => {
 
       if (tabState.generation !== flushGen) return;
 
-      // commit: drop what we wrote (keep newly queued)
       tabState.pendingEvents.splice(0, pendingSnapshot.length);
 
-      // strict prune: NEVER pin by anchors (that was your >1min bug)
+      // Strict prune: never pin retention by anchors (prevents >1min window growth).
       const cutoff = pickStrictRetentionCutoff(tabState, Date.now());
       await deleteBefore(tabId, cutoff);
     } catch (err) {
       console.error('[brie|rewind] flush failed', err);
 
-      // keep pending; cap memory if IDB is broken
       const MAX_PENDING_EVENTS = 20_000;
       if (tabState.pendingEvents.length > MAX_PENDING_EVENTS) {
         tabState.pendingEvents.splice(0, tabState.pendingEvents.length - MAX_PENDING_EVENTS);
@@ -297,7 +283,7 @@ const ensureAnchorsInReturnedWindow = async (
     if (hasMetaInWindow && hasFullSnapshotInWindow) break;
   }
 
-  // Try storage lookback first (truth source), then in-memory cache.
+  // Prefer storage lookback (truth source) over the in-memory cache fallback.
   let meta: unknown | null = null;
   let full: unknown | null = null;
 
@@ -313,8 +299,8 @@ const ensureAnchorsInReturnedWindow = async (
 
   const missingAnchor = !(hasMetaInWindow || meta) || !(hasFullSnapshotInWindow || full);
 
-  // Inject missing anchors inside the 1-min range (strict requirement).
-  // Put them at the start, in correct order: meta then full snapshot.
+  // Inject anchors at the window start in rrweb order (meta, then full snapshot)
+  // so the player can hydrate from the very first frame of the returned range.
   const injected: unknown[] = [];
 
   if (!hasMetaInWindow && meta) {
@@ -326,7 +312,6 @@ const ensureAnchorsInReturnedWindow = async (
 
   const events = injected.length ? [...injected, ...windowEvents] : windowEvents;
 
-  // One-time debug if anchors are still missing, so you can see whether rrweb is emitting them at all.
   if (missingAnchor && !tabState.hasLoggedMissingAnchors) {
     tabState.hasLoggedMissingAnchors = true;
     console.warn('[brie|rewind] missing anchors on freeze', {
@@ -408,7 +393,7 @@ const resetTabRewind = async (tabId: number): Promise<void> => {
   try {
     await tabState.flushInFlightPromise;
   } catch {
-    // ignore
+    // ignore failures from a flush we are about to discard
   } finally {
     tabState.flushInFlightPromise = null;
   }
