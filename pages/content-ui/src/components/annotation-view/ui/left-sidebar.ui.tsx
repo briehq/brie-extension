@@ -2,13 +2,12 @@ import type { WheelEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
 import type { Screenshot } from '@extension/shared';
-import { annotationsStorage } from '@extension/storage';
 import { Button, cn, Icon, ScrollArea } from '@extension/ui';
 
 import { HoverImage } from '@src/components/dialog-view';
 import { useElementSize } from '@src/hooks';
+import { useAnnotations } from '@src/providers';
 
 interface LeftSidebarProps {
   open?: boolean;
@@ -39,7 +38,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const isOpen = isControlled ? open! : internalOpen;
 
   const { ref: screenshotsViewRef, height: screenshotsViewHeight } = useElementSize<HTMLDivElement>();
-  const annotations = useStorage(annotationsStorage);
+  const { annotations } = useAnnotations();
 
   const toggle = useCallback(() => {
     const next = !isOpen;

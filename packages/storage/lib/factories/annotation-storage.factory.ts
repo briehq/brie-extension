@@ -10,7 +10,7 @@ interface Size {
 type AnnotationMap = Record<string, Annotations>;
 
 export interface Annotations {
-  objects: any[];
+  objects?: any[];
   meta?: {
     sizes: {
       natural: Size;

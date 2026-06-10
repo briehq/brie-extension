@@ -40,7 +40,7 @@ export default function App() {
   const [screenshots, setScreenshots] = useState<Screenshot[]>();
   const [activeScreenshotId, setActiveScreenshotId] = useState<string | null>();
   const [idempotencyKey, setIdempotencyKey] = useState<string>(uuid());
-  const [events, setEvents] = useState<unknown[] | null>(null);
+  const [events, setEvents] = useState<eventWithTime[] | null>(null);
 
   useEffect(() => {
     window.addEventListener(SCREENSHOT.DISPLAY, handleOnDisplay);
@@ -111,15 +111,15 @@ export default function App() {
         return;
       }
 
-      const rewindResponse: {
+      const rewindResponse = (await sendRuntimeMessageToActiveTab({
+        type: REWIND.GET_FROZEN,
+        tabId,
+      })) as {
         events: eventWithTime[];
         fromTimestamp: number;
         missingAnchor: boolean;
         toTimestamp: number;
-      } = await sendRuntimeMessageToActiveTab({
-        type: REWIND.GET_FROZEN,
-        tabId,
-      });
+      };
 
       if (rewindResponse?.missingAnchor) {
         toast.message(t('noUserActionsCaptured'));
@@ -225,6 +225,7 @@ export default function App() {
                 screenshots={screenshots || []}
                 video={video}
                 events={events}
+                captureState={captureState}
                 onClose={handleOnClose}
                 onMinimize={handleOnMinimize}
                 onDeleteScreenshot={handleOnDeleteScreenshot}

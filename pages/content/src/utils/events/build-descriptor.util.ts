@@ -27,7 +27,8 @@ export const buildDescriptor = (el?: Element | null): ElementDescriptor | null =
       el.getAttribute?.('aria-label') ||
       el.getAttribute?.('data-label') ||
       (el as HTMLButtonElement).innerText ||
-      (!(isInput || isTextarea) ? el.textContent : '');
+      (!(isInput || isTextarea) ? el.textContent : '') ||
+      '';
     const trimmed = raw.replace(/\s+/g, ' ').trim();
     return trimmed ? (trimmed.length > 120 ? trimmed.slice(0, 119) + '…' : trimmed) : null;
   })();
@@ -48,23 +49,7 @@ export const buildDescriptor = (el?: Element | null): ElementDescriptor | null =
       ? el.className.trim()
       : null;
 
-  return pickDefined<
-    ElementDescriptor & {
-      tagName?: string;
-      className?: string;
-      href?: string;
-      action?: string;
-      method?: string;
-      target?: string;
-      ariaDescribedby?: string;
-      dataLabel?: string;
-      contentEditable?: boolean;
-      disabled?: boolean;
-      size?: number;
-      textContent?: string;
-      src?: string;
-    }
-  >({
+  return pickDefined({
     tagName: el.tagName,
     id: el.id || null,
     dataTestId: pickAttr(el, ['data-testid', 'dataTestid', 'data-test-id']),
@@ -82,10 +67,10 @@ export const buildDescriptor = (el?: Element | null): ElementDescriptor | null =
     method: isForm ? ((el as HTMLFormElement).method || '').toUpperCase() || null : pickAttr(el, ['method']),
     target: pickAttr(el, ['target']),
     className,
-    contentEditable: (el as any)?.isContentEditable,
+    contentEditable: (el as HTMLElement)?.isContentEditable,
     disabled,
     size: Number.isFinite(sizeAttr as number) ? (sizeAttr as number) : null,
     textContent,
     placeholder: pickAttr(el, ['placeholder']),
-  });
+  }) as ElementDescriptor;
 };

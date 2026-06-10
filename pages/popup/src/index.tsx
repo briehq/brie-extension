@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
 import { themeStorage } from '@extension/storage';
+import { ReduxProvider, store } from '@extension/store';
 
 import Popup from '@src/Popup';
 import '@src/index.css';
@@ -15,7 +16,11 @@ const init = () => {
   }
   const root = createRoot(appContainer);
 
-  root.render(<Popup />);
+  root.render(
+    <ReduxProvider store={store}>
+      <Popup />
+    </ReduxProvider>,
+  );
 };
 
 init();

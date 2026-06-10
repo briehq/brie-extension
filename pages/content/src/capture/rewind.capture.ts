@@ -4,11 +4,12 @@ import { record } from 'rrweb';
 import { isRewindBlocked, REWIND } from '@extension/shared';
 import { rewindSettingsStorage } from '@extension/storage';
 
+import { BRIE_URL_CHANGED_EVENT } from '@src/interceptors/events';
+
 type RrwebStopFunction = () => void;
 
 const MAX_BATCH_EVENTS = 200;
 const FLUSH_INTERVAL_MS = 250;
-const URL_WATCH_INTERVAL_MS = 500;
 
 const RRWEB_META_EVENT_TYPE = 4;
 const RRWEB_FULL_SNAPSHOT_EVENT_TYPE = 2;
@@ -152,15 +153,16 @@ export const startRewindCapture = (): void => {
   if (!isRewindGloballyEnabled || !isCaptureAllowedForUrl) return;
   if (rrwebStopFunction) return;
 
-  rrwebStopFunction = record({
-    emit: enqueueEvent,
-    maskAllInputs: false,
-    recordCanvas: false,
-    inlineStylesheet: true,
-    collectFonts: true,
-    checkoutEveryNms: 30 * 1000,
-    sampling: { mousemove: 50, scroll: 150 },
-  });
+  rrwebStopFunction =
+    record({
+      emit: enqueueEvent,
+      maskAllInputs: false,
+      recordCanvas: false,
+      inlineStylesheet: false,
+      collectFonts: false,
+      checkoutEveryNms: 30 * 1000,
+      sampling: { mousemove: 50, scroll: 150 },
+    }) ?? null;
 };
 
 export const stopRewindCapture = (): void => {
@@ -209,12 +211,15 @@ export const restartRewindCapture = async (): Promise<{ ok: boolean; reason?: st
 };
 
 const startUrlWatcher = (): void => {
-  setInterval(() => {
+  const checkUrl = () => {
     const currentUrl = window.location.href;
     if (currentUrl === lastKnownUrl) return;
     lastKnownUrl = currentUrl;
     void applyPolicy(currentUrl);
-  }, URL_WATCH_INTERVAL_MS);
+  };
+
+  window.addEventListener(BRIE_URL_CHANGED_EVENT, checkUrl);
+  window.addEventListener('hashchange', checkUrl, { passive: true });
 };
 
 const bootstrap = async (): Promise<void> => {
@@ -223,4 +228,14 @@ const bootstrap = async (): Promise<void> => {
   startUrlWatcher();
 };
 
-bootstrap();
+const scheduleBootstrap = (): void => {
+  type RIC = (cb: () => void, opts?: { timeout?: number }) => number;
+  const ric = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback;
+  if (typeof ric === 'function') {
+    ric(() => void bootstrap(), { timeout: 2000 });
+  } else {
+    setTimeout(() => void bootstrap(), 0);
+  }
+};
+
+scheduleBootstrap();

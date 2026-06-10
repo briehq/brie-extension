@@ -126,7 +126,4 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
   );
 };
 
-const arePropsEqual = (prevProps: ToolbarProps, nextProps: ToolbarProps) =>
-  prevProps.activeElement === nextProps.activeElement;
-
-export default memo(Toolbar, arePropsEqual);
+export default memo(Toolbar);

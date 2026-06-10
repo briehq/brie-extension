@@ -3,8 +3,6 @@
 import type { RefObject } from 'react';
 import { useCallback } from 'react';
 
-import { useStorage } from '@extension/shared';
-import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,6 +12,7 @@ import {
 } from '@extension/ui';
 
 import { shortcuts } from '@src/constants';
+import { useAnnotationActionAvailability } from '@src/providers';
 
 type Props = {
   id: string;
@@ -25,13 +24,7 @@ type Props = {
 };
 
 export const CanvasWrapper = ({ id, canvasRef, onUndo, onRedo, onStartOver, onExport }: Props) => {
-  const historyAnnotations = useStorage(annotationsHistoryStorage);
-  const redoAnnotations = useStorage(annotationsRedoStorage);
-  const annotations = useStorage(annotationsStorage);
-
-  const canUndo = historyAnnotations[id]?.objects?.length;
-  const canRedo = redoAnnotations[id]?.objects?.length;
-  const canStartOver = annotations[id]?.objects?.length || canRedo || canUndo;
+  const { canUndo, canRedo, canStartOver } = useAnnotationActionAvailability(id);
 
   const handleContextMenuClick = useCallback(
     (value: string) => {

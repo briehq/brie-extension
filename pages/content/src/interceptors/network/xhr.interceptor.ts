@@ -33,7 +33,7 @@ export const interceptXHR = (): void => {
       requestStart: new Date().toISOString(),
       requestBody: null,
     };
-    originalOpen.apply(this, [method, url, ...rest]);
+    originalOpen.apply(this, [method, url, ...rest] as Parameters<XMLHttpRequest['open']>);
   };
 
   // Intercept XMLHttpRequest send method
@@ -45,9 +45,9 @@ export const interceptXHR = (): void => {
       this._requestDetails.requestBody = body || null;
     }
 
-    const originalOnReadyStateChange = this.onreadystatechange;
-
-    this.onreadystatechange = function (this: ExtendedXMLHttpRequest, ...args: any[]): void {
+    // Use addEventListener instead of replacing this.onreadystatechange — otherwise any handler
+    // the page assigns to xhr.onreadystatechange AFTER calling .send() is silently dropped.
+    const onReadyStateChange = function (this: ExtendedXMLHttpRequest): void {
       if (this.readyState === 4 && this._requestDetails) {
         // Request completed
         const endTime = new Date().toISOString();
@@ -134,12 +134,9 @@ export const interceptXHR = (): void => {
           console.error('[XHR] Error posting message:', error);
         }
       }
-
-      // Call the original onreadystatechange handler if defined
-      if (originalOnReadyStateChange) {
-        originalOnReadyStateChange.apply(this, args);
-      }
     };
+
+    this.addEventListener('readystatechange', onReadyStateChange);
 
     originalSend.apply(this, [body]);
   };

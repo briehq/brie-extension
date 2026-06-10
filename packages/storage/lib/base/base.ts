@@ -100,13 +100,20 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
     return deserialize(value[key] as string) ?? fallback;
   };
 
+  let notifyScheduled = false;
   const _emitChange = () => {
-    listeners.forEach(listener => listener());
+    if (notifyScheduled) return;
+    notifyScheduled = true;
+    queueMicrotask(() => {
+      notifyScheduled = false;
+      listeners.forEach(listener => listener());
+    });
   };
 
   const set = async (valueOrUpdate: ValueOrUpdate<D>) => {
     if (!initedCache) {
       cache = await get();
+      initedCache = true;
     }
     cache = await updateCache(valueOrUpdate, cache);
 
@@ -127,6 +134,7 @@ export const createStorage = <D = string>(key: string, fallback: D, config?: Sto
   };
 
   get().then(data => {
+    if (initedCache) return;
     cache = data;
     initedCache = true;
     _emitChange();

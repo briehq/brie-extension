@@ -220,9 +220,8 @@ export const handleCanvasMouseMove = ({
     default:
   }
 
-  // render objects on canvas
-  // renderAll: http://fabricjs.com/docs/fabric.Canvas.html#renderAll
-  canvas.renderAll();
+  // requestRenderAll coalesces rapid mouse:move events into one rAF tick (renderAll paints sync each call).
+  canvas.requestRenderAll();
 
   // sync shape in storage
   if (shapeRef.current?.objectId) {
@@ -378,44 +377,29 @@ export const handleCanvasObjectScaling = ({ options, setElementAttributes }: Can
 };
 
 // render canvas objects coming from storage on canvas
-export const renderCanvas = ({ fabricRef, canvasObjects = [], activeObjectRef }: RenderCanvas) => {
+export const renderCanvas = async ({ fabricRef, canvasObjects = [], activeObjectRef }: RenderCanvas) => {
   // clear canvas
   fabricRef.current?.clear();
 
-  // render all objects on canvas
-  canvasObjects.forEach((objectData: any) => {
-    /**
-     * enlivenObjects() is used to render objects on canvas.
-     * It takes two arguments:
-     * 1. objectData: object data to render on canvas
-     * 2. callback: callback function to execute after rendering objects
-     * on canvas
-     *
-     * enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
-     */
-    fabricUtil.enlivenObjects<FabricObject>([objectData]).then(
-      (enlivenedObjects: FabricObject[]) => {
-        enlivenedObjects.forEach(enlivenedObj => {
-          // if element is active, keep it in active state so that it can be edited further
-          if (activeObjectRef.current?.objectId === objectData.objectId) {
-            fabricRef.current?.setActiveObject(enlivenedObj);
-          }
+  if (!canvasObjects.length) {
+    fabricRef.current?.renderAll();
+    return;
+  }
 
-          // add object to canvas
-          fabricRef.current?.add(enlivenedObj);
-        });
-      },
-      /**
-       * specify namespace of the object for fabric to render it on canvas
-       * A namespace is a string that is used to identify the type of
-       * object.
-       *
-       * Fabric Namespace: http://fabricjs.com/docs/fabric.html
-       */
-    );
-  });
+  // enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
+  try {
+    const enlivenedObjects = await fabricUtil.enlivenObjects<FabricObject>(canvasObjects);
 
-  fabricRef.current?.renderAll();
+    enlivenedObjects.forEach((enlivenedObj, i) => {
+      const objectData = canvasObjects[i] as { objectId?: string };
+      if (objectData?.objectId && activeObjectRef.current?.objectId === objectData.objectId) {
+        fabricRef.current?.setActiveObject(enlivenedObj);
+      }
+      fabricRef.current?.add(enlivenedObj);
+    });
+  } finally {
+    fabricRef.current?.renderAll();
+  }
 };
 
 export const handleResize = ({

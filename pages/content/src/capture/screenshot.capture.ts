@@ -16,6 +16,9 @@ let dimensionLabel: HTMLDivElement;
 let message: HTMLDivElement | null = null;
 let loadingMessage: HTMLDivElement | null = null;
 
+let selectionMouseUpHandler: ((e: MouseEvent) => void) | null = null;
+let selectionTouchEndHandler: ((e: TouchEvent) => void) | null = null;
+
 const waitForRepaint = () =>
   new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 const getShadowHost = () => document.getElementById('brie-root');
@@ -229,6 +232,15 @@ const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
 const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
   if ('button' in e && e.button !== 0) return; // Only respond to left-click
 
+  if (selectionMouseUpHandler) {
+    document.removeEventListener('mouseup', selectionMouseUpHandler);
+    selectionMouseUpHandler = null;
+  }
+  if (selectionTouchEndHandler) {
+    document.removeEventListener('touchend', selectionTouchEndHandler);
+    selectionTouchEndHandler = null;
+  }
+
   isSelecting = true;
 
   // Use viewport-relative coordinates
@@ -243,11 +255,14 @@ const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') =>
   createSelectionBox();
   createDimensionLabel();
 
+  selectionMouseUpHandler = (ev: MouseEvent) => onMouseUp(ev, mode);
+  selectionTouchEndHandler = (ev: TouchEvent) => onTouchEnd(ev, mode);
+
   document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('mousemove', updateSelectionBox, { passive: false });
-  document.addEventListener('mouseup', e => onMouseUp(e, mode));
-  document.addEventListener('touchmove', updateSelectionBox, { passive: false });
-  document.addEventListener('touchend', e => onTouchEnd(e, mode));
+  document.addEventListener('mousemove', updateSelectionBox, { passive: true });
+  document.addEventListener('mouseup', selectionMouseUpHandler);
+  document.addEventListener('touchmove', updateSelectionBox, { passive: true });
+  document.addEventListener('touchend', selectionTouchEndHandler);
 
   message?.remove();
   message = null;
@@ -651,8 +666,14 @@ export const cleanup = (): void => {
   document.body.style.overflow = '';
   document.removeEventListener('keydown', onKeyDown);
   document.removeEventListener('mousemove', updateSelectionBox);
-  // document.removeEventListener('mouseup', onMouseUp);
+  if (selectionMouseUpHandler) {
+    document.removeEventListener('mouseup', selectionMouseUpHandler);
+    selectionMouseUpHandler = null;
+  }
   document.removeEventListener('touchmove', updateSelectionBox);
-  document.removeEventListener('touchend', () => onTouchEnd({} as TouchEvent, 'single'));
+  if (selectionTouchEndHandler) {
+    document.removeEventListener('touchend', selectionTouchEndHandler);
+    selectionTouchEndHandler = null;
+  }
   document.removeEventListener('scroll', onScroll);
 };

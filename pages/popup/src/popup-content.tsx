@@ -62,13 +62,13 @@ export const PopupContent = ({
 
   useEffect(() => {
     const initializeState = async () => {
-      setActiveTab(prev => ({ ...prev, id: captureTabId ?? null }));
-
       const tab = await getActiveTab();
-      if (tab) {
-        setActiveTab(prev => ({ ...prev, url: tab.url ?? prev.url }));
-        setCurrentActiveTab(tab.id);
-      }
+      setActiveTab(prev => ({
+        ...prev,
+        id: captureTabId ?? null,
+        url: tab?.url ?? prev.url,
+      }));
+      if (tab) setCurrentActiveTab(tab.id);
     };
 
     initializeState();
@@ -106,6 +106,12 @@ export const PopupContent = ({
     },
     [updateActiveTab, updateCaptureState],
   );
+
+  const handleActiveTabChangeFromChild = useCallback((id: number | null) => {
+    setActiveTab(prev => ({ ...prev, id }));
+  }, []);
+
+  const captureStateForChild = useMemo(() => ({ state, mode }), [state, mode]);
 
   const internalPage = isInternalUrl(activeTab.url);
 
@@ -147,11 +153,7 @@ export const PopupContent = ({
 
   return (
     <>
-      <CaptureContentView
-        onActiveTabChange={id => {
-          setActiveTab(prev => ({ ...prev, id }));
-        }}
-      />
+      <CaptureContentView captureState={captureStateForChild} onActiveTabChange={handleActiveTabChangeFromChild} />
     </>
   );
 };

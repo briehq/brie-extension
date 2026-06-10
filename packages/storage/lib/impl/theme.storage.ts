@@ -22,14 +22,15 @@ const applySystemTheme = () => {
   storage.set(() => systemTheme);
 };
 
-const listenToSystemThemeChanges = () => {
+const listenToSystemThemeChanges = (): (() => void) => {
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
   mql.addEventListener('change', applySystemTheme);
+  return () => mql.removeEventListener('change', applySystemTheme);
 };
 
 export const themeStorage: ThemeStorage & {
   applySystemTheme: () => void;
-  listenToSystemThemeChanges: () => void;
+  listenToSystemThemeChanges: () => () => void;
 } = {
   ...storage,
   toggle: async () => {

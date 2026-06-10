@@ -373,7 +373,6 @@ const ingestRewindEvents = async (tabId: number, events: unknown[]): Promise<voi
     return;
   }
 
-  await flushTabToStorage(tabId);
   scheduleFlushForTab(tabId);
 };
 

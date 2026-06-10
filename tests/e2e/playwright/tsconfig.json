@@ -1,0 +1,12 @@
+{
+  "extends": "@extension/tsconfig/module",
+  "compilerOptions": {
+    "lib": ["dom"],
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["**/*.ts"]
+}

@@ -1,11 +1,10 @@
 import { IS_DEV } from '@extension/env';
 import { t } from '@extension/i18n';
-import { useStorage } from '@extension/shared';
-import { annotationsHistoryStorage, annotationsRedoStorage, annotationsStorage } from '@extension/storage';
 import type { CreateAction } from '@extension/store';
 import { Button, cn, Icon, Tooltip, TooltipContent, TooltipTrigger } from '@extension/ui';
 
 import { CreateDropdown, EditableTitle, WorkspacesDropdown } from '@src/components/dialog-view';
+import { useAnnotationActionAvailability } from '@src/providers';
 
 interface EditorHeaderProps {
   /** active screenshot id */
@@ -66,13 +65,7 @@ export const Header: React.FC<EditorHeaderProps> = ({
 
   className,
 }) => {
-  const historyAnnotations = useStorage(annotationsHistoryStorage);
-  const redoAnnotations = useStorage(annotationsRedoStorage);
-  const annotations = useStorage(annotationsStorage);
-
-  const canUndo = historyAnnotations[id]?.objects?.length;
-  const canRedo = redoAnnotations[id]?.objects?.length;
-  const canStartOver = annotations[id]?.objects?.length || canRedo || canUndo;
+  const { canUndo, canRedo, canStartOver } = useAnnotationActionAvailability(id);
 
   return (
     <header
