@@ -37,7 +37,12 @@ if (navigator.userAgent.includes('Firefox')) {
 
 // Apply the system theme via the storage API
 themeStorage.applySystemTheme();
-themeStorage.listenToSystemThemeChanges();
+const unsubscribeFromThemeChanges = themeStorage.listenToSystemThemeChanges();
+
+// SPA routers that nuke document.body trigger pagehide on the old document, then re-inject the
+// content-ui. Without this unsubscribe, every re-injection added another matchMedia listener on
+// the same MediaQueryList — two notifications per theme change, two redundant storage writes.
+window.addEventListener('pagehide', unsubscribeFromThemeChanges, { once: true });
 
 shadowRoot.appendChild(rootIntoShadow);
 createRoot(rootIntoShadow).render(<App />);
