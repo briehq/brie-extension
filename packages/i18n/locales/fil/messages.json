@@ -573,5 +573,17 @@
   },
   "noDomains": {
     "message": "Wala pang naidagdag na domain. Ang sensitibong impormasyon ay nili-laktawan lang sa localhost bilang default."
+  },
+  "noCaptureData": {
+    "message": "No capture data available. Start a recording first."
+  },
+  "emptyResultFallback": {
+    "message": "No suggestion could be generated. Try again."
+  },
+  "noStepsFound": {
+    "message": "No steps could be reproduced from the captured session."
+  },
+  "outputTruncated": {
+    "message": "The generated text was cut off. Try with fewer steps."
   }
 }
