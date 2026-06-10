@@ -57,7 +57,7 @@ export const interceptConsole = () => {
 
       safePostMessage(RECORD.ADD, logData);
     } catch {
-      // Don't throw or break host page
+      // Never throw from a console method override — would break the host page.
     }
   };
 
@@ -73,7 +73,7 @@ export const interceptConsole = () => {
         try {
           captureLog(method, args);
         } catch {
-          // Silently fail
+          //
         }
         original.apply(console, args);
       },

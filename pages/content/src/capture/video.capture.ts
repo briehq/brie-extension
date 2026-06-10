@@ -100,7 +100,7 @@ const cleanupMic = async () => {
       try {
         track.stop();
       } catch {
-        /* */
+        //
       }
     });
   }
@@ -110,7 +110,7 @@ const cleanupMic = async () => {
     recordingSettingsStorage.setMicActiveTrack(false),
     recordingSettingsStorage.setMicMuted(false),
   ]).catch(() => {
-    /* storage write failure is non-critical */
+    //
   });
 };
 
@@ -151,7 +151,8 @@ export const startCaptureNow = async () => {
 
     stream = await navigator.mediaDevices.getDisplayMedia(constraints);
 
-    // Remove any unexpected audio tracks from the display stream
+    // The display stream may include tab audio depending on user choice — strip it so the only
+    // audio source is the explicit mic stream below.
     stream.getAudioTracks().forEach(t => t.stop());
 
     let recordingStream = stream;
@@ -170,7 +171,6 @@ export const startCaptureNow = async () => {
           await recordingSettingsStorage.setMicActiveTrack(true);
           await recordingSettingsStorage.setMicMuted(false);
         } else {
-          // getUserMedia succeeded but returned no audio tracks — treat as failure
           micStream.getTracks().forEach(t => t.stop());
           micStream = null;
           await recordingSettingsStorage.setMicActiveTrack(false);
@@ -274,12 +274,6 @@ export const pauseRecording = () => {
         },
       }),
     );
-
-    /**
-     * @todo
-     * keep autoStop interval running or not? pause shouldn't consume budget anyway,
-     * but interval checks recordedMs so it's safe to keep running.
-     */
   } catch (e) {
     console.error('[brie | Recording] pause failed:', e);
     cleanup();

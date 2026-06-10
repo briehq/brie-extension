@@ -29,13 +29,11 @@ if (navigator.userAgent.includes('Firefox')) {
   styleElement.textContent = tailwindcssOutput;
   shadowRoot.appendChild(styleElement);
 } else {
-  /** Inject styles into shadow dom */
   const globalStyleSheet = new CSSStyleSheet();
   globalStyleSheet.replaceSync(tailwindcssOutput);
   shadowRoot.adoptedStyleSheets = [globalStyleSheet];
 }
 
-// Apply the system theme via the storage API
 themeStorage.applySystemTheme();
 const unsubscribeFromThemeChanges = themeStorage.listenToSystemThemeChanges();
 

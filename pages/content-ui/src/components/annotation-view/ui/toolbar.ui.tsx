@@ -58,7 +58,6 @@ const Toolbar = ({ activeElement, onActiveElement, onExport }: ToolbarProps) => 
                         : '',
                     )}
                     variant="ghost"
-                    //   loading={isUpdating}
                     onClick={() => handleOnActiveElement(item)}>
                     <Tooltip>
                       <TooltipTrigger asChild>

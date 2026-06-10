@@ -1,8 +1,3 @@
-/**
- * Determines if an element is likely user-clickable.
- * @param el - Element to test (nullable).
- * @returns True if clickable; otherwise false.
- */
 export const isClickable = (el: Element | null): boolean => {
   if (!el) return false;
 

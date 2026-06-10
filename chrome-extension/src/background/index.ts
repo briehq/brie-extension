@@ -21,13 +21,6 @@ runtime.onMessage.addListener(handleOnMessage);
 runtime.onInstalled.addListener(handleOnInstalled);
 contextMenus.onClicked.addListener(handleOnContextMenuClicked);
 
-/**
- * @todo
- * there is a scenario when tabId is -1,
- * but we know the requestId and we can use it to populate the right request data
- *
- * related to all 3 web req states
- */
 const TRACKED_REQUEST_TYPES: WebRequest.ResourceType[] = [
   'main_frame',
   'sub_frame',

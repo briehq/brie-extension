@@ -6,23 +6,10 @@ const ERROR_NOTIFICATION_COOLDOWN_MS = 60_000;
 let lastErrorNotificationTimestamp = 0;
 
 export const addWindowEventListeners = () => {
-  /**
-   * If you're injecting JavaScript into the webpage (e.g., to override fetch), remember:
-   * The injected script does not have access to Chrome extension APIs (like chrome.runtime.sendMessage).
-   * To communicate, inject the script and use window.postMessage to send data back to the content script.
-   */
+  // Injected scripts have no access to chrome.* APIs; they communicate back via window.postMessage.
   window.addEventListener('message', (event: MessageEvent) => {
-    /**
-     * @todo
-     * - Must be namespaced to avoid page scripts spoofing controller commands
-     * if (event.data?.source !== 'brie-ui') return;
-     *
-     * - Guard using the allowed message types
-     * if (!ALLOWED_MESSAGE_TYPES.has(event.data.type)) return;
-     *
-     * - Use Enums
-     */
-
+    // SECURITY GAP: messages are not namespaced (no `event.data.source` check) and `type` is not
+    // validated against an allowlist, so page scripts could spoof controller commands.
     if (event.source !== window || !event.data.type) return;
 
     const { type } = event.data;
@@ -52,9 +39,6 @@ export const addWindowEventListeners = () => {
         break;
       }
 
-      /**
-       * Video capture flow
-       */
       case RECORDING.PAUSE:
         pauseRecording();
         break;

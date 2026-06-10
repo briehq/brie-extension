@@ -27,9 +27,6 @@ export type AnnotationsStorage = BaseStorage<AnnotationMap> & {
   clearAll: () => Promise<void>;
 };
 
-/**
- * Factory for annotation map storage with a custom key.
- */
 export const createAnnotationStorage = (storageKey: string): AnnotationsStorage => {
   const storage = createStorage<AnnotationMap>(
     storageKey,

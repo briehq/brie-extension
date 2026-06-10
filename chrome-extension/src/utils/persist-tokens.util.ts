@@ -1,11 +1,3 @@
-/**
- * Extracts access/refresh tokens from a URL fragment of the form:
- *    https://…/#access_token=XXX&refresh_token=YYY
- * Saves them in storage and returns the persisted object.
- *
- * @param url - The final redirect URL captured by the auth flow.
- * @returns    The stored { accessToken, refreshToken } object.
- */
 import { authTokensStorage } from '@extension/storage';
 import type { ITokens } from '@extension/storage';
 

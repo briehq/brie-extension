@@ -63,7 +63,6 @@ export const handleOnTabUpdated = async (tabId: number, changeInfo: Tabs.OnUpdat
         annotationsStorage.clearAll(),
         annotationsRedoStorage.clearAll(),
         annotationsHistoryStorage.clearAll(),
-        // rewindService.deleteTab(tabId),
       ]);
     }
   } catch (err) {

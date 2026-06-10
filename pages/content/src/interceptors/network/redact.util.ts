@@ -19,10 +19,6 @@ const redactObject = (obj: unknown): unknown => {
   return obj;
 };
 
-/**
- * Attempts to parse a string as JSON and redact sensitive keys.
- * Returns the original value if parsing fails or input is not a string.
- */
 const redactSensitiveBodyKeys = (body: unknown): unknown => {
   if (typeof body !== 'string') return body;
 

@@ -1,4 +1,3 @@
-/** Collect best candidates that might carry the id/role linkage for labeling. */
 export const collectLabelCandidates = (el: Element): HTMLElement[] => {
   const cands: Set<HTMLElement> = new Set();
 
@@ -8,20 +7,18 @@ export const collectLabelCandidates = (el: Element): HTMLElement[] => {
 
   push(el);
 
-  // 1) The closest element that already has an id (often a wrapper/input in custom UIs)
   push(el.closest?.('[id]'));
 
-  // 2) Role containers typical for custom selects
   push(el.closest?.('[role="combobox"]'));
   push(el.closest?.('[role="listbox"]'));
   push(el.closest?.('[role="textbox"]'));
 
-  // 3) First focusable/real control inside this subtree
   push(
     el.querySelector?.('input[id], select[id], textarea[id], button[id], [role="combobox"][id], [role="textbox"][id]'),
   );
 
-  // 4) For React-Select style containers, find the input with id inside the container
+  // React-Select renders the real <input> inside a wrapper class — without this, the visible
+  // combobox div has no usable id.
   const reactSelectRoot = el.closest?.('.react-select-container');
   push(reactSelectRoot?.querySelector?.('input[id]'));
 

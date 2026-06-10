@@ -1,28 +1,9 @@
-/**
- * Determines whether an element is visible in layout via a non-zero bounding box.
- *
- * @param el - The element to evaluate.
- * @returns True if visible; otherwise false.
- */
 const isVisibleBox = (el: Element): boolean => {
   const r = (el as HTMLElement).getBoundingClientRect?.();
-  if (!r) return true; // be permissive if no layout info
+  if (!r) return true; // permissive when layout info is missing
   return r.width > 0 && r.height > 0;
 };
 
-/**
- * Determines whether an element is likely custom-interactive based on heuristics.
- *
- * Heuristics:
- * - Cursor is pointer
- * - Tabindex ≥ 0
- * - Interactive ARIA roles (e.g., button, option, link)
- * - ARIA interaction attributes (`aria-expanded`, `aria-pressed`, etc.)
- * - Draggable elements
- *
- * @param el - HTMLElement to evaluate.
- * @returns True if heuristically clickable; otherwise false.
- */
 const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   const role = el.getAttribute('role')?.toLowerCase();
   const tabIndexAttr = el.getAttribute('tabindex');
@@ -30,7 +11,6 @@ const isHeuristicallyClickable = (el: HTMLElement): boolean => {
 
   if (tabIndex !== undefined && Number.isFinite(tabIndex) && tabIndex >= 0) return true;
 
-  // Common interactive ARIA roles (covers many custom components)
   if (
     role &&
     [
@@ -52,12 +32,10 @@ const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   )
     return true;
 
-  // ARIA interaction hints often present on collapsibles/toggles
   if (el.hasAttribute('aria-expanded') || el.hasAttribute('aria-pressed') || el.hasAttribute('aria-selected')) {
     return true;
   }
 
-  // Draggable often implies interaction
   if ((el as unknown as { draggable?: boolean }).draggable === true || el.getAttribute('draggable') === 'true') {
     return true;
   }
@@ -65,14 +43,6 @@ const isHeuristicallyClickable = (el: HTMLElement): boolean => {
   return false;
 };
 
-/**
- * Determines whether an element is meaningfully interactive.
- * Accepts native controls and custom interactive DIVs (cursor:pointer, tabindex≥0, ARIA roles/states).
- * Filters out <html>/<body>, invisible boxes, and background containers.
- *
- * @param el - Element to evaluate (nullable).
- * @returns true if interactive; otherwise false.
- */
 export const isInteractive = (el: Element | null): boolean => {
   if (!el || el === document.body || el === document.documentElement) return false;
   if (!isVisibleBox(el)) return false;
@@ -81,7 +51,6 @@ export const isInteractive = (el: Element | null): boolean => {
   const tag = h.tagName;
   const type = h.getAttribute?.('type')?.toLowerCase();
 
-  // Native interactive tags
   if (['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'SUMMARY', 'LABEL', 'DETAILS'].includes(tag)) return true;
   if (
     tag === 'INPUT' &&
@@ -108,10 +77,8 @@ export const isInteractive = (el: Element | null): boolean => {
   )
     return true;
 
-  // Direct handler (inline onclick) – keep for legacy pages
   if (typeof (h as any).onclick === 'function') return true;
 
-  // Custom clickable DIVs/spans via heuristics
   if (isHeuristicallyClickable(h)) return true;
 
   return false;

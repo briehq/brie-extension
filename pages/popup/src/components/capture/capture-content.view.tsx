@@ -94,7 +94,7 @@ const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureCon
           await recordingSettingsStorage.setMicPermission(permission);
         }
       } catch {
-        // navigator.permissions.query may not be available (Firefox)
+        // navigator.permissions.query unavailable on Firefox; treat as unknown.
       }
     })();
   }, []);
@@ -151,7 +151,6 @@ const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureCon
       const tab = await getActiveTab();
 
       if (!tab?.id || !tab?.url) {
-        // TODO: show toast "No active tab"
         return;
       }
 
@@ -162,13 +161,11 @@ const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureCon
       const { blocked: rewindBlocked, reason } = isRewindBlocked(tabUrl);
 
       if (rewindBlocked) {
-        // TODO: show toast "Rewind disabled on this site (reason: ...)"
         return;
       }
 
       const freeze = (await sendRuntimeMessageToActiveTab({ type: REWIND.FREEZE, tabId })) as { status: string };
       if (freeze?.status !== 'success') {
-        // TODO: show toast with freezeResp.error
         return;
       }
 
@@ -176,7 +173,6 @@ const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureCon
       window.close();
     } catch (err) {
       console.error('[brie|popup] onOpenRewind failed', err);
-      // TODO: show toast "Failed to open rewind"
     }
   };
 

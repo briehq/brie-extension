@@ -5,9 +5,9 @@ import { extractQueryParams } from '@src/utils';
 import { REDACT_BODY_KEYS, redactHeaderValue } from './redact.util.js';
 
 type FetchArgs = [RequestInfo | URL, RequestInit?];
-const MAX_BODY_BYTES = 100_000; // 100KB cap for request/response previews
+const MAX_BODY_BYTES = 100_000;
 const BINARY_CT = /(octet-stream|pdf|zip|gzip|image|audio|video)\b/i;
-const SELF_ENDPOINT_REGEX = /\/add-record|\/telemetry|\/analytics/; // adjust to your endpoints
+const SELF_ENDPOINT_REGEX = /\/add-record|\/telemetry|\/analytics/;
 
 const truncate = (s: string, max = MAX_BODY_BYTES) => (s.length > max ? s.slice(0, max) + '…[truncated]' : s);
 
@@ -39,7 +39,6 @@ const previewRequestBodyFromRequest = async (req: Request): Promise<{ text?: str
   try {
     if (req.bodyUsed) return { text: '[unavailable: body already used]' };
     const clone = req.clone();
-    // If no body, this resolves empty string
     const text = await clone.text();
     if (!text) return {};
     return previewRequestBodyFromInit(text);
@@ -53,7 +52,6 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
   try {
     if (typeof body === 'string') {
       const trimmed = body.trim();
-      // try redact JSON keys if JSON-like
       if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
         try {
           const obj = JSON.parse(trimmed);
@@ -75,7 +73,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
           const redacted = JSON.stringify(redact(obj));
           return { text: truncate(redacted), bytes: redacted.length };
         } catch {
-          /* fallthrough */
+          //
         }
       }
       return { text: truncate(body), bytes: body.length };
@@ -106,7 +104,7 @@ const previewRequestBodyFromInit = (body?: BodyInit | null): { text?: string; by
     if (body instanceof ArrayBuffer) return { text: `[arraybuffer:${body.byteLength}B]`, bytes: body.byteLength };
     if ((body as any).stream) return { text: '[stream]' };
   } catch {
-    /* ignore */
+    //
   }
   return { text: '[unserializable body]' };
 };
@@ -126,7 +124,6 @@ export const interceptFetch = (): void => {
     const startISO = new Date().toISOString();
     const startPerf = performance.now();
 
-    // Normalize URL
     let urlStr: string;
     let req: Request | undefined;
     let init: RequestInit | undefined;
@@ -141,32 +138,26 @@ export const interceptFetch = (): void => {
         init = args[1] || {};
       }
     } catch {
-      // fallback
       urlStr = String(args[0]);
     }
 
-    // Skip non-http(s) & self endpoints
     if (!/^https?:\/\//i.test(urlStr) || SELF_ENDPOINT_REGEX.test(urlStr)) {
       return originalFetch.apply(this, args as any);
     }
 
     const method = (req?.method || init?.method || 'GET').toUpperCase();
 
-    // Request headers
     const outgoingHeaders = req ? headersInitToRecord(req.headers) : headersInitToRecord(init?.headers);
     const requestHeaders = redactHeaders(outgoingHeaders);
 
-    // Request body preview
     const bodyPreview = req ? await previewRequestBodyFromRequest(req) : previewRequestBodyFromInit(init?.body ?? null);
 
-    // Query params (your helper)
     const queryParams = extractQueryParams(urlStr);
 
     let response: Response;
     try {
       response = await originalFetch.apply(this, args as any);
     } catch (err) {
-      // Network error (no Response)
       const endISO = new Date().toISOString();
       const durationMs = performance.now() - startPerf;
 
@@ -204,13 +195,12 @@ export const interceptFetch = (): void => {
         url: urlStr,
       });
 
-      throw err; // preserve behavior
+      throw err;
     }
 
     const endISO = new Date().toISOString();
     const durationMs = performance.now() - startPerf;
 
-    // Opaque / CORS no-cors responses
     if (response.type === 'opaque') {
       safePostMessage(RECORD.ADD, {
         domain: 'fetch',
@@ -235,7 +225,6 @@ export const interceptFetch = (): void => {
       return response;
     }
 
-    // Normal responses: clone and read safely
     const ct = response.headers.get('Content-Type');
     const looksBinary = isBinaryContentType(ct);
     const clone = response.clone();
@@ -248,12 +237,12 @@ export const interceptFetch = (): void => {
       if (looksBinary) {
         responseBody = `[binary:${serializedHeaders['content-length'] ?? '?'}B]`;
       } else if (ct?.includes('application/json')) {
-        const text = await clone.text(); // read text first to cap
+        const text = await clone.text();
         const capped = truncate(text);
         try {
           responseBody = JSON.parse(capped);
         } catch {
-          responseBody = capped; // malformed JSON → keep as text
+          responseBody = capped;
         }
       } else if (ct?.includes('text') || ct?.includes('xml')) {
         const text = await clone.text();

@@ -7,5 +7,5 @@ export const pickMimeType = (): MediaRecorderOptions => {
     }
   }
 
-  return {}; // browser will decide
+  return {};
 };

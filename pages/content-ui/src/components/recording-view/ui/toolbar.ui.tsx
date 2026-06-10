@@ -38,7 +38,6 @@ export const RecordingToolbar: FC<RecordingToolbarProps> = ({ state, tool, onToo
 
   const handleOnToggleMic = useCallback(async () => {
     safePostMessage(RECORDING.TOGGLE_MIC);
-    // toggleMic in video.capture.ts handles the actual track and updates storage
   }, []);
 
   if (!isVisible) return null;

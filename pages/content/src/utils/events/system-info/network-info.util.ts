@@ -1,6 +1,5 @@
 import type { NetworkInfo } from '@src/interfaces';
 
-/** Returns connection quality details if available. */
 export const getNetworkInfo = (): NetworkInfo | null => {
   const connection =
     (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;

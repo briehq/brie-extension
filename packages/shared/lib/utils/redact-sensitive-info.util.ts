@@ -24,11 +24,6 @@ const classifyField = (ctx: {
   return 'unknown';
 };
 
-/**
- * Applies redaction rules to a raw string using defined regex patterns.
- * @param value - The string to redact.
- * @returns Redacted string.
- */
 const redactString = (value: string, ctxStrength: Strength): string => {
   if (!value || ctxStrength === 'allow') return value;
 
@@ -58,7 +53,6 @@ const redactString = (value: string, ctxStrength: Strength): string => {
   return out;
 };
 
-/** Redact a string that may contain JSON while preserving string type. */
 const redactPossiblyJsonString = (
   input: string,
   shouldSkipRedaction: boolean,
@@ -77,11 +71,6 @@ const redactPossiblyJsonString = (
   return redactString(input, ctx?.strength ?? 'unknown');
 };
 
-/**
- * Determines if an object contains a context where `name` matches a sensitive key.
- * @param obj - The object to inspect.
- * @returns True if the context suggests sensitive data.
- */
 const shouldRedactByNameValueContext = (obj: any): boolean => {
   const name = typeof obj?.name === 'string' ? obj.name : undefined;
   const key = typeof obj?.key === 'string' ? obj.key : undefined;
@@ -89,12 +78,6 @@ const shouldRedactByNameValueContext = (obj: any): boolean => {
   return keyMatches(name, STRONG_KEYS) || keyMatches(key, STRONG_KEYS);
 };
 
-/**
- * Internal recursive function that redacts sensitive values.
- * @param input - Any data.
- * @param shouldSkipRedaction - If true, redaction is bypassed entirely.
- * @param ctx - Optional context (derived from key/name/label/type).
- */
 const deepRedactInternal = (input: any, shouldSkipRedaction: boolean, ctx?: { strength: Strength }): any => {
   if (shouldSkipRedaction || input === null || input === undefined) return input;
 
@@ -110,16 +93,14 @@ const deepRedactInternal = (input: any, shouldSkipRedaction: boolean, ctx?: { st
 
   const result: Record<string, any> = {};
   for (const [key, value] of Object.entries(input)) {
-    // Build field-level context
     const fieldCtx = {
       key,
       name: typeof (input as any).name === 'string' ? (input as any).name : undefined,
       label: typeof (input as any).label === 'string' ? (input as any).label : undefined,
       type: typeof (input as any).type === 'string' ? (input as any).type : undefined,
     };
-    const strength = classifyField(fieldCtx); // 'strong' | 'allow' | 'unknown'
+    const strength = classifyField(fieldCtx);
 
-    // CASE 1: value in { key: "secret", value: "..." }
     if (key === 'value' && typeof value === 'string') {
       const nameKeyStrong =
         shouldRedactByNameValueContext(input) ||
@@ -134,36 +115,25 @@ const deepRedactInternal = (input: any, shouldSkipRedaction: boolean, ctx?: { st
       continue;
     }
 
-    // CASE 2: key-value pairs like { secret: "..." }
     if (typeof key === 'string' && typeof value === 'string') {
       if (keyMatches(key, STRONG_KEYS)) {
         result[key] = REDACTED_KEYWORD;
         continue;
       }
       if (keyMatches(key, EXEMPT_KEYS) || keyMatches(key, NON_SENSITIVE_KEYS)) {
-        // explicitly allowed by name
         result[key] = value;
         continue;
       }
-      // otherwise process string with context
       result[key] = deepRedactInternal(value, shouldSkipRedaction, { strength });
       continue;
     }
 
-    // Recurse for nested structures, propagate context strength for this field
     result[key] = deepRedactInternal(value, shouldSkipRedaction, { strength });
   }
 
   return result;
 };
 
-/**
- * Checks if the given URL matches any domain in the skip list.
- *
- * @param url - The URL to check.
- * @param skipDomains - List of domain patterns to skip redaction for.
- * @returns True if the URL matches a domain in the skip list.
- */
 const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
   if (!url || !skipDomains || skipDomains.length === 0) return false;
 
@@ -172,14 +142,8 @@ const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
 };
 
 /**
- * Deeply redacts sensitive information from an input structure.
- * Automatically skips redaction in non-production environments or
- * when the URL matches a domain in the user-configured skip list.
- *
- * @param input - Any value (object, array, string, etc.) to redact.
- * @param url - Optional URL to determine if redaction should apply (e.g. non-prod).
- * @param skipDomains - Optional list of domain patterns for which redaction is skipped.
- * @returns Redacted copy of the input.
+ * Deeply redacts sensitive information. Skips redaction in non-production
+ * environments or when the URL matches a domain in `skipDomains`.
  */
 export const deepRedactSensitiveInfo = (input: any, url?: string, skipDomains?: string[]): any => {
   const shouldSkipRedaction = isNonProduction(url) || isSkipDomain(url, skipDomains);

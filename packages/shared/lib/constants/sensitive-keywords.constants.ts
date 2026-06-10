@@ -65,7 +65,6 @@ const STRONG_KEYS = [
 // Explicitly DO NOT redact these by name
 const EXEMPT_KEYS = ['username', 'user_name', 'email', 'e-mail', 'login', 'user', 'user_id', 'userid'];
 
-// Non-sensitive/date-ish by default
 const NON_SENSITIVE_KEYS = [
   'date',
   'start_date',

@@ -53,10 +53,8 @@ export const PopupContent = ({
   const isCaptureScreenshotDisabled = useMemo(() => {
     const isGuest = user?.authMethod === AuthMethod.GUEST;
 
-    // Dev or non-guest: no limit
     if (IS_DEV || !isGuest) return false;
 
-    // Guests: block after daily limit
     return isGuest && totalSlicesCreatedToday > 10 && !!activeTab.id;
   }, [totalSlicesCreatedToday, user?.authMethod, activeTab.id]);
 
@@ -123,27 +121,22 @@ export const PopupContent = ({
     return <SettingsContent onBack={handleOnBack} />;
   }
 
-  // Use-case: Pending reload for this tab
   if (currentActiveTab && pendingReloadTabIds.includes(currentActiveTab)) {
     return <PendingReloadView onRefresh={handleOnRefreshPendingTab} />;
   }
 
-  // Use-case: Internal page hint (no capture on chrome://, about://)
   if (internalPage && state !== 'unsaved' && currentActiveTab !== activeTab.id) {
     return <InternalPageView message={t('navigateToWebsite')} />;
   }
 
-  // Use-case: Unsaved capture in another tab
   if (state === 'unsaved' && currentActiveTab !== activeTab.id) {
     return <UnsavedTabView onDiscard={() => handleOnDiscard(activeTab.id)} onOpenActiveTab={handleGoToActiveTab} />;
   }
 
-  // Use-case: Unsaved capture in this tab
   if (state === 'unsaved' && currentActiveTab === activeTab.id) {
     return <UnsavedCurrentTabView onDiscard={() => handleOnDiscard(activeTab.id)} />;
   }
 
-  // Use-case: Jump to active tab
   if (activeTab.id !== currentActiveTab && isCaptureActive)
     return (
       <Button type="button" variant="link" size="sm" className="w-full" onClick={handleGoToActiveTab}>

@@ -41,7 +41,6 @@ export const getCanvasElement = () => {
   return null;
 };
 
-// initialize fabric canvas
 export const initializeFabric = ({
   fabricRef,
   canvasRef,
@@ -63,13 +62,11 @@ export const initializeFabric = ({
 
   if (backgroundImage) {
     try {
-      // Set the background image and adjust canvas dimensions
       setCanvasBackground({ file: backgroundImage, canvas, parentHeight: height, parentWidth: width });
     } catch (error) {
       console.error('Failed to set the background image:', error);
     }
   }
-  //fabricjs.com/docs/configuring-defaults/
 
   FabricObject.ownDefaults = {
     ...FabricObject.ownDefaults,
@@ -80,13 +77,10 @@ export const initializeFabric = ({
     cornerStyle: 'circle',
   };
 
-  // @todo: https://medium.com/@luizzappa/custom-icon-and-cursor-in-fabric-js-controls-4714ba0ac28f
-
   FabricObject.createControls = () => ({
     controls: createDefaultControls(),
   });
 
-  // set canvas reference to fabricRef so we can use it later anywhere outside canvas listener
   fabricRef.current = canvas;
 
   return canvas;
@@ -106,7 +100,6 @@ export const applyBrush = (tool: 'freeform' | 'highlighter', canvas: Canvas, cur
   canvas.freeDrawingBrush = brush;
 };
 
-// instantiate creation of custom fabric object/shape and add it to canvas
 export const handleCanvasMouseDown = ({
   options,
   canvas,
@@ -115,21 +108,10 @@ export const handleCanvasMouseDown = ({
   shapeRef,
   currentColorRef,
 }: CanvasMouseDown) => {
-  // get pointer coordinates
   const pointer = canvas.getScenePoint(options.e);
-
-  /**
-   * get target object i.e., the object that is clicked
-   * findtarget() returns the object that is clicked
-   *
-   * findTarget: http://fabricjs.com/docs/fabric.Canvas.html#findTarget
-   */
   const target = canvas.findTarget(options.e);
 
-  // set canvas drawing mode to false
   canvas.isDrawingMode = false;
-
-  // if selected shape is freeform, set drawing mode to true and return
 
   if (DRAWING_TOOLS.includes(selectedShapeRef.current!)) {
     applyBrush(selectedShapeRef.current, canvas, currentColorRef);
@@ -141,33 +123,22 @@ export const handleCanvasMouseDown = ({
 
   canvas.isDrawingMode = false;
 
-  // if target is the selected shape or active selection, set isDrawing to false
   if (target && (target.type === selectedShapeRef.current || target.type === 'activeSelection')) {
     isDrawing.current = false;
 
-    // set active object to target
     canvas.setActiveObject(target);
-
-    /**
-     * setCoords() is used to update the controls of the object
-     * setCoords: http://fabricjs.com/docs/fabric.Object.html#setCoords
-     */
     target.setCoords();
   } else {
     isDrawing.current = true;
 
-    // create custom fabric object/shape and set it to shapeRef
     shapeRef.current = createSpecificShape(selectedShapeRef.current, pointer as any, currentColorRef?.current, canvas);
 
-    // if shapeRef is not null, add it to canvas
     if (shapeRef.current) {
-      // add: http://fabricjs.com/docs/fabric.Canvas.html#add
       canvas.add(shapeRef.current);
     }
   }
 };
 
-// handle mouse move event on canvas to draw shapes with different dimensions
 export const handleCanvasMouseMove = ({
   options,
   canvas,
@@ -176,7 +147,6 @@ export const handleCanvasMouseMove = ({
   shapeRef,
   syncShapeInStorage,
 }: CanvasMouseMove) => {
-  // if selected shape is freeform, return
   if (!isDrawing.current) {
     return;
   }
@@ -186,11 +156,8 @@ export const handleCanvasMouseMove = ({
 
   canvas.isDrawingMode = false;
 
-  // get pointer coordinates
   const pointer = canvas.getScenePoint(options.e);
 
-  // depending on the selected shape, set the dimensions of the shape stored in shapeRef in previous step of handelCanvasMouseDown
-  // calculate shape dimensions based on pointer coordinates
   switch (selectedShapeRef?.current) {
     case 'rectangle':
     case 'triangle':
@@ -222,13 +189,11 @@ export const handleCanvasMouseMove = ({
   // requestRenderAll coalesces rapid mouse:move events into one rAF tick (renderAll paints sync each call).
   canvas.requestRenderAll();
 
-  // sync shape in storage
   if (shapeRef.current?.objectId) {
     syncShapeInStorage(shapeRef.current);
   }
 };
 
-// handle mouse up event on canvas to stop drawing shapes
 export const handleCanvasMouseUp = ({
   canvas,
   isDrawing,
@@ -243,15 +208,12 @@ export const handleCanvasMouseUp = ({
     return;
   }
 
-  // sync shape in storage as drawing is stopped
   syncShapeInStorage(shapeRef.current);
 
-  // set everything to null
   shapeRef.current = null;
   activeObjectRef.current = null;
   selectedShapeRef.current = null;
 
-  // if canvas is not in drawing mode, set active element to default nav element after 700ms
   if (!canvas.isDrawingMode) {
     setTimeout(() => {
       setActiveElement(defaultNavElement);
@@ -259,7 +221,6 @@ export const handleCanvasMouseUp = ({
   }
 };
 
-// update shape in storage when object is modified
 export const handleCanvasObjectModified = ({ options, syncShapeInStorage }: CanvasObjectModified) => {
   const target = options.target;
   if (!target) {
@@ -267,13 +228,12 @@ export const handleCanvasObjectModified = ({ options, syncShapeInStorage }: Canv
   }
 
   if (target?.type === 'activeSelection') {
-    // fix this
+    /* noop */
   } else {
     syncShapeInStorage(target);
   }
 };
 
-// update shape in storage when path is created when in freeform mode
 export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCreated) => {
   const path = options.path;
   if (!path) {
@@ -289,7 +249,6 @@ export const handlePathCreated = ({ options, syncShapeInStorage }: CanvasPathCre
   syncShapeInStorage(path);
 };
 
-// check how object is moving on canvas and restrict it to canvas boundaries
 /** Keep object fully inside the canvas, whatever the zoom. */
 export const handleCanvasObjectMoving = ({ options }: { options: any }) => {
   const target = options.target as FabricObject;
@@ -313,28 +272,22 @@ export const handleCanvasObjectMoving = ({ options }: { options: any }) => {
   target.setCoords();
 };
 
-// set element attributes when element is selected
 export const handleCanvasSelectionCreated = ({
   options,
   isEditingRef,
   setElementAttributes,
 }: CanvasSelectionCreated) => {
-  // if user is editing manually, return
   if (isEditingRef.current) {
     return;
   }
 
-  // if no element is selected, return
   if (!options?.selected) {
     return;
   }
 
-  // get the selected element
   const selectedElement: any = options?.selected[0] as FabricObject;
 
-  // if only one element is selected, set element attributes
   if (selectedElement && options.selected.length === 1) {
-    // calculate scaled dimensions of the object
     const scaledWidth = selectedElement?.scaleX
       ? selectedElement?.width * selectedElement?.scaleX
       : selectedElement?.width;
@@ -355,11 +308,9 @@ export const handleCanvasSelectionCreated = ({
   }
 };
 
-// update element attributes when element is scaled
 export const handleCanvasObjectScaling = ({ options, setElementAttributes }: CanvasObjectScaling) => {
   const selectedElement: any = options.target;
 
-  // calculate scaled dimensions of the object
   const scaledWidth = selectedElement?.scaleX
     ? selectedElement?.width * selectedElement?.scaleX
     : selectedElement?.width;
@@ -395,21 +346,16 @@ export const handleResize = ({
   });
 };
 
-// zoom canvas on mouse scroll
 export const handleCanvasZoom = ({ options, canvas }: { options: any; canvas: Canvas }) => {
   const delta = options.e?.deltaY;
   let zoom = canvas.getZoom();
 
-  // allow zooming to min 20% and max 100%
   const minZoom = 0.2;
   const maxZoom = 1;
   const zoomStep = 0.001;
 
-  // calculate zoom based on mouse scroll wheel with min and max zoom
   zoom = Math.min(Math.max(minZoom, zoom + delta * zoomStep), maxZoom);
 
-  // set zoom to canvas
-  // zoomToPoint: http://fabricjs.com/docs/fabric.Canvas.html#zoomToPoint
   canvas.zoomToPoint(new Point(options.e.offsetX, options.e.offsetY), zoom);
 
   options.e.preventDefault();

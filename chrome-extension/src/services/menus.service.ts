@@ -13,7 +13,7 @@ export const removeContextMenus = async (): Promise<void> => {
   try {
     await contextMenus.removeAll();
   } catch {
-    // silent
+    // ignore
   }
 };
 

@@ -12,7 +12,7 @@ export const decodeRequestBody = (requestBody?: {
     try {
       parsed = JSON.parse(decoded);
     } catch {
-      // not JSON, keep as plain string
+      // not JSON
     }
 
     return { decoded, parsed };

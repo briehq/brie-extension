@@ -31,7 +31,6 @@ export const shapeElements: ShapeElement[] = [
 ];
 
 export const defaultNavElement: ShapeElement = {
-  // icon: 'MousePointer2Icon',
   icon: 'HandIcon',
   name: 'Move',
   value: 'select',
@@ -179,7 +178,6 @@ export const shortcuts = [
   {
     value: 'export',
     name: 'Export',
-    // shortcut: '⌘ + E',
   },
   {
     value: 'undo',
@@ -194,6 +192,5 @@ export const shortcuts = [
   {
     value: 'start_over',
     name: 'Start Over',
-    // shortcut: '⌘ + D',
   },
 ];

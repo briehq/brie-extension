@@ -19,7 +19,6 @@ const selfContainedEntriesPlugin = (): Plugin => {
     name: 'self-contained-entries',
     enforce: 'pre',
     generateBundle(_, bundle) {
-      // ── 1. Inline shared chunks ──────────────────────────────────────
       const sharedChunks = new Map<string, (typeof bundle)[string] & { type: 'chunk' }>();
 
       for (const [fileName, info] of Object.entries(bundle)) {
@@ -41,13 +40,12 @@ const selfContainedEntriesPlugin = (): Plugin => {
           const importMatch = code.match(importRe);
           if (!importMatch) continue;
 
-          // Parse import bindings, e.g. "R as RECORD, U as UI"
+          // Parses import bindings like "R as RECORD, U as UI".
           const importBindings = importMatch[1].split(',').map(s => {
             const [imported, local] = s.trim().split(/\s+as\s+/);
             return { imported: imported.trim(), local: (local || imported).trim() };
           });
 
-          // Parse the chunk's export statement
           const exportMatch = chunk.code.match(/export\s*\{\s*([^}]+)\s*\}\s*;?/);
           const exportMap = new Map<string, string>();
           if (exportMatch) {
@@ -57,10 +55,9 @@ const selfContainedEntriesPlugin = (): Plugin => {
             }
           }
 
-          // Strip export from chunk code
           let inlined = chunk.code.replace(/export\s*\{[^}]*\}\s*;?\s*/g, '').trim();
 
-          // Add alias declarations when chunk-local name differs from import-local name
+          // Alias when the chunk-local name differs from the import-local name.
           for (const { imported, local } of importBindings) {
             const chunkLocal = exportMap.get(imported) ?? imported;
             if (chunkLocal !== local) {
@@ -72,13 +69,12 @@ const selfContainedEntriesPlugin = (): Plugin => {
           entry.imports = entry.imports.filter(i => i !== chunkFile);
         }
 
-        // ── 2. Strip `export default` keyword but keep the expression ──
+        // Drop the `export default` keyword but keep the expression so the IIFE still evaluates.
         code = code.replace(/^export\s+default\s+/gm, '');
 
         entry.code = code;
       }
 
-      // Remove shared chunks from the bundle
       for (const name of sharedChunks.keys()) {
         delete bundle[name];
       }

@@ -9,7 +9,6 @@ let lastPointerX = 0;
 let lastPointerY = 0;
 let startX: number, startY: number;
 let isSelecting = false;
-// let cancelled = false;
 let selectionBox: HTMLDivElement;
 let overlay: HTMLDivElement;
 let dimensionLabel: HTMLDivElement;
@@ -23,7 +22,6 @@ const waitForRepaint = () =>
   new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 const getShadowHost = () => document.getElementById('brie-root');
 
-// Helper Functions
 const addBoundaryBox = (
   canvas: HTMLCanvasElement,
   x: number,
@@ -35,7 +33,6 @@ const addBoundaryBox = (
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // Adjust coordinates and dimensions by the scale factors
   const scaledX = x * scaleFactor;
   const scaledY = y * scaleFactor;
   const scaledWidth = width * scaleFactor;
@@ -46,7 +43,6 @@ const addBoundaryBox = (
   ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
 };
 
-// Function to crop the selected area
 const cropSelectedArea = (
   canvas: HTMLCanvasElement,
   x: number,
@@ -56,8 +52,8 @@ const cropSelectedArea = (
   scaleFactor: number,
 ): HTMLCanvasElement => {
   const croppedCanvas = document.createElement('canvas');
-  croppedCanvas.width = width * scaleFactor; // Scale the width for higher resolution
-  croppedCanvas.height = height * scaleFactor; // Scale the height for higher resolution
+  croppedCanvas.width = width * scaleFactor;
+  croppedCanvas.height = height * scaleFactor;
 
   const ctx = croppedCanvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) {
@@ -79,23 +75,16 @@ const cropSelectedArea = (
   return croppedCanvas;
 };
 
-// Function to remove the "Preparing Screenshot..." label from the screenshot
 const cleanCanvas = (canvas: HTMLCanvasElement, element: HTMLElement) => {
   const rect = element.getBoundingClientRect();
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // Save the current canvas state before clearing
   ctx.save();
-
-  // Clear the area where the message element is
   ctx.clearRect(rect.left, rect.top, rect.width, rect.height);
-
-  // Restore the previous canvas state to avoid affecting other parts
   ctx.restore();
 };
 
-// Create an overlay for selection
 const createOverlay = () => {
   overlay = document.createElement('div');
   Object.assign(overlay.style, {
@@ -116,7 +105,6 @@ const createOverlay = () => {
   document.body.appendChild(overlay);
 };
 
-// Create the selection box
 const createSelectionBox = () => {
   selectionBox = document.createElement('div');
   Object.assign(selectionBox.style, {
@@ -130,7 +118,6 @@ const createSelectionBox = () => {
   document.body.appendChild(selectionBox);
 };
 
-// Create the dimension label
 const createDimensionLabel = () => {
   dimensionLabel = document.createElement('div');
   Object.assign(dimensionLabel.style, {
@@ -148,7 +135,6 @@ const createDimensionLabel = () => {
   document.body.appendChild(dimensionLabel);
 };
 
-// Display a loading message
 const showLoadingMessage = () => {
   loadingMessage = document.createElement('div');
   Object.assign(loadingMessage.style, {
@@ -170,7 +156,6 @@ const showLoadingMessage = () => {
   document.documentElement.appendChild(loadingMessage);
 };
 
-// Hide the loading message
 const hideLoadingMessage = () => {
   loadingMessage?.remove();
   loadingMessage = null;
@@ -182,7 +167,6 @@ const onScroll = () => {
   }
 };
 
-// Position the instructions message dynamically
 const positionInstructionsMessage = (clientX: number, clientY: number) => {
   if (!message) return;
 
@@ -199,8 +183,6 @@ const positionInstructionsMessage = (clientX: number, clientY: number) => {
   message.style.top = `${clientY + offset + scrollY}px`;
 };
 
-// Event Handlers
-// Update the selection box dimensions
 const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
   if (!isSelecting) return;
 
@@ -228,9 +210,8 @@ const updateSelectionBox = (e: MouseEvent | TouchEvent) => {
   dimensionLabel.textContent = `W: ${width.toFixed(0)}px, H: ${height.toFixed(0)}px`;
 };
 
-// Start the selection process
 const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
-  if ('button' in e && e.button !== 0) return; // Only respond to left-click
+  if ('button' in e && e.button !== 0) return;
 
   if (selectionMouseUpHandler) {
     document.removeEventListener('mouseup', selectionMouseUpHandler);
@@ -243,7 +224,6 @@ const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') =>
 
   isSelecting = true;
 
-  // Use viewport-relative coordinates
   const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
   const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
 
@@ -268,18 +248,15 @@ const onMouseDown = (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') =>
   message = null;
 };
 
-// Handle keydown events for ESC press
 const onKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
     cleanup();
     showPreview();
 
-    // Notify Background on ESC
     chrome.runtime.sendMessage({ type: CAPTURE.EXIT });
   }
 };
 
-// Start the selection process for touch
 const onTouchStart = (e: TouchEvent) => {
   isSelecting = true;
   startX = e.touches[0].pageX;
@@ -289,7 +266,6 @@ const onTouchStart = (e: TouchEvent) => {
   e.preventDefault();
 };
 
-// Finish the selection and capture the screenshot
 const onMouseUp = async (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple') => {
   if (!isSelecting) return;
 
@@ -306,13 +282,6 @@ const onMouseUp = async (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple'
 
   cleanup();
 
-  /**
-   * @todo
-   * Improve show loading message logic.
-   * Note: The message should not be visible on screenshots. Only for user.
-   */
-  // showLoadingMessage();
-
   await waitForRepaint();
 
   const isSmall = width < 1 && height < 1;
@@ -321,10 +290,8 @@ const onMouseUp = async (e: MouseEvent | TouchEvent, mode: 'single' | 'multiple'
     : { x: minX, y: minY, width, height };
 
   await captureScreenshots({ ...area, mode });
-  // hideLoadingMessage();
 };
 
-// Move the instructions message with the cursor
 const onMouseMove = (e: MouseEvent) => {
   const { clientX, clientY } = e;
 
@@ -333,7 +300,6 @@ const onMouseMove = (e: MouseEvent) => {
   positionInstructionsMessage(lastPointerX, lastPointerY);
 };
 
-// Finish the selection for touch and capture the screenshot
 const onTouchEnd = async (e: TouchEvent, mode: 'single' | 'multiple') => {
   if (!isSelecting) return;
 
@@ -377,9 +343,8 @@ const showPreview = () => {
   if (shadowHost) shadowHost.hidden = false;
 };
 
-// Show instructions message
 const showInstructions = () => {
-  if (message) return; // Prevent duplicate creation of the message
+  if (message) return;
 
   message = document.createElement('div');
   Object.assign(message.style, {
@@ -395,7 +360,6 @@ const showInstructions = () => {
   message.textContent = t('selectArea');
   document.body.appendChild(message);
 
-  // Move instructions message on mouse/touch move
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('touchmove', onTouchMove);
@@ -424,7 +388,6 @@ const checkIfNativeCaptureAvailable = () =>
     });
   });
 
-// Screenshot Capturing
 const captureScreenshots = async ({
   x,
   y,
@@ -441,27 +404,18 @@ const captureScreenshots = async ({
   try {
     const scaleFactor = window.devicePixelRatio || 2;
 
-    // Check if Native Capture API is available
     const isNativeCaptureAvailable = await checkIfNativeCaptureAvailable();
 
     if (isNativeCaptureAvailable) {
-      // Use Native Capture API through the background script
-      // if (loadingMessage) loadingMessage.hidden = true;
-
       const dataUrl = await captureTab();
-
-      // if (loadingMessage) loadingMessage.hidden = false;
-
-      // Process the screenshot from the Native Capture API
       return processScreenshot({ dataUrl, x, y, width, height, scaleFactor, mode });
     } else {
-      // Fallback to html2canvas logic
       const fullCanvas = await html2canvas(document.body, {
-        useCORS: true, // Ensures external resources don't block rendering
-        allowTaint: true, // Skips cross-origin restrictions
-        logging: false, // Disables debug logs
-        removeContainer: true, // Removes temporary DOM elements
-        scale: scaleFactor, // Increase the scale factor for higher resolution
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        removeContainer: true,
+        scale: scaleFactor,
         scrollX: window.scrollX,
         scrollY: window.scrollY,
         x: window.scrollX,
@@ -495,7 +449,6 @@ const captureScreenshots = async ({
   }
 };
 
-// Helper: Process the screenshot
 const processScreenshot = async ({
   dataUrl,
   x,
@@ -525,13 +478,10 @@ const processScreenshot = async ({
   const ctx: CanvasRenderingContext2D | null = fullCanvas.getContext('2d');
   ctx?.drawImage(img, 0, 0);
 
-  // Crop the selected area
   const croppedCanvas = cropSelectedArea(fullCanvas, x, y, width, height, scaleFactor);
 
-  // Add a red boundary box on the full screenshot
   addBoundaryBox(fullCanvas, x, y, width, height, scaleFactor);
 
-  // Convert canvases to images
   let fullScreenshotImage: string | null = fullCanvas.toDataURL('image/jpeg', 1);
   let croppedScreenshotImage =
     croppedCanvas.width && croppedCanvas.height ? croppedCanvas.toDataURL('image/jpeg', 1) : null;
@@ -544,22 +494,17 @@ const processScreenshot = async ({
     mode,
   });
 
-  // Cleanup
   fullScreenshotImage = null;
   croppedScreenshotImage = null;
   croppedCanvas?.remove();
   fullCanvas?.remove();
 };
 
-// Save and notify with screenshots
 const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode: 'single' | 'multiple' }) => {
   const timestamp = Date.now();
   const screenshotName: string = `${location.host}-${timestamp}`.replaceAll('.', '-');
 
-  /**
-   * @todo use safePostMessage
-   * currently brakes the build (because of extend)
-   */
+  // Using window.postMessage rather than safePostMessage — the latter breaks the extend build.
   window.postMessage(
     {
       type: RECORD.ADD,
@@ -590,13 +535,8 @@ const saveAndNotify = ({ screenshots, mode }: { screenshots: Screenshot[]; mode:
   window.dispatchEvent(event);
 };
 
-// Initialization
 export const startScreenshotCapture = async ({
   type,
-  /**
-   * @todo
-   * add a toggle to choose the mode 'single' | 'multiple'
-   */
   mode = 'multiple',
 }: {
   type: 'full-page' | 'viewport' | 'area';
@@ -643,19 +583,13 @@ export const startScreenshotCapture = async ({
   showInstructions();
   hidePreview();
 
-  overlay.addEventListener('keydown', onKeyDown); // Listen for ESC key press
+  overlay.addEventListener('keydown', onKeyDown);
   overlay.addEventListener('mousedown', e => onMouseDown(e, mode));
   overlay.addEventListener('touchstart', e => onMouseDown(e, mode));
 };
 
-// Clean up all temporary elements
 export const cleanup = (): void => {
   isSelecting = false;
-
-  // Reset any necessary state
-  // startX = 0;
-  // startY = 0;
-  // cancelled = true;
 
   overlay?.remove();
   selectionBox?.remove();
@@ -666,9 +600,8 @@ export const cleanup = (): void => {
   document.body.style.overflow = '';
   document.removeEventListener('keydown', onKeyDown);
   document.removeEventListener('mousemove', updateSelectionBox);
-  // Also remove the cursor-tracking listeners attached by showInstructions(). Without these the
-  // listeners stayed on document for the page's lifetime after ESC/completion — each cancelled
-  // capture session leaked another pair.
+  // Cursor-tracking listeners attached by showInstructions() must be removed here — otherwise
+  // each cancelled capture session leaks another pair for the page's lifetime.
   document.removeEventListener('mousemove', onMouseMove);
   document.removeEventListener('touchmove', onTouchMove);
   if (selectionMouseUpHandler) {
