@@ -10,7 +10,6 @@ export {
   handleCanvasObjectMoving,
   handleCanvasSelectionCreated,
   handleCanvasObjectScaling,
-  renderCanvas,
   handleResize,
   handleCanvasZoom,
 } from './canvas.util';
