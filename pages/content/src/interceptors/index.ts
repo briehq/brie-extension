@@ -15,6 +15,17 @@ if (!BLOCKED_DOMAINS.includes(window.location.host)) {
 interceptXHR();
 interceptConsole();
 interceptEvents();
-interceptCookies();
-interceptLocalStorage();
-interceptSessionStorage();
+
+type RIC = (cb: () => void, opts?: { timeout?: number }) => number;
+const ric = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback;
+const runSnapshotInterceptors = () => {
+  interceptCookies();
+  interceptLocalStorage();
+  interceptSessionStorage();
+};
+
+if (typeof ric === 'function') {
+  ric(runSnapshotInterceptors, { timeout: 2000 });
+} else {
+  setTimeout(runSnapshotInterceptors, 0);
+}

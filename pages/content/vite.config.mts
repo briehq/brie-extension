@@ -95,7 +95,6 @@ export default withPageConfig({
   publicDir: resolve(rootDir, 'public'),
   plugins: [selfContainedEntriesPlugin(), IS_DEV && makeEntryPointPlugin()],
   build: {
-    minify: false,
     rollupOptions: {
       input: {
         index: resolve(rootDir, 'src/index.ts'),

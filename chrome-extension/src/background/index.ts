@@ -1,3 +1,4 @@
+import type { WebRequest } from 'webextension-polyfill';
 import { tabs, contextMenus, runtime, webRequest, webNavigation } from 'webextension-polyfill';
 
 import {
@@ -22,14 +23,32 @@ contextMenus.onClicked.addListener(handleOnContextMenuClicked);
 
 /**
  * @todo
- * there is an scenario when tabId is -1,
+ * there is a scenario when tabId is -1,
  * but we know the requestId and we can use it to populate the right request data
  *
  * related to all 3 web req states
  */
-webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, { urls: ['<all_urls>'] }, ['requestBody']);
-webRequest.onBeforeSendHeaders.addListener(handleOnBeforeSendHeaders, { urls: ['<all_urls>'] }, ['requestHeaders']);
-webRequest.onCompleted.addListener(handleOnCompleted, { urls: ['<all_urls>'] });
+const TRACKED_REQUEST_TYPES: WebRequest.ResourceType[] = [
+  'main_frame',
+  'sub_frame',
+  'script',
+  'stylesheet',
+  'xmlhttprequest',
+  'websocket',
+];
+
+webRequest.onBeforeRequest.addListener(handleOnBeforeRequest, { urls: ['<all_urls>'], types: TRACKED_REQUEST_TYPES }, [
+  'requestBody',
+]);
+webRequest.onBeforeSendHeaders.addListener(
+  handleOnBeforeSendHeaders,
+  { urls: ['<all_urls>'], types: TRACKED_REQUEST_TYPES },
+  ['requestHeaders'],
+);
+webRequest.onCompleted.addListener(handleOnCompleted, {
+  urls: ['<all_urls>'],
+  types: TRACKED_REQUEST_TYPES,
+});
 webNavigation.onCommitted.addListener(handleOnCommitted);
 
 initBadgeListener();

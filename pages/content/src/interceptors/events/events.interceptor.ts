@@ -84,8 +84,6 @@ const handleOnValueChange = (event: Event, reason: 'change' | 'blur' | 'input') 
  * @param event - Mouse click event.
  */
 const handleOnCustomSelectClick = (event: MouseEvent) => {
-  if (pathTouchesExtension(event)) return;
-
   const target = deepTarget(event);
 
   if (!target) return;
@@ -114,8 +112,6 @@ const handleOnCustomSelectClick = (event: MouseEvent) => {
  * @param event - Mouse click event.
  */
 const handleOnClick = (event: MouseEvent) => {
-  if (pathTouchesExtension(event)) return;
-
   const ep = document.elementFromPoint(event.clientX, event.clientY);
   const hitTarget = ep instanceof Element ? ep : deepTarget(event);
 
@@ -146,7 +142,6 @@ const handleOnClick = (event: MouseEvent) => {
  * Emits a single InputChange with inferred checked state.
  */
 const handleOnAriaToggleClick = (event: MouseEvent) => {
-  if (pathTouchesExtension(event)) return;
   const t = deepTarget(event);
   if (!(t instanceof HTMLElement)) return;
 
@@ -364,10 +359,36 @@ const createResizeOncePerActivity = (idleMs = 1000): ResizeHandler => {
   return handler;
 };
 
+let eventsInterceptorRegistered = false;
+
+const handleAllClicks = (event: MouseEvent) => {
+  if (pathTouchesExtension(event)) return;
+  // Each handler is independently wrapped so a throw in one doesn't drop the others.
+  try {
+    handleOnClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnClick failed:', err);
+  }
+  try {
+    handleOnCustomSelectClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnCustomSelectClick failed:', err);
+  }
+  try {
+    handleOnAriaToggleClick(event);
+  } catch (err) {
+    console.error('[brie] handleOnAriaToggleClick failed:', err);
+  }
+};
+
 /**
  * Initializes all capture-phase listeners and starts event interception.
+ * Idempotent — re-running on an SPA navigation will not double-register.
  */
 export const interceptEvents = () => {
+  if (eventsInterceptorRegistered) return;
+  eventsInterceptorRegistered = true;
+
   // Lifecycle
   document.addEventListener('DOMContentLoaded', () => sendEvent(AppEventType.DOMContentLoaded), {
     capture: true,
@@ -395,10 +416,7 @@ export const interceptEvents = () => {
   // Inputs / selects changes
   document.addEventListener('change', e => handleOnValueChange(e, 'change'), { capture: true });
 
-  // Clicks and custom selects
-  document.addEventListener('click', handleOnClick, { capture: true });
-  document.addEventListener('click', handleOnCustomSelectClick, { capture: true });
-  document.addEventListener('click', handleOnAriaToggleClick, { capture: true });
+  document.addEventListener('click', handleAllClicks, { capture: true });
 
   // Keyboard
   document.addEventListener('keydown', handleOnKeydown, { capture: true });

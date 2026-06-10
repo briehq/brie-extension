@@ -16,15 +16,7 @@ export const isClickable = (el: Element | null): boolean => {
 
   if (role && ['button', 'link', 'menuitem', 'tab', 'option', 'switch'].includes(role)) return true;
 
-  // Inline handlers only if it *looks* interactive (avoid catching large containers)
-  if (typeof (el as any).onclick === 'function') {
-    const tabIndexAttr = el.getAttribute('tabindex');
-    const tabIndex = tabIndexAttr !== null ? Number(tabIndexAttr) : undefined;
-    const cs = getComputedStyle(el);
-    const looksInteractive =
-      (tabIndex !== undefined && Number.isFinite(tabIndex) && tabIndex >= 0) || cs.cursor === 'pointer';
-    if (looksInteractive) return true;
-  }
+  if (typeof (el as unknown as { onclick?: unknown }).onclick === 'function') return true;
 
   return false;
 };

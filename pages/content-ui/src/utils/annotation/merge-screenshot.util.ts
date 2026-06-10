@@ -30,8 +30,8 @@ export const mergeScreenshot = async ({
   canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
   canvas.backgroundImage = bg;
 
-  const blurRects = objects.filter(o => o.shapeType === 'blur');
-  const normals = objects.filter(o => o.shapeType !== 'blur');
+  const blurRects = objects.filter(o => (o as { shapeType?: string }).shapeType === 'blur');
+  const normals = objects.filter(o => (o as { shapeType?: string }).shapeType !== 'blur');
   const enlivened = await FabricUtil.enlivenObjects(normals);
 
   enlivened.forEach((obj: any) => canvas.add(obj));
@@ -41,7 +41,7 @@ export const mergeScreenshot = async ({
     rect.absolutePositioned = true;
 
     const patch = bg.cloneAsImage({});
-    patch.filters = [new FabricFilters.Blur({ blur: snap.blurRadius ?? 12 })];
+    patch.filters = [new FabricFilters.Blur({ blur: (snap as { blurRadius?: number }).blurRadius ?? 12 })];
     patch.applyFilters();
     patch.clipPath = rect;
 

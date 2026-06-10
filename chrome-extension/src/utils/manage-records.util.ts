@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from 'uuid';
-import { tabs } from 'webextension-polyfill';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
 import { domainSkipListStorage } from '@extension/storage';
@@ -7,6 +6,20 @@ import { domainSkipListStorage } from '@extension/storage';
 import type { Record } from '@src/types';
 
 import { decodeRequestBody } from './decode-request-body.util';
+
+let skipDomainsCache: string[] = [];
+
+const refreshSkipDomainsFromSnapshot = () => {
+  skipDomainsCache = domainSkipListStorage.getSnapshot() ?? [];
+};
+
+void domainSkipListStorage.get().then(value => {
+  skipDomainsCache = value ?? [];
+});
+domainSkipListStorage.subscribe(refreshSkipDomainsFromSnapshot);
+
+const MAX_RECORDS_PER_TAB = 5_000;
+const MAX_URL_MAP_PER_TAB = 1_000;
 
 const RESTRICTED = [
   'https://api.briehq.com',
@@ -54,19 +67,27 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     return;
   }
 
-  const [tab] = await tabs.query({ active: true, lastFocusedWindow: true });
-  const tabUrl = tab?.url || record?.url;
-  const skipDomains = await domainSkipListStorage.get();
+  const skipDomains = skipDomainsCache;
+  const tabUrl = record?.url || record?.pageUrl;
 
   if (!tabRecordsMap.has(tabId)) {
     tabRecordsMap.set(tabId, new Map());
   }
 
   const recordsMap = tabRecordsMap.get(tabId)!;
+
   const uuid = uuidv4();
+
+  const evictOldestIfFull = () => {
+    if (recordsMap.size >= MAX_RECORDS_PER_TAB) {
+      const oldestKey = recordsMap.keys().next().value;
+      if (oldestKey !== undefined) recordsMap.delete(oldestKey);
+    }
+  };
 
   try {
     if (record.recordType !== 'network') {
+      evictOldestIfFull();
       recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl, skipDomains) });
       return;
     }
@@ -82,6 +103,10 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     let finalRequestId = requestId;
 
     if (type === 'xmlhttprequest' && requestId) {
+      if (urlMap.size >= MAX_URL_MAP_PER_TAB) {
+        const oldestKey = urlMap.keys().next().value;
+        if (oldestKey !== undefined) urlMap.delete(oldestKey);
+      }
       urlMap.set(url, requestId);
     }
 
@@ -130,6 +155,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     };
 
     if (!recordsMap.has(recordKey)) {
+      evictOldestIfFull();
       recordsMap.set(recordKey, { uuid, url, ...redactedRecord });
       return;
     }

@@ -25,7 +25,8 @@ if (navigator.userAgent.includes('Firefox')) {
    * Injecting styles into the document, this may cause style conflicts with the host page
    */
   const styleElement = document.createElement('style');
-  styleElement.innerHTML = tailwindcssOutput;
+  // textContent (not innerHTML) so strict-CSP host pages don't reject style injection.
+  styleElement.textContent = tailwindcssOutput;
   shadowRoot.appendChild(styleElement);
 } else {
   /** Inject styles into shadow dom */

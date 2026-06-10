@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   CAPTURE,
@@ -30,8 +30,13 @@ import {
 
 import { CaptureScreenshotView, CaptureSessionView, RecordVideoView } from './views';
 
-export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (id: number | null) => void }) => {
-  const { state, mode } = useStorage<BaseStorage<CaptureState>>(captureStateStorage);
+type CaptureContentViewProps = {
+  onActiveTabChange: (id: number | null) => void;
+  captureState: CaptureState;
+};
+
+const CaptureContentViewInner = ({ onActiveTabChange, captureState }: CaptureContentViewProps) => {
+  const { state, mode } = captureState;
   const { rewind } = useStorage<BaseStorage<RewindSettings>>(rewindSettingsStorage);
   const { mic } = useStorage<BaseStorage<RecordingSettings>>(recordingSettingsStorage);
 
@@ -57,10 +62,13 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     await captureStateStorage.setScreenshotState(state);
   }, []);
 
-  const updateActiveTab = useCallback(async (tabId: number | null) => {
-    await captureTabStorage.setCaptureTabId(tabId);
-    onActiveTabChange(tabId);
-  }, []);
+  const updateActiveTab = useCallback(
+    async (tabId: number | null) => {
+      await captureTabStorage.setCaptureTabId(tabId);
+      onActiveTabChange(tabId);
+    },
+    [onActiveTabChange],
+  );
 
   useEffect(() => {
     const handleEscapeKey = async (event: KeyboardEvent) => {
@@ -244,3 +252,5 @@ export const CaptureContentView = ({ onActiveTabChange }: { onActiveTabChange: (
     </div>
   );
 };
+
+export const CaptureContentView = memo(CaptureContentViewInner);

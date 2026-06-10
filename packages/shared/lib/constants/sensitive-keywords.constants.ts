@@ -1,4 +1,17 @@
-export const STRONG_KEYS = [
+const buildListRegex = (list: string[]): RegExp =>
+  new RegExp(`(^|[^a-z0-9])(?:${list.map(s => s.replace(/_/g, '[_-]?')).join('|')})([^a-z0-9]|$)`, 'i');
+
+const compiledListRegexes = new WeakMap<string[], RegExp>();
+const getListRegex = (list: string[]): RegExp => {
+  let re = compiledListRegexes.get(list);
+  if (!re) {
+    re = buildListRegex(list);
+    compiledListRegexes.set(list, re);
+  }
+  return re;
+};
+
+const STRONG_KEYS = [
   'okta',
   'authorization',
   'oai-sc',
@@ -50,10 +63,10 @@ export const STRONG_KEYS = [
 ];
 
 // Explicitly DO NOT redact these by name
-export const EXEMPT_KEYS = ['username', 'user_name', 'email', 'e-mail', 'login', 'user', 'user_id', 'userid'];
+const EXEMPT_KEYS = ['username', 'user_name', 'email', 'e-mail', 'login', 'user', 'user_id', 'userid'];
 
 // Non-sensitive/date-ish by default
-export const NON_SENSITIVE_KEYS = [
+const NON_SENSITIVE_KEYS = [
   'date',
   'start_date',
   'end_date',
@@ -66,6 +79,6 @@ export const NON_SENSITIVE_KEYS = [
   'expiration_date',
 ];
 
-// Compile case-insensitive boundary-aware matchers
-export const keyMatches = (k: string | undefined | null, list: string[]) =>
-  !!k && list.some(s => new RegExp(`(^|[^a-z0-9])${s.replace(/_/g, '[_-]?')}([^a-z0-9]|$)`, 'i').test(k));
+const keyMatches = (k: string | undefined | null, list: string[]) => !!k && getListRegex(list).test(k);
+
+export { STRONG_KEYS, EXEMPT_KEYS, NON_SENSITIVE_KEYS, keyMatches };

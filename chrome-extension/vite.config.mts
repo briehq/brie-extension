@@ -4,8 +4,7 @@ import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
 import makeManifestPlugin from './src/utils/plugins/make-manifest-plugin.js';
 import { watchPublicPlugin, watchRebuildPlugin } from '@extension/hmr';
 import { watchOption } from '@extension/vite-config';
-import env, { IS_DEV, IS_PROD } from '@extension/env';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import env, { IS_DEV, IS_FIREFOX, IS_PROD } from '@extension/env';
 
 const rootDir = resolve(import.meta.dirname);
 const srcDir = resolve(rootDir, 'src');
@@ -29,7 +28,6 @@ export default defineConfig({
     watchPublicPlugin(),
     makeManifestPlugin({ outDir }),
     IS_DEV && watchRebuildPlugin({ reload: true, id: 'chrome-extension-hmr' }),
-    nodePolyfills(),
   ],
   publicDir: resolve(rootDir, 'public'),
   build: {
@@ -41,6 +39,7 @@ export default defineConfig({
     },
     outDir,
     emptyOutDir: false,
+    target: IS_FIREFOX ? 'firefox109' : 'chrome120',
     sourcemap: IS_DEV,
     minify: IS_PROD,
     reportCompressedSize: IS_PROD,

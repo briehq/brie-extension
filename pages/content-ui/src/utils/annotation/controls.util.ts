@@ -15,7 +15,13 @@ export const createDefaultControls = () => {
     rotationStyleHandler,
   } = FabricControls;
 
-  const defaultRender = (ctx, left, top, styleOverride, fabricObject) => {
+  const defaultRender = (
+    ctx: CanvasRenderingContext2D,
+    left: number,
+    top: number,
+    _styleOverride: unknown,
+    fabricObject: { angle?: number },
+  ) => {
     ctx.save();
     const size = 8;
     const radius = 2.5;
@@ -116,7 +122,13 @@ export const createDefaultControls = () => {
       cursorStyleHandler: rotationStyleHandler,
       withConnection: false,
       cursorStyle: 'grab',
-      render: function (ctx, left, top, styleOverride, fabricObject) {
+      render: function (
+        ctx: CanvasRenderingContext2D,
+        left: number,
+        top: number,
+        _styleOverride: unknown,
+        _fabricObject: unknown,
+      ) {
         ctx.save();
         const size = 16;
         const radius = size / 2;
