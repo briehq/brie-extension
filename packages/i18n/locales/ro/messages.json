@@ -573,5 +573,17 @@
   },
   "noDomains": {
     "message": "Niciun domeniu adăugat încă. Informațiile sensibile sunt omise doar pe localhost în mod implicit."
+  },
+  "noCaptureData": {
+    "message": "No capture data available. Start a recording first."
+  },
+  "emptyResultFallback": {
+    "message": "No suggestion could be generated. Try again."
+  },
+  "noStepsFound": {
+    "message": "No steps could be reproduced from the captured session."
+  },
+  "outputTruncated": {
+    "message": "The generated text was cut off. Try with fewer steps."
   }
 }
