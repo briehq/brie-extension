@@ -666,6 +666,11 @@ export const cleanup = (): void => {
   document.body.style.overflow = '';
   document.removeEventListener('keydown', onKeyDown);
   document.removeEventListener('mousemove', updateSelectionBox);
+  // Also remove the cursor-tracking listeners attached by showInstructions(). Without these the
+  // listeners stayed on document for the page's lifetime after ESC/completion — each cancelled
+  // capture session leaked another pair.
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('touchmove', onTouchMove);
   if (selectionMouseUpHandler) {
     document.removeEventListener('mouseup', selectionMouseUpHandler);
     selectionMouseUpHandler = null;
