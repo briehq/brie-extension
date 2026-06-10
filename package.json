@@ -88,7 +88,7 @@
     "eslint-plugin-tailwindcss": "^3.18.3",
     "fast-glob": "^3.3.3",
     "fflate": "^0.8.2",
-    "globals": "^15.14.0",
+    "globals": "^17.6.0",
     "husky": "^9.1.4",
     "jiti": "^2.7.0",
     "lint-staged": "^15.5.1",
