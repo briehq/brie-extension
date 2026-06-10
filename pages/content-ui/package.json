@@ -34,7 +34,7 @@
     "fabric": "6.6.7",
     "file-saver": "^2.0.5",
     "rrweb": "2.0.0-alpha.4",
-    "rrweb-player": "1.0.0-alpha.4",
+    "rrweb-player": "2.0.1",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
