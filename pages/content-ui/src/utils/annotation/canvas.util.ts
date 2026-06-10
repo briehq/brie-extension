@@ -1,4 +1,4 @@
-import { Canvas, FabricObject, PencilBrush, util as fabricUtil, Point } from 'fabric';
+import { Canvas, FabricObject, PencilBrush, Point } from 'fabric';
 import type { RefObject } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
@@ -11,7 +11,6 @@ import type {
   CanvasObjectScaling,
   CanvasPathCreated,
   CanvasSelectionCreated,
-  RenderCanvas,
 } from '@src/models';
 
 import { getCanvasScale } from './canvas-scale.utils';
@@ -374,32 +373,6 @@ export const handleCanvasObjectScaling = ({ options, setElementAttributes }: Can
     width: scaledWidth?.toFixed(0).toString() || '',
     height: scaledHeight?.toFixed(0).toString() || '',
   }));
-};
-
-// render canvas objects coming from storage on canvas
-export const renderCanvas = async ({ fabricRef, canvasObjects = [], activeObjectRef }: RenderCanvas) => {
-  // clear canvas
-  fabricRef.current?.clear();
-
-  if (!canvasObjects.length) {
-    fabricRef.current?.renderAll();
-    return;
-  }
-
-  // enlivenObjects: http://fabricjs.com/docs/fabric.util.html#.enlivenObjectEnlivables
-  try {
-    const enlivenedObjects = await fabricUtil.enlivenObjects<FabricObject>(canvasObjects);
-
-    enlivenedObjects.forEach((enlivenedObj, i) => {
-      const objectData = canvasObjects[i] as { objectId?: string };
-      if (objectData?.objectId && activeObjectRef.current?.objectId === objectData.objectId) {
-        fabricRef.current?.setActiveObject(enlivenedObj);
-      }
-      fabricRef.current?.add(enlivenedObj);
-    });
-  } finally {
-    fabricRef.current?.renderAll();
-  }
 };
 
 export const handleResize = ({

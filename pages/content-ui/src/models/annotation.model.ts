@@ -201,12 +201,6 @@ export type CanvasObjectScaling = {
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
 };
 
-export type RenderCanvas = {
-  fabricRef: RefObject<Canvas | null>;
-  canvasObjects: any;
-  activeObjectRef: any;
-};
-
 export type CursorChatProps = {
   cursor: { x: number; y: number };
   cursorState: CursorState;
