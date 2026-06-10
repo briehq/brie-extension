@@ -12,6 +12,10 @@ export const MicPermission = () => {
   const extensionId = chrome.runtime.id;
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestInFlightRef = useRef(false);
+  // getUserMedia / permissions.query can resolve after the component unmounts (e.g. the user
+  // closes the tab mid-prompt). Without this guard, the continuation re-arms the auto-close
+  // timer and calls setState on an unmounted component.
+  const isMountedRef = useRef(true);
 
   const requestPermission = useCallback(async () => {
     // Rapid Try-Again clicks could schedule two window.close() timers; one would fire orphaned.
@@ -23,13 +27,14 @@ export const MicPermission = () => {
       autoCloseTimerRef.current = null;
     }
 
-    setState('requesting');
+    if (isMountedRef.current) setState('requesting');
 
     try {
       try {
         const status = await navigator.permissions?.query({ name: 'microphone' as PermissionName });
         if (status?.state === 'granted') {
           await recordingSettingsStorage.setMicPermission('granted');
+          if (!isMountedRef.current) return;
           setState('granted');
           autoCloseTimerRef.current = setTimeout(() => window.close(), AUTO_CLOSE_DELAY_MS);
           return;
@@ -42,12 +47,14 @@ export const MicPermission = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         stream.getTracks().forEach(t => t.stop());
         await recordingSettingsStorage.setMicPermission('granted');
+        if (!isMountedRef.current) return;
         setState('granted');
         autoCloseTimerRef.current = setTimeout(() => window.close(), AUTO_CLOSE_DELAY_MS);
       } catch (err: unknown) {
+        if (!isMountedRef.current) return;
         if ((err as { name?: string })?.name === 'NotAllowedError') {
           await recordingSettingsStorage.setMicPermission('denied');
-          setState('denied');
+          if (isMountedRef.current) setState('denied');
         } else {
           setState('error');
         }
@@ -58,9 +65,11 @@ export const MicPermission = () => {
   }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     requestPermission();
 
     return () => {
+      isMountedRef.current = false;
       if (autoCloseTimerRef.current !== null) {
         clearTimeout(autoCloseTimerRef.current);
         autoCloseTimerRef.current = null;
