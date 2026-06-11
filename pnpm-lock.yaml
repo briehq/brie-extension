@@ -133,8 +133,8 @@ importers:
         specifier: ^3.3.3
         version: 3.5.3
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.12
-        version: 0.6.12(prettier@3.5.3)
+        specifier: ^0.8.0
+        version: 0.8.0(prettier@3.5.3)
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -192,7 +192,7 @@ importers:
         version: link:../packages/vite-config
       '@laynezh/vite-plugin-lib-assets':
         specifier: ^2.1.3
-        version: 2.1.3(vite@6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))
+        version: 2.1.3(vite@6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))
       magic-string:
         specifier: ^0.30.17
         version: 0.30.17
@@ -241,7 +241,7 @@ importers:
         version: 4.41.1
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.11.31)(@types/node@25.9.2)(typescript@5.8.3)
+        version: 10.9.2(@swc/core@1.11.31)(@types/node@25.9.3)(typescript@5.8.3)
       ws:
         specifier: ^8.20.0
         version: 8.20.0
@@ -442,7 +442,7 @@ importers:
         version: link:../tsconfig
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.1
-        version: 3.10.1(vite@6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))
+        version: 3.10.1(vite@6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))
 
   packages/zipper:
     devDependencies:
@@ -2741,8 +2741,8 @@ packages:
   '@types/node@25.9.1':
     resolution: {integrity: sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg==}
 
-  '@types/node@25.9.2':
-    resolution: {integrity: sha512-G05zqtJhcDLb8uslf5EjCxXg9G1KQxiV8OS0R26IC//Eoyitzqe8z37I7cqvnZlrlSfgocQRfSn/AHBZJJFyGw==}
+  '@types/node@25.9.3':
+    resolution: {integrity: sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3100,6 +3100,11 @@ packages:
 
   acorn@8.16.0:
     resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.17.0:
+    resolution: {integrity: sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -3919,8 +3924,8 @@ packages:
     resolution: {integrity: sha512-6QEuw3zoX1SJQc7b87aBXke/no+mG2bTBgw29gWMQonLmpEkWoCAVkl+M49e48AZlWzxiDzDZzYdp6kobcyLww==}
     engines: {node: '>=10.13.0'}
 
-  enhanced-resolve@5.23.0:
-    resolution: {integrity: sha512-yJN/BOOLxcOW2aQgeif9mSnaUB8KtvmMMp56oA1kx1CRfBKbhZm2pJ+NBY+3eOboHxix8lfjWpHE0Ei5U8RbSA==}
+  enhanced-resolve@5.24.0:
+    resolution: {integrity: sha512-SkE2t82KlkkxQRVMVLAGKxLfORGQfrkx5dkj+vlgXRVNEdPc4eZcR+J/Fvj8C+yKSFH5L0q3NFlyufOVQnCcYQ==}
     engines: {node: '>=10.13.0'}
 
   entities@4.5.0:
@@ -5617,11 +5622,13 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier-plugin-tailwindcss@0.6.12:
-    resolution: {integrity: sha512-OuTQKoqNwV7RnxTPwXWzOFXy6Jc4z8oeRZYGuMpRyG3WbuR3jjXdQFK8qFBMBx8UHWdHrddARz2fgUenild6aw==}
-    engines: {node: '>=14.21.3'}
+  prettier-plugin-tailwindcss@0.8.0:
+    resolution: {integrity: sha512-V8ITGH87yuBDF6JpEZTOVlUz/saAwqb8f3HRgUj8Lh+tGCcrmorhsLpYqzygwFwK0PE2Ib6Mv3M7T/uE2tZV1g==}
+    engines: {node: '>=20.19'}
     peerDependencies:
       '@ianvs/prettier-plugin-sort-imports': '*'
+      '@prettier/plugin-hermes': '*'
+      '@prettier/plugin-oxc': '*'
       '@prettier/plugin-pug': '*'
       '@shopify/prettier-plugin-liquid': '*'
       '@trivago/prettier-plugin-sort-imports': '*'
@@ -5629,17 +5636,19 @@ packages:
       prettier: ^3.0
       prettier-plugin-astro: '*'
       prettier-plugin-css-order: '*'
-      prettier-plugin-import-sort: '*'
       prettier-plugin-jsdoc: '*'
       prettier-plugin-marko: '*'
       prettier-plugin-multiline-arrays: '*'
       prettier-plugin-organize-attributes: '*'
       prettier-plugin-organize-imports: '*'
       prettier-plugin-sort-imports: '*'
-      prettier-plugin-style-order: '*'
       prettier-plugin-svelte: '*'
     peerDependenciesMeta:
       '@ianvs/prettier-plugin-sort-imports':
+        optional: true
+      '@prettier/plugin-hermes':
+        optional: true
+      '@prettier/plugin-oxc':
         optional: true
       '@prettier/plugin-pug':
         optional: true
@@ -5653,8 +5662,6 @@ packages:
         optional: true
       prettier-plugin-css-order:
         optional: true
-      prettier-plugin-import-sort:
-        optional: true
       prettier-plugin-jsdoc:
         optional: true
       prettier-plugin-marko:
@@ -5666,8 +5673,6 @@ packages:
       prettier-plugin-organize-imports:
         optional: true
       prettier-plugin-sort-imports:
-        optional: true
-      prettier-plugin-style-order:
         optional: true
       prettier-plugin-svelte:
         optional: true
@@ -6784,8 +6789,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  watchpack@2.5.1:
-    resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
+  watchpack@2.5.2:
+    resolution: {integrity: sha512-6i/00NBjP4yGPs+caKSyRfpTF/8Torsu0MOW3mMzIbhgISFder8i7xbqgHlLMwJrdiN8ndBV3UA1/AfzPSr+jg==}
     engines: {node: '>=10.13.0'}
 
   wcwidth@1.0.1:
@@ -7534,13 +7539,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@laynezh/vite-plugin-lib-assets@2.1.3(vite@6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))':
+  '@laynezh/vite-plugin-lib-assets@2.1.3(vite@6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))':
     dependencies:
       escape-string-regexp: 4.0.0
       loader-utils: 3.3.1
       mrmime: 1.0.1
       semver: 7.8.1
-      vite: 6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0)
+      vite: 6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0)
 
   '@mapbox/node-pre-gyp@1.0.11':
     dependencies:
@@ -8869,7 +8874,7 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/node@25.9.2':
+  '@types/node@25.9.3':
     dependencies:
       undici-types: 7.24.6
 
@@ -9061,11 +9066,11 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-react-swc@3.10.1(vite@6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))':
+  '@vitejs/plugin-react-swc@3.10.1(vite@6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.9
       '@swc/core': 1.11.31
-      vite: 6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0)
+      vite: 6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -9364,6 +9369,8 @@ snapshots:
   acorn@8.14.1: {}
 
   acorn@8.16.0: {}
+
+  acorn@8.17.0: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -10273,7 +10280,7 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.3
 
-  enhanced-resolve@5.23.0:
+  enhanced-resolve@5.24.0:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.3
@@ -11553,7 +11560,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.9.2
+      '@types/node': 25.9.3
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -12305,7 +12312,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-tailwindcss@0.6.12(prettier@3.5.3):
+  prettier-plugin-tailwindcss@0.8.0(prettier@3.5.3):
     dependencies:
       prettier: 3.5.3
 
@@ -13234,7 +13241,7 @@ snapshots:
   terser@5.48.0:
     dependencies:
       '@jridgewell/source-map': 0.3.11
-      acorn: 8.16.0
+      acorn: 8.17.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -13341,14 +13348,14 @@ snapshots:
       '@swc/core': 1.11.31
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.11.31)(@types/node@25.9.2)(typescript@5.8.3):
+  ts-node@10.9.2(@swc/core@1.11.31)(@types/node@25.9.3)(typescript@5.8.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 25.9.2
+      '@types/node': 25.9.3
       acorn: 8.16.0
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -13596,7 +13603,7 @@ snapshots:
       tsx: 4.19.3
       yaml: 2.8.0
 
-  vite@6.3.5(@types/node@25.9.2)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0):
+  vite@6.3.5(@types/node@25.9.3)(jiti@2.7.0)(sass@1.79.4)(terser@5.48.0)(tsx@4.19.3)(yaml@2.8.0):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.4)
@@ -13605,7 +13612,7 @@ snapshots:
       rollup: 4.61.1
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 25.9.2
+      '@types/node': 25.9.3
       fsevents: 2.3.3
       jiti: 2.7.0
       sass: 1.79.4
@@ -13628,9 +13635,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  watchpack@2.5.1:
+  watchpack@2.5.2:
     dependencies:
-      glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
 
   wcwidth@1.0.1:
@@ -13708,10 +13714,10 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.16.0
+      acorn: 8.17.0
       browserslist: 4.28.2
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.23.0
+      enhanced-resolve: 5.24.0
       es-module-lexer: 1.7.0
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -13724,7 +13730,7 @@ snapshots:
       schema-utils: 4.3.3
       tapable: 2.3.3
       terser-webpack-plugin: 5.6.1(@swc/core@1.11.31)(esbuild@0.25.5)(postcss@8.5.4)(webpack@5.99.6(@swc/core@1.11.31)(esbuild@0.25.5)(postcss@8.5.4))
-      watchpack: 2.5.1
+      watchpack: 2.5.2
       webpack-sources: 3.5.0
     transitivePeerDependencies:
       - '@minify-html/node'
