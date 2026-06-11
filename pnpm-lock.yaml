@@ -37,8 +37,8 @@ importers:
         specifier: 0.1.43
         version: 0.1.43
       '@types/eslint-plugin-jsx-a11y':
-        specifier: ^6.10.0
-        version: 6.10.0
+        specifier: ^6.10.1
+        version: 6.10.1(jiti@2.7.0)
       '@types/eslint__eslintrc':
         specifier: ^2.1.2
         version: 2.1.2
@@ -2672,8 +2672,8 @@ packages:
   '@types/doctrine@0.0.9':
     resolution: {integrity: sha512-eOIHzCUSH7SMfonMG1LsC2f8vxBFtho6NGBznK41R84YzPuvSBzrhEps33IsQiOW9+VL6NQ9DbjQJznk/S4uRA==}
 
-  '@types/eslint-plugin-jsx-a11y@6.10.0':
-    resolution: {integrity: sha512-TGKmk2gO6DrvTVADNOGQMqn3SzqcFcJILFnXNllQA34us9uClS3/AsL/cERPz6jS9ePI3bx+1q8/d2GZsxPVYw==}
+  '@types/eslint-plugin-jsx-a11y@6.10.1':
+    resolution: {integrity: sha512-5RtuPVe0xz8BAhrkn2oww6Uw885atf962Q4fqZo48QdO3EQA7oCEDSXa6optgJ1ZMds3HD9ITK5bfm4AWuoXFQ==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -8798,9 +8798,12 @@ snapshots:
 
   '@types/doctrine@0.0.9': {}
 
-  '@types/eslint-plugin-jsx-a11y@6.10.0':
+  '@types/eslint-plugin-jsx-a11y@6.10.1(jiti@2.7.0)':
     dependencies:
-      '@types/eslint': 9.6.1
+      eslint: 9.28.0(jiti@2.7.0)
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
 
   '@types/eslint-scope@3.7.7':
     dependencies:
