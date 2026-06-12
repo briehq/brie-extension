@@ -42,7 +42,7 @@ test.afterAll(async () => {
   await teardownExtensionContext(context, userDataDir);
 });
 
-test.fixme('popup → screenshot capture → annotate → send produces an asset upload', async () => {
+test('popup → screenshot capture → annotate → send produces an asset upload', async () => {
   const extensionId = await getExtensionId(context);
 
   // Step 1 — host page is reachable and the content script mounts.

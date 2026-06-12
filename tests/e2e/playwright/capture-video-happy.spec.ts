@@ -52,7 +52,7 @@ test.afterAll(async () => {
   await teardownExtensionContext(context, userDataDir);
 });
 
-test.fixme('popup → video record → stop → send produces an asset upload', async () => {
+test('popup → video record → stop → send produces an asset upload', async () => {
   const extensionId = await getExtensionId(context);
 
   // Step 1 — host page reachable, content script mounts.
