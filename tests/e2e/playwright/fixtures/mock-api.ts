@@ -23,10 +23,12 @@ const refreshPattern = /\/auth\/refresh\/?(?:\?|$)/;
 
 /**
  * Intercepts the three API endpoints the capture-send flow touches:
- *  - POST /slices/draft        — returns a stub sliceId + asset placeholder
- *  - POST /slices/{id}/assets/{aid} — accepts FormData, returns 200
+ *  - POST /slices/draft        — returns InitSliceResponse with asset
+ *    placeholders for every kind the dialog might upload (screenshot,
+ *    video, records, events, annotations). RTK Query then walks those IDs.
+ *  - POST /slices/{id}/assets/{aid} — accepts FormData, returns 200.
  *  - POST /auth/refresh        — in case the seeded fake tokens hit the
- *    pre-emptive refresh path
+ *    pre-emptive refresh path.
  *
  * Routes are installed at context-level so both the popup page and any host
  * page (where content-ui's fetches originate) inherit them. RTK Query fires
@@ -34,12 +36,25 @@ const refreshPattern = /\/auth\/refresh\/?(?:\?|$)/;
  *
  * We DON'T route everything — only the patterns above — so any other request
  * fails loudly if the flow ever depends on a new endpoint.
+ *
+ * Shape note: the draft response mirrors `InitSliceResponse` from
+ * packages/shared/lib/interfaces/slice.interface.ts. The video happy-path
+ * needs `assets.video` + `assets.records` populated; the screenshot path
+ * uses `assets.screenshots` + `assets.records`. Returning all of them every
+ * time keeps the fixture reusable across specs and Phase 3 (if/when we add
+ * a real-backend soak run, we can swap this route to passthrough).
  */
 const installMockApi = async (context: BrowserContext): Promise<MockApi> => {
   const recorded: RecordedRequest[] = [];
 
   const stubSliceId = 'pw-stub-slice-id';
-  const stubAssetId = 'pw-stub-asset-id';
+  const assetIds = {
+    screenshot: 'pw-stub-asset-screenshot',
+    video: 'pw-stub-asset-video',
+    records: 'pw-stub-asset-records',
+    events: 'pw-stub-asset-events',
+    annotations: 'pw-stub-asset-annotations',
+  };
 
   const record = (route: Route, kind: RecordedRequest['matchedRoute']) => {
     const request = route.request();
@@ -58,18 +73,29 @@ const installMockApi = async (context: BrowserContext): Promise<MockApi> => {
       status: 201,
       contentType: 'application/json',
       body: JSON.stringify({
-        sliceId: stubSliceId,
-        assets: [{ assetId: stubAssetId, kind: 'screenshot' }],
+        id: stubSliceId,
+        externalId: `EXT-${stubSliceId}`,
+        status: 'draft',
+        assets: {
+          screenshots: [{ id: assetIds.screenshot, uploaded: false }],
+          records: { id: assetIds.records, uploaded: false },
+          video: { id: assetIds.video, uploaded: false },
+          events: { id: assetIds.events, uploaded: false },
+          annotations: { id: assetIds.annotations, uploaded: false },
+        },
       }),
     });
   });
 
   await context.route(assetPattern, async route => {
     record(route, 'asset');
+    const url = route.request().url();
+    const match = url.match(/\/assets\/([^/?]+)/);
+    const assetId = match?.[1] ?? assetIds.screenshot;
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ ok: true, assetId: stubAssetId }),
+      body: JSON.stringify({ id: assetId, uploaded: true }),
     });
   });
 
