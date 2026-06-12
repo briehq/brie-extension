@@ -35,6 +35,7 @@
     "e2e:firefox": "pnpm zip:firefox && turbo e2e",
     "test:site": "pnpm build:chrome:production && pnpm -F @extension/e2e test:site",
     "test:happy": "pnpm build:chrome:production && pnpm -F @extension/e2e test:happy",
+    "test:video": "pnpm build:chrome:production && pnpm -F @extension/e2e test:video",
     "lint": "turbo lint --continue",
     "lint:fix": "turbo lint:fix --continue",
     "format": "turbo format --continue -- --cache --cache-location node_modules/.cache/.prettiercache",

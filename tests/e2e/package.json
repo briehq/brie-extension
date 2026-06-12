@@ -9,6 +9,7 @@
     "e2e": "wdio run ./config/wdio.browser.conf.ts",
     "test:site": "playwright test --config=./playwright/playwright.config.ts non-interference.spec.ts",
     "test:happy": "playwright test --config=./playwright/playwright.config.ts capture-screenshot-happy.spec.ts",
+    "test:video": "playwright test --config=./playwright/playwright.config.ts capture-video-happy.spec.ts",
     "clean:node_modules": "pnpx rimraf node_modules",
     "clean:turbo": "pnpx rimraf .turbo",
     "clean": "pnpm clean:turbo && pnpm clean:node_modules"
