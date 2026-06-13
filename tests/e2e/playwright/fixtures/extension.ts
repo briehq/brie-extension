@@ -30,9 +30,18 @@ const launchExtensionContext = async (): Promise<{
     args: [
       `--disable-extensions-except=${EXTENSION_DIR}`,
       `--load-extension=${EXTENSION_DIR}`,
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--auto-select-desktop-capture-source=Entire screen',
+      // Fake-media flags are only needed for the video happy-path. Some
+      // Chromium versions choke on --auto-select-desktop-capture-source and
+      // fail the extension load with no useful error, so it's gated behind
+      // BRIE_E2E_FAKE_MEDIA=1; specs that don't record video should leave
+      // it unset.
+      ...(process.env.BRIE_E2E_FAKE_MEDIA === '1'
+        ? [
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            '--auto-select-desktop-capture-source=Entire screen',
+          ]
+        : []),
       ...(process.env.CI === 'true' ? ['--headless=new', '--no-sandbox', '--disable-gpu'] : []),
     ],
   });
