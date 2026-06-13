@@ -63,19 +63,60 @@ const extractIdFromUrl = (url: string): string => {
 /**
  * Resolves the MV3 extension's runtime ID by waiting for its background
  * service worker to register against the persistent context. Tests can't
- * hardcode the ID because Chromium derives it from the unpacked dir path.
+ * hardcode the ID because Chromium derives it from the unpacked dir path
+ * hash and our manifest doesn't pin a `key`.
+ *
+ * Under MV3, the SW often won't auto-spawn from `--load-extension` alone —
+ * it stays dormant until something pings the extension (page navigation,
+ * content-script injection, or a popup open). We probe-navigate to an
+ * http(s) page so the content_scripts host_permissions matcher fires and
+ * brings the worker up.
  */
-const getExtensionId = async (context: BrowserContext, timeoutMs = 10_000): Promise<string> => {
+const getExtensionId = async (context: BrowserContext, timeoutMs = 30_000): Promise<string> => {
   const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    const worker = context.serviceWorkers()[0];
-    if (worker) return extractIdFromUrl(worker.url());
-    await new Promise(r => setTimeout(r, 200));
-  }
-  const promised = await new Promise<Worker>(resolveFn => {
+
+  const existing = context.serviceWorkers()[0];
+  if (existing) return extractIdFromUrl(existing.url());
+
+  // Subscribe to the event BEFORE the probe page navigates, so we don't
+  // miss the registration if it fires while we're between polls.
+  const swEvent = new Promise<Worker>(resolveFn => {
     context.once('serviceworker', resolveFn);
   });
-  return extractIdFromUrl(promised.url());
+
+  // Probe page: content scripts match http(s) URLs in the manifest; visiting
+  // any one of them wakes the SW. about:blank doesn't match host_permissions
+  // so we use a real URL. Errors are swallowed — even a failed nav can
+  // still trigger the SW.
+  const probe = (async () => {
+    const page = await context.newPage();
+    try {
+      await page
+        .goto('https://example.com/', { waitUntil: 'domcontentloaded', timeout: 15_000 })
+        .catch(() => undefined);
+    } finally {
+      await page.close().catch(() => undefined);
+    }
+  })();
+
+  while (Date.now() - start < timeoutMs) {
+    const worker = context.serviceWorkers()[0];
+    if (worker) {
+      await probe.catch(() => undefined);
+      return extractIdFromUrl(worker.url());
+    }
+    const winner = await Promise.race([
+      swEvent.then(w => ({ kind: 'event' as const, worker: w })),
+      new Promise<{ kind: 'tick' }>(r => setTimeout(() => r({ kind: 'tick' }), 250)),
+    ]);
+    if (winner.kind === 'event') {
+      await probe.catch(() => undefined);
+      return extractIdFromUrl(winner.worker.url());
+    }
+  }
+
+  await probe.catch(() => undefined);
+  throw new Error(`Service worker did not register within ${timeoutMs}ms after probe-navigation`);
 };
 
 export { launchExtensionContext, teardownExtensionContext, getExtensionId };
