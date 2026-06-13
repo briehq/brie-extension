@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,20 @@ const launchExtensionContext = async (): Promise<{
   userDataDir: string;
 }> => {
   const userDataDir = mkdtempSync(join(tmpdir(), 'brie-pw-happy-'));
+
+  // Chrome 130+ silently ignores --load-extension when developer mode is
+  // OFF in the user profile, which is the default for a fresh user-data-dir.
+  // Pre-seeding Default/Preferences with developer_mode=true bypasses the
+  // toggle so the extension actually loads on first launch. Toggling it via
+  // chrome://extensions after the fact doesn't retroactively load anything.
+  const defaultProfileDir = join(userDataDir, 'Default');
+  mkdirSync(defaultProfileDir, { recursive: true });
+  writeFileSync(
+    join(defaultProfileDir, 'Preferences'),
+    JSON.stringify({
+      extensions: { ui: { developer_mode: true } },
+    }),
+  );
 
   const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
