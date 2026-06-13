@@ -43,7 +43,7 @@
     "@extension/tsconfig": "workspace:*",
     "@extension/vite-config": "workspace:*",
     "@types/file-saver": "^2.0.7",
-    "concurrently": "^9.0.1",
+    "concurrently": "^10.0.3",
     "cross-env": "^7.0.3"
   }
 }
