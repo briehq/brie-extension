@@ -42,6 +42,11 @@ const launchExtensionContext = async (): Promise<{
   const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: [
+      // Chrome 130+ enables `DisableLoadExtensionCommandLineSwitch` by default,
+      // which silently drops --load-extension. Opt out so the next two flags
+      // actually take effect. Without this, the extension never gets installed
+      // into the profile, the SW never spawns, and beforeAll times out.
+      '--disable-features=DisableLoadExtensionCommandLineSwitch',
       `--disable-extensions-except=${EXTENSION_DIR}`,
       `--load-extension=${EXTENSION_DIR}`,
       // Fake-media flags are only needed for the video happy-path. Some
