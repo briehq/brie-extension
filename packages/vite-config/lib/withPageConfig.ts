@@ -27,6 +27,16 @@ export const withPageConfig = ({ nodePolyfills: enablePolyfills = false, ...conf
           'process.env': env,
         },
         base: '',
+        // Force esbuild to escape every non-ASCII codepoint in string literals.
+        // PostCSS (and a couple of other vendored deps) embed U+FFFE as a CSS
+        // BOM sentinel; under the default utf8 charset esbuild emits the raw
+        // EF BF BE bytes, which Chrome 130+ rejects when validating content
+        // script files ("Could not load file ... It isn't UTF-8 encoded").
+        // Escaping non-ASCII keeps the same runtime behavior and avoids the
+        // content-script loader hitting the rejected codepoint.
+        esbuild: {
+          charset: 'ascii',
+        },
         plugins: [react(), IS_DEV && watchRebuildPlugin({ refresh: true }), enablePolyfills && nodePolyfills()].filter(
           Boolean,
         ),
