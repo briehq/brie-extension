@@ -2,3 +2,4 @@ test-results/
 .userdata/
 .env.test.local
 playwright/debug-popup.png
+playwright/auth-debug-*.png

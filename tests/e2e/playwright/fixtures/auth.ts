@@ -70,25 +70,56 @@ const tokensLookValid = (tokens: unknown): boolean =>
  * provider this build authenticates against; if all strategies fail, the
  * caller falls back to manual mode.
  */
+const SELECTOR_WAIT_MS = 5_000;
+
+const dumpDebugScreenshot = async (page: Page, label: string): Promise<void> => {
+  const path = resolve(__dirname, `../auth-debug-${label}.png`);
+  await page.screenshot({ path, fullPage: true }).catch(() => undefined);
+  console.log(`[auth] saved debug screenshot: ${path}`);
+};
+
 const fillOAuthForm = async (page: Page, email: string, password: string): Promise<void> => {
+  // Step 0 — many providers show a method-selector screen first ("Continue
+  // with email", "Continue with Google", etc.). If we see one, click the
+  // email option to get to the actual form.
+  const methodButton = page
+    .getByRole('button', { name: /continue with email|sign in with email|email/i })
+    .or(page.getByRole('link', { name: /continue with email|sign in with email|email/i }))
+    .first();
+  if (await methodButton.isVisible({ timeout: SELECTOR_WAIT_MS }).catch(() => false)) {
+    await methodButton.click();
+  }
+
+  // Step 1 — fill the email field.
   const emailField = page
     .locator('input[type="email"], input[name="email" i], input#email, input[autocomplete="email"]')
     .first();
-  await emailField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  try {
+    await emailField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  } catch (err) {
+    await dumpDebugScreenshot(page, 'no-email-field');
+    throw err;
+  }
   await emailField.fill(email);
 
-  // Some providers split email + password across two screens (Google-style).
-  // Try clicking a "Next"/"Continue" button if one exists before assuming
-  // the password field is already visible.
+  // Step 2 — some providers split email + password across two screens
+  // (Google-style). Click "Next"/"Continue" if one is visible.
   const nextButton = page.getByRole('button', { name: /next|continue/i }).first();
-  if (await nextButton.isVisible().catch(() => false)) {
+  if (await nextButton.isVisible({ timeout: SELECTOR_WAIT_MS }).catch(() => false)) {
     await nextButton.click();
   }
 
+  // Step 3 — fill the password field.
   const passwordField = page.locator('input[type="password"]').first();
-  await passwordField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  try {
+    await passwordField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  } catch (err) {
+    await dumpDebugScreenshot(page, 'no-password-field');
+    throw err;
+  }
   await passwordField.fill(password);
 
+  // Step 4 — submit.
   const submitButton = page.getByRole('button', { name: /sign in|log in|continue|submit|next/i }).first();
   await submitButton.click();
 };
