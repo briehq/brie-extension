@@ -3,6 +3,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
+import { ensureLoggedIn } from './fixtures/auth.js';
 import { getExtensionId, launchExtensionContext, teardownExtensionContext } from './fixtures/extension.js';
 import type { LaunchResult } from './fixtures/extension.js';
 import { installMockApi } from './fixtures/mock-api.js';
@@ -38,8 +39,11 @@ let mockApi: MockApi;
  *      the first run takes more than 30s while the wasm bytes prefetch.
  */
 test.beforeAll(async () => {
+  test.setTimeout(120_000);
   launch = await launchExtensionContext();
   mockApi = await installMockApi(launch.context);
+  const extensionId = await getExtensionId(launch.context);
+  await ensureLoggedIn(launch.context, extensionId);
 });
 
 test.afterAll(async () => {

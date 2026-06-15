@@ -3,6 +3,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
+import { ensureLoggedIn } from './fixtures/auth.js';
 import { getExtensionId, launchExtensionContext, teardownExtensionContext } from './fixtures/extension.js';
 import type { LaunchResult } from './fixtures/extension.js';
 import { installMockApi } from './fixtures/mock-api.js';
@@ -28,8 +29,14 @@ let mockApi: MockApi;
  * `.fixme` once you've run it once and confirmed every step lands.
  */
 test.beforeAll(async () => {
+  test.setTimeout(120_000); // OAuth on first run can take a while
   launch = await launchExtensionContext();
   mockApi = await installMockApi(launch.context);
+  const extensionId = await getExtensionId(launch.context);
+  // Idempotent: returns immediately if a session already exists in the
+  // persistent user-data-dir. On first run (or after a session expires),
+  // drives OAuth using BRIE_E2E_EMAIL / BRIE_E2E_PASSWORD.
+  await ensureLoggedIn(launch.context, extensionId);
 });
 
 test.afterAll(async () => {

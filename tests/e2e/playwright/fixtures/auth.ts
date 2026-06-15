@@ -1,0 +1,156 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import type { BrowserContext, Page } from '@playwright/test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const ENV_FILE = resolve(__dirname, '../../.env.test.local');
+const STORAGE_KEY = 'auth-tokens-storage-key';
+const POLL_INTERVAL_MS = 1_000;
+const POPUP_OAUTH_TIMEOUT_MS = 30_000;
+
+type EnvVars = { email?: string; password?: string };
+
+const loadCreds = (): EnvVars => {
+  const fromProcess = {
+    email: process.env.BRIE_E2E_EMAIL,
+    password: process.env.BRIE_E2E_PASSWORD,
+  };
+  if (fromProcess.email && fromProcess.password) return fromProcess;
+
+  // Tiny ad-hoc parser so this fixture doesn't need a `dotenv` dependency.
+  // Format: KEY=value lines, # comments, blank lines. Quotes are stripped.
+  if (!existsSync(ENV_FILE)) return fromProcess;
+  const out: Record<string, string> = {};
+  for (const raw of readFileSync(ENV_FILE, 'utf8').split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq < 0) continue;
+    const key = line.slice(0, eq).trim();
+    let value = line.slice(eq + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    out[key] = value;
+  }
+  return {
+    email: out.BRIE_E2E_EMAIL ?? fromProcess.email,
+    password: out.BRIE_E2E_PASSWORD ?? fromProcess.password,
+  };
+};
+
+const readTokens = async (context: BrowserContext, extensionId: string): Promise<unknown> => {
+  const probe = await context.newPage();
+  try {
+    await probe.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
+    return await probe.evaluate(async key => {
+      const ext = window as unknown as {
+        chrome: { storage: { local: { get: (k: string) => Promise<Record<string, unknown>> } } };
+      };
+      const result = await ext.chrome.storage.local.get(key);
+      return result[key] ?? null;
+    }, STORAGE_KEY);
+  } finally {
+    await probe.close().catch(() => undefined);
+  }
+};
+
+const tokensLookValid = (tokens: unknown): boolean =>
+  !!tokens &&
+  typeof tokens === 'object' &&
+  'accessToken' in (tokens as object) &&
+  !!(tokens as { accessToken?: string }).accessToken;
+
+/**
+ * Drives the popup → OAuth login flow with credentials from env. Selectors
+ * are deliberately permissive (multi-strategy) because we don't know which
+ * provider this build authenticates against; if all strategies fail, the
+ * caller falls back to manual mode.
+ */
+const fillOAuthForm = async (page: Page, email: string, password: string): Promise<void> => {
+  const emailField = page
+    .locator('input[type="email"], input[name="email" i], input#email, input[autocomplete="email"]')
+    .first();
+  await emailField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  await emailField.fill(email);
+
+  // Some providers split email + password across two screens (Google-style).
+  // Try clicking a "Next"/"Continue" button if one exists before assuming
+  // the password field is already visible.
+  const nextButton = page.getByRole('button', { name: /next|continue/i }).first();
+  if (await nextButton.isVisible().catch(() => false)) {
+    await nextButton.click();
+  }
+
+  const passwordField = page.locator('input[type="password"]').first();
+  await passwordField.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+  await passwordField.fill(password);
+
+  const submitButton = page.getByRole('button', { name: /sign in|log in|continue|submit|next/i }).first();
+  await submitButton.click();
+};
+
+/**
+ * Returns once chrome.storage.local has a non-empty accessToken. If tokens
+ * are already present, returns immediately. Otherwise drives the OAuth
+ * login using credentials from BRIE_E2E_EMAIL / BRIE_E2E_PASSWORD
+ * (process.env or `tests/e2e/.env.test.local`).
+ *
+ * Throws with actionable guidance if creds are missing and no session
+ * exists yet — that's the only manual step in the whole pipeline.
+ */
+const ensureLoggedIn = async (context: BrowserContext, extensionId: string): Promise<void> => {
+  if (tokensLookValid(await readTokens(context, extensionId))) return;
+
+  const { email, password } = loadCreds();
+  if (!email || !password) {
+    throw new Error(
+      [
+        '',
+        'No persisted session and no demo credentials found.',
+        '',
+        'Add BRIE_E2E_EMAIL and BRIE_E2E_PASSWORD to tests/e2e/.env.test.local',
+        '(or export them in your shell), then re-run. The file is gitignored.',
+        '',
+        'Or run a one-off manual login: `pnpm e2e:login`.',
+        '',
+      ].join('\n'),
+    );
+  }
+
+  // Open the popup and click "Continue" — that triggers chrome.identity's
+  // OAuth flow which opens the provider login page in a new tab.
+  const popup = await context.newPage();
+  await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
+
+  const newPagePromise = context.waitForEvent('page', { timeout: POPUP_OAUTH_TIMEOUT_MS });
+  await popup
+    .getByRole('button', { name: /continue|sign in|log in/i })
+    .first()
+    .click();
+
+  const oauthPage = await newPagePromise;
+  await oauthPage.waitForLoadState('domcontentloaded');
+  await fillOAuthForm(oauthPage, email, password);
+
+  // After submit, the provider redirects to the extension's callback URL,
+  // chrome.identity captures the result, the SW writes tokens to storage,
+  // and the popup transitions to the capture view. Poll until storage
+  // confirms or we time out.
+  const start = Date.now();
+  while (Date.now() - start < POPUP_OAUTH_TIMEOUT_MS) {
+    if (tokensLookValid(await readTokens(context, extensionId))) {
+      await popup.close().catch(() => undefined);
+      await oauthPage.close().catch(() => undefined);
+      return;
+    }
+    await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+  }
+
+  throw new Error('OAuth submitted but the auth tokens never appeared in chrome.storage.local within 30s.');
+};
+
+export { ensureLoggedIn, readTokens, tokensLookValid };
