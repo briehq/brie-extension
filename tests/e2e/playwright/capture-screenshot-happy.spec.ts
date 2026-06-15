@@ -62,10 +62,20 @@ test('popup → screenshot capture → annotate → send produces an asset uploa
     waitUntil: 'domcontentloaded',
   });
 
-  // Step 3 — drive the screenshot CTA. Capture mode defaults to 'area'.
-  // The button's aria-label is `t('runAction', title)` with title from
-  // CAPTURE_TITLE['area'], so it should match /capture/i.
-  const captureButton = popup.getByRole('button', { name: /capture/i }).first();
+  // Step 3 — switch the capture mode to Fullscreen and trigger it.
+  //
+  // Default mode is 'area', which would require us to mouse-drag a region on
+  // the host page after the popup closes — flaky and adds nothing this test
+  // is meant to assert. Fullscreen snaps the whole page in one step, lands
+  // straight in the annotation dialog.
+  //
+  // The mode selector is inside a CollapsibleActionCard. Expand it first
+  // (aria-label "Expand Capture Area"), then click the "Fullscreen" option
+  // in the inner ButtonGroup, then click the now-relabeled
+  // "Capture Fullscreen" CTA.
+  await popup.getByRole('button', { name: /expand capture/i }).click();
+  await popup.getByRole('button', { name: /^fullscreen$/i }).click();
+  const captureButton = popup.getByRole('button', { name: /capture fullscreen/i }).first();
   await expect(captureButton).toBeVisible();
   await captureButton.click();
 
