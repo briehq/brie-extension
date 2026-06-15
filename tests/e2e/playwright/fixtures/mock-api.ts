@@ -20,6 +20,14 @@ type MockApi = {
 const draftPattern = /\/slices\/draft\/?(?:\?|$)/;
 const assetPattern = /\/slices\/[^/]+\/assets\/[^/?]+(?:\?|$)/;
 const refreshPattern = /\/auth\/refresh\/?(?:\?|$)/;
+// Popup boot probe — gates the entire auth flow. Without a 200 here the
+// popup falls back to the "Service Unavailable" view and Continue never
+// even renders.
+const healthPattern = /\/health\/?(?:\?|$)/;
+// Drives the popup's authenticated-vs-unauthenticated branching. Pre-login
+// the popup skips this query (hasTokens is false); post-login it expects a
+// real user object. Returning a stub keeps both flows happy.
+const userMePattern = /\/users\/me\/?(?:\?|$)/;
 
 /**
  * Intercepts the three API endpoints the capture-send flow touches:
@@ -107,6 +115,26 @@ const installMockApi = async (context: BrowserContext): Promise<MockApi> => {
       body: JSON.stringify({
         accessToken: 'pw-fake-access-token-refreshed',
         refreshToken: 'pw-fake-refresh-token-refreshed',
+      }),
+    });
+  });
+
+  await context.route(healthPattern, async route => {
+    record(route, 'other');
+    await route.fulfill({ status: 200, contentType: 'text/plain', body: 'ok' });
+  });
+
+  await context.route(userMePattern, async route => {
+    record(route, 'other');
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 'pw-stub-user-id',
+        email: 'pw@brie.test',
+        firstName: 'Playwright',
+        lastName: 'Test',
+        authMethod: 'EMAIL',
       }),
     });
   });
