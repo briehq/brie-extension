@@ -3,7 +3,9 @@ import { fileURLToPath } from 'node:url';
 
 import { test } from '@playwright/test';
 
+import { ensureLoggedIn } from './fixtures/auth.js';
 import { getExtensionId, launchExtensionContext, teardownExtensionContext } from './fixtures/extension.js';
+import { installMockApi } from './fixtures/mock-api.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,7 +21,9 @@ test('debug: dump popup view + buttons', async () => {
   const launch = await launchExtensionContext();
   const { context } = launch;
   try {
+    await installMockApi(context);
     const extensionId = await getExtensionId(context);
+    await ensureLoggedIn(context, extensionId);
 
     const popup = await context.newPage();
     await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
