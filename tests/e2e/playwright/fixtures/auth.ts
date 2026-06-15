@@ -150,16 +150,61 @@ const fillOAuthForm = async (page: Page, email: string, password: string): Promi
 };
 
 /**
- * Returns once chrome.storage.local has a non-empty accessToken. If tokens
- * are already present, returns immediately. Otherwise drives the OAuth
- * login using credentials from BRIE_E2E_EMAIL / BRIE_E2E_PASSWORD
- * (process.env or `tests/e2e/.env.test.local`).
+ * Writes a fake token pair into chrome.storage.local + clears the
+ * auth-flow flag. Combined with the mocked /health and /users/me
+ * endpoints in mock-api.ts, the popup boots straight to the
+ * authenticated state without going through OAuth — which means no
+ * Cloudflare Turnstile, no provider login form, no real backend
+ * dependency. The fake tokens never reach the wire because every API
+ * call the popup makes is intercepted.
+ */
+const seedFakeAuth = async (context: BrowserContext, extensionId: string): Promise<void> => {
+  const probe = await context.newPage();
+  try {
+    await probe.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
+    await probe.evaluate(async () => {
+      const ext = window as unknown as {
+        chrome: {
+          storage: {
+            local: {
+              set: (items: Record<string, unknown>) => Promise<void>;
+              remove: (k: string) => Promise<void>;
+            };
+          };
+        };
+      };
+      await ext.chrome.storage.local.set({
+        'auth-tokens-storage-key': {
+          accessToken: 'pw-fake-access-token',
+          refreshToken: 'pw-fake-refresh-token',
+        },
+      });
+      await ext.chrome.storage.local.remove('auth-flow-storage-key');
+    });
+  } finally {
+    await probe.close().catch(() => undefined);
+  }
+};
+
+/**
+ * Returns once chrome.storage.local has a non-empty accessToken. Fast path:
+ * if tokens are already present (from a previous run on the persistent
+ * user-data-dir), return immediately. Otherwise seed fake tokens — the
+ * mocked /users/me endpoint makes them work end-to-end without OAuth.
  *
- * Throws with actionable guidance if creds are missing and no session
- * exists yet — that's the only manual step in the whole pipeline.
+ * `BRIE_E2E_REAL_OAUTH=1` opts back into the real OAuth flow for cases
+ * where you want to soak-test against staging. Otherwise the legacy
+ * email/password path is intentionally bypassed: Cloudflare Turnstile
+ * makes automated OAuth flaky and fake tokens cover the happy-path
+ * surface this suite is meant to test.
  */
 const ensureLoggedIn = async (context: BrowserContext, extensionId: string): Promise<void> => {
   if (tokensLookValid(await readTokens(context, extensionId))) return;
+
+  if (process.env.BRIE_E2E_REAL_OAUTH !== '1') {
+    await seedFakeAuth(context, extensionId);
+    return;
+  }
 
   const { email, password } = loadCreds();
   if (!email || !password) {
