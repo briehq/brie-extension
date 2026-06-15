@@ -2,18 +2,16 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { expect, test } from '@playwright/test';
-import type { BrowserContext } from '@playwright/test';
 
-import { seedAuth } from './fixtures/auth.js';
 import { getExtensionId, launchExtensionContext, teardownExtensionContext } from './fixtures/extension.js';
+import type { LaunchResult } from './fixtures/extension.js';
 import { installMockApi } from './fixtures/mock-api.js';
 import type { MockApi } from './fixtures/mock-api.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HOST_PAGE_URL = pathToFileURL(resolve(__dirname, 'fixtures/host-page.html')).toString();
 
-let context: BrowserContext;
-let userDataDir: string;
+let launch: LaunchResult;
 let mockApi: MockApi;
 
 /**
@@ -30,19 +28,16 @@ let mockApi: MockApi;
  * `.fixme` once you've run it once and confirmed every step lands.
  */
 test.beforeAll(async () => {
-  const launched = await launchExtensionContext();
-  context = launched.context;
-  userDataDir = launched.userDataDir;
-
-  mockApi = await installMockApi(context);
-  await seedAuth(context);
+  launch = await launchExtensionContext();
+  mockApi = await installMockApi(launch.context);
 });
 
 test.afterAll(async () => {
-  await teardownExtensionContext(context, userDataDir);
+  await teardownExtensionContext(launch);
 });
 
 test('popup → screenshot capture → annotate → send produces an asset upload', async () => {
+  const { context } = launch;
   const extensionId = await getExtensionId(context);
 
   // Step 1 — host page is reachable and the content script mounts.
@@ -51,6 +46,10 @@ test('popup → screenshot capture → annotate → send produces an asset uploa
   await host.waitForFunction(() => !!document.getElementById('brie-root'), null, { timeout: 10_000 });
 
   // Step 2 — open the popup directly. The MV3 popup HTML is web-accessible.
+  // Auth state comes from the persistent user-data-dir (see fixtures/
+  // extension.ts), populated by `pnpm e2e:login` against the demo account.
+  // If the popup shows the login screen instead of the capture view, the
+  // session has expired — re-run `pnpm e2e:login`.
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, {
     waitUntil: 'domcontentloaded',

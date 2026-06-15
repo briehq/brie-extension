@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 
 import { test } from '@playwright/test';
 
-import { seedAuth } from './fixtures/auth.js';
 import { getExtensionId, launchExtensionContext, teardownExtensionContext } from './fixtures/extension.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,9 +16,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 test('debug: dump popup view + buttons', async () => {
   test.setTimeout(120_000);
 
-  const { context, userDataDir } = await launchExtensionContext();
+  const launch = await launchExtensionContext();
+  const { context } = launch;
   try {
-    await seedAuth(context);
     const extensionId = await getExtensionId(context);
 
     const popup = await context.newPage();
@@ -44,7 +43,7 @@ test('debug: dump popup view + buttons', async () => {
     });
 
     const headings = await popup.evaluate(() =>
-      [...document.querySelectorAll('h1, h2, h3, h4')].map(h => (h.textContent ?? '').trim()),
+      Array.from(document.querySelectorAll('h1, h2, h3, h4')).map(h => (h.textContent ?? '').trim()),
     );
 
     console.log('\n=== POPUP HEADINGS ===');
@@ -55,6 +54,6 @@ test('debug: dump popup view + buttons', async () => {
     });
     console.log(`\n=== SCREENSHOT saved to: ${screenshotPath} ===\n`);
   } finally {
-    await teardownExtensionContext(context, userDataDir);
+    await teardownExtensionContext(launch);
   }
 });

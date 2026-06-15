@@ -1,1 +1,3 @@
 test-results/
+.userdata/
+playwright/debug-popup.png

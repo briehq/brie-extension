@@ -14,7 +14,8 @@ import { launchExtensionContext, teardownExtensionContext } from './fixtures/ext
 test('debug: pause at chrome://extensions', async () => {
   test.setTimeout(0);
 
-  const { context, userDataDir } = await launchExtensionContext();
+  const launch = await launchExtensionContext();
+  const { context } = launch;
 
   try {
     const page = await context.newPage();
@@ -31,6 +32,6 @@ test('debug: pause at chrome://extensions', async () => {
     );
     await page.pause();
   } finally {
-    await teardownExtensionContext(context, userDataDir);
+    await teardownExtensionContext(launch);
   }
 });
