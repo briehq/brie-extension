@@ -184,10 +184,54 @@ const ensureLoggedIn = async (context: BrowserContext, extensionId: string): Pro
     throw err;
   }
 
-  const newPagePromise = context.waitForEvent('page', { timeout: POPUP_OAUTH_TIMEOUT_MS });
-  await continueButton.click();
+  // Capture every new page the click produces, even ones that close
+  // immediately. Then we can pick whichever looks like the OAuth provider.
+  const newPages: Page[] = [];
+  const pageListener = (page: Page) => {
+    newPages.push(page);
+    console.log(`[auth] new page opened: ${page.url() || '(no url yet)'}`);
+  };
+  context.on('page', pageListener);
 
-  const oauthPage = await newPagePromise;
+  await dumpDebugScreenshot(popup, 'before-continue');
+  await continueButton.click();
+  console.log('[auth] clicked Continue');
+
+  // Give the click time to (a) close the popup, (b) open a new tab, or (c)
+  // navigate the popup itself. Poll across all three scenarios.
+  let oauthPage: Page | null = null;
+  const waitStart = Date.now();
+  while (Date.now() - waitStart < POPUP_OAUTH_TIMEOUT_MS) {
+    // Scenario A: new tab opened with OAuth provider.
+    const candidate = newPages.find(p => {
+      const url = p.url();
+      return url && !url.startsWith('chrome-extension://') && !url.startsWith('about:');
+    });
+    if (candidate) {
+      oauthPage = candidate;
+      break;
+    }
+    // Scenario B: the popup itself navigated to the provider.
+    if (!popup.isClosed() && popup.url() && !popup.url().startsWith('chrome-extension://')) {
+      oauthPage = popup;
+      break;
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  context.off('page', pageListener);
+
+  if (!oauthPage) {
+    await dumpDebugScreenshot(popup.isClosed() ? (newPages[0] ?? popup) : popup, 'after-continue');
+    console.log(
+      `[auth] no OAuth page detected. open pages: ${context
+        .pages()
+        .map(p => p.url())
+        .join(', ')}`,
+    );
+    throw new Error('Continue was clicked but no OAuth page appeared within the timeout.');
+  }
+
+  console.log(`[auth] OAuth page detected: ${oauthPage.url()}`);
   await oauthPage.waitForLoadState('domcontentloaded');
   await fillOAuthForm(oauthPage, email, password);
 
