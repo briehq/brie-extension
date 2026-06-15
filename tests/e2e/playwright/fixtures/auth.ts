@@ -8,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const ENV_FILE = resolve(__dirname, '../../.env.test.local');
 const STORAGE_KEY = 'auth-tokens-storage-key';
+const AUTH_FLOW_STORAGE_KEY = 'auth-flow-storage-key';
 const POLL_INTERVAL_MS = 1_000;
 const POPUP_OAUTH_TIMEOUT_MS = 30_000;
 
@@ -53,6 +54,29 @@ const readTokens = async (context: BrowserContext, extensionId: string): Promise
       const result = await ext.chrome.storage.local.get(key);
       return result[key] ?? null;
     }, STORAGE_KEY);
+  } finally {
+    await probe.close().catch(() => undefined);
+  }
+};
+
+/**
+ * The popup's Continue button is gated by `authIdentityProviderStorage.active`
+ * (see pages/popup/src/hooks/use-auth-identity-provider.hook.ts). When OAuth
+ * starts, that flag is set to true and only cleared in a finally block. If a
+ * previous run crashed mid-flow, the flag stays stuck in the persistent
+ * user-data-dir and disables Continue on every subsequent run. Clearing the
+ * key before each login attempt is the only safe way to recover.
+ */
+const resetAuthFlowFlag = async (context: BrowserContext, extensionId: string): Promise<void> => {
+  const probe = await context.newPage();
+  try {
+    await probe.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
+    await probe.evaluate(async key => {
+      const ext = window as unknown as {
+        chrome: { storage: { local: { remove: (k: string) => Promise<void> } } };
+      };
+      await ext.chrome.storage.local.remove(key);
+    }, AUTH_FLOW_STORAGE_KEY);
   } finally {
     await probe.close().catch(() => undefined);
   }
@@ -152,22 +176,15 @@ const ensureLoggedIn = async (context: BrowserContext, extensionId: string): Pro
     );
   }
 
-  // Open the popup. The auth view has an email input that must be filled
-  // before the "Continue" button enables; clicking it triggers
-  // chrome.identity's OAuth flow which opens the provider login page in
-  // a new tab (where we fill the password).
+  // Clear any stale auth-flow flag so the popup's Continue button starts
+  // enabled. Without this, a crashed previous run can permanently stick the
+  // popup in the "OAuth is in progress" loading state.
+  await resetAuthFlowFlag(context, extensionId);
+
+  // Open the popup. Continue here is a single button that kicks off
+  // chrome.identity's OAuth flow — there's no email input on the popup.
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
-
-  // If the popup has a visible email input, fill it. This is what gates
-  // the Continue button. Some build configurations put the email on the
-  // OAuth page instead — if there's no input on the popup, we skip.
-  const popupEmailField = popup
-    .locator('input[type="email"], input[name="email" i], input#email, input[autocomplete="email"]')
-    .first();
-  if (await popupEmailField.isVisible({ timeout: SELECTOR_WAIT_MS }).catch(() => false)) {
-    await popupEmailField.fill(email);
-  }
 
   // Wait for Continue to become enabled. If we skip this, the click can
   // race with the React state update that toggles `disabled=false`.
