@@ -152,16 +152,40 @@ const ensureLoggedIn = async (context: BrowserContext, extensionId: string): Pro
     );
   }
 
-  // Open the popup and click "Continue" — that triggers chrome.identity's
-  // OAuth flow which opens the provider login page in a new tab.
+  // Open the popup. The auth view has an email input that must be filled
+  // before the "Continue" button enables; clicking it triggers
+  // chrome.identity's OAuth flow which opens the provider login page in
+  // a new tab (where we fill the password).
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
 
+  // If the popup has a visible email input, fill it. This is what gates
+  // the Continue button. Some build configurations put the email on the
+  // OAuth page instead — if there's no input on the popup, we skip.
+  const popupEmailField = popup
+    .locator('input[type="email"], input[name="email" i], input#email, input[autocomplete="email"]')
+    .first();
+  if (await popupEmailField.isVisible({ timeout: SELECTOR_WAIT_MS }).catch(() => false)) {
+    await popupEmailField.fill(email);
+  }
+
+  // Wait for Continue to become enabled. If we skip this, the click can
+  // race with the React state update that toggles `disabled=false`.
+  const continueButton = popup.getByRole('button', { name: /continue|sign in|log in/i }).first();
+  try {
+    await continueButton.waitFor({ state: 'visible', timeout: POPUP_OAUTH_TIMEOUT_MS });
+    await popup.waitForFunction(
+      el => el instanceof HTMLButtonElement && !el.disabled,
+      await continueButton.elementHandle(),
+      { timeout: POPUP_OAUTH_TIMEOUT_MS },
+    );
+  } catch (err) {
+    await dumpDebugScreenshot(popup, 'continue-disabled');
+    throw err;
+  }
+
   const newPagePromise = context.waitForEvent('page', { timeout: POPUP_OAUTH_TIMEOUT_MS });
-  await popup
-    .getByRole('button', { name: /continue|sign in|log in/i })
-    .first()
-    .click();
+  await continueButton.click();
 
   const oauthPage = await newPagePromise;
   await oauthPage.waitForLoadState('domcontentloaded');
