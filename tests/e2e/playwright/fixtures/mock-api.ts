@@ -28,6 +28,14 @@ const healthPattern = /\/health\/?(?:\?|$)/;
 // the popup skips this query (hasTokens is false); post-login it expects a
 // real user object. Returning a stub keeps both flows happy.
 const userMePattern = /\/users\/me\/?(?:\?|$)/;
+// The popup's main view also queries organization + slices list. Any 401
+// on these triggers baseQueryWithReauth → /auth/refresh → if the refresh
+// response shape is wrong, the token store gets WIPED (api.service.ts:53)
+// and the popup snaps back to the auth view. Mocking these stops the
+// cascade and keeps the session stable.
+const userOrgPattern = /\/users\/organization\/?(?:\?|$)/;
+const slicesListPattern = /\/slices(?:\?|$|\/?$)/;
+const publicMetricsPattern = /\/public-metrics\//;
 
 /**
  * Intercepts the three API endpoints the capture-send flow touches:
@@ -109,12 +117,23 @@ const installMockApi = async (context: BrowserContext): Promise<MockApi> => {
 
   await context.route(refreshPattern, async route => {
     record(route, 'auth-refresh');
+    // baseQueryWithReauth reads .tokens from this response (see
+    // packages/store/lib/services/api.service.ts:48). Returning the
+    // accessToken/refreshToken at the top level makes .tokens undefined,
+    // which triggers a token wipe + sign-out. Wrap them in `tokens`.
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        accessToken: 'pw-fake-access-token-refreshed',
-        refreshToken: 'pw-fake-refresh-token-refreshed',
+        user: {
+          id: 'pw-stub-user-id',
+          email: 'pw@brie.test',
+          authMethod: 'EMAIL',
+        },
+        tokens: {
+          accessToken: 'pw-fake-access-token-refreshed',
+          refreshToken: 'pw-fake-refresh-token-refreshed',
+        },
       }),
     });
   });
@@ -134,8 +153,48 @@ const installMockApi = async (context: BrowserContext): Promise<MockApi> => {
         email: 'pw@brie.test',
         firstName: 'Playwright',
         lastName: 'Test',
+        username: 'pw-test',
         authMethod: 'EMAIL',
+        createdAt: new Date(0).toISOString(),
+        updatedAt: new Date(0).toISOString(),
       }),
+    });
+  });
+
+  await context.route(userOrgPattern, async route => {
+    record(route, 'other');
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 'pw-stub-org-id',
+        name: 'Playwright Org',
+        slug: 'pw-test',
+      }),
+    });
+  });
+
+  await context.route(slicesListPattern, async route => {
+    // Only intercept the GET list; /slices/draft is handled by the
+    // earlier route and is a POST.
+    if (route.request().method() !== 'GET') {
+      await route.fallback();
+      return;
+    }
+    record(route, 'other');
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: [], total: 0 }),
+    });
+  });
+
+  await context.route(publicMetricsPattern, async route => {
+    record(route, 'other');
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ count: 0 }),
     });
   });
 
