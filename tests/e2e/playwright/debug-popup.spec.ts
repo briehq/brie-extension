@@ -83,6 +83,24 @@ test('debug: dump popup view + buttons', async () => {
     buttons.forEach(b => {
       console.log(`  - tag=${b.tag} text="${b.text}" ariaLabel="${b.ariaLabel ?? ''}" testid="${b.dataTestid ?? ''}"`);
     });
+
+    // Also dump every clickable thing — sometimes the screenshot CTA is a
+    // div with role="button", or the mode selector is a <select> we can
+    // pick instead of clicking through.
+    const selects = await popup.evaluate(() =>
+      Array.from(document.querySelectorAll('select')).map(s => ({
+        name: s.name,
+        ariaLabel: s.getAttribute('aria-label'),
+        options: Array.from(s.options).map(o => ({ value: o.value, label: (o.textContent ?? '').trim() })),
+      })),
+    );
+    if (selects.length) {
+      console.log('\n=== POPUP SELECTS ===');
+      selects.forEach(s =>
+        console.log(`  - name="${s.name}" ariaLabel="${s.ariaLabel ?? ''}" options=${JSON.stringify(s.options)}`),
+      );
+    }
+
     console.log(`\n=== SCREENSHOT saved to: ${screenshotPath} ===\n`);
   } finally {
     await teardownExtensionContext(launch);
