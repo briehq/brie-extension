@@ -20,6 +20,19 @@ test('debug: dump popup view + buttons', async () => {
 
   const launch = await launchExtensionContext();
   const { context } = launch;
+
+  // Capture every API request the popup makes so we can see whether the
+  // mocks fired or whether something hit the real network.
+  const apiRequests: Array<{ method: string; url: string; status?: number }> = [];
+  context.on('request', req => {
+    if (!req.url().includes('briehq') && !req.url().includes('/api/')) return;
+    apiRequests.push({ method: req.method(), url: req.url() });
+  });
+  context.on('response', async res => {
+    const entry = apiRequests.find(r => r.url === res.url() && r.status === undefined);
+    if (entry) entry.status = res.status();
+  });
+
   try {
     await installMockApi(context);
     const extensionId = await getExtensionId(context);
@@ -27,7 +40,21 @@ test('debug: dump popup view + buttons', async () => {
 
     const popup = await context.newPage();
     await popup.goto(`chrome-extension://${extensionId}/popup/index.html`, { waitUntil: 'domcontentloaded' });
-    await popup.waitForTimeout(2_000); // let React render
+    await popup.waitForTimeout(3_000); // let React render + run effects
+
+    // What's actually in chrome.storage.local?
+    const storageDump = await popup.evaluate(async () => {
+      const ext = window as unknown as {
+        chrome: { storage: { local: { get: (k: null) => Promise<Record<string, unknown>> } } };
+      };
+      return await ext.chrome.storage.local.get(null);
+    });
+    console.log('\n=== chrome.storage.local ===');
+    console.log(JSON.stringify(storageDump, null, 2));
+
+    console.log('\n=== API REQUESTS ===');
+    if (apiRequests.length === 0) console.log('  (none)');
+    apiRequests.forEach(r => console.log(`  - ${r.method} ${r.url} → ${r.status ?? 'pending'}`));
 
     const screenshotPath = resolve(__dirname, 'debug-popup.png');
     await popup.screenshot({ path: screenshotPath, fullPage: true });
