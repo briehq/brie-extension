@@ -103,12 +103,13 @@ const dumpDebugScreenshot = async (page: Page, label: string): Promise<void> => 
 };
 
 const fillOAuthForm = async (page: Page, email: string, password: string): Promise<void> => {
-  // Step 0 — many providers show a method-selector screen first ("Continue
-  // with email", "Continue with Google", etc.). If we see one, click the
-  // email option to get to the actual form.
+  // Step 0 — Brie's auth page presents a method-selector screen first
+  // ("Use e-mail address" alongside GitHub/Google/phone options). Match
+  // the wording loosely so a copy tweak doesn't break the helper.
+  const emailMethodPattern = /(use|continue with|sign in with).*e[-]?mail/i;
   const methodButton = page
-    .getByRole('button', { name: /continue with email|sign in with email|email/i })
-    .or(page.getByRole('link', { name: /continue with email|sign in with email|email/i }))
+    .getByRole('button', { name: emailMethodPattern })
+    .or(page.getByRole('link', { name: emailMethodPattern }))
     .first();
   if (await methodButton.isVisible({ timeout: SELECTOR_WAIT_MS }).catch(() => false)) {
     await methodButton.click();
