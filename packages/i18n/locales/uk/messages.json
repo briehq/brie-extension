@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "Домени ще не додано. Конфіденційна інформація пропускається лише на localhost за замовчуванням."
   },
+  "customRedactionPatterns": {
+    "message": "Користувацькі шаблони редагування"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Локальні регулярні вирази для записаних мережевих даних, сховища, cookie та консолі."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "наприклад /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "Користувацькі шаблони не додано. Вбудований захист Brie залишається активним."
+  },
+  "invalidRedactionPattern": {
+    "message": "Введіть коректний і безпечний регулярний вираз, який не збігається з порожнім текстом."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

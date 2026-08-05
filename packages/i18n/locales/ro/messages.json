@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "Niciun domeniu adăugat încă. Informațiile sensibile sunt omise doar pe localhost în mod implicit."
   },
+  "customRedactionPatterns": {
+    "message": "Modele de redactare personalizate"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Expresii regulate locale aplicate datelor capturate din rețea, stocare, cookie-uri și consolă."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "ex. /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "Nu există modele personalizate. Redactarea integrată Brie rămâne activă."
+  },
+  "invalidRedactionPattern": {
+    "message": "Introdu o expresie regulată validă și sigură care nu se potrivește cu textul gol."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

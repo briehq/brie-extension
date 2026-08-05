@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "Домены ещё не добавлены. Конфиденциальная информация пропускается только на localhost по умолчанию."
   },
+  "customRedactionPatterns": {
+    "message": "Пользовательские шаблоны редактирования"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Локальные регулярные выражения для записанных сетевых данных, хранилища, cookie и консоли."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "например /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "Пользовательские шаблоны не добавлены. Встроенная защита Brie продолжает работать."
+  },
+  "invalidRedactionPattern": {
+    "message": "Введите корректное и безопасное регулярное выражение, которое не совпадает с пустым текстом."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

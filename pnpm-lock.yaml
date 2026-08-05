@@ -257,6 +257,10 @@ importers:
         version: link:../tsconfig
 
   packages/shared:
+    dependencies:
+      flare-redact:
+        specifier: ^1.4.1
+        version: 1.4.1
     devDependencies:
       '@extension/storage':
         specifier: workspace:*
@@ -4922,6 +4926,11 @@ packages:
   find-up@6.3.0:
     resolution: {integrity: sha512-v2ZsoEuVHYy8ZIlYqwPe/39Cy+cFDzp4dXPaxNvkEuouymu+2Jbz0PxpKarJHYJTmv2HWT3O382qY8l4jMWthw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  flare-redact@1.4.1:
+    resolution: {integrity: sha512-id4Ayj+dYJfVuMgQXWRaEwLv3ZkPgiudufnkrEaYHvUdHP8O6SN3a4a1Cnlt7bJchpHgdf5HVyV8vDxtrGv8bQ==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
@@ -12136,6 +12145,10 @@ snapshots:
     dependencies:
       locate-path: 7.2.0
       path-exists: 5.0.0
+
+  flare-redact@1.4.1:
+    dependencies:
+      undici-types: 6.21.0
 
   flat-cache@4.0.1:
     dependencies:

@@ -36,6 +36,9 @@ _Record exactly what went wrong, no more back-and-forth emails or messy screensh
 **🛠️ Developer - Ready Reports:**
 _Brie auto-captures console logs, network errors, and user actions so devs get full context instantly._
 
+**🔐 Local redaction controls:**
+_Captured network, storage, and cookie data supports user-defined patterns powered by [Flare Redact](https://github.com/flare-collection/flare-redact)._
+
 **🕒 Save Time, Build Faster:**
 _No wasted hours on unclear bug reports, just fast fixes and better software._
 
