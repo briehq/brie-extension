@@ -5,7 +5,7 @@ import { REDACTED_KEYWORD } from '../constants/redacted-keyword.constants.js';
 
 const MAX_PATTERN_LENGTH = 256;
 const SAFE_FLAGS = /^[gimsu]*$/;
-const BACKREFERENCE = /\\[1-9]/;
+const BACKREFERENCE = /\\(?:[1-9]|k<[^>]+>)/;
 const NESTED_QUANTIFIER = /\([^)]*(?:[+*]|\{\d+(?:,\d*)?\})[^)]*\)(?:[+*]|\{\d+(?:,\d*)?\})/;
 
 interface ParsedRedactionPattern {

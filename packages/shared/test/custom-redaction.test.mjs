@@ -22,6 +22,7 @@ test('rejects empty matches, backreferences, and nested quantifiers', () => {
   assert.equal(validateCustomRedactionPattern('/a*/g').valid, false);
   assert.equal(validateCustomRedactionPattern('/(a+)+$/g').valid, false);
   assert.equal(validateCustomRedactionPattern('/(secret)\\1/g').valid, false);
+  assert.equal(validateCustomRedactionPattern('/(?<secret>token)\\k<secret>/g').valid, false);
 });
 
 test('redacts every nested match without mutating the captured record', () => {
