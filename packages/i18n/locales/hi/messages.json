@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "अभी तक कोई डोमेन नहीं जोड़ा गया। संवेदनशील जानकारी डिफ़ॉल्ट रूप से केवल localhost पर छोड़ी जाती है।"
   },
+  "customRedactionPatterns": {
+    "message": "कस्टम रिडैक्शन पैटर्न"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "कैप्चर किए गए नेटवर्क, स्टोरेज, कुकी और कंसोल डेटा पर लागू स्थानीय रेगुलर एक्सप्रेशन।"
+  },
+  "redactionPatternPlaceholder": {
+    "message": "जैसे /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "कोई कस्टम पैटर्न नहीं जोड़ा गया। Brie का बिल्ट-इन रिडैक्शन सक्रिय रहेगा।"
+  },
+  "invalidRedactionPattern": {
+    "message": "ऐसा मान्य और सुरक्षित रेगुलर एक्सप्रेशन दर्ज करें जो खाली टेक्स्ट से मेल न खाए।"
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

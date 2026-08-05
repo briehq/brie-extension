@@ -589,6 +589,21 @@
   "noDomains": {
     "message": "No domains added yet. Sensitive info is only skipped on localhost by default."
   },
+  "customRedactionPatterns": {
+    "message": "Custom redaction patterns"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Local regular expressions applied to captured network, storage, cookie, and console data."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "e.g. /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "No custom patterns added. Brie's built-in redaction remains active."
+  },
+  "invalidRedactionPattern": {
+    "message": "Enter a valid, safe regular expression that does not match empty text."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "Wala pang naidagdag na domain. Ang sensitibong impormasyon ay nili-laktawan lang sa localhost bilang default."
   },
+  "customRedactionPatterns": {
+    "message": "Mga custom na pattern ng redaction"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Mga lokal na regular expression para sa nakuhang network, storage, cookie, at console data."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "hal. /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "Wala pang custom na pattern. Aktibo pa rin ang built-in redaction ng Brie."
+  },
+  "invalidRedactionPattern": {
+    "message": "Maglagay ng wasto at ligtas na regular expression na hindi tumutugma sa walang laman na text."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

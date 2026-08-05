@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { redactCustomPatterns } from './custom-redaction-pattern.util.js';
 import { isNonProduction } from './is-non-production.util.js';
 import { REDACTED_KEYWORD } from '../constants/redacted-keyword.constants.js';
 import { EXEMPT_KEYS, keyMatches, NON_SENSITIVE_KEYS, STRONG_KEYS } from '../constants/sensitive-keywords.constants.js';
@@ -143,9 +144,16 @@ const isSkipDomain = (url?: string, skipDomains?: string[]): boolean => {
 
 /**
  * Deeply redacts sensitive information. Skips redaction in non-production
- * environments or when the URL matches a domain in `skipDomains`.
+ * environments or when the URL matches a domain in `skipDomains`. Valid
+ * `customPatterns` are applied after Brie's built-in sensitive-data rules.
  */
-export const deepRedactSensitiveInfo = (input: any, url?: string, skipDomains?: string[]): any => {
+export const deepRedactSensitiveInfo = (
+  input: any,
+  url?: string,
+  skipDomains?: string[],
+  customPatterns: string[] = [],
+): any => {
   const shouldSkipRedaction = isNonProduction(url) || isSkipDomain(url, skipDomains);
-  return deepRedactInternal(input, shouldSkipRedaction);
+  const redacted = deepRedactInternal(input, shouldSkipRedaction);
+  return shouldSkipRedaction ? redacted : redactCustomPatterns(redacted, customPatterns);
 };

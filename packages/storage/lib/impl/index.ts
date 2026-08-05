@@ -25,3 +25,4 @@ export * from './theme.storage.js';
 export * from './user-uuid.storage.js';
 export * from './pending-reload-tabs.storage.js';
 export * from './domain-skip-list.storage.js';
+export * from './redaction-patterns.storage.js';

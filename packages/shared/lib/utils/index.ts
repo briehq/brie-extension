@@ -1,5 +1,11 @@
 export type { ValueOf } from './shared-types.js';
 export { deepRedactSensitiveInfo } from './redact-sensitive-info.util.js';
+export {
+  redactCustomPatterns,
+  validateCustomRedactionPattern,
+  type ParsedRedactionPattern,
+  type RedactionPatternValidation,
+} from './custom-redaction-pattern.util.js';
 export { isNonProduction } from './is-non-production.util.js';
 export { isValidJSON } from './is-valid-json.util.js';
 export { safePostMessage } from './safe-post-message.util.js';

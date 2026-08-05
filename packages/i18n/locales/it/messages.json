@@ -574,6 +574,21 @@
   "noDomains": {
     "message": "Nessun dominio aggiunto. Le informazioni sensibili vengono saltate solo su localhost per impostazione predefinita."
   },
+  "customRedactionPatterns": {
+    "message": "Pattern di redazione personalizzati"
+  },
+  "customRedactionPatternsDescription": {
+    "message": "Espressioni regolari locali applicate ai dati acquisiti di rete, archiviazione, cookie e console."
+  },
+  "redactionPatternPlaceholder": {
+    "message": "es. /api[_-]?key=[^&]+/gi"
+  },
+  "noCustomRedactionPatterns": {
+    "message": "Nessun pattern personalizzato. La redazione integrata di Brie rimane attiva."
+  },
+  "invalidRedactionPattern": {
+    "message": "Inserisci un'espressione regolare valida e sicura che non corrisponda a testo vuoto."
+  },
   "noCaptureData": {
     "message": "No capture data available. Start a recording first."
   },

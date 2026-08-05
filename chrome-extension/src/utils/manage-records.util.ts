@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { deepRedactSensitiveInfo } from '@extension/shared';
-import { domainSkipListStorage } from '@extension/storage';
+import { domainSkipListStorage, redactionPatternsStorage } from '@extension/storage';
 
 import type { Record } from '@src/types';
 
 import { decodeRequestBody } from './decode-request-body.util';
 
 let skipDomainsCache: string[] = [];
+let customPatternsCache: string[] = [];
 
 const refreshSkipDomainsFromSnapshot = () => {
   skipDomainsCache = domainSkipListStorage.getSnapshot() ?? [];
@@ -17,6 +18,15 @@ void domainSkipListStorage.get().then(value => {
   skipDomainsCache = value ?? [];
 });
 domainSkipListStorage.subscribe(refreshSkipDomainsFromSnapshot);
+
+const refreshCustomPatternsFromSnapshot = () => {
+  customPatternsCache = redactionPatternsStorage.getSnapshot() ?? [];
+};
+
+void redactionPatternsStorage.get().then(value => {
+  customPatternsCache = value ?? [];
+});
+redactionPatternsStorage.subscribe(refreshCustomPatternsFromSnapshot);
 
 const MAX_RECORDS_PER_TAB = 5_000;
 const MAX_URL_MAP_PER_TAB = 1_000;
@@ -68,6 +78,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
   }
 
   const skipDomains = skipDomainsCache;
+  const customPatterns = customPatternsCache;
   const tabUrl = record?.url || record?.pageUrl;
 
   if (!tabRecordsMap.has(tabId)) {
@@ -88,7 +99,7 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
   try {
     if (record.recordType !== 'network') {
       evictOldestIfFull();
-      recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl, skipDomains) });
+      recordsMap.set(uuid, { uuid, ...deepRedactSensitiveInfo(record, tabUrl, skipDomains, customPatterns) });
       return;
     }
 
@@ -138,13 +149,18 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
     }
     const { requestBody: baseRequestBody, ...restForRedaction } = baseRecord;
 
-    const redactedRest = deepRedactSensitiveInfo(restForRedaction, tabUrl, skipDomains);
+    const redactedRest = deepRedactSensitiveInfo(restForRedaction, tabUrl, skipDomains, customPatterns);
     let safeRequestBody: any = undefined;
 
     if (baseRequestBody?.parsed || baseRequestBody?.decoded) {
       safeRequestBody = {
         ...(baseRequestBody?.raw ? { raw: baseRequestBody.raw } : {}),
-        parsed: deepRedactSensitiveInfo(baseRequestBody.parsed ?? baseRequestBody.decoded, tabUrl, skipDomains),
+        parsed: deepRedactSensitiveInfo(
+          baseRequestBody.parsed ?? baseRequestBody.decoded,
+          tabUrl,
+          skipDomains,
+          customPatterns,
+        ),
       };
     }
 
