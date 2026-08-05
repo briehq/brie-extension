@@ -8,7 +8,7 @@ import type { Record } from '@src/types';
 import { decodeRequestBody } from './decode-request-body.util';
 
 let skipDomainsCache: string[] = [];
-let customPatternsCache: string[] = [];
+let customPatternsCache = redactionPatternsStorage.getSnapshot() ?? [];
 
 const refreshSkipDomainsFromSnapshot = () => {
   skipDomainsCache = domainSkipListStorage.getSnapshot() ?? [];
@@ -23,7 +23,7 @@ const refreshCustomPatternsFromSnapshot = () => {
   customPatternsCache = redactionPatternsStorage.getSnapshot() ?? [];
 };
 
-void redactionPatternsStorage.get().then(value => {
+const customPatternsReady = redactionPatternsStorage.get().then(value => {
   customPatternsCache = value ?? [];
 });
 redactionPatternsStorage.subscribe(refreshCustomPatternsFromSnapshot);
@@ -74,6 +74,13 @@ export const addOrMergeRecords = async (tabId: number, record: Record): Promise<
 
   if (invalidRecord(record?.url || record?.pageUrl || '')) {
     console.log('[addOrMergeRecords] SKIPPED: Invalid URL');
+    return;
+  }
+
+  try {
+    await customPatternsReady;
+  } catch (error) {
+    console.error('[addOrMergeRecords] Custom redaction settings could not be loaded; record skipped:', error);
     return;
   }
 
